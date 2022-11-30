@@ -16,6 +16,11 @@
             title:  '待我方审核',
             effect: 'plain',
         },
+        Ready: {
+            type:   '',
+            title:  '准备中',
+            effect: 'light',
+        },
         Await: {
             type:   '',
             title:  '等待合作方审核',

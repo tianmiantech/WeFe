@@ -21,7 +21,7 @@ mvn clean install -Dmaven.test.skip=true -am -pl union/blockchain-data-sync
 ## JSON 中的 key 值，事先和运维约定好
 cat > /tmp/$application <<-EOF
 {
-    "targetPath": "${workdir}/blockchain/wefe-blockchain-data-sync/target"
+    "targetPath": "${workdir}/union/blockchain-data-sync/target"
 }
 EOF
 

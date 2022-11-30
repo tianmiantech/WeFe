@@ -149,27 +149,23 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
 
     private void execute() {
         try {
-
-            LOG.info("task execute...");
-
+            LOG.info("fusion task log , task execute, begin");
             preprocess();
-
+            LOG.info("fusion task log , task execute, preprocess finished");
             actuator.init();
-
+            LOG.info("fusion task log , task execute, init finished");
             actuator.handle();
-
+            LOG.info("fusion task log , task execute, handle finished");
             postprocess();
-
-            LOG.info("execute() status ： {} ", status().name());
+            LOG.info("fusion task log , execute() status ： {} ", status().name());
         } catch (Exception e) {
-            e.printStackTrace();
-            LOG.error(e.getClass().getSimpleName() + " " + e.getMessage());
+            LOG.error("execute error ", e);
             error = e.getMessage();
         }
     }
 
     public void finish() {
-        LOG.info("finish waiting...");
+        LOG.info("fusion task log , finish waiting...");
 
         while (true) {
             sleep(1000);
@@ -179,17 +175,17 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
             }
 
             try {
-                LOG.info("close actuator...");
+                LOG.info("fusion task log , close actuator...");
                 actuator.close();
             } catch (Exception e) {
-                LOG.error(e.getClass().getSimpleName() + " close actuator error：" + e.getMessage());
+                LOG.error(e.getClass().getSimpleName() + " close actuator error：" , e);
             }
 
             try {
-                LOG.info("close task...");
+                LOG.info("fusion task log , close task...");
                 close();
             } catch (Exception e) {
-                LOG.error(e.getClass().getSimpleName() + " close task error：" + e.getMessage());
+                LOG.error(e.getClass().getSimpleName() + " close task error：", e);
             }
 
             return;

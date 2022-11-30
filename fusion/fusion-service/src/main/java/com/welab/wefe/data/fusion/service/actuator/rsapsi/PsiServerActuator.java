@@ -16,18 +16,6 @@
 
 package com.welab.wefe.data.fusion.service.actuator.rsapsi;
 
-import com.welab.wefe.common.CommonThreadPool;
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.data.fusion.service.enums.ActionType;
-import com.welab.wefe.data.fusion.service.enums.PSIActuatorStatus;
-import com.welab.wefe.data.fusion.service.utils.FusionUtils;
-import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
-import com.welab.wefe.fusion.core.utils.CryptoUtils;
-import com.welab.wefe.fusion.core.utils.PSIUtils;
-import org.apache.commons.collections4.CollectionUtils;
-
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -38,6 +26,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.collections4.CollectionUtils;
+
+import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.CommonThreadPool;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.data.fusion.service.enums.ActionType;
+import com.welab.wefe.data.fusion.service.enums.PSIActuatorStatus;
+import com.welab.wefe.data.fusion.service.utils.FusionUtils;
+import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
+import com.welab.wefe.fusion.core.utils.CryptoUtils;
+import com.welab.wefe.fusion.core.utils.PSIUtils;
 
 /**
  * @author hunter.zhao
@@ -71,36 +73,36 @@ public class PsiServerActuator extends AbstractPsiActuator {
         return this;
     }
 
-    public static void main(String[] args) {
-
-        try {
-            ServerSocket serverSocket = new ServerSocket(9090);
-            System.out.println("Server@" + InetAddress.getLocalHost() + " start!");
-
-            Thread server = new Thread(() -> {
-                try {
-                    while (true) {
-                        // listen PORT;
-                        Socket socket = serverSocket.accept();
-
-                        List<String> dataBody = PSIUtils.receiveStringList(socket);
-                        if (CollectionUtils.isEmpty(dataBody)) {
-                            return;
-                        }
-
-                        String action = FusionUtils.extractAction(dataBody);
-                    }
-                } catch (Exception e) {
-                } finally {
-                }
-            });
-            server.start();
-        } catch (IOException e) {
-
-        }
-
-
-    }
+//    public static void main(String[] args) {
+//
+//        try {
+//            ServerSocket serverSocket = new ServerSocket(9090);
+//            System.out.println("Server@" + InetAddress.getLocalHost() + " start!");
+//
+//            Thread server = new Thread(() -> {
+//                try {
+//                    while (true) {
+//                        // listen PORT;
+//                        Socket socket = serverSocket.accept();
+//
+//                        List<String> dataBody = PSIUtils.receiveStringList(socket);
+//                        if (CollectionUtils.isEmpty(dataBody)) {
+//                            return;
+//                        }
+//
+//                        String action = FusionUtils.extractAction(dataBody);
+//                    }
+//                } catch (Exception e) {
+//                } finally {
+//                }
+//            });
+//            server.start();
+//        } catch (IOException e) {
+//
+//        }
+//
+//
+//    }
 
 
 
@@ -109,13 +111,13 @@ public class PsiServerActuator extends AbstractPsiActuator {
             throw new StatusCodeWithException("数据未初始化无法启动", StatusCode.UNSUPPORTED_HANDLE);
         }
 
-        LOG.info("PsiServerActuator start...");
+        LOG.info("fusion task log , PsiServerActuator start...");
 
         try {
             serverSocket = new ServerSocket(port);
-            LOG.info("Server@" + InetAddress.getLocalHost() + " start!");
+            LOG.info("fusion task log , Server@" + InetAddress.getLocalHost() + " start!");
         } catch (IOException e) {
-            LOG.error(e.getClass().getSimpleName() + "server socket start error:" + e.getMessage());
+            LOG.error(e.getClass().getSimpleName() + "server socket start error:", e);
         }
 
         Thread server = new Thread(() -> listen());
@@ -123,16 +125,16 @@ public class PsiServerActuator extends AbstractPsiActuator {
     }
 
     private void listen() {
-        LOG.info("PsiServerActuator listening...");
-
+        LOG.info("fusion task log , PsiServerActuator listening...");
         try {
             while (true) {
                 // listen PORT;
                 Socket socket = serverSocket.accept();
+                LOG.info("fusion task log , PsiServerActuator accept return");
                 CommonThreadPool.run(() -> execute(socket));
             }
         } catch (Exception e) {
-            LOG.error(e.getClass().getSimpleName() + " PsiServerActuator listen  error:" + e.getMessage());
+            LOG.error(e.getClass().getSimpleName() + " PsiServerActuator listen  error:", e);
         } finally {
         }
     }
@@ -140,19 +142,20 @@ public class PsiServerActuator extends AbstractPsiActuator {
 
     private void sendBloomFilter(Socket socket) {
 
-        LOG.info("server send bloom_filter data...");
+        LOG.info("fusion task log , server send bloom_filter, bf = " + JSONObject.toJSONString(socket));
         try {
             DataOutputStream d_out = new DataOutputStream(socket.getOutputStream());
-
+            LOG.info("fusion task log , server send bloom_filter, e = " + e);
+            LOG.info("fusion task log , server send bloom_filter, N = " + N);
             byte[][] ret = new byte[2][];
             ret[0] = PSIUtils.bigIntegerToBytes(e, false);
             ret[1] = PSIUtils.bigIntegerToBytes(N, false);
-
             PSIUtils.send2DBytes(socket, ret);
-            PSIUtils.sendInteger(d_out, bf.count());
-            PSIUtils.sendInteger(d_out, bf.size());
-            PSIUtils.sendBytes(socket, bf.getBitSet().toByteArray());
-            System.out.println(bf.size());
+            PSIUtils.sendLong(d_out, bf.count()); // 元素个数
+            PSIUtils.sendLong(d_out, bf.size()); // 位数
+            PSIUtils.sendLongs(socket, bf.getBitSet().getData());// long数组
+            LOG.info("fusion task log , server send bloom_filter, bf.count() = " + bf.count());
+            LOG.info("fusion task log , server send bloom_filter, bf.size() = " + bf.size());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -160,7 +163,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
 
     private void align(Socket socket, List<String> dataBody) {
 
-        LOG.info("align start...");
+        LOG.info("fusion task log , align start...");
 
         long start = System.currentTimeMillis();
 
@@ -170,14 +173,14 @@ public class PsiServerActuator extends AbstractPsiActuator {
 //            byte[][] query = PSIUtils.receive2DBytes(socket);
             Integer index = FusionUtils.extractIndex(dataBody);
             byte[][] queryBody = FusionUtils.extractData(dataBody);
-            LOG.info("server wait spend :  {} ms  current_index: {}", (System.currentTimeMillis() - start), index);
+            LOG.info("fusion task log , server wait spend :  {} ms  current_index: {}", (System.currentTimeMillis() - start), index);
 
             long start1 = System.currentTimeMillis();
 
             //Encrypted again
             byte[][] result = CryptoUtils.sign(N, d, queryBody);
 
-            LOG.info("server a.mod(N) spend :  {} ms size: {}  current_index: {}", (System.currentTimeMillis() - start1), result.length, index);
+            LOG.info("fusion task log , server a.mod(N) spend :  {} ms size: {}  current_index: {}", (System.currentTimeMillis() - start1), result.length, index);
 
             /**
              * Return the query result
@@ -186,7 +189,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
 
             processedCount.add(result.length);
 
-            LOG.info("processedCount: " + processedCount.longValue());
+            LOG.info("fusion task log , processedCount: " + processedCount.longValue());
 
         } catch (Exception e) {
             LOG.error("数据融合错误，ERROR：", e);
@@ -194,7 +197,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
     }
 
     private void receiveResult(List<String> dataBody) {
-        LOG.info("dataBody size: " + processedCount.longValue());
+        LOG.info("fusion task log , dataBody size: " + processedCount.longValue());
         /**
          * Receive alignment results
          */
@@ -205,7 +208,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
             fusionCount.increment();
         }
 
-        LOG.info("fusionCount: " + fusionCount.longValue());
+        LOG.info("fusion task log , fusionCount: " + fusionCount.longValue());
 
         //Put in storage
         dump(fruit);
@@ -215,7 +218,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
         //Modify the state of
         this.status = PSIActuatorStatus.valueOf(body.get(0));
 
-        LOG.info("align end...,status is {}", this.status);
+        LOG.info("fusion task log , align end...,status is {}", this.status);
     }
 
     private void execute(Socket socket) {
@@ -226,7 +229,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
         }
 
         String action = FusionUtils.extractAction(dataBody);
-        LOG.info("执行execute：{}", action);
+        LOG.info("fusion task log , 执行execute：{}", action);
         if (ActionType.download.name().equals(action)) {
             /**
              * download
@@ -248,10 +251,11 @@ public class PsiServerActuator extends AbstractPsiActuator {
     public void close() {
         try {
             if (serverSocket != null) {
+                LOG.info("fusion task log , serverSocket close");
                 serverSocket.close();
             }
         } catch (Exception e) {
-            LOG.warn(e.getClass().getSimpleName() + " close error:" + e.getMessage());
+            LOG.error(e.getClass().getSimpleName() + " close error:", e);
         }
     }
 
