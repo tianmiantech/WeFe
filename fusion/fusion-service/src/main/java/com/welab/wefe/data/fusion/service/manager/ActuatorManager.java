@@ -16,6 +16,15 @@
 
 package com.welab.wefe.data.fusion.service.manager;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
@@ -23,14 +32,7 @@ import com.welab.wefe.data.fusion.service.database.entity.TaskMySqlModel;
 import com.welab.wefe.data.fusion.service.enums.TaskStatus;
 import com.welab.wefe.data.fusion.service.service.TaskService;
 import com.welab.wefe.data.fusion.service.task.AbstractTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 
 /**
  * @author hunter
@@ -42,6 +44,11 @@ public class ActuatorManager {
      * taskId : task
      */
     private static final ConcurrentHashMap<String, AbstractTask> ACTUATORS = new ConcurrentHashMap<>();
+    
+    /**
+     * taskId : task
+     */
+    private static final ConcurrentHashMap<String, BloomFilters> BLOOMFILTERS = new ConcurrentHashMap<>();
 
     private static final TaskService taskService;
 
@@ -49,10 +56,19 @@ public class ActuatorManager {
         taskService = Launcher.CONTEXT.getBean(TaskService.class);
     }
 
+    public static BloomFilters getBloomFilters(String src) {
+        return BLOOMFILTERS.get(src);
+    }
+
+    public synchronized static void setBloomFilters(String src, BloomFilters bf) {
+        BLOOMFILTERS.clear();
+        BLOOMFILTERS.put(src, bf);
+    }
+    
     public static AbstractTask get(String businessId) {
         return ACTUATORS.get(businessId);
     }
-
+    
     public static void set(AbstractTask task) {
 
         String businessId = task.getBusinessId();

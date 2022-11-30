@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -125,11 +126,11 @@ public class PsiServerActuator extends AbstractPsiActuator {
 
     private void listen() {
         LOG.info("fusion task log , PsiServerActuator listening...");
-
         try {
             while (true) {
                 // listen PORT;
                 Socket socket = serverSocket.accept();
+                LOG.info("fusion task log , PsiServerActuator accept return");
                 CommonThreadPool.run(() -> execute(socket));
             }
         } catch (Exception e) {
@@ -141,19 +142,20 @@ public class PsiServerActuator extends AbstractPsiActuator {
 
     private void sendBloomFilter(Socket socket) {
 
-        LOG.info("fusion task log , server send bloom_filter data...");
+        LOG.info("fusion task log , server send bloom_filter, bf = " + JSONObject.toJSONString(socket));
         try {
             DataOutputStream d_out = new DataOutputStream(socket.getOutputStream());
-
+            LOG.info("fusion task log , server send bloom_filter, e = " + e);
+            LOG.info("fusion task log , server send bloom_filter, N = " + N);
             byte[][] ret = new byte[2][];
             ret[0] = PSIUtils.bigIntegerToBytes(e, false);
             ret[1] = PSIUtils.bigIntegerToBytes(N, false);
-
             PSIUtils.send2DBytes(socket, ret);
             PSIUtils.sendInteger(d_out, bf.count());
             PSIUtils.sendInteger(d_out, bf.size());
             PSIUtils.sendBytes(socket, bf.getBitSet().toByteArray());
-            LOG.info("fusion task log , sendBloomFilter, size = " + bf.size());
+            LOG.info("fusion task log , server send bloom_filter, bf.count() = " + bf.count());
+            LOG.info("fusion task log , server send bloom_filter, bf.size() = " + bf.size());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -249,6 +251,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
     public void close() {
         try {
             if (serverSocket != null) {
+                LOG.info("fusion task log , serverSocket close");
                 serverSocket.close();
             }
         } catch (Exception e) {

@@ -25,6 +25,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.BitSet;
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Bloom filter implementation class
  * define：http://en.wikipedia.org/wiki/Bloom_filter
@@ -33,7 +36,7 @@ import java.util.Collection;
  * @author hunter.zhao
  */
 public class BloomFilters<E> implements Serializable {
-
+    protected static final Logger LOG = LoggerFactory.getLogger(BloomFilters.class);
     private static final long serialVersionUID = -2326638072608273135L;
     private BitSet bitset;
     private int bitSetSize;
@@ -79,6 +82,15 @@ public class BloomFilters<E> implements Serializable {
         numberOfAddedElements = 0;
         this.bitset = new BitSet(bitSetSize);
     }
+    
+    public BloomFilters(int bitSetSize, double c, int n, int k) {
+        this.expectedNumberOfFilterElements = n;
+        this.k = k;
+        this.bitsPerElement = c;
+        this.bitSetSize = bitSetSize;
+        numberOfAddedElements = 0;
+        this.bitset = new BitSet(bitSetSize);
+    }
 
     /**
      * Construct an empty Bloom filter. The number of optimal hash functions will be determined by the total size of the filter and the expected number of elements.
@@ -87,22 +99,25 @@ public class BloomFilters<E> implements Serializable {
      * @param expectedNumberOElements Specifies the maximum number of elements that a filter can add
      */
     public BloomFilters(int bitSetSize, int expectedNumberOElements) {
-        this(bitSetSize / (double) expectedNumberOElements, expectedNumberOElements, (int) Math.round((bitSetSize / (double) expectedNumberOElements) * Math.log(2.0)));
+        this(bitSetSize, bitSetSize / (double) expectedNumberOElements, expectedNumberOElements,
+                (int) Math.round((bitSetSize / (double) expectedNumberOElements) * Math.log(2.0)));
+        LOG.info("BloomFilters invoke bitSetSize = " + this.bitSetSize + ", "+ expectedNumberOElements);
     }
 
     /**
-     * Construct a filter by specifying a false positive rate.
-     * The number of bits per element and the number of hash functions are calculated based on the false positive rate.
+     * Construct a filter by specifying a false positive rate. The number of bits
+     * per element and the number of hash functions are calculated based on the
+     * false positive rate.
      *
      * @param falsePositiveProbability Expected false positives rate.
      * @param expectedNumberOfElements The number of elements to add
      */
     public BloomFilters(double falsePositiveProbability, int expectedNumberOfElements) {
         // c = k/ln(2)
-        this(Math.ceil(-(Math.log(falsePositiveProbability) / Math.log(2))) / Math.log(2),
-                expectedNumberOfElements,
+        this(Math.ceil(-(Math.log(falsePositiveProbability) / Math.log(2))) / Math.log(2), expectedNumberOfElements,
                 // k = ln(2)m/n
                 (int) Math.ceil(-(Math.log(falsePositiveProbability) / Math.log(2))));
+        LOG.info("BloomFilters invoke falsePositiveProbability = " + falsePositiveProbability);
     }
 
     /**
@@ -409,11 +424,12 @@ public class BloomFilters<E> implements Serializable {
             int expectedNumberOfFilterElements = din.readInt();
             int dataLength = din.readInt();
             byte[] data = new byte[dataLength];
-
-            for (int i = 0; i < data.length; ++i) {
-                data[i] = din.readByte();
-            }
-
+//            for (int i = 0; i < data.length; ++i) {
+//                data[i] = din.readByte();
+//            }
+//            din.read(data);
+            din.readFully(data);
+            LOG.info("read From file, bitSetSize = " + bitSetSize); // 2019773058
             return new BloomFilters(bitSetSize, expectedNumberOfFilterElements, expectedNumberOfFilterElements, BitSet.valueOf(data));
         } catch (RuntimeException var9) {
             String message = "Unable to deserialize BloomFilter from InputStream.";

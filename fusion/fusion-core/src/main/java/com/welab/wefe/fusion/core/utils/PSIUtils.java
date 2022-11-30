@@ -60,6 +60,7 @@ public class PSIUtils {
         try {
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             out.writeObject(bytes);
+            // 这里不要加 out.flush();吗？
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -16,15 +16,37 @@
 
 package com.welab.wefe.data.fusion.service.actuator.rsapsi;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.net.Socket;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.collections4.CollectionUtils;
+
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.data.fusion.service.dto.entity.PartnerOutputModel;
 import com.welab.wefe.data.fusion.service.enums.ActionType;
+import com.welab.wefe.data.fusion.service.enums.CallbackType;
 import com.welab.wefe.data.fusion.service.enums.PSIActuatorStatus;
 import com.welab.wefe.data.fusion.service.service.FieldInfoService;
+import com.welab.wefe.data.fusion.service.service.ThirdPartyService;
 import com.welab.wefe.data.fusion.service.service.dataset.DataSetService;
 import com.welab.wefe.data.fusion.service.utils.FusionUtils;
 import com.welab.wefe.data.fusion.service.utils.SocketUtils;
@@ -32,15 +54,6 @@ import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
 import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
-import org.apache.commons.collections4.CollectionUtils;
-
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.net.Socket;
-import java.security.SecureRandom;
-import java.util.*;
-import java.util.concurrent.*;
 
 /**
  * @author hunter.zhao
@@ -58,9 +71,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
     private String dataSetId;
     private Boolean isTrace;
     private String traceColumn;
-
-
-    private BlockingQueue<Socket> socketQueue = new LinkedBlockingQueue<Socket>();
+    private PartnerOutputModel partnerModel;
 
     // -------------↓↓↓↓The actuator caches data information during execution↓↓↓↓-------------//
     private Map<Integer, List<BigInteger>> r = new HashMap<>();
@@ -81,14 +92,17 @@ public class PsiClientActuator extends AbstractPsiActuator {
     public List<FieldInfo> fieldInfoList;
 
     private final DataSetService dataSetService = Launcher.CONTEXT.getBean(DataSetService.class);
-
-    public PsiClientActuator(String businessId, Integer dataCount, String ip, int port, String dataSetId, Boolean isTrace, String traceColumn) {
+    private final ThirdPartyService thirdPartyService = Launcher.CONTEXT.getBean(ThirdPartyService.class);
+    
+    public PsiClientActuator(String businessId, Integer dataCount, String ip, int port, String dataSetId,
+            Boolean isTrace, String traceColumn, PartnerOutputModel partnerModel) {
         super(businessId, dataCount);
         this.ip = ip;
         this.port = port;
         this.dataSetId = dataSetId;
         this.isTrace = isTrace;
         this.traceColumn = traceColumn;
+        this.partnerModel = partnerModel;
     }
 
     /**
@@ -136,17 +150,19 @@ public class PsiClientActuator extends AbstractPsiActuator {
         Socket socket = null;
         try {
             LOG.info("fusion task log , Server@" + ip + ":" + port + " connecting!");
-            socket = SocketUtils
-                    .create(ip, port)
-                    .setRetryCount(3)
-                    .setRetryDelay(1000)
-                    .builder();
+            int count = 0;
+            while (socket == null && count < 10) {
+                socket = SocketUtils.create(ip, port).setRetryCount(3).setRetryDelay(1000).builder();
+                count++;
+            }
             if(socket == null) {
+                LOG.error("fusion task log , socket connect error");
                 this.status = PSIActuatorStatus.exception;
                 throw new StatusCodeWithException(StatusCode.REMOTE_SERVICE_ERROR, "connect " + ip + ":" + port + "error");
             }
             LOG.info("fusion task log , socket: {} ", socket);
 
+            // 告知server端，把bloomfilter传过来
             List<String> body = new ArrayList();
             body.add(ActionType.download.name());
             PSIUtils.sendStringList(socket, body);
@@ -161,8 +177,12 @@ public class PsiClientActuator extends AbstractPsiActuator {
             int bitSetSize = (int) PSIUtils.receiveInteger(d_in);
             byte[] b = PSIUtils.receiveBytes(socket);
             BitSet bs = BitSet.valueOf(b);
-
+            LOG.info("fusion task log , download bf success : e = " + e);
+            LOG.info("fusion task log , download bf success : N = " + N);
+            LOG.info("fusion task log , download bf success : DB_size = " + DB_size);
+            LOG.info("fusion task log , download bf success : bitSetSize = " + bitSetSize);
             bf = new BloomFilters(bitSetSize, DB_size, DB_size, bs);
+            LOG.info("fusion task log , download bf success : " + JSONObject.toJSONString(bf));
         } catch (IOException e1) {
             LOG.error("fusion task log , download bf error : ", e1);
             //Interrupt tasks
@@ -323,7 +343,6 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
                 BigInteger y = PSIUtils.bytesToBigInteger(ret[i], 0, ret[i].length);
                 BigInteger z = y.multiply(rInv.get(index).get(i)).mod(N);
-
                 if (bf.contains(z)) {
                     rs.add(Base64Util.encode(cur.get(i).toString().getBytes()));
                     fruit.add(cur.get(i));
@@ -400,16 +419,26 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
     @Override
     public void close() throws Exception {
-        //Notifies the server that no further action is required
-        Socket closeSocket = SocketUtils
-                .create(ip, port)
-                .setRetryCount(3)
-                .builder();
+        if(!status.name().equalsIgnoreCase(PSIActuatorStatus.success.name())) {
+            closeByHttp(CallbackType.stop);
+        }
+        // Notifies the server that no further action is required
+        Socket closeSocket = SocketUtils.create(ip, port).setRetryCount(3).builder();
         List<String> stringList = new ArrayList<>();
         stringList.add(ActionType.end.name());
         stringList.add(status.name());
         PSIUtils.sendStringList(closeSocket, stringList);
         SocketUtils.close(closeSocket);
+    }
+
+    public void closeByHttp(CallbackType type) throws StatusCodeWithException {
+        // The callback
+        if (this.partnerModel != null) {
+            JSONObject response = thirdPartyService.callback(partnerModel.getBaseUrl(), businessId, type, -1);
+            LOG.info("fusion task log ,closeByHttp callback, url = " + partnerModel.getBaseUrl() + ", response = "
+                    + JSONObject.toJSONString(response));
+        }
+
     }
 
     @Override
@@ -455,5 +484,13 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
         //align
         execute(ActionType.align);
+    }
+    
+    public PartnerOutputModel getPartnerModel() {
+        return partnerModel;
+    }
+
+    public void setPartnerModel(PartnerOutputModel partnerModel) {
+        this.partnerModel = partnerModel;
     }
 }

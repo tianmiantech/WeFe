@@ -38,12 +38,6 @@ import java.util.TreeMap;
  */
 @Service
 public class ThirdPartyService {
-    @Autowired
-    private TaskService taskService;
-
-    @Autowired
-    private TaskRepository taskRepository;
-
 
     @Autowired
     private PartnerService partnerService;
@@ -130,7 +124,7 @@ public class ThirdPartyService {
         return request(url, api, params, true);
     }
 
-    private JSONObject request(String url, String api, JSONObject params, boolean needSign) throws StatusCodeWithException {
+    public JSONObject request(String url, String api, JSONObject params, boolean needSign) throws StatusCodeWithException {
         /**
          * Prevent the map from being out of order, which may cause the check failure
          */
