@@ -18,13 +18,16 @@ package com.welab.wefe.gateway.service.base;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.dto.global_config.GatewayConfigModel;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.cache.MemberCache;
+import com.welab.wefe.gateway.cache.PartnerConfigCache;
 import com.welab.wefe.gateway.common.EndpointBuilder;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
 import com.welab.wefe.gateway.common.ReturnStatusEnum;
 import com.welab.wefe.gateway.entity.MemberEntity;
+import com.welab.wefe.gateway.entity.PartnerConfigEntity;
 import com.welab.wefe.gateway.service.GlobalConfigService;
 import com.welab.wefe.gateway.service.MessageService;
 import com.welab.wefe.gateway.util.GrpcUtil;
@@ -180,19 +183,25 @@ public abstract class AbstractSendTransferMetaService {
         MemberEntity dstMemberEntity = memberCache.get(dstMember.getMemberId());
         dstMember = dstMember.toBuilder().setMemberName(dstMemberEntity.getName()).build();
         BasicMetaProto.Endpoint dstEndpoint = dstMember.getEndpoint();
-        // 目的地址使用指定值
+        // 目的地址由接口调用方指定
         if (StringUtil.isNotEmpty(dstEndpoint.getIp())) {
             return dstMember;
         }
 
         MemberEntity selfMemberEntity = memberCache.getSelfMember();
+        // 自已访问自己，直接走内网地址即可
         if (selfMemberEntity.getId().equals(dstMember.getMemberId())) {
             dstEndpoint = EndpointBuilder.create(selfMemberEntity.getGatewayInternalUri());
         } else {
-            dstEndpoint = EndpointBuilder.create(dstMemberEntity.getGatewayExternalUri());
+            PartnerConfigEntity partnerConfig = PartnerConfigCache.getInstance().get(dstMember.getMemberId());
+            // 由系统在页面配置指定目的方地址(一般是专线情况下)
+            if (null != partnerConfig && StringUtil.isNotEmpty(partnerConfig.getGatewayAddress())) {
+                dstEndpoint = EndpointBuilder.create(partnerConfig.getGatewayAddress());
+            } else {
+                dstEndpoint = EndpointBuilder.create(dstMemberEntity.getGatewayExternalUri());
+            }
         }
 
         return dstMember.toBuilder().setEndpoint(dstEndpoint).build();
     }
-
 }

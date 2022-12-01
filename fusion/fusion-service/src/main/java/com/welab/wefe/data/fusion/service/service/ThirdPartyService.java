@@ -76,7 +76,7 @@ public class ThirdPartyService {
     /**
      * psi-callback
      */
-    public void callback(String url, String businessId, CallbackType callbackType, String socketIp, int sockerPort) throws StatusCodeWithException {
+    public JSONObject callback(String url, String businessId, CallbackType callbackType, String socketIp, int sockerPort) throws StatusCodeWithException {
 
         JObject params = JObject
                 .create()
@@ -85,13 +85,13 @@ public class ThirdPartyService {
                 .put("socket_ip", socketIp)
                 .put("socket_port", sockerPort);
 
-        request(url, "thirdparty/callback", params);
+        return request(url, "thirdparty/callback", params);
     }
 
     /**
      * psi-callback
      */
-    public void callback(String url, String businessId, CallbackType callbackType, Integer dataCount) throws StatusCodeWithException {
+    public JSONObject callback(String url, String businessId, CallbackType callbackType, Integer dataCount) throws StatusCodeWithException {
 
         JObject params = JObject
                 .create()
@@ -99,7 +99,7 @@ public class ThirdPartyService {
                 .put("type", callbackType)
                 .put("data_count", dataCount);
 
-        request(url, "thirdparty/callback", params);
+        return request(url, "thirdparty/callback", params);
     }
 
 

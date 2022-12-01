@@ -14,7 +14,10 @@
  * @param {meta: navigation} Boolean             show page fixed navigation on the right
  * @param {meta: notshowattag} Boolean           not show this page at tag bar
  */
-const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV ? `/${process.env.CONTEXT_ENV}/` : '/'}`;
+const prefixPath =
+    process.env.NODE_ENV === 'development'
+        ? '/'
+        : `${process.env.CONTEXT_ENV ? `/${process.env.CONTEXT_ENV}/` : '/'}`;
 
 // all routes
 const baseRoutes = [
@@ -100,7 +103,8 @@ const baseRoutes = [
                 meta: {
                     title: '添加资源',
                 },
-                component: () => import('../views/data-center/data-add-transition.vue'),
+                component: () =>
+                    import('../views/data-center/data-add-transition.vue'),
             },
             {
                 path: `${prefixPath}data-add`,
@@ -142,7 +146,8 @@ const baseRoutes = [
                     loginAndRefresh: true,
                     active:          `${prefixPath}data-list`,
                 },
-                component: () => import('../views/data-center/data-check-label.vue'),
+                component: () =>
+                    import('../views/data-center/data-check-label.vue'),
             },
             {
                 path: `${prefixPath}data-label`,
@@ -244,7 +249,8 @@ const baseRoutes = [
                         backward:    true,
                     },
                 },
-                component: () => import('../views/teamwork/deeplearning/check-flow'),
+                component: () =>
+                    import('../views/teamwork/deeplearning/check-flow'),
             },
             {
                 path: `${prefixPath}teamwork/detail/job/history`,
@@ -308,7 +314,10 @@ const baseRoutes = [
                     active:          `${prefixPath}teamwork`,
                     navigation:      false,
                 },
-                component: () => import('../views/teamwork/components/fusion-job/fusion-edit'),
+                component: () =>
+                    import(
+                        '../views/teamwork/components/fusion-job/fusion-edit'
+                    ),
             },
             {
                 path: `${prefixPath}teamwork/detail/fusion-detail`,
@@ -320,14 +329,17 @@ const baseRoutes = [
                     active:          `${prefixPath}teamwork`,
                     navigation:      false,
                 },
-                component: () => import('../views/teamwork/components/fusion-job/fusion-edit'),
+                component: () =>
+                    import(
+                        '../views/teamwork/components/fusion-job/fusion-edit'
+                    ),
             },
         ],
     },
     {
         path: `${prefixPath}modeling-list`,
         meta: {
-            title:  '模型列表',
+            title:  '模型对比',
             hidden: true,
         },
         component: () => import('@comp/LayoutFullScreen.vue'),
@@ -337,7 +349,7 @@ const baseRoutes = [
                 name: 'modeling-list',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '模型列表',
+                    title:           '模型对比',
                 },
                 component: () => import('../views/teamwork/modeling-list.vue'),
             },
@@ -378,7 +390,8 @@ const baseRoutes = [
                     loginAndRefresh: true,
                     title:           '账户设置',
                 },
-                component: () => import('../views/system-config/account-setting'),
+                component: () =>
+                    import('../views/system-config/account-setting'),
             },
         ],
     },
@@ -387,7 +400,8 @@ const baseRoutes = [
         meta: {
             title:         '全局设置',
             icon:          'setting',
-            globalTooltip: '* 只有管理员能对“全局设置”中的配置项进行变更 <br>* 只有超级管理员能对“成员设置”中的配置项进行变更',
+            globalTooltip:
+                '* 只有管理员能对“全局设置”中的配置项进行变更 <br>* 只有超级管理员能对“成员设置”中的配置项进行变更',
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -397,9 +411,19 @@ const baseRoutes = [
                 meta: {
                     loginAndRefresh: true,
                     title:           '成员设置',
-                    globalTooltip:   '* 只有管理员能对“全局设置”中的配置项进行变更 <br>* 只有超级管理员能对“成员设置”中的配置项进行变更',
+                    globalTooltip:
+                        '* 只有管理员能对“全局设置”中的配置项进行变更 <br>* 只有超级管理员能对“成员设置”中的配置项进行变更',
                 },
                 component: () => import('../views/system-config/member-view'),
+            },
+            {
+                path: `${prefixPath}network-set`,
+                name: 'network-set',
+                meta: {
+                    loginAndRefresh: true,
+                    title:           '专用网络设置',
+                },
+                component: () => import('../views/system-config/network-set'),
             },
             {
                 path: `${prefixPath}enterprise-certification`,
@@ -410,7 +434,8 @@ const baseRoutes = [
                     active:          `${prefixPath}member-view`,
                     title:           '企业实名认证',
                 },
-                component: () => import('../views/system-config/enterprise-certification'),
+                component: () =>
+                    import('../views/system-config/enterprise-certification'),
             },
             {
                 path: `${prefixPath}blacklist`,
@@ -429,7 +454,8 @@ const baseRoutes = [
                     title:            '系统设置',
                     normalUserCanSee: false,
                 },
-                component: () => import('../views/system-config/system-config-view'),
+                component: () =>
+                    import('../views/system-config/system-config-view'),
             },
             {
                 path: `${prefixPath}calculation-engine-config`,
@@ -439,7 +465,8 @@ const baseRoutes = [
                     title:            '计算引擎设置',
                     normalUserCanSee: false,
                 },
-                component: () => import('../views/system-config/calculation-engine-config'),
+                component: () =>
+                    import('../views/system-config/calculation-engine-config'),
             },
             {
                 path: `${prefixPath}dev-tools`,
@@ -453,6 +480,7 @@ const baseRoutes = [
             },
         ],
     },
+
     {
         path: `${prefixPath}login`,
         name: 'login',

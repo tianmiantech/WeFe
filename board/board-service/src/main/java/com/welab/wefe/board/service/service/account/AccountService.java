@@ -150,8 +150,6 @@ public class AccountService extends AbstractAccountService {
                             : AuditStatus.agree
             );
         }
-
-
         accountRepository.save(model);
 
         CacheObjects.refreshAccountMap();

@@ -5,21 +5,25 @@
         class="nav-title mb30"
         :show="project_type !== 'DeepLearning'"
         :idx="sortIndex"
+        style="background: white"
     >
         <template #header>
             <div class="clearfix mb10 flex-row">
-                <h3 class="mb10">模型列表</h3>
+                <h3 class="card-title f19"><el-icon :class="['el-icon-cpu', 'mr10', 'ml10']" style="font-size: xx-large; top:8px; right: -3px; color: dodgerblue"><elicon-cpu />
+                    </el-icon>
+                        模型列表
+                </h3>
                 <div v-if="form.is_project_admin" class="right-sort-area">
-                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp"><elicon-top /></el-icon>
-                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-bottom', 'ml10', 'mr10']" @click="moveDown"><elicon-bottom /></el-icon>
-                    <span v-if="sortIndex !== 0 && sortIndex !== 1" :class="['f12', {'mr10': sortIndex === 2}]" @click="toTop">置顶</span>
-                    <span v-if="sortIndex !== maxIndex && sortIndex !== maxIndex -1" class="f12" @click="toBottom">置底</span>
+                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp" title="向上" style="color: lightgray"><elicon-top /></el-icon>
+                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-bottom', 'mr10', 'ml10']" @click="moveDown" title="向下" style="color: lightgray"><elicon-bottom /></el-icon>
+                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-caret-top', {'mr10': maxIndex === sortIndex}]" @click="toTop" title="置顶" style="color: lightgray"><elicon-caret-top /></el-icon>
+                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-caret-bottom', 'mr10', 'ml10']" @click="toBottom" title="置底" style="color: lightgray"><elicon-caret-bottom /></el-icon>
                 </div>
             </div>
         </template>
         <el-form inline @submit.prevent>
             <el-form-item label="来源组件：">
-                <el-select v-model="search.component_type">
+                <el-select v-model="search.component_type" clearable>
                     <el-option
                         v-for="item in component_types"
                         :key="item.value"
@@ -32,12 +36,14 @@
                 <el-input
                     v-model="search.flow_id"
                     placeholder="选填"
+                    clearable
                 />
             </el-form-item>
             <el-form-item label="任务 id：">
                 <el-input
                     v-model="search.job_id"
                     placeholder="选填"
+                    clearable
                 />
             </el-form-item>
             <el-form-item>
@@ -45,15 +51,20 @@
                     type="primary"
                     @click="getList"
                 >
-                    搜索
+                    查询
                 </el-button>
                 <el-button
-                    hidden
                     type="primary"
                     @click="modelCompare"
+                    :disabled="form.promoterList.length"
                 >
                     模型对比
                 </el-button>
+                <el-tooltip v-if="form.promoterList.length" effect="dark" content="混合项目暂不支持该功能！" placement="right">
+                    <el-icon class="el-icon-warning ml5" style="color: #FFB403;">
+                        <elicon-warning />
+                    </el-icon>
+                </el-tooltip>
             </el-form-item>
         </el-form>
 

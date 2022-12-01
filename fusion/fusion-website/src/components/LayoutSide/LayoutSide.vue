@@ -3,7 +3,7 @@
         <div class="heading-logo">
             <img
                 class="logo"
-                src="../../assets/images/favicon.png"
+                src="../../assets/images/x-logo.png"
             >
         </div>
         <el-aside style="width: 200px;">

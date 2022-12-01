@@ -511,7 +511,6 @@
                 },
                 // set keycode
                 async handleEvent(e) {
-                    console.log(e.keyCode);
                     switch (e.keyCode) {
                     case 48:
                         if(vData.stage.find('Rect').length) methods.labelNode(vData.labelList[Number(e.key)]);

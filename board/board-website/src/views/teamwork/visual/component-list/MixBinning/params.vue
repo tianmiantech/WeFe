@@ -26,7 +26,7 @@
                 <el-input-number
                     v-model="item.count"
                     type="number"
-                    :min="1"
+                    :min="2"
                     controls-position="right"
                     @blur="methods.changeMethodCount(item, index)"
                     @change="methods.changeMethodCount(item, index)"
@@ -76,6 +76,11 @@
                         prop="name"
                         label="特征"
                         width="150"
+                    />
+                    <el-table-column
+                        prop="data_type"
+                        label="类型"
+                        width="70"
                     />
                     <el-table-column label="分箱策略">
                         <template v-slot="scope">
@@ -293,9 +298,5 @@
     .el-input-number{
         width: 104px;
         margin:0 10px;
-        :deep(.el-input__inner){
-            padding-left:5px;
-            padding-right: 40px;
-        }
     }
 </style>

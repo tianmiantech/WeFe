@@ -80,6 +80,13 @@ public class TaskService {
     private JobRepository jobRepository;
 
     /**
+     * 找到所有包含网格搜索的模型结果
+     */
+    public List<TaskMySqlModel> listTaskWithGridSearch(String jobId){
+        return taskRepo.findTaskWithGridSearch(jobId);
+    }
+
+    /**
      * Query all execution records of a node
      */
     public List<TaskMySqlModel> findTaskHistory(String flowId, String flowNodeId, JobMemberRole role) {

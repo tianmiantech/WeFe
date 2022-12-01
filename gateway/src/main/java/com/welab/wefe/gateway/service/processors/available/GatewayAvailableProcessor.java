@@ -17,7 +17,6 @@
 package com.welab.wefe.gateway.service.processors.available;
 
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
 import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
@@ -50,7 +49,7 @@ public class GatewayAvailableProcessor extends AbstractProcessor {
     @Override
     public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
         // Check self
-        if (isCheckSelf(transferMeta)) {
+        if (dstMemberIsSelf(transferMeta)) {
             ServiceAvailableCheckOutput result = checkpointManager.checkAll();
             return ReturnStatusBuilder.ok(transferMeta.getSessionId(), JObject.create(result).toJSONString());
         } else {
@@ -76,16 +75,4 @@ public class GatewayAvailableProcessor extends AbstractProcessor {
             BoardCheckpoint.class,
             FileSystemCheckpoint.class
     );
-
-
-    /**
-     * Is check self availability
-     */
-    private boolean isCheckSelf(GatewayMetaProto.TransferMeta transferMeta) {
-        GatewayMetaProto.Member srcMember = transferMeta.getSrc();
-        GatewayMetaProto.Member dstMember = transferMeta.getDst();
-        return StringUtil.isEmpty(dstMember.getMemberId()) || srcMember.getMemberId().equals(dstMember.getMemberId());
-    }
-
-
 }

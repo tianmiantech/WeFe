@@ -71,10 +71,9 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
     private static final ThreadLocal<Integer> OPTIMAL_SUB_BLOCK_SIZE_THREAD_LOCAL = new ThreadLocal<>();
 
     /**
-     * Number of sub blocks that can tolerate sending failure.That is, if the number of sub blocks failed to send exceeds this value,
-     * the remaining blocks (or pages) will not continue to be sent (negative number means unlimited)
+     * 失败重试次数
      */
-    private static final int FAIL_TOLERATE_SUB_BLOCK_COUNT = 1;
+    private static final int FAIL_RETRY_COUNT = 20;
 
     @Autowired
     private ConfigProperties configProperties;
@@ -93,17 +92,17 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
                 // Print log of sending failed sub blocks
                 printSendFailBlocksErrorLog(sendFailSubBlockList);
                 sendFailSubBlockCount += (CollectionUtils.isEmpty(sendFailSubBlockList) ? 0 : sendFailSubBlockList.size());
-                if (FAIL_TOLERATE_SUB_BLOCK_COUNT >= 0 && sendFailSubBlockCount > FAIL_TOLERATE_SUB_BLOCK_COUNT) {
-                    LOG.error("Data source send fail, session id: " + transferMeta.getSessionId() + ", dbName:" + TransferMetaUtil.getDbName(transferMeta) + ", tableName: " + TransferMetaUtil.getTableName(transferMeta) + ", exceeded the number of tolerable failures.");
-                    return ReturnStatusBuilder.sysExc("发送数据失败, 超过了可容忍失败数量", waitSendBlock.getSessionId());
-                }
+            }
+            // Tell the server that all data has been sent
+            boolean sendCompleteResult = sendCompleteRequest(transferMeta, sendFailSubBlockCount == 0);
+            if (!sendCompleteResult) {
+                return ReturnStatusBuilder.sysExc("重试" + FAIL_RETRY_COUNT + "次后发送CK转发完成标识到成员:" + transferMeta.getDst().getMemberName() + " 失败,请确认网络是否正常.", transferMeta.getSessionId());
             }
             if (sendFailSubBlockCount > 0) {
                 LOG.error("Data source send fail, session id: " + transferMeta.getSessionId() + ", dbName:" + TransferMetaUtil.getDbName(transferMeta) + ", tableName: " + TransferMetaUtil.getTableName(transferMeta) + ", fail block size: " + sendFailSubBlockCount);
+                return ReturnStatusBuilder.sysExc("重试" + FAIL_RETRY_COUNT + "次后发转发CK数据到成员:" + transferMeta.getDst().getMemberName() + " 失败,请确认网络是否正常.", transferMeta.getSessionId());
             }
-            // Tell the server that all data has been sent
-            boolean sendCompleteResult = sendCompleteRequest(transferMeta);
-            return sendCompleteResult ? ReturnStatusBuilder.ok(transferMeta.getSessionId()) : ReturnStatusBuilder.sysExc("发送完成通知消息失败", transferMeta.getSessionId());
+            return ReturnStatusBuilder.ok(transferMeta.getSessionId());
         } catch (StatusRuntimeException e) {
             LOG.error("Data source send fail, session id: " + transferMeta.getSessionId() + ", dbName:" + TransferMetaUtil.getDbName(transferMeta) + ", tableName: " + TransferMetaUtil.getTableName(transferMeta) + ", exception: ", e);
             GatewayMetaProto.Member dstMember = transferMeta.getDst();
@@ -144,8 +143,7 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
             return null;
         }
 
-        int failRetryCount = 10;
-        for (int i = 0; i <= failRetryCount; i++) {
+        for (int i = 0; i <= FAIL_RETRY_COUNT; i++) {
             try {
                 transferMetaDataList = sendBlockTransferMetaDataListToRemote(block, transferMetaDataList);
                 // Prove that all are sent successfully
@@ -155,7 +153,7 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
             } catch (StatusRuntimeException e) {
                 LOG.error("Message push failed,session id: " + block.getSessionId() + ",exception：", e);
                 // If the signature verification fails or the connection fails, and the number of retries exceeds the maximum, the exception can be thrown directly
-                if (GrpcUtil.checkIsSignPermissionExp(e) || (i >= failRetryCount)) {
+                if (GrpcUtil.checkIsSignPermissionExp(e) || (i >= FAIL_RETRY_COUNT)) {
                     throw e;
                 }
 
@@ -314,18 +312,16 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
     /**
      * Send data submission completion request flag
      */
-    private boolean sendCompleteRequest(GatewayMetaProto.TransferMeta transferMeta) throws Exception {
+    private boolean sendCompleteRequest(GatewayMetaProto.TransferMeta transferMeta, boolean success) throws Exception {
         GrpcChannelCache channelCache = GrpcChannelCache.getInstance();
-        // Failed retries count
-        int failRetryCount = 10;
         ManagedChannel originalChannel = null;
-        for (int i = 0; i <= failRetryCount; i++) {
+        for (int i = 0; i <= FAIL_RETRY_COUNT; i++) {
             StreamObserver<GatewayMetaProto.TransferMeta> requestStreamObserver = null;
             boolean isCompleted = false;
             try {
                 boolean tlsEnable = GrpcUtil.checkTlsEnable(transferMeta);
                 originalChannel = channelCache.getNonNull(EndpointBuilder.endpointToUri(transferMeta.getDst().getEndpoint()), tlsEnable, TlsUtil.getAllCertificates(tlsEnable));
-                transferMeta = transferMeta.toBuilder().setTransferStatus(GatewayMetaProto.TransferStatus.COMPLETE).build();
+                transferMeta = transferMeta.toBuilder().setTransferStatus(success ? GatewayMetaProto.TransferStatus.COMPLETE : GatewayMetaProto.TransferStatus.ERROR).build();
                 // Set header
                 NetworkDataTransferProxyServiceGrpc.NetworkDataTransferProxyServiceStub asyncClientStub = NetworkDataTransferProxyServiceGrpc.newStub(originalChannel)
                         .withCallCredentials(new RemoteGrpcProxyCallCredentials(null,
@@ -354,7 +350,7 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
                     }
                 }
                 // If the maximum number of failed retries is exceeded, the exception can be thrown directly
-                if (i >= failRetryCount) {
+                if (i >= FAIL_RETRY_COUNT) {
                     throw e;
                 }
             }

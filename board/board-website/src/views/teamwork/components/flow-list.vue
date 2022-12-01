@@ -4,32 +4,36 @@
         class="nav-title mb30"
         shadow="never"
         :idx="sortIndex"
+        style="background: white"
     >
         <template #header>
             <div class="clearfix mb10" style="display: flex; justify-content: space-between;">
                 <div style="display: flex; align-items: center;">
-                    <h3 class="mb10 card-title">
-                        训练列表
-                        <template v-if="form.isPromoter">
+                    <h3 class="card-title f19" style="position: relative; right: 10px; top: -10px;">
+                        <el-icon :class="['el-icon-odometer', 'mr10', 'ml10']" style="font-size: xx-large; top:9px; right: -3px; color: dodgerblue"><elicon-odometer />
+                        </el-icon>
+                        训练列表  
+                    </h3>
+                    <template v-if="form.isPromoter">
                             <el-button
                                 v-if="!form.closed && !form.is_exited && form.is_project_admin"
                                 class="ml10"
                                 size="small"
                                 type="primary"
                                 @click="addFlowMethod"
+                                style="position: relative; top:-4px; left: -15px; background: lightgreen; border: none;"
                             >
                                 新建训练
                             </el-button>
                         </template>
                         <span v-else class="ml10 f12">(协作方无法添加训练)</span>
-                    </h3>
                 </div>
                 <div v-if="form.is_project_admin" class="right-sort-area">
                     <div class="right-sort-area">
-                        <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp"><elicon-top /></el-icon>
-                        <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-bottom', 'ml10', 'mr10']" @click="moveDown"><elicon-bottom /></el-icon>
-                        <span v-if="sortIndex !== 0 && sortIndex !== 1" :class="['f12', {'mr10': sortIndex === 2}]" @click="toTop">置顶</span>
-                        <span v-if="sortIndex !== maxIndex && sortIndex !== maxIndex -1" class="f12" @click="toBottom">置底</span>
+                        <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp" title="向上" style="color: lightgray"><elicon-top /></el-icon>
+                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-bottom', 'mr10', 'ml10']" @click="moveDown" title="向下" style="color: lightgray"><elicon-bottom /></el-icon>
+                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-caret-top', {'mr10': maxIndex === sortIndex}]" @click="toTop" title="置顶" style="color: lightgray"><elicon-caret-top /></el-icon>
+                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-caret-bottom', 'mr10', 'ml10']" @click="toBottom" title="置底" style="color: lightgray"><elicon-caret-bottom /></el-icon>
                     </div>
                 </div>
             </div>
@@ -42,7 +46,7 @@
             stripe
         >
             <el-table-column
-                label="训练"
+                label="训练名称"
                 min-width="200"
             >
                 <template v-slot="scope">
@@ -63,7 +67,7 @@
             </el-table-column>
             <el-table-column
                 v-if="form.project_type === 'MachineLearning'"
-                label="进度"
+                label="训练进度"
                 min-width="130px"
             >
                 <template v-slot="scope">
@@ -72,14 +76,19 @@
                         :percentage="scope.row.job_progress || 0"
                         :color="customColorMethod"
                     />
+                    <el-progress
+                        v-else-if="scope.row.flow_status === 'wait_success' "
+                        :percentage="100"
+                        :color="customColorMethod"
+                    />
                     <template v-else>
                         编辑中
                     </template>
                 </template>
             </el-table-column>
-            <el-table-column label="训练类型">
+            <el-table-column v-if="form.project_type === 'MachineLearning'" label="训练类型">
                 <template v-slot="scope">
-                    <p>{{ form.project_type === 'MachineLearning' ? learningType(scope.row.federated_learning_type) : learningType(scope.row.deep_learning_job_type) }}</p>
+                    <p>{{ learningType(scope.row.federated_learning_type) }}</p>
                 </template>
             </el-table-column>
             <el-table-column

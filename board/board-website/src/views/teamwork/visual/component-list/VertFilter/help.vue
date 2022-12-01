@@ -23,7 +23,7 @@
                     <p class="f12">&</p>
                 </el-form-item>
                 <el-form-item label="注意:">
-                    <p class="f12 color-danger">对于同一个特征的操作符 >, &lt; 和 !=, = 不能同时存在</p>
+                    <p class="f12 color-danger">操作符两边只能有一个特征</p>
                 </el-form-item>
             </el-form>
         </template>

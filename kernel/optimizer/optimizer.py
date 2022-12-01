@@ -271,14 +271,14 @@ class _StochasticQuansiNewtonOptimizer(_Optimizer):
         self.__opt_hess = hess_matrix
 
 
-def optimizer_factory(param):
+def optimizer_factory(model):
     try:
-        optimizer_type = param.optimizer
-        learning_rate = param.learning_rate
-        alpha = param.alpha
-        penalty = param.penalty
-        decay = param.decay
-        decay_sqrt = param.decay_sqrt
+        optimizer_type = model.optimizer_type
+        learning_rate = model.learning_rate
+        alpha = model.alpha
+        penalty = model.penalty
+        decay = model.decay
+        decay_sqrt = model.decay_sqrt
         init_params = [learning_rate, alpha, penalty, decay, decay_sqrt]
     except AttributeError:
         raise AttributeError("Optimizer parameters has not been totally set")

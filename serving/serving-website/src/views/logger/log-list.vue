@@ -122,7 +122,7 @@
                 label="request"
                 width="280"
             >
-                <template v-slot="scope">
+                <template #default="scope">
                     <template v-if="scope.row.request">
                         <p>{{ scope.row.request.length > 100 ? scope.row.request.substring(0, 101) + '...' : scope.row.request }}</p>
                         <el-button
@@ -140,7 +140,7 @@
                 label="response"
                 width="280"
             >
-                <template v-slot="scope">
+                <template #default="scope">
                     <template v-if="scope.row.response">
                         <p>{{ scope.row.response.length > 100 ? scope.row.response.substring(0, 101) + '...' : scope.row.response }}</p>
                         <el-button
@@ -189,6 +189,7 @@
         <el-dialog
             :title="title"
             :visible.sync="logDialog"
+            :before-close="jsonHandleClose"
         >
             <JsonViewer
                 :value="jsonData"
@@ -268,6 +269,10 @@
                 setTimeout(() => {
                     this.jsonData = JSON.parse(data);
                 });
+            },
+            jsonHandleClose() {
+                this.jsonData = '';
+                this.logDialog = false;
             },
         },
     };

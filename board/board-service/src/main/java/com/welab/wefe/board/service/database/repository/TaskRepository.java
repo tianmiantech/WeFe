@@ -21,6 +21,8 @@ import com.welab.wefe.board.service.database.repository.base.BaseRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * @author Zane
  */
@@ -28,4 +30,7 @@ import org.springframework.stereotype.Repository;
 public interface TaskRepository extends BaseRepository<TaskMySqlModel, String> {
     @Query(value = "select * from #{#entityName} where job_id=?1 and flow_node_id=?2 and role=?3 order by created_time desc limit 1;", nativeQuery = true)
     TaskMySqlModel findOne(String jobId, String flowNodeId, String role);
+
+    @Query(value = "select * from #{#entityName} where role!='arbiter' and job_id=?1 and task_conf -> '$.params.grid_search_param.need_grid_search'=true;", nativeQuery = true)
+    List<TaskMySqlModel> findTaskWithGridSearch(String jobId);
 }

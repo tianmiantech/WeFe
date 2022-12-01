@@ -106,21 +106,23 @@ export default {
         const store = useStore();
         const userInfo = computed(() => store.state.base.userInfo);
         const showMenuItem = (item) => {
-            if (item.meta.hidden) {
+            const { super_admin_role, admin_role } = userInfo.value;
+            const { hidden, normalUserCanSee, onlySuperAdmin } = item.meta;
+            if (hidden) {
                 return false;
             }
 
-            if (item.meta.normalUserCanSee !== false) {
+            if(normalUserCanSee !== false){
                 return true;
             }
 
             // 仅超级管理员可见
-            if (item.meta.onlySuperAdmin && userInfo.super_admin_role) {
+            if (onlySuperAdmin && super_admin_role) {
                 return true;
             }
 
             // 仅管理员可见
-            if (!item.meta.normalUserCanSee && userInfo.admin_role) {
+            if (!normalUserCanSee && admin_role) {
                 return true;
             }
 

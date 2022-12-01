@@ -75,9 +75,22 @@
                         label="特征"
                         width="150"
                     />
+                    <el-table-column
+                        prop="data_type"
+                        label="类型"
+                        width="70"
+                    />
                     <el-table-column label="策略">
                         <template v-slot="scope">
-                            {{ scope.row.method ? `${vData.methodObj[scope.row.method]} ${scope.row.method === 'const' ? `${scope.row.count}` : ''}` : '' }}
+                            {{
+                                scope.row.method
+                                    ? `${vData.methodObj[scope.row.method]} ${
+                                          scope.row.method === 'const'
+                                              ? `${scope.row.count}`
+                                              : ''
+                                      }`
+                                    : ''
+                            }}
                         </template>
                     </el-table-column>
                 </el-table>
@@ -143,12 +156,12 @@
                     // { value: 'mode', label: '众数' },
                 ],
                 methodObj: {
-                    'max':    '最大值',
-                    'min':    '最小值',
-                    'const':  '常量',
-                    'mean':   '平均值',
+                    'max':   '最大值',
+                    'min':   '最小值',
+                    'const': '常量',
+                    'mean':  '平均值',
                     'median': '中位数',
-                    'mode':   '众数',
+                    'mode':  '众数',
                 },
                 columnListType:   'max',
                 selectListIndex:  0,

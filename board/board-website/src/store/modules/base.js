@@ -1,3 +1,5 @@
+import { getFeatureType } from '../../service';
+
 function setStorage () {
     /* let keepAlive = localStorage.getItem(KEEPALIVE);
 
@@ -53,6 +55,7 @@ export default _ => {
         uiConfig,
         isDemo,
         adminUserList,
+        featureType: [],
     };
 
     const getters = {
@@ -63,6 +66,7 @@ export default _ => {
         uiConfig:      state => state.uiConfig,
         isDemo:        state => state.isDemo,
         adminUserList: state => state.adminUserList,
+        featureType:   state => state.featureType,
     };
 
     const mutations = {
@@ -95,11 +99,25 @@ export default _ => {
             state.adminUserList = data;
             setStorage().setItem(ADMIN_USER_LIST, JSON.stringify(data));
         },
+        'UPDATE_FEATURE_TYPE'(state, data){
+            console.log(data, 'featureType')
+            state.featureType = data;
+        },
+    };
+
+    const actions = {
+        getFeatureType({ commit }, { flow_id }){
+            /** 获取特征type并存储到vuex */
+            getFeatureType({ flow_id }).then((res) => {
+                commit('UPDATE_FEATURE_TYPE', res);
+            });
+        },
     };
 
     return {
         getters,
         mutations,
         state,
+        actions,
     };
 };

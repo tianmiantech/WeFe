@@ -14,83 +14,88 @@
  * limitations under the License.
  */
 
-package com.wolaidai.wefe.sdk;
-
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.mpc.util.RSAUtil;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.TreeMap;
 
 // 多方匿踪查询 用来生成http请求参数，然后自己通过http请求
 public class MultiPir {
-	// 私钥
-	private static final String 测试客户1_privateKey="***"; // TODO
-	// 公钥
-	private static final String 测试客户1_publicKey="***"; // TODO
-	// 客户code
-	private static final String 测试客户1_code = "TEST***25"; // TODO
+    // 私钥
+    private static final String 测试客户1_privateKey = "***"; // TODO
+    // 公钥
+    private static final String 测试客户1_publicKey = "***"; // TODO
+    // 客户code
+    private static final String 测试客户1_code = "TEST***25"; // TODO
     // Serving服务地址
     private static final String serverUrl = "https://****/serving-service-01/"; // TODO
     // Service Api name
-    private String apiName = "api/*****"; // TODO
-    
-	public static void main(String[] args) throws Exception {
-		String dataStr = "{\n" +
-				"  \"ids\": [\n" +
-				"    {\n" +
-				"      \"member_id\": \"d0f47307804844898ecfc65b875abe87\",\n" +
-				"      \"model_id\": \"cee66626a97e42198bccb226dcd9743a_VertSecureBoost_16294251366419513\"\n" +
-				"    },\n" +
-				"    {\n" +
-				"      \"member_id\": \"1\",\n" +
-				"      \"model_id\": \"2\"\n" +
-				"    },\n" +
-				"    {\n" +
-				"      \"member_id\": \"1\",\n" +
-				"      \"model_id\": \"2\"\n" +
-				"    },\n" +
-				"    {\n" +
-				"      \"member_id\": \"1\",\n" +
-				"      \"model_id\": \"2\"\n" +
-				"    },\n" +
-				"    {\n" +
-				"      \"member_id\": \"1\",\n" +
-				"      \"model_id\": \"2\"\n" +
-				"    },\n" +
-				"    {\n" +
-				"      \"member_id\": \"1\",\n" +
-				"      \"model_id\": \"2\"\n" +
-				"    }\n" +
-				"  ],\n" +
-				"  \"index\":0\n" +
-				"}";
-		System.out.println("多方匿踪查询参数 naorpinkas_ot方式:\t" + request(dataStr));
-        // 服务地址
-		System.out.println("多方匿踪查询参数 url:" + serverUrl + apiName);
-	}
+    private static final String apiName = "api/*****"; // TODO
 
-	protected static String request(String dataStr) throws Exception {
-		TreeMap<String, Object> params = new TreeMap<>();
-		params.put("data", JSONObject.parseObject(dataStr));
-		String data = params.get("data").toString();
-		String sign = "";
-		try {
-			sign = RSAUtil.sign(data, 测试客户1_privateKey);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		JSONObject body = new JSONObject();
-		body.put("customer_id", 测试客户1_code);
-		body.put("sign", sign);
-		body.put("data", JSONObject.parseObject(data));
-		body.put("requestId", "xxx");
-		boolean verified = RSAUtil.verify(params.get("data").toString().getBytes(),
-				RSAUtil.getPublicKey(测试客户1_publicKey), sign);
-		if(verified) {
-			return body.toJSONString();
-		}
-		else{
-			return "";
-		}
-	}
+    public static void main(String[] args) throws Exception {
+        String dataStr = "{\n" +
+                "  \"ids\": [\n" +
+                "    {\n" +
+                "      \"member_id\": \"d0f47307804844898ecfc65b875abe87\",\n" +
+                "      \"model_id\": \"ccc\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"member_id\": \"1\",\n" +
+                "      \"model_id\": \"2\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"member_id\": \"1\",\n" +
+                "      \"model_id\": \"2\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"member_id\": \"1\",\n" +
+                "      \"model_id\": \"2\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"member_id\": \"1\",\n" +
+                "      \"model_id\": \"2\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"member_id\": \"1\",\n" +
+                "      \"model_id\": \"2\"\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"index\":0\n" +
+                "}";
+        String params = request(dataStr);
+        System.out.println("多方匿踪查询参数 naorpinkas_ot方式:\t" + params);
+        // 服务地址
+        System.out.println("多方匿踪查询参数 url:" + serverUrl + apiName);
+        System.out.println("响应结果：" + sendPost(serverUrl + apiName, params));
+    }
+
+    protected static String request(String dataStr) throws Exception {
+        TreeMap<String, Object> params = new TreeMap<>();
+        params.put("data", JSONObject.parseObject(dataStr));
+        String data = params.get("data").toString();
+        String sign = "";
+        try {
+            sign = RSAUtil.sign(data, 测试客户1_privateKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        JSONObject body = new JSONObject();
+        body.put("customer_id", 测试客户1_code);
+        body.put("sign", sign);
+        body.put("data", JSONObject.parseObject(data));
+        body.put("requestId", "xxx");
+        boolean verified = RSAUtil.verify(params.get("data").toString().getBytes(),
+                RSAUtil.getPublicKey(测试客户1_publicKey), sign);
+        if (verified) {
+            return body.toJSONString();
+        } else {
+            return "";
+        }
+    }
 }

@@ -78,7 +78,11 @@
                                                     label="Histogram"
                                                     name="histogram"
                                                 >
-                                                    <BarChart v-if="member.table[props.$index].isBarChart" ref="BarChart" :config="props.row.distributionChart"/>
+                                                    <BarChart
+                                                        v-if="member.table[props.$index].isBarChart"
+                                                        :ref="BarChartHandle"
+                                                        :config="props.row.distributionChart"
+                                                    />
                                                 </el-tab-pane>
                                                 <!--Discrete type-->
                                                 <el-tab-pane v-else label="Categories" name="categories">
@@ -88,7 +92,12 @@
                                                             <el-table-column prop="count" label="count" width="180"></el-table-column>
                                                             <el-table-column prop="frequency" label="frequency"></el-table-column>
                                                         </el-table>
-                                                        <PieChart v-if="member.table[props.$index].isPieChart" ref="PieChart" style="flex: 1" :config="props.row.pieChartData"/>
+                                                        <PieChart
+                                                            v-if="member.table[props.$index].isPieChart"
+                                                            :ref="PieChartHandle"
+                                                            style="flex: 1"
+                                                            :config="props.row.pieChartData"
+                                                        />
                                                     </div>
                                                 </el-tab-pane>
                                             </template>
@@ -139,7 +148,8 @@
                 tabName:     '',
                 members:     [],
                 resultTypes: [],
-            }), BarChart = {};
+            })
+            const BarChart = ref();
             const PieChart = ref();
             const { appContext, ctx } = getCurrentInstance();
             const { $bus } = appContext.config.globalProperties;
@@ -267,7 +277,6 @@
                                 table,
                             });
                         });
-                        console.log(vData.members);
                     }
                 },
                 tabChangeEvent(idx, mIdx, $event){
@@ -280,8 +289,7 @@
                             break;
                         case 'histogram':
                             setTimeout(()=>{
-                                BarChart = ctx.$refs.BarChart[0];
-                                if (BarChart) BarChart.chartResize();
+                                if (BarChart.value) BarChart.value.chartResize();
                             }, 200);
                             break;
                         }
@@ -313,8 +321,8 @@
                 vData,
                 activeName,
                 methods,
-                PieChart,
-                BarChart,
+                PieChartHandle: el => PieChart.value = el,
+                BarChartHandle: el => BarChart.value = el
             };
         },
     };

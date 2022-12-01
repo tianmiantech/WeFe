@@ -110,6 +110,7 @@
         <template v-for="(item, index) in form.project_type === 'MachineLearning' ? moduleList : dModuleList" :key="item.name">
             <MembersList
                 v-if="item.name === 'MembersList'"
+                class="member"
                 ref="membersListRef"
                 :form="form"
                 :promoter="promoter"
@@ -168,7 +169,14 @@
                 @to-top="toTop"
                 @to-bottom="toBottom"
             />
+        
         </template>
+
+        
+        <div style="font-size: 18px; color: lightgray; text-align: center; font-style: italic;">
+            ~~~已经到底啦~~~
+        </div>
+        
 
         <el-dialog
             title="提示"
@@ -376,6 +384,7 @@
                         list[this.project.project_id] = this.form.project_type === 'MachineLearning' ? this.moduleList : this.dModuleList;
                     }
                 }
+                this.$bus.$emit('update-title-navigator');
                 
                 const { code } = await this.$http.post({
                     url:  '/account/update_ui_config',
@@ -476,11 +485,8 @@
                     // 3. 该项目是非管理员创建
                     const is_self_project = this.userInfo.id === data.created_by;
 
-                    console.log('is_self_project=',is_self_project, 'is_admin=',this.userInfo.admin_role, 'is_not_admin_created=',is_not_admin_created.length===0);
                     // const is_can_edit = (this.userInfo.admin_role || is_self_project || is_not_admin_created.length===0) ? true : false
                     const is_can_edit = !!((this.userInfo.admin_role || is_self_project || is_not_admin_created.length === 0));
-
-                    console.log('is_can_edit=',is_can_edit);
 
 
                     if (this.isDemo) {
@@ -489,7 +495,6 @@
                     } else {
                         this.form.is_project_admin = true;
                     }
-                    // console.log('is_not_admin_created='+is_not_admin_created.length, 'isDemo='+this.isDemo, 'is_project_admin='+this.form.is_project_admin);
                     const members = {};
                     const { providerService, promoterService } = this;
 
@@ -545,7 +550,7 @@
                     callback && callback();
                     // get project/detail first
                     if(!this.getModelingList && this.form.project_type === 'MachineLearning') {
-                        this.$refs['ModelingList'][0].getList();
+                        this.$refs['ModelingList'][0] && this.$refs['ModelingList'][0].getList();
                         this.getModelingList = true;
                     }
 
@@ -571,7 +576,9 @@
                                 role = 'provider';
                             }
                         }
-                        this.$refs['membersListRef'][0].memberTabName = `${this.userInfo.member_id}-${role}`;
+                        if(this.$refs['membersListRef'][0]){
+                            this.$refs['membersListRef'][0].memberTabName = `${this.userInfo.member_id}-${role}`;
+                        }
                     }
 
                     // refresh audit state every 30s
@@ -736,6 +743,7 @@
                 const list = this.form.project_type === 'MachineLearning' ? this.moduleList : this.dModuleList;
 
                 this.swapArray(list, idx, idx - 1);
+
             },
             moveDown(idx) {
                 const list = this.form.project_type === 'MachineLearning' ? this.moduleList : this.dModuleList;
@@ -776,13 +784,16 @@
         justify-content: space-between;
         align-items: center;
         justify-content: space-between;
-        color: #c0c0c0;
+        color: #333;
         .el-icon, span {
             cursor: pointer;
         }
     }
     .el-card__header {
+        padding-top: 10px;
         padding-bottom: unset;
+        background: mintcream;
+        height: 65px;
     }
     .unedit-tips {
         .el-alert__content {

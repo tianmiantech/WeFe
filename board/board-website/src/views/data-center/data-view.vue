@@ -42,10 +42,10 @@
                         参与了 <strong class="strong">{{ dataInfo.usage_count_in_job > 0 ? dataInfo.usage_count_in_job : 0 }}</strong> 次任务。
                     </p>
                 </template>
-                <el-descriptions-item v-if="dataInfo.description" label="描述：">
+                <el-descriptions-item v-if="dataInfo.description" label="描述：" :span="2">
                     {{ dataInfo.description }}
                 </el-descriptions-item>
-                <el-descriptions-item label="关键字：">
+                <el-descriptions-item label="关键字：" >
                     <span v-if="dataInfo.tags">
                         <template v-for="(tag, index) in dataInfo.tags.split(',')">
                             <el-tag
@@ -234,7 +234,6 @@
                                 if(row.name === this.dataInfo.primary_key_column) {
                                     name = `${row.name}（主键）`;
                                 }
-
                                 return {
                                     ...row,
                                     特征名称: name,

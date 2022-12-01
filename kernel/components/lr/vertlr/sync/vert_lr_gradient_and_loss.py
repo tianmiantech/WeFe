@@ -368,8 +368,8 @@ class Provider(VertGradientBase, loss_sync.Provider):
         gradient = optimizer.apply_gradients(gradient)
 
         loss_regular = optimizer.loss_norm(model_weights)
-        norm_r = random.uniform(-loss_regular * 0.1, loss_regular * 0.1)
-        loss_regular = loss_regular + norm_r
+        # norm_r = random.uniform(-loss_regular * 0.1, loss_regular * 0.1)
+        # loss_regular = loss_regular + norm_r
         # if loss_regular is not None:
         #     loss_regular = cipher_operator.encrypt(loss_regular)
         self.remote_loss_regular(loss_regular, suffix=current_suffix)
