@@ -113,8 +113,8 @@ export const getFeatureType = ({ flow_id }) => {
                 list.forEach(item => {
                     obj[item.data_set_id] = {};
         
-                    (item.features || []).forEach(item => {
-                        obj[item.data_set_id][item.name] = item.data_type;
+                    (item.features || []).forEach(items => {
+                        obj[item.data_set_id][items.name] = items.data_type;
                     });
                 });
         

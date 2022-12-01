@@ -41,9 +41,10 @@
         // const data = (featureType.value.filter((item) => {
         //     return item.data_set_id === props.data_set_id;
         // }) || [])[0] || {};
-        const data = featureType[props.data_set_id] || {};
+        const data = props.featureTypeList[props.data_set_id] || featureType.value[props.data_set_id] || {};
 
-        return props.featureTypeList[props.name] || data[props.name];
+        console.error('vData.featureTypeList',props.featureTypeList)
+        return  data[props.name];
     });
 
     const showColor = computed(() => {

@@ -189,7 +189,7 @@
                                 </span>
                                 <span class="el-checkbox__label">
                                     {{ list[index * 5 + i - 1] }}
-                                    <FeatureTagVue :name="list[index * 5 + i - 1]" :data_set_id="vData.check_data_set_id" :featureTypeList="vData.featureTypeList[vData.check_data_set_id]" />
+                                    <FeatureTagVue :name="list[index * 5 + i - 1]" :data_set_id="vData.check_data_set_id" :featureTypeList="vData.featureTypeList" />
                                 </span>
                             </label>
                         </template>
@@ -406,32 +406,7 @@
                 currentItem:     {}, // current member
                 providerList:    [],
                 promoterList:    [],
-                featureTypeList: {
-                    '5e281380595342f6a77745b1ac287267': {
-                        x1:  'Double',
-                        x2:  'Double',
-                        x3:  'Double',
-                        x4:  'Double',
-                        x5:  'Double',
-                        x6:  'Integer',
-                        x7:  'Double',
-                        x8:  'Double',
-                        x9:  'Double',
-                        x10: 'Integer',
-                    },
-                    '5c1cd013f2e94ae287462b94491020ce': {
-                        x1:  'Double',
-                        x2:  'Double',
-                        x3:  'Double',
-                        x4:  'aaa',
-                        x5:  'Double',
-                        x6:  'Integer',
-                        x7:  'Double',
-                        x8:  'Double',
-                        x9:  'Double',
-                        x10: 'Integer',
-                    },
-                },
+                featureTypeList: {},
             });
 
             const methods = {
@@ -621,7 +596,11 @@
                 },
                 getDataFeatureType(params){
                     getDataSetFeatureType(params).then(res => {
-                        vData.featureTypeList[params.data_set_id] = res;
+                        console.error('res', res);
+                        vData.featureTypeList = {
+                            ...vData.featureTypeList.value,
+                            [params.dataSetId]: res,
+                        };
                     });
                 },
 
