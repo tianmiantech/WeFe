@@ -507,13 +507,13 @@ import {
         color: white;
         background: gray;
         border-radius: 0px 0px 4px 4px;
-        
+
         padding:0px;
         border-left: 1px solid #e5e9f2;
         border-right: 1px solid #e5e9f2;
         border-bottom: 1px solid #e5e9f2;
 
-        
+
     }
 }
 .component-form{
@@ -548,8 +548,9 @@ import {
     & > :deep(.el-tabs__header) {
         margin:0;
         border-left: 1px solid #dfe4ed;
+        border-top: 1px solid #dfe4ed;
         position: absolute;
-        left: -51px;
+        left: -60px;
         top: 0;
         z-index: 1;
         height:auto;
@@ -596,6 +597,9 @@ import {
     :deep(.el-tabs__item){
         font-size: 13px;
         color:#909399;
+        &.is-active {
+            color: #409eff;
+        }
     }
 }
 </style>

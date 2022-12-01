@@ -14,7 +14,7 @@
         </template>
 
         <template #output>
-            数据资源统计报告
+            数据资源统计报告，最大最小值、均值方差缺失率等常用统计指标
         </template>
         <template #error-tip />
     </CommonHelp>

@@ -3,7 +3,7 @@
         v-model="open"
         title="特征筛选操作面板"
         direction="rtl"
-        size="1000px"
+        size="1080px"
     >
         <div class="container">
             <div class="table">
@@ -12,6 +12,7 @@
                         <el-input
                             v-model="featureInput"
                             placeholder="请输入特征名"
+                            clearable
                         />
                     </el-form-item>
                     <el-form-item>
@@ -20,6 +21,11 @@
                         >
                     </el-form-item>
                 </el-form>
+                <el-space>
+                    <template v-for="({color, member}) in colorSet">
+                        <div :style="{ width: '22px', height: '16px', backgroundColor: color }" />{{ member }}
+                    </template>
+                </el-space>
                 <el-table :data="visibleFeatures" :style="{ height: '600px' }">
                     <el-table-column property="name" label="特征" width="150">
                         <template v-slot="scope">
@@ -28,7 +34,6 @@
                                 :color="calcColor(scope.row)"
                             >
                                 <span>{{ scope.row.name }}</span>
-                                ({{ scope.row.member_name }})
                             </el-tag>
                         </template>
                     </el-table-column>
@@ -92,7 +97,7 @@
                     :closable="false"
                     v-if="!frontStatus.has_c_v"
                 />
-                <h4 class="title">条件</h4>
+                <h4 class="title">条件筛选</h4>
                 <el-space wrap>
                     <template
                         v-for="(
@@ -139,11 +144,11 @@
                         closable
                         v-for="item in manulSelectData"
                     >
-                        {{ item.name }}({{ item.member_name }})
+                        {{ item.name }}
                     </el-tag>
                 </el-space>
-                <div class="empty" v-else>暂无数据</div>
-                <h4 class="title">已选项</h4>
+                <div class="empty" v-else>在左侧列表中选择需要的特征</div>
+                <h4 class="title">选择结果</h4>
                 <el-space wrap v-if="allSelectData.length">
                     <el-tag
                         style="color: white"
@@ -151,10 +156,10 @@
                         type="info"
                         :color="calcColor(item)"
                     >
-                        {{ item.name }}({{ item.member_name }})
+                        {{ item.name }}
                     </el-tag>
                 </el-space>
-                <div class="empty" v-else>暂无数据</div>
+                <div class="empty" v-else>未选择特征</div>
             </div>
         </div>
         <template #footer>
@@ -176,6 +181,7 @@
         :featureOptions="featureOptions"
         :visibleFeatureOptions="visibleFeatureOptions"
         :rangeOptions="rangeOptions"
+        :frontStatus="frontStatus"
         @addFeature="
             (value) => (conditionList = [...conditionList, value])
         "
@@ -230,7 +236,7 @@ const visibleFeatureOptions = computed(() => {
     const has_c_v = props.frontStatus?.has_c_v;
     const has_i_v = props.frontStatus?.has_i_v;
     if (has_i_v) {
-        temp.push(ivItem.value);
+        temp.push(ivItem);
     }
     if (has_c_v) {
         temp.push(...cvItem);
@@ -395,10 +401,11 @@ defineExpose({
     column-gap: 40px;
     .table {
         height: 600px;
-        width: 700px;
+        width: 500px;
     }
     .right {
         margin-top: 70px;
+        flex: 1;
         h4.title {
             margin: 8px 0;
         }

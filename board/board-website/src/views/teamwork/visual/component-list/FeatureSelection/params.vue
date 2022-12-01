@@ -16,9 +16,16 @@
             v-if="!frontStatus.has_c_v"
         />
     </div>
-    <el-button @click="showDrawer" :disabled="disabled || loading">
-        选择特征
-    </el-button>
+    <el-space>
+        <el-button @click="showDrawer" :disabled="disabled || loading">
+            选择特征
+        </el-button>
+        <template v-if="selectedFeature.length">
+            <template v-for="({ color, member }) in colorSet">
+                <div :style="{ width: '22px', height: '16px', backgroundColor: color }" />{{ member }}
+            </template>
+        </template>
+    </el-space>
     <FeatureFilter
         ref="tezhenRef"
         :allFeatures="allFeatures"
@@ -35,7 +42,6 @@
                     :color="calcColor(scope.row)"
                 >
                     <span>{{ scope.row.name }}</span>
-                    ({{ scope.row.member_name }})
                 </el-tag>
             </template>
         </el-table-column>
@@ -205,6 +211,7 @@ export default {
             selectedConditions,
             calcColor,
             loading,
+            colorSet,
             frontStatus,
             showDrawer: () => {
                 tezhenRef.value.open = true;
