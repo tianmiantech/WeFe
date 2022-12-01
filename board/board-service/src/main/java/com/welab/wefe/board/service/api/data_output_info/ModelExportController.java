@@ -99,7 +99,8 @@ public class ModelExportController {
             // export
             String exportResult = modelExportService.handle(jobId, modelFlowNodeId, role, language);
 
-            httpServletResponse.setHeader("content-disposition", "attachment;filename=" + "model." + ModelExportLanguage.getLanguageSuffix(language));
+            httpServletResponse.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
+            httpServletResponse.setHeader("Content-Disposition", "attachment;filename=" + "model." + ModelExportLanguage.getLanguageSuffix(language));
             httpServletResponse.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
             out.write(exportResult);
             out.flush();
