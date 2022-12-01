@@ -11,18 +11,13 @@
     </div>
 </template>
 
-<script>
-    import MessageList from './components/message-list.vue';
-    import ServiceStatus from './components/service-available-list.vue';
-
-    export default {
-        components: {
-            MessageList,
-            ServiceStatus,
-        },
-    };
+<script setup>
+import MessageList from './components/message-list.vue';
+import ServiceStatus from './components/service-available-list.vue';
 </script>
 
 <style lang="scss" scoped>
-    .el-row{height: calc(100vh - 120px);}
+.el-row {
+    height: calc(100vh - 120px);
+}
 </style>

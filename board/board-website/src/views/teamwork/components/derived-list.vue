@@ -194,8 +194,8 @@ import { template } from 'lodash';
                         label: "样本对齐",
                         value: "Intersection",
                     }, {
-                        label: "分箱",
-                        value: "Binning",
+                        label: 'WOE编码',
+                        value: 'Binning',
                     }, {
                         label: "特征筛选",
                         value: "FeatureSelection",
@@ -203,14 +203,14 @@ import { template } from 'lodash';
                         label: "特征标准化",
                         value: "FeatureStandardized",
                     }, {
-                        label: "分箱并编码",
-                        value: "HorzFeatureBinning",
+                        label: 'WOE编码',
+                        value: 'HorzFeatureBinning',
                     }, {
                         label: "缺失值填充",
                         value: "FillMissingValue",
                     }, {
-                        label: "混合分箱",
-                        value: "MixBinning",
+                        label: '混合联邦WOE编码',
+                        value: 'MixBinning',
                     }],
                 list: [],
                 total: 0,
