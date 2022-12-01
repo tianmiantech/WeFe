@@ -25,6 +25,7 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.cache.CaCertificateCache;
 import com.welab.wefe.gateway.cache.MemberCache;
+import com.welab.wefe.gateway.config.CommonConfig;
 import com.welab.wefe.gateway.config.ConfigProperties;
 import com.welab.wefe.gateway.entity.MemberEntity;
 import org.slf4j.Logger;
@@ -48,8 +49,8 @@ public class UnionHelper {
 
     static {
         try {
-            ConfigProperties configProperties = GatewayServer.CONTEXT.getBean(ConfigProperties.class);
-            BASE_URL = configProperties.getWefeUnionBaseUrl();
+            CommonConfig commonConfig = GatewayServer.CONTEXT.getBean(CommonConfig.class);
+            BASE_URL = commonConfig.getUnionBaseUrl();
             BASE_URL = (BASE_URL.endsWith("/") ? BASE_URL : BASE_URL + "/");
 
         } catch (Exception e) {
