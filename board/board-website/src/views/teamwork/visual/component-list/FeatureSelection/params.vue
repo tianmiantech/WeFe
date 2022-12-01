@@ -88,7 +88,7 @@ export default {
     },
     setup(props) {
         const { appContext } = getCurrentInstance();
-        const { $http } = appContext.config.globalProperties;
+        const { $http,$notify } = appContext.config.globalProperties;
         const store = useStore();
         const loading = ref(false);
         const tezhenRef = ref();
@@ -165,7 +165,6 @@ export default {
                     const { list } = response.data;
 
                     if (list.length) {
-                        console.error('featureType',featureType)
                         allFeatures.value = data.members
                             .reduce(
                                 (acc, cur) => [
@@ -198,6 +197,30 @@ export default {
             tezhenRef.value.open = false;
         };
         const checkParams = () => {
+            const tipsArray = [];
+
+            selectedFeature.value.forEach(item => {
+                if(item.data_type && item.data_type !== 'Integer'){
+                    tipsArray.push({
+                        name:      item.name,
+                        data_type: item.data_type,
+                    })
+                }
+            })
+
+            if(tipsArray.length){
+                $notify({
+                    type:     'warning',
+                    offset:   -10,
+                    duration: 2000,
+                    title:    '提示',
+                    message:  `请知悉：您当前选择的特征有${tipsArray.length}个不是数值型，部分组件不支持输入非数值型特征，
+                    必要时可以通过重新选择、热编码、特征转换等方式处理这些特征。
+                    非数值型特征：${tipsArray.reduce((pre,cur)=> pre + `${cur.name}(${cur.data_type})`, '')}`,
+                });
+            }
+
+            console.error('selectedFeature.value',selectedFeature.value)
             const temp = members.value.map((each) => ({
                 ...each,
                 features: selectedFeature.value.filter(
