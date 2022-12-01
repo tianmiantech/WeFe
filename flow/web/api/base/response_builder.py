@@ -32,6 +32,7 @@ def file_response(output):
     # The latin-1 encoding of the file name is to solve
     # the problem of error reporting when the file name contains Chinese.
     response.headers["Content-Disposition"] = "attachment; filename={}".format(filename.encode().decode('latin-1'))
+    response.headers["Access-Control-Expose-Headers"] = "Content-Disposition"
     return response
 
 
