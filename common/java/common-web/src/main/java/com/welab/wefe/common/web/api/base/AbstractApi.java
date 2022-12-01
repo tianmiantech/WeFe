@@ -247,6 +247,7 @@ public abstract class AbstractApi<In extends AbstractApiInput, Out> {
         headers.add("Content-Disposition", "attachment; filename=" + file.getName());
         headers.add("Last-Modified", file.lastModified() + "");
         headers.add("ETag", String.valueOf(file.lastModified()));
+        headers.add("Access-Control-Expose-Headers", "Content-Disposition");
 
         ResponseEntity<FileSystemResource> response = ResponseEntity
                 .ok()
