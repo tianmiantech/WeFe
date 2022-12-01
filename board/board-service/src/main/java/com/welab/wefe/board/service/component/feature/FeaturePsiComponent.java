@@ -66,16 +66,7 @@ public class FeaturePsiComponent extends AbstractComponent<FeaturePsiComponent.P
             );
         }
 
-        boolean afterSegment = node.getParents().stream().anyMatch(x -> x.getComponentType() == ComponentType.Segment);
-        if (!afterSegment) {
-            throw new FlowNodeException(
-                    node,
-                    ComponentType.VertFeaturePSI.getLabel() +
-                            "只能紧跟" +
-                            ComponentType.Segment.getLabel() +
-                            "之后执行，请调整您的流程。"
-            );
-        }
+        checkParentsHasSegment(node);
 
         // 限定只支持二分类的数据集
         if (graph.getJob().getMyRole() == JobMemberRole.promoter) {
@@ -127,8 +118,10 @@ public class FeaturePsiComponent extends AbstractComponent<FeaturePsiComponent.P
         return taskResultService.findByTaskIdAndType(taskId, type);
     }
 
+
     @Override
     protected List<InputMatcher> inputs(FlowGraph graph, FlowGraphNode node) throws FlowNodeException {
+        checkParentsHasSegment(node);
         // 数据切割输出了两个 DataSetInstance，所以这里在寻找输入时，需要加上名称限定，才能准确选择。
         return Arrays.asList(
                 InputMatcher.of(
@@ -140,6 +133,19 @@ public class FeaturePsiComponent extends AbstractComponent<FeaturePsiComponent.P
                         new OutputDataTypeAndNameOutputFilter(IODataType.DataSetInstance, Names.Data.EVALUATION_DATA_SET)
                 )
         );
+    }
+
+    private static void checkParentsHasSegment(FlowGraphNode node) throws FlowNodeException {
+        boolean afterSegment = node.getParents().stream().anyMatch(x -> x.getComponentType() == ComponentType.Segment);
+        if (!afterSegment) {
+            throw new FlowNodeException(
+                    node,
+                    ComponentType.VertFeaturePSI.getLabel() +
+                            "只能紧跟" +
+                            ComponentType.Segment.getLabel() +
+                            "之后执行，请调整您的流程。"
+            );
+        }
     }
 
     @Override
