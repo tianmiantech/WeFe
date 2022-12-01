@@ -189,7 +189,7 @@
                                 </span>
                                 <span class="el-checkbox__label">
                                     {{ list[index * 5 + i - 1] }}
-                                    <FeatureTagVue :name="list[index * 5 + i - 1]" :data_set_id="vData.check_data_set_id" />
+                                    <FeatureTagVue :name="list[index * 5 + i - 1]" :data_set_id="vData.check_data_set_id" :featureTypeList="vData.featureTypeList[vData.check_data_set_id]" />
                                 </span>
                             </label>
                         </template>
@@ -341,6 +341,7 @@
     import { useStore } from 'vuex';
     import DataSetList from '@comp/views/data-set-list';
     import FeatureTagVue from '../common/featureTag.vue';
+    import { getDataSetFeatureType } from '@src/service';
 
     export default {
         name:       'DataIO',
@@ -402,9 +403,35 @@
                     contains_y:       '',
                     data_resource_id: '',
                 },
-                currentItem:  {}, // current member
-                providerList: [],
-                promoterList: [],
+                currentItem:     {}, // current member
+                providerList:    [],
+                promoterList:    [],
+                featureTypeList: {
+                    '5e281380595342f6a77745b1ac287267': {
+                        x1:  'Double',
+                        x2:  'Double',
+                        x3:  'Double',
+                        x4:  'Double',
+                        x5:  'Double',
+                        x6:  'Integer',
+                        x7:  'Double',
+                        x8:  'Double',
+                        x9:  'Double',
+                        x10: 'Integer',
+                    },
+                    '5c1cd013f2e94ae287462b94491020ce': {
+                        x1:  'Double',
+                        x2:  'Double',
+                        x3:  'Double',
+                        x4:  'aaa',
+                        x5:  'Double',
+                        x6:  'Integer',
+                        x7:  'Double',
+                        x8:  'Double',
+                        x9:  'Double',
+                        x10: 'Integer',
+                    },
+                },
             });
 
             const methods = {
@@ -592,11 +619,22 @@
                         refInstance.getDataList(params);
                     });
                 },
+                getDataFeatureType(params){
+                    getDataSetFeatureType(params).then(res => {
+                        vData.featureTypeList[params.data_set_id] = res;
+                    });
+                },
 
                 /* add dataset to list */
                 selectDataSet(item) {
+                    console.log('item',item);
+                    const { data_set_id, member_id, project_id } = item;
+
+                    methods.getDataFeatureType({ dataSetId: data_set_id, memberId: member_id, projectId: project_id });
+
                     vData.showSelectDataSet = false;
                     if(item.data_resource.derived_from) {
+                        // 衍生数据集
                         // derived dataset
                         const memberIds = {}; // cache member_id
 

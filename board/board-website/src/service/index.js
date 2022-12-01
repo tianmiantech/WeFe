@@ -107,18 +107,55 @@ export const getFeatureType = ({ flow_id }) => {
                     list = [];
                     console.log('获取特征类型失败');
                 }
-        
-        
-                // window.localStorage.setItem(`${window.api.baseUrl}_featureType`, JSON.stringify(list));
-                resolve(list.map(item => {
-                    const obj = {};
+
+                const obj = {};
+
+                list.forEach(item => {
+                    obj[item.data_set_id] = {};
         
                     (item.features || []).forEach(item => {
-                        obj[item.name] = item.data_type;
+                        obj[item.data_set_id][item.name] = item.data_type;
                     });
-                    item.features = obj;
-                    return item;
-                }));
+                });
+        
+                // window.localStorage.setItem(`${window.api.baseUrl}_featureType`, JSON.stringify(list));
+                resolve(obj);
+            });
+
+        
+    });
+};
+
+/**
+ * 获取某个数据集的特征类型
+ */
+
+export const getDataSetFeatureType = ({ projectId,memberId,dataSetId }) => {
+    return new Promise((resolve, reject) => {
+        $http.get({
+                url:    '/project/table_data_set/feature/list',
+                params: {
+                    projectId,memberId,dataSetId,
+                },
+            }).then(res => {
+                const { code, data } = res;
+
+                let { list } = data || {};
+
+    
+                if(code !== 0) {
+                    list = [];
+                    console.log('获取特征类型失败');
+                }
+        
+        
+                const obj = {};
+    
+                list.forEach(item => {
+                    obj[item.name] = item.data_type;
+                });
+                
+                resolve(obj);
             });
 
         

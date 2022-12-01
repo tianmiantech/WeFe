@@ -13,13 +13,13 @@
             type:    String,
             default: '',
         },
-        name:        String,
+        name:            String,
         /**
          * 如果上层传递下来，直接用
          */
-        featureType: {
-            type:    String,
-            default: '',
+        featureTypeList: {
+            type:    Object,
+            default: () => ({}),
         },
     });
 
@@ -27,24 +27,27 @@
 
     const featureType = computed(() => store.state.base.featureType);
 
-    const color = {
-        'Integer': '#79bbff',
-        'Long':    '#67c23a',
-        'Double':  '#909399', 
-        'Enum':    '#e6a23c', 
-        'String':  '#f56c6c',
+    const color = (type)=> {
+        return {
+            'Integer': '#79bbff',
+            'Long':    '#67c23a',
+            'Double':  '#909399', 
+            'Enum':    '#e6a23c', 
+            'String':  '#f56c6c',
+        }[type] || ''
     };
 
     const type = computed(() => {
-        const data = (featureType.value.filter((item) => {
-            return item.data_set_id === props.data_set_id;
-        }) || [])[0] || {};
+        // const data = (featureType.value.filter((item) => {
+        //     return item.data_set_id === props.data_set_id;
+        // }) || [])[0] || {};
+        const data = featureType[props.data_set_id] || {};
 
-        return props.featureType || data.features[props.name];
+        return props.featureTypeList[props.name] || data[props.name];
     });
 
     const showColor = computed(() => {
-        return color[type.value];
+        return color(type.value);
     });
 
     
