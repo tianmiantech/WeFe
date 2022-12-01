@@ -131,7 +131,7 @@
 
                 <el-tab-pane name="preview" label="数据预览">
                     <h4 v-if="!dataInfo.derived_from" class="mb10">主键已被 hash</h4>
-                    <DataSetPreview ref="DataSetPreview" :featureType="featureType" />
+                    <DataSetPreview ref="DataSetPreview" />
                 </el-tab-pane>
             </el-tabs>
         </template>
@@ -170,7 +170,6 @@
                     legendLeft:   'left',
                     legendOrient: 'vertical',
                 },
-                featureType: {},
             };
         },
         computed: {
@@ -235,7 +234,6 @@
                                 if(row.name === this.dataInfo.primary_key_column) {
                                     name = `${row.name}（主键）`;
                                 }
-                                this.featureType[row.name] = row.data_type;
                                 return {
                                     ...row,
                                     特征名称: name,

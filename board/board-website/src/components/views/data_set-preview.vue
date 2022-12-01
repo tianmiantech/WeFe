@@ -10,6 +10,7 @@
             :frozen-col-count="1"
             font="12px sans-serif"
             :style="{height:`${gridHeight}px`}"
+            ref="cgrid"
         >
             <c-grid-column
                 v-for="(item, index) in table_data.header"
@@ -19,13 +20,15 @@
                 :width="item === table_data.header[0] ? 240 : 'auto'"
                 :column-style="{textOverflow: 'ellipsis'}"
             >
-                {{ item }}{{featureType[item] ? `(${featureType[item]})`: ''}}
+                {{ item }}{{featureList[item] ? `(${featureList[item]})`: ''}}
             </c-grid-column>
         </c-grid>
     </div>
 </template>
 
 <script>
+    import { getDataFeatureType } from '@src/service';
+
     export default {
         props: {
             featureType: {
@@ -45,22 +48,37 @@
                     borderColor: '#EBEEF5',
                 },
                 gridHeight: 0,
+                features:   {},
             };
         },
         watch: {
-            featureType() {
-                this.loading = true;
-                const that = this;
+            featureList() {
+                this.$nextTick(() => {
+                    if(this.$refs['cgrid']){
+                        this.$refs['cgrid'].invalidate();
+                    }
+                });
 
-                setTimeout(() =>{
-                    that.loading = false;
-                }, 100);
+            },
+        },
+        computed: {
+            featureList(){
+                return JSON.stringify(this.featureType) === "{}" ? this.features : this.featureType; 
             },
         },
         methods: {
             // data_set preview
             async loadData(id) {
                 this.loading = true;
+
+                const res = await getDataFeatureType(id);
+                const obj = {};
+
+                res.forEach(item => {
+                    obj[item.name] = item.data_type;
+                });
+
+                this.features = obj;
 
                 const { code, data } = await this.$http.get({
                     url: '/storage/table_data_set/preview?id=' + id,

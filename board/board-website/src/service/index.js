@@ -161,3 +161,32 @@ export const getDataSetFeatureType = ({ projectId,memberId,dataSetId }) => {
         
     });
 };
+
+/**
+ * 数据预览时调用获取特征类型
+ * @param {string} data_set_id 
+ */
+export const getDataFeatureType = (data_set_id)=>{
+    return new Promise((resolve, reject) => {
+        $http.get({
+                url:    '/table_data_set/column/list',
+                params: {
+                    data_set_id,
+                },
+            }).then(res => {
+                const { code, data } = res;
+
+                let { list } = data || {};
+
+    
+                if(code !== 0) {
+                    list = [];
+                    console.log('获取特征类型失败');
+                }
+    
+                resolve(list);
+            });
+
+        
+    });
+}

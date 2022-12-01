@@ -550,7 +550,7 @@
                     callback && callback();
                     // get project/detail first
                     if(!this.getModelingList && this.form.project_type === 'MachineLearning') {
-                        this.$refs['ModelingList'][0].getList();
+                        this.$refs['ModelingList'][0] && this.$refs['ModelingList'][0].getList();
                         this.getModelingList = true;
                     }
 
@@ -576,7 +576,9 @@
                                 role = 'provider';
                             }
                         }
-                        this.$refs['membersListRef'][0].memberTabName = `${this.userInfo.member_id}-${role}`;
+                        if(this.$refs['membersListRef'][0]){
+                            this.$refs['membersListRef'][0].memberTabName = `${this.userInfo.member_id}-${role}`;
+                        }
                     }
 
                     // refresh audit state every 30s
