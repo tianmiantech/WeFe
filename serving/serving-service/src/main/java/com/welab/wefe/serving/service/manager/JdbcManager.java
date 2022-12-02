@@ -28,11 +28,14 @@ import java.sql.*;
 import java.util.*;
 import java.util.function.Consumer;
 
+
 /**
+ * jdbc management tool
+ *
+ * @deprecated 建议使用 JdbcClient
  * @author Johnny.lin
- * @Description: JDBC Management Tool
- * @date 2020/9/17
  */
+@Deprecated
 public class JdbcManager {
 	private static final Logger log = LoggerFactory.getLogger(JdbcManager.class);
 

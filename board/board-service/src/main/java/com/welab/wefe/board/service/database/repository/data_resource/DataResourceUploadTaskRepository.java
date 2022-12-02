@@ -17,7 +17,10 @@ package com.welab.wefe.board.service.database.repository.data_resource;
 
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUploadTaskMysqlModel;
 import com.welab.wefe.board.service.database.repository.base.BaseRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author zane
@@ -25,4 +28,21 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface DataResourceUploadTaskRepository extends BaseRepository<DataResourceUploadTaskMysqlModel, String> {
+
+    /**
+     * 删除老旧的历史数据
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional
+    @Query(value = "delete from #{#entityName} where DATEDIFF( now(),created_time) > 30", nativeQuery = true)
+    void deleteHistory();
+
+
+    /**
+     * 关闭超时未响应的任务
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional
+    @Query(value = "update #{#entityName} set status='failed',error_message='系统重启导致中断' where status='uploading' and  TIMESTAMPDIFF(MINUTE,updated_time,now())>5", nativeQuery = true)
+    void closeTimeoutTask();
 }

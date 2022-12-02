@@ -199,15 +199,19 @@ public class TableDataSetService extends DataResourceService {
 
 
     public TableDataSetMysqlModel query(String sourceJobId, ComponentType componentType) {
-        Specification<TableDataSetMysqlModel> where = Where.create().equal("derivedFromJobId", sourceJobId)
-                .equal("derivedFrom", componentType).build(TableDataSetMysqlModel.class);
+        Specification<TableDataSetMysqlModel> where = Where.create()
+                .equal("derivedFromJobId", sourceJobId)
+                .equal("derivedFrom", componentType)
+                .build();
 
         return tableDataSetRepository.findOne(where).orElse(null);
     }
 
 	public List<TableDataSetMysqlModel> queryAll(String sourceJobId, ComponentType componentType) {
-		Specification<TableDataSetMysqlModel> where = Where.create().equal("derivedFromJobId", sourceJobId)
-				.equal("derivedFrom", componentType).build(TableDataSetMysqlModel.class);
+		Specification<TableDataSetMysqlModel> where = Where.create()
+                .equal("derivedFromJobId", sourceJobId)
+				.equal("derivedFrom", componentType)
+                .build();
 		return tableDataSetRepository.findAll(where);
 	}
 
