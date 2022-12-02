@@ -31,9 +31,13 @@ import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilt
 import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
 import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterStorageService;
 import com.welab.wefe.board.service.service.fusion.FieldInfoService;
-import com.welab.wefe.board.service.util.*;
+import com.welab.wefe.board.service.util.AbstractBloomFilterReader;
+import com.welab.wefe.board.service.util.CsvBloomFilterReader;
+import com.welab.wefe.board.service.util.ExcelBloomfilterReader;
+import com.welab.wefe.board.service.util.SqlBloomFilterReader;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.jdbc.JdbcClient;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +45,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -114,7 +117,7 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
     /**
      * create AbstractDataSetReader
      */
-    private AbstractBloomFilterReader createBloomfilterReader(BloomFilterAddInputModel input) throws StatusCodeWithException {
+    private AbstractBloomFilterReader createBloomfilterReader(BloomFilterAddInputModel input) throws Exception {
         switch (input.getBloomfilterAddMethod()) {
             case Database:
                 return createSqlBloomfilterReader(input);
@@ -150,12 +153,12 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
     /**
      * create SqlDataSetReader
      */
-    private SqlBloomFilterReader createSqlBloomfilterReader(BloomFilterAddInputModel input) throws StatusCodeWithException {
+    private SqlBloomFilterReader createSqlBloomfilterReader(BloomFilterAddInputModel input) throws Exception {
         DataSourceMysqlModel dataSource = bloomfilterService.getDataSourceById(input.getDataSourceId());
         if (dataSource == null) {
             throw new StatusCodeWithException("此dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
         }
-        Connection conn = JdbcManager.getConnection(
+        JdbcClient client = JdbcClient.create(
                 dataSource.getDatabaseType(),
                 dataSource.getHost(),
                 dataSource.getPort(),
@@ -164,7 +167,7 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
                 dataSource.getDatabaseName()
         );
 
-        return new SqlBloomFilterReader(input.getMetadataList(), conn, input.getSql());
+        return new SqlBloomFilterReader(input.getMetadataList(), client, input.getSql());
     }
 
     /**
@@ -172,7 +175,7 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
      *
      * @param deduplication Do you need to de-duplicate the bloom_filter
      */
-    private void readAllToFilterFile(BloomFilterMysqlModel model, AbstractBloomFilterReader bloomfilterReader, boolean deduplication) throws StatusCodeWithException {
+    private void readAllToFilterFile(BloomFilterMysqlModel model, AbstractBloomFilterReader bloomfilterReader, boolean deduplication) throws Exception {
         long start = System.currentTimeMillis();
         LOG.info("开始解析过滤器：" + model.getId());
 

@@ -20,7 +20,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.wefe.enums.DatabaseType;
+import com.welab.wefe.common.jdbc.base.DatabaseType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

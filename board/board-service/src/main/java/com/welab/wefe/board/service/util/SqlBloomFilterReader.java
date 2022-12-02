@@ -17,14 +17,14 @@
 package com.welab.wefe.board.service.util;
 
 import com.welab.wefe.board.service.dto.fusion.BloomFilterColumnInputModel;
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.jdbc.JdbcClient;
+import com.welab.wefe.common.jdbc.base.JdbcScanner;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.sql.*;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -36,32 +36,17 @@ import java.util.List;
  */
 public class SqlBloomFilterReader extends AbstractBloomFilterReader {
     protected static final Logger LOG = LoggerFactory.getLogger(SqlBloomFilterReader.class);
-    private long totalRowCount;
+    private long totalRowCount = -1;
     private List<String> headers;
-    private final Connection conn;
+    private final JdbcClient jdbcClient;
     private final String sql;
-    private PreparedStatement ps = null;
-    private ResultSet rs = null;
-    private ResultSetMetaData metaData;
-    private int columnCount;
+    private JdbcScanner scanner;
 
-    public SqlBloomFilterReader(Connection conn, String sql) throws StatusCodeWithException {
-        this(null, conn, sql);
-    }
-
-    public SqlBloomFilterReader(List<BloomFilterColumnInputModel> metadataList, Connection conn, String sql) throws StatusCodeWithException {
+    public SqlBloomFilterReader(List<BloomFilterColumnInputModel> metadataList, JdbcClient jdbcClient, String sql) throws Exception {
         super(metadataList);
-        this.conn = conn;
+        this.jdbcClient = jdbcClient;
         this.sql = sql;
-
-        try {
-            this.ps = conn.prepareStatement(sql);
-            this.rs = ps.executeQuery();
-            this.metaData = rs.getMetaData();
-            this.columnCount = metaData.getColumnCount();
-        } catch (SQLException e) {
-            StatusCode.SQL_ERROR.throwException(e);
-        }
+        this.scanner = jdbcClient.createScanner(sql);
 
     }
 
@@ -71,66 +56,32 @@ public class SqlBloomFilterReader extends AbstractBloomFilterReader {
             return this.headers;
         }
 
-        this.headers = JdbcManager.getRowHeaders(conn, sql);
+        this.headers = jdbcClient.getHeaders(sql);
         return this.headers;
     }
 
     @Override
     public long getTotalDataRowCount() {
-        if (totalRowCount > 0) {
+        if (totalRowCount > -1) {
             return totalRowCount;
         }
 
-        totalRowCount = JdbcManager.count(conn, sql);
+        try {
+            totalRowCount = jdbcClient.selectRowCount(sql);
+        } catch (StatusCodeWithException e) {
+            throw new RuntimeException(e);
+        }
         return totalRowCount;
     }
 
-    @Override
-    protected LinkedHashMap<String, Object> readOneRow() throws StatusCodeWithException {
-        try {
-            if (!rs.next()) {
-                return null;
-            }
-
-            // Data loading, a map corresponds to a row of data
-            LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-            for (int i = 1; i <= columnCount; i++) {
-                if (rs.getObject(i) == null) {
-                    map.put(metaData.getColumnName(i), "");
-                } else {
-                    map.put(metaData.getColumnName(i), rs.getObject(i));
-                }
-            }
-            return map;
-        } catch (SQLException e) {
-            StatusCode.SQL_ERROR.throwException(e.getClass().getSimpleName() + " " + e.getMessage());
-            return null;
-        }
+    protected LinkedHashMap<String, Object> readOneRow() throws Exception {
+        return scanner.readOneRow();
     }
-
 
     @Override
     public void close() throws IOException {
-        if (rs != null) {
-            try {
-                rs.close();
-            } catch (SQLException e) {
-                LOG.error("ResultSet is null" + e);
-            }
-        }
-        if (ps != null) {
-            try {
-                ps.close();
-            } catch (SQLException e) {
-                LOG.error("PreparedStatement is null" + e);
-            }
-        }
-        if (conn != null) {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                LOG.error("Connection is null" + e);
-            }
+        if (scanner != null) {
+            scanner.close();
         }
     }
 }

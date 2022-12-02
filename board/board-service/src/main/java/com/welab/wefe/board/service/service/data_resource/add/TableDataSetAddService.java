@@ -28,9 +28,13 @@ import com.welab.wefe.board.service.service.DataSetColumnService;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTaskService;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
-import com.welab.wefe.board.service.util.*;
+import com.welab.wefe.board.service.util.AbstractTableDataSetReader;
+import com.welab.wefe.board.service.util.CsvTableDataSetReader;
+import com.welab.wefe.board.service.util.ExcelTableDataSetReader;
+import com.welab.wefe.board.service.util.SqlTableDataSetReader;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.jdbc.JdbcClient;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.apache.commons.io.FileUtils;
@@ -39,7 +43,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -123,7 +126,7 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
     /**
      * create AbstractDataSetReader
      */
-    private AbstractTableDataSetReader createDataSetReader(TableDataSetAddInputModel input) throws StatusCodeWithException {
+    private AbstractTableDataSetReader createDataSetReader(TableDataSetAddInputModel input) throws Exception {
         switch (input.getDataSetAddMethod()) {
             case Database:
                 return createSqlDataSetReader(input);
@@ -159,12 +162,12 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
     /**
      * create SqlDataSetReader
      */
-    private SqlTableDataSetReader createSqlDataSetReader(TableDataSetAddInputModel input) throws StatusCodeWithException {
+    private SqlTableDataSetReader createSqlDataSetReader(TableDataSetAddInputModel input) throws Exception {
         DataSourceMysqlModel dataSource = tableDataSetService.getDataSourceById(input.getDataSourceId());
         if (dataSource == null) {
             throw new StatusCodeWithException("此dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
         }
-        Connection conn = JdbcManager.getConnection(
+        JdbcClient client = JdbcClient.create(
                 dataSource.getDatabaseType(),
                 dataSource.getHost(),
                 dataSource.getPort(),
@@ -173,7 +176,7 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
                 dataSource.getDatabaseName()
         );
 
-        return new SqlTableDataSetReader(input.getMetadataList(), conn, input.getSql());
+        return new SqlTableDataSetReader(input.getMetadataList(), client, input.getSql());
     }
 
     /**

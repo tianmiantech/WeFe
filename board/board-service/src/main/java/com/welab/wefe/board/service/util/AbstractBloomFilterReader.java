@@ -94,7 +94,7 @@ public abstract class AbstractBloomFilterReader implements Closeable {
      *
      * @param dataRowConsumer Data row consumption method
      */
-    public void readAll(Consumer<LinkedHashMap<String, Object>> dataRowConsumer) throws StatusCodeWithException {
+    public void readAll(Consumer<LinkedHashMap<String, Object>> dataRowConsumer) throws Exception {
         read(dataRowConsumer, -1, -1);
     }
 
@@ -105,7 +105,7 @@ public abstract class AbstractBloomFilterReader implements Closeable {
      * @param maxReadRows     Maximum number of read lines allowed
      * @param maxReadTimeInMs Maximum read time allowed
      */
-    public void read(Consumer<LinkedHashMap<String, Object>> dataRowConsumer, long maxReadRows, long maxReadTimeInMs) throws StatusCodeWithException {
+    public void read(Consumer<LinkedHashMap<String, Object>> dataRowConsumer, long maxReadRows, long maxReadTimeInMs) throws Exception {
 
         long start = System.currentTimeMillis();
 
@@ -207,5 +207,5 @@ public abstract class AbstractBloomFilterReader implements Closeable {
     /**
      * Read data row
      */
-    protected abstract LinkedHashMap<String, Object> readOneRow() throws StatusCodeWithException;
+    protected abstract LinkedHashMap<String, Object> readOneRow() throws StatusCodeWithException, Exception;
 }
