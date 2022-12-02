@@ -130,8 +130,8 @@ public abstract class AbstractDataSetReader implements Closeable {
      *
      * @param dataRowConsumer Data row consumption method
      */
-    public void readAllWithSelectRow(Consumer<Map<String, Object>> dataRowConsumer, List<String> rows, int processCount) throws IOException, StatusCodeWithException {
-        readWithSelectRow(dataRowConsumer, -1, -1, rows, processCount);
+    public void readAllWithSelectRow(Consumer<Map<String, Object>> dataRowConsumer, List<String> idFeatureFields, int processCount) throws IOException, StatusCodeWithException {
+        readWithSelectRow(dataRowConsumer, -1, -1, idFeatureFields, processCount);
     }
 
     /**
@@ -141,7 +141,7 @@ public abstract class AbstractDataSetReader implements Closeable {
      * @param maxReadRows     Maximum number of rows that can be read
      * @param maxReadTimeInMs Maximum read time allowed
      */
-    public void readWithSelectRow(Consumer<Map<String, Object>> dataRowConsumer, long maxReadRows, long maxReadTimeInMs, List<String> rows, int processCount) throws StatusCodeWithException {
+    public void readWithSelectRow(Consumer<Map<String, Object>> dataRowConsumer, long maxReadRows, long maxReadTimeInMs, List<String> idFeatureFields, int processCount) throws StatusCodeWithException {
 
         long start = System.currentTimeMillis();
 
@@ -158,7 +158,7 @@ public abstract class AbstractDataSetReader implements Closeable {
             List<Object> values = new ArrayList<>(line.values());
             LinkedHashMap<String, Object> newLine = new LinkedHashMap<>();
             for (int i = 0; i < line.size(); i++) {
-                if (rows.contains(fields.get(i))) {
+                if (idFeatureFields.contains(fields.get(i))) {
                     newLine.put((String) fields.get(i), values.get(i));
                 }
             }

@@ -215,7 +215,7 @@
                     }).then((data) => {
                         const { psi= {} } = data;
                         const { 
-                            pred_label_psi,
+                            pred_label_psi = '',
                             train_pred_label_static,
                             test_pred_label_static ,
                             bin_cal_results = {},

@@ -199,6 +199,7 @@ public class JdbcManager {
             // 使用流式获取数据
             ps = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             ps.setFetchSize(Integer.MIN_VALUE);
+            ps.setFetchDirection(ResultSet.FETCH_REVERSE);
             if (maxReadLineCount > 0) {
                 ps.setLargeMaxRows(maxReadLineCount);
             }

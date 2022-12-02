@@ -38,12 +38,6 @@ import java.util.TreeMap;
  */
 @Service
 public class ThirdPartyService {
-    @Autowired
-    private TaskService taskService;
-
-    @Autowired
-    private TaskRepository taskRepository;
-
 
     @Autowired
     private PartnerService partnerService;
@@ -76,7 +70,7 @@ public class ThirdPartyService {
     /**
      * psi-callback
      */
-    public void callback(String url, String businessId, CallbackType callbackType, String socketIp, int sockerPort) throws StatusCodeWithException {
+    public JSONObject callback(String url, String businessId, CallbackType callbackType, String socketIp, int sockerPort) throws StatusCodeWithException {
 
         JObject params = JObject
                 .create()
@@ -85,13 +79,13 @@ public class ThirdPartyService {
                 .put("socket_ip", socketIp)
                 .put("socket_port", sockerPort);
 
-        request(url, "thirdparty/callback", params);
+        return request(url, "thirdparty/callback", params);
     }
 
     /**
      * psi-callback
      */
-    public void callback(String url, String businessId, CallbackType callbackType, Integer dataCount) throws StatusCodeWithException {
+    public JSONObject callback(String url, String businessId, CallbackType callbackType, Integer dataCount) throws StatusCodeWithException {
 
         JObject params = JObject
                 .create()
@@ -99,7 +93,7 @@ public class ThirdPartyService {
                 .put("type", callbackType)
                 .put("data_count", dataCount);
 
-        request(url, "thirdparty/callback", params);
+        return request(url, "thirdparty/callback", params);
     }
 
 
@@ -130,7 +124,7 @@ public class ThirdPartyService {
         return request(url, api, params, true);
     }
 
-    private JSONObject request(String url, String api, JSONObject params, boolean needSign) throws StatusCodeWithException {
+    public JSONObject request(String url, String api, JSONObject params, boolean needSign) throws StatusCodeWithException {
         /**
          * Prevent the map from being out of order, which may cause the check failure
          */
