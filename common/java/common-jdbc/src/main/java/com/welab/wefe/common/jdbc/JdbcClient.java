@@ -134,13 +134,24 @@ public class JdbcClient {
     }
 
     public JdbcScanner createScanner(String sql, long maxReadLine) throws Exception {
+        return createScanner(sql, maxReadLine, null);
+    }
+
+    /**
+     * 创建 Scanner 对象，使用流式获取数据。
+     *
+     * @param sql          查询语句
+     * @param maxReadLine  需要获取的最大数据量，默认为0，表示不指定。
+     * @param returnFields 需要返回的字段列表，默认为 null，表示返回所有字段。
+     */
+    public JdbcScanner createScanner(String sql, long maxReadLine, List<String> returnFields) throws Exception {
         Connection conn = createConnection();
         switch (databaseType) {
             case MySql:
-                return new MysqlScanner(conn, sql, maxReadLine);
+                return new MysqlScanner(conn, sql, maxReadLine, returnFields);
             case Hive:
             case Impala:
-                return new HiveScanner(conn, sql, maxReadLine);
+                return new HiveScanner(conn, sql, maxReadLine, returnFields);
             default:
                 LOG.error("不支持的枚举项：" + databaseType);
                 throw new RuntimeException("不支持的枚举项：" + databaseType);

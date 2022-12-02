@@ -16,6 +16,7 @@
 package com.welab.wefe.common.jdbc.base;
 
 import com.welab.wefe.common.jdbc.JdbcClient;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,28 +38,37 @@ public abstract class JdbcScanner implements Closeable {
     protected long maxReadLine;
     protected PreparedStatement statement = null;
     protected ResultSet resultSet = null;
-    private List<String> headers;
+    private final List<String> headers;
+
 
     protected abstract ResultSet execute() throws SQLException;
 
+
     public JdbcScanner(Connection conn, String sql, long maxReadLine) throws SQLException {
+        this(conn, sql, maxReadLine, null);
+    }
+
+    public JdbcScanner(Connection conn, String sql, long maxReadLine, List<String> returnFields) throws SQLException {
         this.conn = conn;
         this.sql = sql;
         this.maxReadLine = maxReadLine;
         this.resultSet = execute();
 
-        ResultSetMetaData metaData = resultSet.getMetaData();
-        this.headers = JdbcClient.getHeaders(metaData);
+        // 如果未指定返回字段，返回全部字段。
+        if (CollectionUtils.isEmpty(returnFields)) {
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            this.headers = JdbcClient.getHeaders(metaData);
+        } else {
+            this.headers = returnFields;
+        }
     }
 
 
     public LinkedHashMap<String, Object> readOneRow() throws Exception {
         if (resultSet.next()) {
             LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-            for (int i = 0; i < headers.size(); i++) {
-                String header = headers.get(i);
-                // resultSet 的索引从 1 开始
-                map.put(header, resultSet.getObject(i + 1));
+            for (String header : headers) {
+                map.put(header, resultSet.getObject(header));
             }
             return map;
         } else {

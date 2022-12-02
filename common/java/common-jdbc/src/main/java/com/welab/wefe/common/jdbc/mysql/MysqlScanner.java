@@ -20,6 +20,7 @@ import com.welab.wefe.common.jdbc.base.JdbcScanner;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 /*
  *     protected boolean createStreamingResultSet() {
@@ -35,6 +36,10 @@ import java.sql.SQLException;
 public class MysqlScanner extends JdbcScanner {
     public MysqlScanner(Connection conn, String sql, long maxReadLine) throws SQLException {
         super(conn, sql, maxReadLine);
+    }
+
+    public MysqlScanner(Connection conn, String sql, long maxReadLine, List<String> returnFields) throws SQLException {
+        super(conn, sql, maxReadLine, returnFields);
     }
 
     @Override
