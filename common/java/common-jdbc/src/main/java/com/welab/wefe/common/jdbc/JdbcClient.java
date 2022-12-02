@@ -29,6 +29,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -63,7 +64,7 @@ public class JdbcClient {
         this.dbName = dbName;
     }
 
-    public <T> void saveBatch(String sql, List<T> models, Function<T, Object[]> model2ArrayFunc) throws StatusCodeWithException {
+    public <T> void saveBatch(String sql, List<T> models, Function<T, Object[]> model2ArrayFunc) throws Exception {
         List<Object[]> list = new ArrayList<>();
         for (T item : models) {
             list.add(model2ArrayFunc.apply(item));
@@ -76,7 +77,7 @@ public class JdbcClient {
      *
      * @param sql e.g: insert into table(id,name) values(?,?)
      */
-    public void saveBatch(String sql, List<Object[]> rows) throws StatusCodeWithException {
+    public void saveBatch(String sql, List<Object[]> rows) throws Exception {
         long start = System.currentTimeMillis();
         Connection conn = createConnection(true);
         PreparedStatement ps = null;
@@ -106,13 +107,35 @@ public class JdbcClient {
     }
 
     /**
-     * 执行查询，并流式读取。
-     *
-     * @param maxReadLine 最大读取行数
+     * @see {{@link #scan(String, Consumer, long, List)}}
+     */
+    public void scan(String sql, Consumer<LinkedHashMap<String, Object>> consumer) throws Exception {
+        scan(sql, consumer, 0);
+    }
+
+    /**
+     * @see {{@link #scan(String, Consumer, long, List)}}
+     */
+    public void scan(String sql, Consumer<LinkedHashMap<String, Object>> consumer, List<String> returnFields) throws Exception {
+        scan(sql, consumer, returnFields);
+    }
+
+    /**
+     * @see {{@link #scan(String, Consumer, long, List)}}
      */
     public void scan(String sql, Consumer<LinkedHashMap<String, Object>> consumer, long maxReadLine) throws Exception {
+        scan(sql, consumer, maxReadLine, null);
+    }
 
-        JdbcScanner scanner = createScanner(sql, maxReadLine);
+    /**
+     * 执行查询，并流式读取。
+     *
+     * @param maxReadLine  最大读取行数，为 0 表示不指定。
+     * @param returnFields 需要返回的字段列表，为空表示不指定。
+     */
+    public void scan(String sql, Consumer<LinkedHashMap<String, Object>> consumer, long maxReadLine, List<String> returnFields) throws Exception {
+
+        JdbcScanner scanner = createScanner(sql, maxReadLine, returnFields);
 
         try {
             while (true) {
@@ -161,7 +184,7 @@ public class JdbcClient {
     /**
      * 对于 hive，由于权限问题，有可能获取失败。
      */
-    public long selectRowCount(String sql) throws StatusCodeWithException {
+    public long selectRowCount(String sql) throws Exception {
         sql = StringUtil.trim(sql, ' ', ';');
 
         PreparedStatement ps = null;
@@ -186,7 +209,7 @@ public class JdbcClient {
     /**
      * Get the column header name of the query sql data
      */
-    public List<String> getHeaders(String sql) throws StatusCodeWithException {
+    public List<String> getHeaders(String sql) throws Exception {
         PreparedStatement ps = null;
         ResultSet rs = null;
         Connection conn = createConnection();
@@ -206,6 +229,56 @@ public class JdbcClient {
         }
 
         return null;
+    }
+
+    /**
+     * @see {{@link #queryList(String, List)}}
+     */
+    public List<Map<String, Object>> queryList(String sql) throws Exception {
+        return queryList(sql, null);
+    }
+
+    /**
+     * 执行查询，并获取全量的查询结果。
+     *
+     * @param returnFields 指定需要返回的字段列表
+     */
+    public List<Map<String, Object>> queryList(String sql, List<String> returnFields) throws Exception {
+        List<Map<String, Object>> list = new ArrayList<>();
+        scan(sql, list::add, returnFields);
+        return list;
+    }
+
+    /**
+     * @see {{@link #queryOne(String, List)}}
+     */
+    public Map<String, Object> queryOne(String sql) throws Exception {
+        return queryOne(sql, null);
+    }
+
+    /**
+     * 执行查询，并获取第一条查询结果。
+     *
+     * @param returnFields 指定需要返回的字段列表
+     */
+    public Map<String, Object> queryOne(String sql, List<String> returnFields) throws Exception {
+        List<Map<String, Object>> list = new ArrayList<>();
+
+        scan(sql, list::add, 1, returnFields);
+
+        if (list.size() > 0) {
+            return list.get(0);
+        } else {
+            return null;
+        }
+    }
+
+
+    /**
+     * 获取指定表的字段列表
+     */
+    public List<String> listTableFields(String tableName) throws Exception {
+        return getHeaders("select * from `" + tableName + "` limit 1");
     }
 
     public static List<String> getHeaders(ResultSetMetaData metaData) throws SQLException {
@@ -232,24 +305,13 @@ public class JdbcClient {
     /**
      * 检查 sql 是否正确
      */
-    public String testSql(String sql) throws StatusCodeWithException {
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        Connection connection = createConnection();
+    public String testSql(String sql) {
         try {
-
-            ps = connection.prepareStatement(sql);
-            // 务必加上这两个设置，否则默认取全量数据内存会炸。
-            ps.setFetchSize(1);
-            ps.setMaxRows(1);
-            rs = ps.executeQuery();
-        } catch (SQLException e) {
+            execute(sql);
+        } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             return e.getClass().getSimpleName() + ":" + e.getMessage();
-        } finally {
-            close(connection, ps, rs);
         }
-
         return null;
     }
 
@@ -258,7 +320,6 @@ public class JdbcClient {
         ResultSet rs = null;
         Connection connection = createConnection();
         try {
-
             ps = connection.prepareStatement(sql);
             return ps.execute();
         } catch (SQLException e) {
@@ -272,7 +333,7 @@ public class JdbcClient {
     /**
      * 获取当前数据库中的所有表
      */
-    public List<String> listTables() throws StatusCodeWithException {
+    public List<String> listTables() throws Exception {
 
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -295,11 +356,11 @@ public class JdbcClient {
         return tables;
     }
 
-    protected Connection createConnection() throws StatusCodeWithException {
+    protected Connection createConnection() throws Exception {
         return createConnection(false);
     }
 
-    protected Connection createConnection(boolean batchModel) throws StatusCodeWithException {
+    protected Connection createConnection(boolean batchModel) throws Exception {
 
         Connection conn;
         try {
