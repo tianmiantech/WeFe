@@ -144,10 +144,15 @@
                             vData.form = form;
                             members.forEach(member => {
                                 const item = vData.featureSelectTab.find(row => row.member_id === member.member_id && row.member_role === member.member_role);
-
+                                const chooseItem = [];
                                 if(item) {
-                                    item.$checkedColumnsArr.push(...member.features);
-                                    vData.feature_column_count += member.features.length;
+                                    item.$feature_list.forEach(feature => {
+                                        if (member.features.includes(feature.name)) {
+                                            chooseItem.push(feature.name);
+                                        }
+                                    });
+                                    item.$checkedColumnsArr = [...chooseItem];
+                                    vData.feature_column_count += chooseItem.length;
                                 }
                             });
                             vData.workMode = workMode;
@@ -198,7 +203,6 @@
                             features:    item.$checkedColumnsArr,
                         });
                     });
-                    console.log(vData.feature_column_count);
                 },
 
                 checkParams() {
