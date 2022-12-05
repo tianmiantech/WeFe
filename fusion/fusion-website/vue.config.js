@@ -179,7 +179,7 @@ module.exports = {
         },
         proxy: {
             '/fusion-service': {
-                target:       'https://tbapi-dev.tianmiantech.com/fusion-service/',
+                target:       'https://xxx.com/fusion-service/',
                 secure:       false,
                 timeout:      1000000,
                 changeOrigin: true,
@@ -188,7 +188,7 @@ module.exports = {
                 },
             },
             '/iam': {
-                target:       'https://tbapi-dev.tianmiantech.com/',
+                target:       'https://xxx.com/',
                 secure:       false,
                 timeout:      1000000,
                 changeOrigin: true,
