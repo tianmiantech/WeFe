@@ -49,7 +49,7 @@ public class UnionHelper {
 
     static {
         try {
-            CommonConfig commonConfig = GatewayServer.CONTEXT.getBean(CommonConfig.class);
+            CommonConfig commonConfig = GatewayServer.CONTEXT.getBean("commonConfig", CommonConfig.class);
             BASE_URL = commonConfig.getUnionBaseUrl();
             BASE_URL = (BASE_URL.endsWith("/") ? BASE_URL : BASE_URL + "/");
 

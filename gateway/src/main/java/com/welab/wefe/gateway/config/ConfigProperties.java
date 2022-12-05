@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 @Component
 @PropertySource(value = {"file:${config.path}"}, encoding = "utf-8")
 @ConfigurationProperties
-public class ConfigProperties {
+public class ConfigProperties extends CommonConfig{
 
     /**
      * Grpc private service port number
