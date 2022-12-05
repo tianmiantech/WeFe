@@ -212,7 +212,12 @@
                 statusList: [{
                     name:  '等待合作方审核',
                     value: 'Pending',
-                }, {
+                },
+                {
+                    name:  '准备中',
+                    value: 'Ready',
+                },
+                {
                     name:  '等待我方审核',
                     value: 'Await',
                 }, {

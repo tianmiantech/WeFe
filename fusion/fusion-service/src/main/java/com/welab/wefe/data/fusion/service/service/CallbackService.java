@@ -16,19 +16,26 @@
 
 package com.welab.wefe.data.fusion.service.service;
 
+import static com.welab.wefe.common.StatusCode.DATA_NOT_FOUND;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.data.fusion.service.actuator.rsapsi.PsiClientActuator;
 import com.welab.wefe.data.fusion.service.api.thirdparty.CallbackApi;
+import com.welab.wefe.data.fusion.service.database.entity.PartnerMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.TaskMySqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.TaskRepository;
+import com.welab.wefe.data.fusion.service.dto.entity.PartnerOutputModel;
+import com.welab.wefe.data.fusion.service.enums.PSIActuatorStatus;
 import com.welab.wefe.data.fusion.service.enums.TaskStatus;
 import com.welab.wefe.data.fusion.service.manager.ActuatorManager;
 import com.welab.wefe.data.fusion.service.task.AbstractTask;
 import com.welab.wefe.data.fusion.service.task.PsiClientTask;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import static com.welab.wefe.common.StatusCode.DATA_NOT_FOUND;
+import com.welab.wefe.data.fusion.service.task.PsiServerTask;
 
 /**
  * @author hunter.zhao
@@ -64,16 +71,14 @@ public class CallbackService {
                 taskRepository.save(task);
 
                 break;
-            case falsify:
-                //Alignment data check invalid, shut down task
-                AbstractTask job = ActuatorManager.get(input.getBusinessId());
-                job.finish();
-                break;
             case success:
                 //Mission completed. Destroy task
                 AbstractTask successTask = ActuatorManager.get(input.getBusinessId());
                 successTask.finish();
 
+                break;
+            case stop:
+                stop(input.getBusinessId());
                 break;
             default:
                 throw new RuntimeException("意料之外的枚举值：" + input.getType());
@@ -97,25 +102,36 @@ public class CallbackService {
         }
         task.setStatus(TaskStatus.Running);
         taskRepository.save(task);
-
+        
+        PartnerOutputModel partnerModel = null;
+        PartnerMySqlModel partner = partnerService.findByPartnerId(task.getPartnerMemberId());
+        if (partner != null) {
+            partnerModel = ModelMapper.map(partner, PartnerOutputModel.class);
+        }
         /*
          * The other side is ready, we modify the task status and start client
          */
-        AbstractTask client = new PsiClientTask(
-                businessId,
-                new PsiClientActuator(
-                        businessId,
-                        task.getDataCount(),
-                        ip,
-                        port,
-                        task.getDataResourceId(),
-                        task.isTrace(),
-                        task.getTraceColumn()
-                ));
-
+        AbstractTask client = new PsiClientTask(businessId, new PsiClientActuator(businessId, task.getDataCount(), ip,
+                port, task.getDataResourceId(), task.isTrace(), task.getTraceColumn(), partnerModel));
 
         ActuatorManager.set(client);
 
         client.run();
+    }
+    
+    /**
+     * The other party's server-socket is ready, we start client
+     *
+     * @param businessId
+     * @throws StatusCodeWithException
+     */
+    private void stop(String businessId) throws StatusCodeWithException {
+        PsiServerTask serverTask = (PsiServerTask)ActuatorManager.get(businessId);
+        try {
+            serverTask.actuator.status = PSIActuatorStatus.exception;
+            serverTask.close();
+        } catch (Exception e) {
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
+        }
     }
 }

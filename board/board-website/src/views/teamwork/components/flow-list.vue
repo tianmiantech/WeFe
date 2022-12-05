@@ -39,11 +39,53 @@
             </div>
         </template>
 
+        <el-form inline @submit.prevent>
+            <el-form-item label="联邦任务类型：">
+                <el-select v-model="flowListForm.federatedLearningType" clearable>
+                    <el-option
+                        v-for="item in flTList"
+                        :key="item.value"
+                        :value="item.value"
+                        :label="item.label"
+                    />
+                </el-select>
+            </el-form-item>
+            <el-form-item label="状态：">
+                <el-select v-model="flowListForm.status" clearable>
+                    <el-option
+                        v-for="item in statusList"
+                        :key="item.value"
+                        :value="item.value"
+                        :label="item.label"
+                    />
+                </el-select>
+            </el-form-item>
+            <el-form-item label="创建者：">
+                <el-select v-model="flowListForm.creator" filterable clearable>
+                    <el-option
+                        v-for="item in creatorList"
+                        :key="item.id"
+                        :value="item.id"
+                        :label="item.nickname"
+                    />
+                </el-select>
+            </el-form-item>
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    @click="getFlowList"
+                >
+                    搜索
+                </el-button>
+            </el-form-item>
+        </el-form>
+
         <el-table
             ref="multipleTable"
             max-height="500px"
             :data="list"
             stripe
+            border
         >
             <el-table-column
                 label="训练名称"
@@ -424,8 +466,46 @@
                     mix_lr:   require('@assets/images/mix_lr.png'),
                     mix_xgb:  require('@assets/images/mix_xgb.png'),
                 },
-                flowTimer: null,
-                config:    {}, // deeplearning config
+                flowTimer:    null,
+                config:       {}, // deeplearning config
+                flowListForm: {
+                    federatedLearningType: '',
+                    status:                '',
+                    creator:               '',
+                },
+                flTList: [
+                    {
+                        label: '横向',
+                        value: 'horizontal',
+                    },
+                    {
+                        label: '纵向',
+                        value: 'vertical',
+                    },
+                    {
+                        label: '混合',
+                        value: 'mix',
+                    },
+                ],
+                statusList: [
+                    {
+                        label: '编辑中',
+                        value: 'editing',
+                    },
+                    {
+                        label: '运行中',
+                        value: 'running',
+                    },
+                    {
+                        label: '运行成功',
+                        value: 'success',
+                    },
+                    {
+                        label: '中断',
+                        value: 'interrupted',
+                    },
+                ],
+                creatorList: [],
             };
         },
         computed: {
@@ -449,12 +529,26 @@
             this.getFlowList();
             this.getTemplateList();
             this.getConfigInfo();
+            this.loadMemberList();
         },
         beforeUnmount() {
             clearTimeout(this.timer);
             clearTimeout(this.flowTimer);
         },
         methods: {
+            async loadMemberList(keyward) {
+                const { code, data } = await this.$http.post({
+                    url:  '/account/query',
+                    data: {
+                        page_size: 200,
+                        name:      keyward,
+                    },
+                });
+
+                if (code === 0) {
+                    this.creatorList = data.list;
+                }
+            },
             afterTableRender() {
                 clearTimeout(this.timer);
 
@@ -479,6 +573,7 @@
                         project_id:             this.project_id,
                         page_index:             this.pagination.page_index - 1,
                         page_size:              this.pagination.page_size,
+                        ...this.flowListForm,
                     },
                 });
 
@@ -494,6 +589,8 @@
                         this.flowTimer = setTimeout(() => {
                             this.getFlowList({ requestFromRefresh: true });
                         }, 5000);
+                    } else {
+                        this.list = [];
                     }
                     clearTimeout(this.flowTimer);
                     this.flowTimer = setTimeout(() => {

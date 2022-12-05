@@ -135,7 +135,7 @@ public class DataResouceHelper {
             // Obtain column head
             headRowConsumer.accept(reader.getHeader());
             // Read data row
-            reader.readWithSelectRow(dataRowConsumer, -1, -1, rowsList);
+            reader.readWithSelectRow(dataRowConsumer, 20, 3000, rowsList);
         } finally {
             reader.close();
         }
