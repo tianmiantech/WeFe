@@ -27,8 +27,8 @@ import com.welab.wefe.common.fieldvalidate.secret.Secret;
 import com.welab.wefe.common.fieldvalidate.secret.SecretUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.TempRsaCache;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.serving.service.database.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.serving.service.database.repository.GlobalConfigRepository;
 import com.welab.wefe.serving.service.dto.globalconfig.base.AbstractConfigModel;
@@ -101,7 +101,7 @@ public class BaseGlobalConfigService {
             one = new GlobalConfigMysqlModel();
             one.setGroup(group);
             one.setName(name);
-            one.setCreatedBy(CurrentAccount.id());
+            one.setCreatedBy(CurrentAccountUtil.get().getId());
         } else {
             if (one.getValue() != null && value == null) {
                 return;
@@ -121,7 +121,7 @@ public class BaseGlobalConfigService {
             }
         }
         one.setValue(value);
-        one.setUpdatedBy(CurrentAccount.id());
+        one.setUpdatedBy(CurrentAccountUtil.get().getId());
 
         if (comment != null) {
             one.setComment(comment);

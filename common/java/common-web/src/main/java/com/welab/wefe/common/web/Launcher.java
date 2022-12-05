@@ -88,7 +88,7 @@ public class Launcher {
         /**
          * Initialize CurrentAccount and preheat static resources
          */
-        CurrentAccount.init();
+       // CurrentAccount.init();
 
         /**
          * Initialize CaptchaService to preheat static resources

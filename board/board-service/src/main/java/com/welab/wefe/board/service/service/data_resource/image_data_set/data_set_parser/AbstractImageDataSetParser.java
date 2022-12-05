@@ -24,7 +24,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.file.compression.impl.Zip;
 import com.welab.wefe.common.util.FileUtil;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 import org.apache.commons.io.FileUtils;
 
@@ -197,7 +197,7 @@ public abstract class AbstractImageDataSetParser extends AbstractService {
                 Paths.get(dataSet.getStorageNamespace(), imageFile.getName()).toString()
         );
         sample.setFileSize(imageFile.length());
-        sample.setCreatedBy(CurrentAccount.id());
+        sample.setCreatedBy(CurrentAccountUtil.get().getId());
 
         // move image to dest dir
         File destFile = new File(sample.getFilePath());

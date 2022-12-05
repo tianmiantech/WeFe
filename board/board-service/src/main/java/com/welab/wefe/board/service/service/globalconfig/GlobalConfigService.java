@@ -30,7 +30,6 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.IpAddressUtil;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.wefe.dto.global_config.GatewayConfigModel;
 import com.welab.wefe.common.wefe.dto.global_config.base.AbstractConfigModel;
 import com.welab.wefe.common.wefe.dto.global_config.base.ConfigGroupConstant;
@@ -56,15 +55,10 @@ public class GlobalConfigService extends BaseGlobalConfigService {
     private DataSetStorageService dataSetStorageService;
 
     public void update(GlobalConfigUpdateApi.Input input) throws Exception {
-        if (!CurrentAccount.isAdmin()) {
-            StatusCode.ILLEGAL_REQUEST.throwException("只有管理员才能执行此操作。");
-        }
-
         int runningJobCount = jobService.runningJobCount();
         if (runningJobCount > 0) {
             StatusCode.ILLEGAL_REQUEST.throwException("当前有" + runningJobCount + "个任务正在运行，暂时不允许修改配置项，请在任务结束后重试。");
         }
-
 
         for (Map.Entry<String, Map<String, String>> group : input.groups.entrySet()) {
             AbstractConfigModel model = toModel(group.getKey(), group.getValue());

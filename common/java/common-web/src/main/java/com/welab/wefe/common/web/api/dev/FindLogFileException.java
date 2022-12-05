@@ -19,7 +19,6 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.OS;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.config.CommonConfig;
@@ -41,9 +40,6 @@ public class FindLogFileException extends AbstractApi<FindLogFileException.Input
 
     @Override
     protected ApiResult<Output> handle(Input input) throws Exception {
-        if (!CurrentAccount.isAdmin()) {
-            StatusCode.PERMISSION_DENIED.throwException("普通用户无法进行此操作。");
-        }
 
         // 调试了很久，windows 上总是体验不好，与其被当成 bug，不如不提供。
         boolean isWindows = OS.get() == OS.windows;

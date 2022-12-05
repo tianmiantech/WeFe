@@ -37,7 +37,6 @@ public class CreateOnlineDemoAccountApi extends AbstractNoneOutputApi<AccountInp
 
     @Override
     protected ApiResult<?> handler(AccountInputModel input) throws StatusCodeWithException {
-        accountService.register(input, BoardUserSource.online_demo);
         return success();
     }
 

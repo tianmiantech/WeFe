@@ -300,6 +300,14 @@ public class CacheObjects {
         }
     }
 
+    public static synchronized void putAccount(AccountMysqlModel account) {
+        if(null == account) {
+            return;
+        }
+        ACCOUNT_MAP.put(account.getId(), account.getNickname());
+        ACCOUNT_ID_LIST.add(account.getId());
+    }
+
 
 //    /**
 //     * Reload member information

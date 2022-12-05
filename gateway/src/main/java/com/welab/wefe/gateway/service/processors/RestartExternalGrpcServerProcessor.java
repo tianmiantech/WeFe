@@ -45,6 +45,6 @@ public class RestartExternalGrpcServerProcessor extends AbstractProcessor {
         if (GrpcServerContext.getInstance().restartExternalGrpcServer()) {
             return ReturnStatusBuilder.ok(transferMeta.getSessionId());
         }
-        return ReturnStatusBuilder.paramError("重启外部服务失败", transferMeta.getSessionId());
+        return ReturnStatusBuilder.paramError("重启网关外网服务失败", transferMeta.getSessionId());
     }
 }
