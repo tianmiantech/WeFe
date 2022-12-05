@@ -1,3 +1,5 @@
+import { MENU_LIST,appCode } from '@src/utils/constant';
+
 function setStorage () {
     /* let keepAlive = localStorage.getItem(KEEPALIVE);
 
@@ -19,15 +21,14 @@ export default _ => {
     /**
     * Distinguish between multiple environments
     */
-    const { baseUrl } = window.api;
     const { localStorage } = window;
-    const USERINFO = `${baseUrl}_userInfo`;
-    const KEEPALIVE = `${baseUrl}_keepAlive`;
-    const TAGSLIST = `${baseUrl}_tagsList`;
-    const SYSTEM_INITED = `${baseUrl}_system_inited`;
-    const UI_CONFIG = `${baseUrl}_uiConfig`;
-    const IS_DEMO = `${baseUrl}_isDemo`;
-    const ADMIN_USER_LIST = `${baseUrl}_admin_user_list`;
+    const USERINFO = `${appCode()}_userInfo`;
+    const KEEPALIVE = `${appCode()}_keepAlive`;
+    const TAGSLIST = `${appCode()}_tagsList`;
+    const SYSTEM_INITED = `${appCode()}_system_inited`;
+    const UI_CONFIG = `${appCode()}_uiConfig`;
+    const IS_DEMO = `${appCode()}_isDemo`;
+    const ADMIN_USER_LIST = `${appCode()}_admin_user_list`;
 
     let keepAlive = localStorage.getItem(KEEPALIVE),
         userInfo = localStorage.getItem(USERINFO),
@@ -35,7 +36,8 @@ export default _ => {
         systemInited = localStorage.getItem(SYSTEM_INITED),
         uiConfig = localStorage.getItem(UI_CONFIG),
         isDemo = localStorage.getItem(IS_DEMO),
-        adminUserList = localStorage.getItem(ADMIN_USER_LIST);
+        adminUserList = localStorage.getItem(ADMIN_USER_LIST),
+        menuList = localStorage.getItem(MENU_LIST);
 
     keepAlive = keepAlive ? parseKey(keepAlive, false) : false;
     userInfo = userInfo ? parseKey(userInfo, {}) : {};
@@ -44,6 +46,7 @@ export default _ => {
     uiConfig = uiConfig ? parseKey(uiConfig, {}) : {};
     isDemo = isDemo ? parseKey(isDemo, false) : false;
     adminUserList = adminUserList ? parseKey(adminUserList, []) : [];
+    menuList = menuList ? JSON.parse(menuList) : [];
 
     const state = {
         keepAlive,
@@ -53,6 +56,8 @@ export default _ => {
         uiConfig,
         isDemo,
         adminUserList,
+        menuList,
+        appInfo: {},
     };
 
     const getters = {
@@ -63,6 +68,8 @@ export default _ => {
         uiConfig:      state => state.uiConfig,
         isDemo:        state => state.isDemo,
         adminUserList: state => state.adminUserList,
+        menuList:      state => state.menuList,
+        appInfo:       state => state.appInfo,
     };
 
     const mutations = {
@@ -94,6 +101,13 @@ export default _ => {
         'ADMIN_USER_LIST' (state, data) {
             state.adminUserList = data;
             setStorage().setItem(ADMIN_USER_LIST, JSON.stringify(data));
+        },
+        'MENU_LIST'(state, data){
+            state.menuList = data;
+            setStorage().setItem(MENU_LIST, JSON.stringify(data));
+        },
+        'APP_INFO'(state, data) {
+            state.appInfo = data;
         },
     };
 

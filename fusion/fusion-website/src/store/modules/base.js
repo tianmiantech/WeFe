@@ -1,3 +1,4 @@
+import { MENU_LIST,appCode } from '@src/utils/constant';
 
 export default _ => {
 
@@ -13,28 +14,32 @@ export default _ => {
     /* 此处加上后台接口地址作为 存储对象的前缀
     * 用于解决在测试环境中多节点使用相同域名造成 localStorage 数据覆盖的问题
     */
-    const { baseUrl } = window.api;
     const { localStorage } = window;
-    const USERINFO = `${baseUrl}_userInfo`;
-    const KEEPALIVE = `${baseUrl}_keepAlive`;
-    const TAGSLIST = `${baseUrl}_tagsList`;
-    const SYSTEM_INITED = `${baseUrl}_system_inited`;
+    const USERINFO = `${appCode()}_userInfo`;
+    const KEEPALIVE = `${appCode()}_keepAlive`;
+    const TAGSLIST = `${appCode()}_tagsList`;
+    const SYSTEM_INITED = `${appCode()}_system_inited`;
+
 
     let keepAlive = localStorage.getItem(KEEPALIVE),
         userInfo = localStorage.getItem(USERINFO),
         tagsList = localStorage.getItem(TAGSLIST),
-        systemInited = localStorage.getItem(SYSTEM_INITED);
+        systemInited = localStorage.getItem(SYSTEM_INITED),
+        menuList = localStorage.getItem(MENU_LIST);
 
     keepAlive = keepAlive ? JSON.parse(keepAlive) : false;
     userInfo = userInfo ? JSON.parse(userInfo) : {};
     tagsList = tagsList ? JSON.parse(tagsList) : [];
     systemInited = systemInited ? JSON.parse(systemInited) : false;
+    menuList = menuList ? JSON.parse(menuList) : [];
 
     const state = {
         keepAlive,
         userInfo,
         tagsList,
         systemInited,
+        menuList,
+        appInfo: {},
     };
 
     const getters = {
@@ -42,6 +47,8 @@ export default _ => {
         tagsList:     state => state.tagsList,
         userInfo:     state => state.userInfo,
         systemInited: state => state.systemInited,
+        menuList:     state => state.menuList,
+        appInfo:      state => state.appInfo,
     };
 
     const mutations = {
@@ -60,6 +67,13 @@ export default _ => {
         'SYSTEM_INITED' (state, data) {
             state.systemInited = data;
             setStorage().setItem(SYSTEM_INITED, JSON.stringify(data));
+        },
+        'MENU_LIST'(state, data){
+            state.menuList = data;
+            setStorage().setItem(MENU_LIST, JSON.stringify(data));
+        },
+        'APP_INFO'(state, data) {
+            state.appInfo = data;
         },
     };
 

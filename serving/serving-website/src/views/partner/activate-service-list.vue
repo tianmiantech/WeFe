@@ -42,7 +42,7 @@
             border
         >
             <div slot="empty">
-                <TableEmptyData/>
+                <TableEmptyData />
             </div>
             <el-table-column
                 label="序号"
@@ -126,8 +126,9 @@
                     >
                         删除
                     </el-button>
-                    <router-link style="padding-left: 3px"
-                                 :to="{
+                    <router-link
+                        style="padding-left: 3px"
+                        :to="{
                             name: 'activate-service-edit',
                             query: {
                                 serviceId: scope.row.service_id,
@@ -162,20 +163,20 @@
 <script>
 
 import table from '@src/mixins/table.js';
-import {mapGetters} from 'vuex';
+import { mapGetters } from 'vuex';
 
 export default {
-    name: 'PartnerServiceList',
+    name:   'PartnerServiceList',
     mixins: [table],
     inject: ['refresh'],
     data() {
         return {
             fillUrlQuery: false,
-            search: {
-                clientName: '',
-                status: '',
+            search:       {
+                clientName:  '',
+                status:      '',
                 serviceName: '',
-                type:1,
+                type:        1,
             },
             options: [{
                 value: '1',
@@ -184,17 +185,17 @@ export default {
                 value: '0',
                 label: '未启用',
             }],
-            types:[
+            types: [
                 {
-                    value : '1',
-                    label:'激活',
+                    value: '1',
+                    label: '激活',
                 },
                 {
-                    value : '0',
-                    label:'开通',
-                }
+                    value: '0',
+                    label: '开通',
+                },
             ],
-            list:[],
+            list:             [],
             getListApi:       '/clientservice/query-list',
             changeStatusType: '',
         };
@@ -213,7 +214,7 @@ export default {
             }
             this.$alert(status === 1 ? '是否启用？' : '是否禁用？', '警告', {
                 confirmButtonText: '确定',
-                callback: action => {
+                callback:          action => {
                     if (action === 'confirm') {
                         this.changeStatus(row, status);
                         setTimeout(() => {
@@ -229,13 +230,14 @@ export default {
             this.$confirm('确定删除？', '警告', {
                 type: 'warning',
             }).then(async () => {
-                const {code} = await this.$http.post({
-                    url: '/clientservice/delete_activate',
+                const { code } = await this.$http.post({
+                    url:  '/clientservice/delete_activate',
                     data: {
                         serviceId: row.service_id,
-                        clientId: row.client_id,
+                        clientId:  row.client_id,
                     },
                 });
+
                 if (code === 0) {
                     this.$message('删除成功!');
                     setTimeout(() => {

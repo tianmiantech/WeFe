@@ -14,7 +14,7 @@
                     <div class="label_search">
                         <el-input type="text" placeholder="请输入标签名称" v-model="vData.labelName" @input="methods.labelSearch">
                             <template #suffix>
-                                <el-icon class="el-input__icon"><elicon-search /></el-icon>
+                                <el-icon class="board-input__icon"><elicon-search /></el-icon>
                             </template>
                         </el-input>
                     </div>
@@ -34,7 +34,7 @@
                     </div>
                 </div>
                 <el-tab-pane v-for="item in vData.tabsList" :key="item.label" :label="item.label + ' (' + item.count + ')'" :name="item.name">
-                    <div class="loading_layer" :style="{display: vData.imgLoading ? 'block' : 'none'}"><el-icon class="el-icon-loading"><elicon-loading /></el-icon></div>
+                    <div class="loading_layer" :style="{display: vData.imgLoading ? 'block' : 'none'}"><el-icon class="board-icon-loading"><elicon-loading /></el-icon></div>
                     <check-image-list ref="imgListRef" v-if="vData.sampleList.length" :sampleList="vData.sampleList" @delete-options="methods.deleteEvent" @label-single-sample="methods.labelSingle" />
                     <template v-else>
                         <EmptyData />
@@ -307,7 +307,7 @@
             right: 0;
             z-index: 2;
         }
-        .el-tab-pane {
+        .board-tab-pane {
             position: relative;
         }
         .loading_layer {
@@ -327,12 +327,12 @@
                 z-index: 5;
             }
         }
-        .el-tabs__nav {
-            .el-tabs__item {
+        .board-tabs__nav {
+            .board-tabs__item {
                 font-size: 16px;
             }
         }
-        .el-tabs__content {
+        .board-tabs__content {
             display: flex;
             border: 1px solid #eee;
             height: calc(100vh - 270px);
@@ -350,7 +350,7 @@
                     @include flex_box;
                     justify-content: center;
                     border-bottom: 1px solid #eee;
-                    .el-input__suffix {
+                    .board-input__suffix {
                         position: absolute;
                         top: 5px;
                     }
@@ -384,7 +384,7 @@
                     }
                 }
             }
-            .el-tab-pane {
+            .board-tab-pane {
                 flex: 1;
             }
         }
@@ -395,13 +395,13 @@
 <style lang="scss" scoped>
 .page_layer {
     .label_search {
-        .el-input {
+        .board-input {
             width: 90%;
             height: 40px;
-            :deep(input.el-input__inner) {
+            :deep(input.board-input__inner) {
                 height: 40px;
             }
-            :deep(.el-input__prefix) {
+            :deep(.board-input__prefix) {
                 top: 5px;
             }
         }

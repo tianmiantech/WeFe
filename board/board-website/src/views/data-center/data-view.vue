@@ -87,7 +87,7 @@
                     <el-descriptions-item label="标注进度：">
                         {{dataInfo.labeled_count}} ({{ ((dataInfo.labeled_count / dataInfo.total_data_count)*100).toFixed(2) }}%)
                         <el-button type="primary" style="margin-left: 20px;" @click="jumpToLabel">
-                            去标注 <i class="el-icon-right"></i>
+                            去标注 <i class="board-icon-right"></i>
                         </el-button>
                         <el-button hidden type="primary">
                             导入标注数据包
@@ -123,7 +123,7 @@
                 @tab-click="tabChange"
             >
                 <el-tab-pane label="特征列表">
-                    <div class="el-descriptions">
+                    <div class="board-descriptions">
                         <EmptyData v-if="data_list.length === 0" />
                         <DataSetPreview v-else ref="DataSetFeatures" />
                     </div>
@@ -330,17 +330,17 @@
 @mixin flex_box {
     display: flex;
 }
-.el-tab-pane{min-height: 500px;}
-.el-tag {margin-right: 10px;}
+.board-tab-pane{min-height: 500px;}
+.board-tag {margin-right: 10px;}
 .strong{font-weight: bold;}
 .data-set-meta{
     font-family: Menlo,Monaco,Consolas,Courier,monospace;
     font-size: 14px;
     margin-top: 15px;
 }
-.el-descriptions{
+.board-descriptions{
     max-width: 700px;
-    :deep(.el-descriptions__header) {display: block;}
+    :deep(.board-descriptions__header) {display: block;}
     :deep(.is-bordered-label){width: 30px;}
 }
 .flex-box {

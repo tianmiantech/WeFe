@@ -1,15 +1,16 @@
 {
-    "name": "data-fusion-website",
+    "name": "fusion",
     "version": "1.0.0",
     "welab": {
-        "contextPath": "/"
+        "contextPath": "fusion"
     },
     "context": "",
     "description": "data-fusion",
     "scripts": {
         "build": "vue-cli-service build",
-        "dev": "vue-cli-service serve",
-        "statr": "npm run dev"
+        "dev": "vue-cli-service serve --HOST_ENV dev",
+        "start": "npm run dev",
+        "predev": "node ./src/themeconfig/copyFile.js"
     },
     "keywords": [
         "vue",
@@ -18,12 +19,16 @@
     "author": "claude.wu",
     "license": "ISC",
     "dependencies": {
+        "@tianmiantech/auth": "^1.4.0",
+        "@tianmiantech/theme": "^1.1.24",
+        "@tianmiantech/util": "^2.0.7",
         "axios": "^0.21.1",
         "base64-url": "^2.3.3",
         "echarts": "^4.7.0",
         "element-ui": "^2.15.7",
         "js-cookie": "^2.2.1",
         "js-md5": "^0.7.3",
+        "moment": "^2.29.4",
         "shelljs": "^0.8.4",
         "simple-uploader.js": "^0.5.6",
         "vue": "^2.6.11",
@@ -34,7 +39,6 @@
         "vuex": "^3.4.0"
     },
     "devDependencies": {
-        "commander": "^9.4.0",
         "@babel/core": "^7.9.6",
         "@babel/plugin-transform-runtime": "^7.9.6",
         "@vue/babel-preset-app": "^3.12.1",
@@ -54,7 +58,7 @@
         "eslint-friendly-formatter": "^4.0.1",
         "eslint-loader": "^4.0.2",
         "eslint-plugin-html": "^6.0.2",
-        "eslint-plugin-vue": "^8.0.0",
+        "eslint-plugin-vue": "^6.2.2",
         "file-loader": "^6.0.0",
         "friendly-errors-webpack-plugin": "^1.7.0",
         "html-webpack-plugin": "^4.3.0",

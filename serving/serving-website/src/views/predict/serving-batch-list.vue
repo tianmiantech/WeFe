@@ -82,6 +82,7 @@
 <script>
 import table from "@src/mixins/table.js";
 import TaskStatusTag from "../components/task-status-tag";
+import { getHeader } from '@src/http/utils';
 
 export default {
   components: {
@@ -96,7 +97,8 @@ export default {
       },
 
       headers: {
-        token: localStorage.getItem("token") || "",
+        // token: localStorage.getItem("token") || "",
+        ...getHeader(),
       },
       getListApi: "predict/task/list",
     };

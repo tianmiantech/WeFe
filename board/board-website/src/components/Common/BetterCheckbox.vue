@@ -1,6 +1,6 @@
 <template>
     <div
-        class="el-checkbox-group f12"
+        class="board-checkbox-group f12"
         :style="{ height: `${vData.height}px`}"
     >
         <VirtualList
@@ -51,18 +51,18 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-checkbox-group{
+    .board-checkbox-group{
         max-height: 500px;
         transform: translateX(0) translateY(0) translateZ(0);
         overflow: auto;
-        :deep(.el-checkbox){
+        :deep(.board-checkbox){
             user-select:auto;
             padding-right: 10px;
             overflow: hidden;
             width: 20%;
             margin:0;
         }
-        :deep(.el-checkbox__label){
+        :deep(.board-checkbox__label){
             width:100%;
             overflow: hidden;
             text-overflow: ellipsis;

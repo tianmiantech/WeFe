@@ -5,7 +5,7 @@
                 <el-image :src="item.img_src" :id="item.id" fit="contain">
                     <template #reference>
                         <div class="image-slot">
-                            <i class="el-icon-picture-outline"></i>
+                            <i class="board-icon-picture-outline"></i>
                         </div>
                     </template>
                 </el-image>
@@ -25,8 +25,8 @@
                     </el-popover>
                     <div v-else class="l_tips">未标注</div>
                     <div class="r_btn">
-                        <!-- <el-icon class="el-icon-edit-outline" @click="methods.labelSingle(item.id, index)"><elicon-edit /></el-icon> -->
-                        <el-icon class="el-icon-delete" @click="methods.deleteEvent(item.id, index)"><elicon-delete /></el-icon>
+                        <!-- <el-icon class="board-icon-edit-outline" @click="methods.labelSingle(item.id, index)"><elicon-edit /></el-icon> -->
+                        <el-icon class="board-icon-delete" @click="methods.deleteEvent(item.id, index)"><elicon-delete /></el-icon>
                     </div>
                 </div>
             </div>
@@ -36,13 +36,14 @@
 
 <script>
     import { reactive, onBeforeMount } from 'vue';
+    import { baseURL } from '@src/utils/constant';
     export default {
         props: {
             sampleList: Array,
         },
         setup(props, context) {
             const vData = reactive({
-                baseUrl: window.api.baseUrl,
+                baseUrl: baseURL(),
             });
 
             const methods = {
@@ -55,9 +56,9 @@
             };
 
             onBeforeMount(_=> {
-                
+
             });
-            
+
             return {
                 vData,
                 methods,
@@ -88,7 +89,7 @@
             width: 120px;
             height: 110px;
             text-align: center;
-            .el-image {
+            .board-image {
                 height: 100%;
             }
         }
@@ -111,7 +112,7 @@
             .r_btn {
                 font-size: 13px;
                 cursor: pointer;
-                .el-icon-edit-outline {
+                .board-icon-edit-outline {
                     margin-right: 7px;
                 }
             }

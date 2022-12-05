@@ -1,25 +1,35 @@
 <template>
-    <div class="page register-wrapper" v-loading="pageLoading">
+    <div
+        v-loading="pageLoading"
+        class="page register-wrapper"
+    >
         <div class="sign-box">
             <div class="logo">
                 <img src="../../assets/images/x-logo.png">
             </div>
-            <h4 class="sign-title mt10" align="center">初始化系统</h4>
-            <el-divider/>
+            <h4
+                class="sign-title mt10"
+                align="center"
+            >
+                初始化系统
+            </h4>
+            <el-divider />
             <el-form
                 ref="sign-form"
                 :model="form"
                 inline-message
                 @submit.native.prevent
             >
-                <el-form-item label="名称："
-                              label-width="65px"
-                              required
+                <el-form-item
+                    label="名称："
+                    label-width="65px"
+                    required
                 >
-                    <el-input v-model="form.member_name"
-                              maxlength="20"
-                              clearable
-                    ></el-input>
+                    <el-input
+                        v-model="form.member_name"
+                        maxlength="20"
+                        clearable
+                    />
                 </el-form-item>
                 <!--                <el-form-item-->
                 <!--                    label="名称："-->
@@ -82,19 +92,19 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex';
-import {EMAILREG} from '@js/const/reg';
-import {baseLogout} from '@src/router/auth';
+import { mapGetters } from 'vuex';
+import { EMAILREG } from '@js/const/reg';
+import { baseLogout } from '@src/router/auth';
 
 export default {
     data() {
         return {
             loading: false,
-            form: {
-                member_id: '',
-                member_name: '',
+            form:    {
+                member_id:       '',
+                member_name:     '',
                 rsa_private_key: '',
-                rsa_public_key: '',
+                rsa_public_key:  '',
             },
             pageLoading: false,
         };
@@ -109,7 +119,7 @@ export default {
         confirmInit() {
             this.$alert('是否将serving系统初始化为独立模式(独立模式无法创建联邦学习模型服务！)，如需联邦模式请由board系统对本serving系统初始化', '确认', {
                 confirmButtonText: '确定',
-                callback: action => {
+                callback:          action => {
 
                     if (action === 'confirm') {
                         if (this.form.member_name !== '') {
@@ -120,12 +130,12 @@ export default {
                             // });
                         }else{
                             this.$message({
-                                type: 'error',
-                                message: '请填写名称'
+                                type:    'error',
+                                message: '请填写名称',
                             });
                         }
                     }
-                }
+                },
             });
         },
 
@@ -141,7 +151,7 @@ export default {
             if (this.loading) return;
             this.loading = true;
 
-            const {code, data} = await this.$http.get({
+            const { code, data } = await this.$http.get({
                 url: '/global_config/is_initialize',
             });
 
@@ -169,8 +179,8 @@ export default {
                 if (valid) {
                     this.loading = true;
                     this.pageLoading = true;
-                    const {code} = await this.$http.post({
-                        url: '/global_config/initialize',
+                    const { code } = await this.$http.post({
+                        url:  '/global_config/initialize',
                         data: this.form,
                     });
 

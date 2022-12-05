@@ -46,7 +46,7 @@
                                     <template #default="props">
                                         
                                         <el-table  
-                                            :data="row.dataList[props.$index].inline_table" 
+                                            :data="row?.dataList?.[props?.$index]?.inline_table || []" 
                                             :span-method="methods.arraySpanMethod" 
                                             class="fold-table-1"
                                             style="width: 100%; 
@@ -57,15 +57,15 @@
                                             
                                             >
                                             
-                                            <el-table-column v-if="row.dataList[props.$index].woeArray.length" label="WOE变化图" prop="weight" min-width="380%" align="center">
+                                            <el-table-column v-if="row?.dataList?.[props?.$index]?.woeArray?.length" label="WOE变化图" prop="weight" min-width="380%" align="center">
                                                 <template v-slot="scope">
-                                                    <LineChart ref="LineChart" :config="scope.row.woeLineConfig" />
+                                                    <LineChart ref="LineChart" :config="scope?.row?.woeLineConfig" />
                                                 </template>
                                             </el-table-column>
 
-                                            <el-table-column v-if="row.member_role === 'promoter'" label="分布" min-width="550%" align="center" fixed="right">
+                                            <el-table-column v-if="row?.member_role === 'promoter'" label="分布" min-width="550%" align="center" fixed="right">
                                                 <template v-slot="scope">
-                                                    <BarChartNew ref="BarChart" :config="scope.row.mapdata" />
+                                                    <BarChartNew ref="BarChart" :config="scope?.row?.mapdata" />
                                                 </template>
                                             </el-table-column>                       
                                         </el-table>
@@ -73,7 +73,7 @@
                                         <div>
                                                 
                                                     <el-table 
-                                                        :data="row.dataList[props.$index].inline_table" 
+                                                        :data="row?.dataList?.[props?.$index]?.inline_table || []" 
                                                         class="fold-table-2"
                                                         style="width: 100%; 
                                                             border: 1px solid lightgray; 

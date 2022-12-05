@@ -138,7 +138,7 @@
 <style lang="scss" scoped>
 .result {
     padding-left: 30px;
-    :deep(.el-collapse-item__header) {
+    :deep(.board-collapse-item__header) {
         font-size: 12px !important;
     }
 }

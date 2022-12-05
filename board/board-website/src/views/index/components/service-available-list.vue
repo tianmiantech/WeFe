@@ -63,11 +63,11 @@
 </script>
 
 <style lang="scss" scoped>
-.el-card{
-    :deep(.el-card__body) {padding-top: 0px;}
+.board-card{
+    :deep(.board-card__body) {padding-top: 0px;}
 }
 .service-box {
-    :deep(.el-card__body) {
+    :deep(.board-card__body) {
         max-height: 700px;
         overflow-y: auto;
     }

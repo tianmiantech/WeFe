@@ -1,15 +1,14 @@
 {
-    "name": "wefe-serving-website",
+    "name": "serving",
     "welab": {
-        "contextPath": "/serving-website"
+        "contextPath": "serving"
     },
     "context": "",
     "description": "wefe 联邦学习serving服务",
     "scripts": {
         "fix": "node_modules/eslint/bin/eslint.js --ext .js,.ts,.vue --fix --cache --fix-type suggestion,layout,problem .",
         "build": "vue-cli-service build",
-        "dev": "vue-cli-service serve",
-        "start": "npm run dev"
+        "dev": "vue-cli-service serve --HOST_ENV dev"
     },
     "keywords": [
         "vue",
@@ -19,15 +18,22 @@
     "license": "ISC",
     "dependencies": {
         "@antv/g6": "^4.3.3",
+        "@tianmiantech/auth": "^1.4.0",
+        "@tianmiantech/request": "^1.0.45",
+        "@tianmiantech/theme": "^1.1.24",
+        "@tianmiantech/util": "^2.0.7",
         "axios": "^0.21.4",
         "base64-url": "^2.3.3",
         "echarts": "^4.9.0",
         "element-ui": "^2.13.2",
+        "encryptlong": "^3.1.4",
         "js-cookie": "^2.2.1",
         "js-md5": "^0.7.3",
+        "jsencrypt": "^3.3.0",
+        "moment": "^2.29.4",
         "v-charts": "^1.19.0",
         "vue": "^2.6.11",
-        "vue-cheetah-grid": "^1.8.0",
+        "vue-cheetah-grid": "^1.8.3",
         "vue-json-viewer": "^2.2.22",
         "vue-router": "^3.1.6",
         "vue-simple-uploader": "^0.7.6",
@@ -35,7 +41,6 @@
         "welabx-g6": "^0.6.8"
     },
     "devDependencies": {
-        "commander": "^9.4.0",
         "@babel/core": "^7.9.6",
         "@babel/plugin-transform-runtime": "^7.9.6",
         "@vue/babel-preset-app": "^3.12.1",
@@ -48,10 +53,9 @@
         "cache-loader": "^4.1.0",
         "chalk": "^4.0.0",
         "clean-webpack-plugin": "^3.0.0",
-        "cross-env": "^7.0.2",
+        "cross-env": "^7.0.3",
         "css-loader": "^3.5.3",
         "dotenv-extended": "^2.8.0",
-        "encryptlong": "^3.1.4",
         "eslint": "^7.0.0",
         "eslint-friendly-formatter": "^4.0.1",
         "eslint-loader": "^4.0.2",
@@ -63,11 +67,10 @@
         "html-webpack-plugin": "^4.3.0",
         "html-webpack-tags-plugin": "^2.0.17",
         "husky": "^4.2.5",
-        "jsencrypt": "^3.2.1",
         "lint-staged": "^10.2.11",
         "mime": "^2.4.5",
-        "minimist": "^1.2.6",
         "mini-css-extract-plugin": "^0.9.0",
+        "minimist": "^1.2.5",
         "optimize-css-assets-webpack-plugin": "^5.0.3",
         "ora": "^4.0.4",
         "postcss-loader": "^3.0.0",

@@ -103,7 +103,7 @@
                 >
                     <uploader-unsupport />
                     <uploader-drop v-if="vData.isCanUpload">
-                        <p><el-icon class="el-icon--upload" style="color: #bfbfbf; font-size: 70px;"><elicon-upload-filled /></el-icon></p>
+                        <p><el-icon class="board-icon--upload" style="color: #bfbfbf; font-size: 70px;"><elicon-upload-filled /></el-icon></p>
                         <uploader-btn
                             :attrs="vData.img_upload_attrs"
                             :single="true"
@@ -189,6 +189,10 @@
     import { useRoute, useRouter } from 'vue-router';
     import LabelSystem from './components/model-show.vue';
     import ImageThumbnailList from '../../data-center/components/image-thumbnail-list.vue';
+    import { getToken } from '@tianmiantech/util';
+    import { getTokenName,downLoadFileTool } from '@src/utils/tools';
+    import { baseURL } from '@src/utils/constant';
+
     export default {
         components: { LabelSystem, ImageThumbnailList },
         setup(props, context) {
@@ -211,14 +215,14 @@
                 modelList:          [],
                 img_upload_options: {
                     files:               [],
-                    target:              window.api.baseUrl + '/file/upload?uploadFileUseType=CallDeepLearningModel',
+                    target:              baseURL() + '/file/upload?uploadFileUseType=CallDeepLearningModel',
                     singleFile:          true,
                     // chunks check
                     testChunks:          true,
                     chunkSize:           8 * 1024 * 1024,
                     simultaneousUploads: 4,
                     headers:             {
-                        token: JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token,
+                        'x-user-token': getToken(getTokenName()),
                     },
                     parseTimeRemaining (timeRemaining, parsedTimeRemaining) {
                         return parsedTimeRemaining
@@ -372,7 +376,7 @@
                     vData.loading = true;
                     const file = arguments[0].file;
 
-                    vData.img_upload_options.headers.token = JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token;
+                    vData.img_upload_options.headers['x-user-token'] = getToken(getTokenName());
                     const { code, data } = await $http.get({
                         url:     '/file/merge',
                         timeout: 1000 * 60 * 2,
@@ -553,14 +557,9 @@
                     }, 300);
                 },
                 async downloadModel(){
-                    const api = `${window.api.baseUrl}/model/deep_learning/download?task_id=${vData.form.model}&token=${userInfo.value.token}`;
-                    const link = document.createElement('a');
-
-                    link.href = api;
-                    link.target = '_blank';
-                    link.style.display = 'none';
-                    document.body.appendChild(link);
-                    link.click();
+                    downLoadFileTool('/model/deep_learning/download', {
+                        task_id: vData.form.model,
+                    });
                 },
                 async interruptPrediect() {
                     $confirm('确定中断当前预测？', '警告', {
@@ -663,12 +662,12 @@
             font-weight: 600;
             margin: 5px 0;
         }
-        .el-row {
+        .board-row {
             line-height: 28px;
         }
     }
     .model_result_box {
-        .el-tabs {
+        .board-tabs {
             margin-bottom: -50px;
         }
     }

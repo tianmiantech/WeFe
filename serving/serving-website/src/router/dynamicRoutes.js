@@ -4,7 +4,7 @@
  * 动态路由模块
  */
 
-const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `/${process.env.CONTEXT_ENV}/`;
+const prefixPath = '/';
 const dynamicRoutes = [
     {
         path: prefixPath,
