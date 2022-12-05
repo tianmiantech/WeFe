@@ -108,7 +108,11 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
         String now = DateUtil.getCurrentDate2();
         // 获取 order_statistics 表中最新一次统计的时间
         OrderStatisticsMysqlModel lastRecord = orderStatisticsService.getLastRecord();
-        Date lastRecordCreatedTime = lastRecord.getCreatedTime();
+        Date lastRecordCreatedTime = new Date();
+        if (lastRecord != null) {
+            // 获取最后记录时间
+            lastRecordCreatedTime = lastRecord.getCreatedTime();
+        }
 
         ServiceOrderInput input = new ServiceOrderInput();
         input.setUpdatedStartTime(lastRecordCreatedTime);
