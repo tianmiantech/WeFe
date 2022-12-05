@@ -3,11 +3,12 @@
     "description": "wefe 联邦学习 manager 管理系统",
     "author": "claude.wu",
     "welab": {
-      "contextPath": "manager"
+      "contextPath": "manager-website"
     },
     "scripts": {
       "build": "vue-cli-service build",
       "dev": "vue-cli-service serve --HOST_ENV dev",
+      "fat": "vue-cli-service serve --HOST_ENV fat",
       "report": "vue-cli-service build --report",
       "link": "yarn link @tianmiantech/theme"
     },

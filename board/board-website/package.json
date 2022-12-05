@@ -3,12 +3,13 @@
   "description": "wefe 联邦学习前台服务",
   "author": "claude.wu",
   "welab": {
-    "contextPath": "board"
+    "contextPath": "board-website"
   },
   "scripts": {
     "start": "npm run dev",
     "build": "vue-cli-service build",
     "dev": "vue-cli-service serve --HOST_ENV dev",
+    "fat": "vue-cli-service serve --HOST_ENV fat",
     "report": "vue-cli-service build --report"
   },
   "dependencies": {

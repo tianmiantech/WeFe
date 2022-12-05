@@ -1,7 +1,7 @@
 {
     "name": "serving",
     "welab": {
-        "contextPath": "serving"
+        "contextPath": "serving-website"
     },
     "context": "",
     "description": "wefe 联邦学习serving服务",
