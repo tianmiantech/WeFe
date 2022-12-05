@@ -5,49 +5,53 @@
         label-position="top"
         @submit.prevent
     >
-        <template
-            v-for="(member, $index) in vData.data_set_list"
-            :key="`${member.member_id}-${member.member_role}`"
-        >
-            <h4 class="f14 mb5">{{member.member_role === 'promoter' ? '发起方' : '协作方'}}:</h4>
-            <div v-if="member.show" class="el-form-item">
-                <div class="el-form-item__label">
-                    <span class="mr10">{{ member.member_name }}</span>
-                    <el-button
-                        size="small"
-                        @click="methods.checkColumns(member, $index)"
-                    >
-                        选择特征（{{ member.features.length }}/{{ member.columns }}）
-                    </el-button>
-                </div>
-                <div
-                    v-if="member.features.length"
-                    class="el-tag-list mb10"
+        <div>
+            <el-button
+                style="margin-top:2px;"
+                :disabled="vData.total_column_count === 0"
+                @click="methods.showColumnListDialog"
+            >
+                选择特征（{{ vData.feature_column_count }}/{{ vData.total_column_count }}）
+            </el-button>
+            <el-tabs
+                type="card"
+                class="mt20"
+                size="small"
+            >
+                <el-tab-pane
+                    v-for="(item, index) in vData.featureSelectTab"
+                    :key="`${item.member_id}-${item.member_role}`"
+                    :label="`${item.member_name} (${item.member_role === 'provider' ? '协作方' : '发起方'})`"
+                    :name="`${index}`"
                 >
-                    <template
-                        v-for="(item, index) in member.features"
-                        :key="index"
-                    >
-                        <el-tag
-                            v-if="index < 20"
-                            :label="item"
-                            :value="item"
-                        >
-                            {{ item }}
-                        </el-tag>
+                    <template v-if="item.$checkedColumnsArr.length">
+                        <el-space wrap>
+                            <template
+                                v-for="(tag, index) in item.$checkedColumnsArr"
+                                :key="index"
+                            >
+                                <el-tag
+                                    v-if="index < 20"
+                                    :label="tag"
+                                    :value="tag"
+                                >
+                                    {{ tag }}
+                                </el-tag>
+                            </template>
+                            <el-button
+                                v-if="item.$checkedColumnsArr.length > 20"
+                                size="small"
+                                type="primary"
+                                class="check-features"
+                                @click="methods.checkFeatures(item.$checkedColumnsArr)"
+                            >
+                                查看更多
+                            </el-button>
+                        </el-space>
                     </template>
-                    <el-button
-                        v-if="member.features.length > 20"
-                        size="small"
-                        type="primary"
-                        class="check-features"
-                        @click="methods.checkFeatures(member.features)"
-                    >
-                        查看更多
-                    </el-button>
-                </div>
-            </div>
-        </template>
+                </el-tab-pane>
+            </el-tabs>
+        </div>
 
         <div class="mt20">
             <p class="el-form-item mt20">
@@ -60,120 +64,30 @@
                     <el-radio label="federation">多方</el-radio>
                 </el-radio-group>
             </p>
-            <p class="mb10">统计项:</p>
-            <el-checkbox
-                v-model="vData.form.checkAll"
-                :indeterminate="vData.form.isIndeterminate"
-                @change="methods.checkAllChange"
-            >
-                全选
-            </el-checkbox>
-            <el-checkbox-group v-model="vData.typeChecked">
-                <el-checkbox
-                    v-for="item in vData.typeCheckList"
-                    :key="item.label"
-                    :label="item.label"
-                    :disabled="disabled"
-                    @change="methods.typeCheckListChange"
-                >
-                    <template v-if="item.label === 'percentile'">{{item.label}} (5th、Q1、Q2、Q3、95th)</template>
-                    <template v-else>{{item.label}}</template>
-                </el-checkbox>
-            </el-checkbox-group>
         </div>
 
-        <el-dialog
-            width="70%"
-            title="选择特征列"
-            v-model="vData.showColumnList"
-            :close-on-click-modal="false"
-            custom-class="large-width"
-            destroy-on-close
-            append-to-body
-        >
-            <el-form
-                v-loading="vData.columnListLoading"
-                element-loading-text="当前特征列较多需要时间处理, 请耐心等待"
-                class="flex-form"
-                @submit.prevent
-            >
-                <el-form-item label="快速选择">
-                    <el-input
-                        v-model="vData.checkedColumns"
-                        placeholder="输入特征名称, 多个特征名称用,分开"
-                    >
-                        <template #append>
-                            <el-button @click="methods.autoCheck">
-                                确定
-                            </el-button>
-                        </template>
-                    </el-input>
-                </el-form-item>
-                <div class="mt20 mb10">
-                    <el-checkbox
-                        v-model="vData.checkedAll"
-                        :indeterminate="vData.indeterminate"
-                        @change="methods.checkAll"
-                    >
-                        全选
-                    </el-checkbox>
-                    <el-button
-                        type="primary"
-                        size="small"
-                        class="ml10"
-                        style="margin-top: -7px;"
-                        @click="methods.revertCheck"
-                    >
-                        反选
-                    </el-button>
-                </div>
-
-                <BetterCheckbox
-                    v-if="vData.showColumnList"
-                    :list="vData.column_list"
-                >
-                    <template #checkbox="{ index, list }">
-                        <template
-                            v-for="i in 5"
-                            :key="`${index * 5 + i - 1}`"
-                        >
-                            <label
-                                v-if="list[index * 5 + i - 1]"
-                                :for="`label-${index * 5 + i - 1}`"
-                                class="el-checkbox"
-                                @click.prevent.stop="methods.checkboxChange($event, list[index * 5 + i - 1])"
-                            >
-                                <span :class="['el-checkbox__input', { 'is-checked': vData.checkedColumnsArr.includes(list[index * 5 + i - 1]) }]">
-                                    <span class="el-checkbox__inner"></span>
-                                    <input :id="`label-${index * 5 + i - 1}`" class="el-checkbox__original" type="checkbox" />
-                                </span>
-                                <span class="el-checkbox__label">{{ list[index * 5 + i - 1] }}</span>
-                            </label>
-                        </template>
-                    </template>
-                </BetterCheckbox>
-            </el-form>
-
-            <div class="text-r mt10">
-                <el-button @click="vData.showColumnList=false">
-                    取消
-                </el-button>
-                <el-button
-                    type="primary"
-                    @click="methods.confirmCheck"
-                >
-                    确定
-                </el-button>
-            </div>
-        </el-dialog>
+        <CheckFeatureDialog
+            ref="CheckFeatureDialogRef"
+            revertCheckEmit="true"
+            :feature-select-tab="vData.featureSelectTab"
+            :column-list-type="vData.columnListType"
+            @revertCheck="methods.revertCheck"
+            @confirmCheck="methods.confirmCheck"
+        />
     </el-form>
 </template>
 
 <script>
-    import { reactive, getCurrentInstance, nextTick } from 'vue';
+    import { reactive, getCurrentInstance, ref } from 'vue';
+    import checkFeatureMixin from '../common/checkFeature';
+    import CheckFeatureDialog from '../common/checkFeatureDialog';
 
     export default {
-        name:  'FeatureStatistic',
+        name:       'FeatureStatistic',
+        components: {
+            CheckFeatureDialog,
+        },
+        emits: [...checkFeatureMixin().emits],
         props: {
             projectId:    String,
             flowId:       String,
@@ -186,89 +100,32 @@
         setup(props, context) {
             const { appContext } = getCurrentInstance();
             const { $http, $alert } = appContext.config.globalProperties;
-            const vData = reactive({
-                inited:            false,
-                loading:           false,
-                row_index:         0,
-                data_set_list:     [],
-                column_list:       [],
-                checkedColumns:    '',
-                checkedColumnsArr: [],
-                showColumnList:    false,
-                columnListLoading: false,
-                indeterminate:     false,
-                checkedAll:        false,
-                form:              {
+            const CheckFeatureDialogRef = ref();
+            let vData = reactive({
+                inited:               false,
+                loading:              false,
+                row_index:            0,
+                data_set_list:        [],
+                column_list:          [],
+                showColumnList:       false,
+                feature_column_count: 0,
+                total_column_count:   0,
+                columnListType:       'quantile',
+                selectList:           [{
+                    id:                   Math.round(Math.random()*10e12),
+                    method:               'quantile',
+                    count:                1,
+                    feature_column_count: 0,
+                }],
+                form: {
                     isIndeterminate: false,
-                    checkAll:        true,
+                    checkAll:        false,
                 },
-                typeChecked:   ['max', 'min', 'mode', 'missing_value', 'count', 'max_count'],
-                typeCheckList: [{
-                    label: 'max',
-                    value: false,
-                }, {
-                    label: 'min',
-                    value: false,
-                }, {
-                    label: 'mode',
-                    value: false,
-                }, {
-                    label: 'missing_value',
-                    value: false,
-                }, {
-                    label: 'count',
-                    value: false,
-                }, {
-                    label: 'max_count',
-                    value: false,
-                }, {
-                    label: 'percentile',
-                    value: false,
-                }],
-                percentages: [{
-                    label:   'percentile',
-                    checked: true,
-                    number:  50,
-                }],
-                workMode:     'federation',
-                fixedOptions: [],
+                featureSelectTab: [],
+                workMode:         'federation',
+                fixedOptions:     [],
             });
-            const methods = {
-                async readData (model) {
-                    if(vData.loading) return;
-                    vData.loading = true;
-
-                    const { code, data }  = await $http.post({
-                        url:  '/flow/job/task/feature',
-                        data: {
-                            job_id:       props.jobId,
-                            flow_id:      props.flowId,
-                            flow_node_id: model.id,
-                        },
-                    });
-
-                    nextTick(_ => {
-                        vData.loading = false;
-                        if(code === 0) {
-                            vData.data_set_list = [];
-                            data.members.forEach(member => {
-                                const $features = member.features.map(feature => feature.name);
-
-                                vData.data_set_list.push({
-                                    member_id:   member.member_id,
-                                    member_role: member.member_role,
-                                    member_name: member.member_name,
-                                    columns:     member.features.length,
-                                    show:        true,
-                                    features:    [],
-                                    $features,
-                                });
-                            });
-                            methods.getNodeDetail(model);
-                        }
-                    });
-                },
-
+            let methods = {
                 async getNodeDetail(model) {
                     vData.loading = true;
                     const { code, data } = await $http.get({
@@ -278,45 +135,37 @@
                             flow_id: props.flowId,
                         },
                     });
-
                     vData.loading = false;
                     if (code === 0 && data && data.params) {
                         const { params } = data;
-
                         if(params.members) {
-                            const { featureMethods, members, workMode, form } = params;
-
+                            const { members, workMode, form } = params;
+                            vData.feature_column_count = 0;
                             vData.form = form;
-                            vData.percentages = [];
-                            vData.typeChecked = [];
-
-                            featureMethods.forEach(row => {
-                                if(row.name === 'percentile') {
-                                    if(!vData.typeChecked.find(item => item === 'percentile')) {
-                                        vData.typeChecked.push('percentile');
-                                    }
-                                } else {
-                                    vData.typeChecked.push(row.name);
-                                }
-                            });
-                            if(vData.percentages.length === 0) {
-                                vData.percentages = [{
-                                    label:   'percentile',
-                                    checked: false,
-                                    number:  50,
-                                }];
-                            }
-
                             members.forEach(member => {
-                                const item = vData.data_set_list.find(row => row.member_id === member.member_id && row.member_role === member.member_role);
-
+                                const item = vData.featureSelectTab.find(row => row.member_id === member.member_id && row.member_role === member.member_role);
+                                const chooseItem = [];
                                 if(item) {
-                                    item.features.push(...member.features);
+                                    item.$feature_list.forEach(feature => {
+                                        if (member.features.includes(feature.name)) {
+                                            chooseItem.push(feature.name);
+                                        }
+                                    });
+                                    item.$checkedColumnsArr = [...chooseItem];
+                                    vData.feature_column_count += chooseItem.length;
                                 }
                             });
                             vData.workMode = workMode;
                             methods.workModeChange(workMode);
                         }
+                        vData.featureSelectTab.forEach(tab => {
+                            vData.data_set_list.push({
+                                member_id:   tab.member_id,
+                                member_role: tab.member_role,
+                                member_name: tab.member_name,
+                                features:    tab.$checkedColumnsArr,
+                            });
+                        });
                         vData.inited = true;
                     }
                 },
@@ -334,34 +183,6 @@
                     });
                 },
 
-                checkAllChange(val) {
-                    if(val) {
-                        vData.typeChecked = vData.typeCheckList.map(row => row.label);
-                    } else {
-                        vData.typeChecked = [];
-                    }
-                    vData.percentages.forEach(each => each.checked = val);
-                    vData.form.isIndeterminate = false;
-                },
-
-                typeCheckListChange() {
-                    vData.form.isIndeterminate = true;
-                },
-
-                checkColumns(row, index) {
-                    vData.row_index = index;
-                    vData.checkedAll = false;
-                    vData.indeterminate = false;
-                    vData.showColumnList = true;
-                    vData.column_list = row.$features;
-                    vData.checkedColumnsArr = [];
-                    vData.checkedColumns = '';
-                    if(row.$features.length) {
-                        vData.checkedColumns = row.features.join(',');
-                        methods.autoCheck();
-                    }
-                },
-
                 checkFeatures(arr) {
                     $alert('已选特征:', {
                         title:                    '已选特征:',
@@ -370,140 +191,22 @@
                     });
                 },
 
-                autoCheck() {
-                    vData.columnListLoading = true;
-
-                    setTimeout(() => {
-                        if(vData.checkedColumns.trim().length) {
-                            const checkedColumnsArr = [...vData.checkedColumnsArr];
-                            const column_list = [...vData.column_list];
-
-                            vData.checkedColumns.split(/,|，/).forEach(name => {
-                                const $index = column_list.findIndex(column => column === name.trim());
-
-                                // check name is exist
-                                if(~$index) {
-                                    const index = checkedColumnsArr.findIndex(column => column === name.trim());
-
-                                    if(index < 0) {
-                                        vData.checkedColumnsArr.push(name.trim());
-                                    }
-                                    checkedColumnsArr.splice(index, 1);
-                                    column_list.splice($index, 1);
-                                }
-                            });
-
-                            if(vData.checkedColumnsArr.length === vData.column_list.length) {
-                                vData.indeterminate = false;
-                                vData.checkedAll = true;
-                            } else if(vData.checkedAll) {
-                                vData.indeterminate = true;
-                                vData.checkedAll = false;
-                            }
-                        }
-                        setTimeout(() => {
-                            vData.columnListLoading = false;
+                confirmCheck(list) {
+                    vData.feature_column_count = 0;
+                    vData.data_set_list = [];
+                    list.forEach(item => {
+                        vData.feature_column_count += item.$checkedColumnsArr.length;
+                        vData.data_set_list.push({
+                            member_id:   item.member_id,
+                            member_role: item.member_role,
+                            member_name: item.member_name,
+                            features:    item.$checkedColumnsArr,
                         });
                     });
-                },
-
-                checkAll() {
-                    vData.columnListLoading = true;
-
-                    setTimeout(() => {
-                        vData.indeterminate = false;
-                        vData.checkedColumnsArr = [];
-                        if(vData.checkedAll) {
-                            vData.column_list.forEach(column => {
-                                vData.checkedColumnsArr.push(column);
-                            });
-                        }
-                        setTimeout(() => {
-                            vData.columnListLoading = false;
-                        });
-                    }, 300);
-                },
-
-                revertCheck() {
-                    vData.columnListLoading = true;
-
-                    setTimeout(() => {
-                        if(vData.checkedColumnsArr.length === vData.column_list.length) {
-                            vData.indeterminate = false;
-                            vData.checkedAll = false;
-                        }
-
-                        const lastIds = [...vData.checkedColumnsArr];
-
-                        vData.checkedColumnsArr = [];
-                        vData.column_list.forEach(column => {
-                            if(!lastIds.find(id => column === id)) {
-                                vData.checkedColumnsArr.push(column);
-                            }
-                        });
-
-                        if(vData.checkedColumnsArr.length === vData.column_list.length) {
-                            vData.indeterminate = false;
-                            vData.checkedAll = true;
-                        }
-                        setTimeout(() => {
-                            vData.columnListLoading = false;
-                        });
-                    }, 300);
-                },
-
-                formCheckboxChange(item) {
-                    if(props.disabled) return;
-                    item.checked = !item.checked;
-                    vData.form.isIndeterminate = true;
-                },
-
-                checkboxChange($event, item) {
-                    const index = vData.checkedColumnsArr.findIndex(x => x === item);
-
-                    if(~index) {
-                        vData.checkedColumnsArr.splice(index, 1);
-                    } else {
-                        vData.checkedColumnsArr.push(item);
-                    }
-                    if(vData.checkedColumnsArr.length === vData.column_list.length) {
-                        vData.indeterminate = false;
-                        vData.checkedAll = true;
-                    } else if(vData.checkedAll) {
-                        vData.indeterminate = true;
-                    }
-                },
-
-                confirmCheck() {
-                    const row = vData.data_set_list[vData.row_index];
-
-                    vData.data_set_list[vData.row_index] = {
-                        ...row,
-                        features: vData.checkedColumnsArr,
-                    };
-                    vData.showColumnList = false;
                 },
 
                 checkParams() {
-                    const featureMethods = [];
-
-                    vData.typeChecked.forEach(row => {
-                        if(row === 'percentile') {
-                            [5, 25, 50, 75, 95].forEach(value => {
-                                featureMethods.push({
-                                    name: 'percentile',
-                                    value,
-                                });
-                            });
-                        } else {
-                            featureMethods.push({
-                                name:  row,
-                                value: '',
-                            });
-                        }
-                    });
                     const members = [];
-
                     vData.data_set_list.forEach(row => {
                         members.push({
                             member_id:   row.member_id,
@@ -517,16 +220,28 @@
                         params: {
                             form:     vData.form,
                             workMode: vData.workMode,
-                            featureMethods,
                             members,
                         },
                     };
                 },
             };
 
+            // merge mixin
+            const { $data, $methods } = checkFeatureMixin().mixin({
+                vData,
+                props,
+                context,
+                methods,
+                CheckFeatureDialogRef,
+            });
+
+            vData = $data;
+            methods = $methods;
+
             return {
                 vData,
                 methods,
+                CheckFeatureDialogRef,
             };
         },
     };
