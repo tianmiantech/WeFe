@@ -261,6 +261,8 @@
 <script>
     import table from '@src/mixins/table.js';
     import { mapGetters } from 'vuex';
+    import { downLoadFileTool } from '@src/utils/tools';
+    import { getHeader } from '@src/http/utils';
 
     export default {
         mixins: [table],
@@ -275,7 +277,8 @@
                     status:       '',
                 },
                 headers: {
-                    token: localStorage.getItem('token') || '',
+                    // token: localStorage.getItem('token') || '',
+                    ...getHeader(),
                 },
                 getListApi:     '/service/query',
                 userList:       [],
@@ -389,14 +392,9 @@
                 });
             },
             async export_sdk(id) {
-                const api = `${window.api.baseUrl}/service/export_sdk?serviceId=${id}&token=${this.userInfo.token}`;
-                const link = document.createElement('a');
-
-                link.href = api;
-                link.target = '_blank';
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
+                downLoadFileTool('/service/export_sdk', {
+                    serviceId: id,
+                });
             },
         },
     };

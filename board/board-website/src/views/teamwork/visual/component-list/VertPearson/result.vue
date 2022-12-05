@@ -582,7 +582,7 @@
 
                     }
                     // [fix_ID1038609_20221009_皮尔逊热力图Y轴选择特征之后倒序了]
-                    chartData.yAxis.reverse();
+                    // chartData.yAxis.reverse();
 
                     chartData.width = chartData.xAxis.length * (chartData.xAxis.length > 10 ? 60 : 100);
                     chartData.height = chartData.yAxis.length * 34 + (chartData.yAxis.length > 10 ? 50 : 100);

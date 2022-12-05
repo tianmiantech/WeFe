@@ -386,7 +386,7 @@
                                 name:    '查看执行历史',
                             }, {
                                 command: 'checkHelp',
-                                icon:    'icon el-icon-help',
+                                icon:    'icon board-icon-help',
                                 name:    '帮助文档',
                             }];
 
@@ -940,7 +940,7 @@
     padding:0 10px;
     margin-top: 10px;
     border-bottom: 0;
-    :deep(.el-collapse-item__header){
+    :deep(.board-collapse-item__header){
         white-space: normal;
         word-break: break-all;
         line-height: 18px;
@@ -950,12 +950,12 @@
     }
 }
 .job-history-info{
-    .el-form-item{
+    .board-form-item{
         display: flex;
         margin-bottom: 0;
     }
-    :deep(.el-form-item__label),
-    :deep(.el-form-item__content){
+    :deep(.board-form-item__label),
+    :deep(.board-form-item__content){
         font-size: 12px;
         line-height: 18px;
     }
@@ -963,7 +963,7 @@
 .history-pagination{
     margin-top:10;
     text-align: right;
-    :deep(.el-pagination__total){display:block;}
+    :deep(.board-pagination__total){display:block;}
 }
 .job-legend-name-list{
     overflow: auto;

@@ -1,9 +1,9 @@
 .page{
     display:flex;
-    height: calc(100vh - 90px);
+    height: calc(100vh - 120px);
     position: relative;
     margin: -20px;
-    .el-icon-warning{
+    .board-icon-warning{
         color: $--color-warning;
         margin-right: 10px;
         vertical-align: middle;
@@ -12,7 +12,7 @@
 .job-graph-show{
     .job-alert{margin-left: 100px;}
 }
-.el-card{
+.board-card{
     width: 201px;
     position: relative;
     border-radius:0;
@@ -56,14 +56,14 @@
     padding-right: 30px;
     border-radius: 4px;
     transform: translateX(-50%);
-    .el-alert__title{
+    .board-alert__title{
         max-height: 200px;
         word-break: break-all;
         display: inline-block;
         vertical-align: middle;
         overflow-y: auto;
     }
-    .el-icon-close{
+    .board-icon-close{
         position: absolute;
         top: 20px;
         right:10px;
@@ -142,7 +142,7 @@
     width: 205px;
     background:#fff;
     border:1px solid #d5d7de;
-    .el-icon-close{
+    .board-icon-close{
         position: absolute;
         top: 6px;
         right:6px;

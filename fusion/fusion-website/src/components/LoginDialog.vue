@@ -136,7 +136,7 @@ export default {
                 });
             } else if (code === 0) {
                 this.$store.commit('UPDATE_USERINFO', data);
-                window.$app.$message.success('登录成功');
+                // window.$app.$message.success('登录成功');
                 this.show = false;
             } else {
                 this.getImgCode();

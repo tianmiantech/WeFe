@@ -1,5 +1,5 @@
 <template>
-    <div class="base-tags">
+    <div class="service-base-tag">
         <div
             ref="tags-nav"
             class="tags-list"
@@ -23,7 +23,7 @@
         </div>
         <el-button
             size="mini"
-            type="primary"
+            type="warning"
             class="tags-close-box"
             @click="closeOther"
         >
@@ -119,25 +119,39 @@
 </script>
 
 <style lang="scss">
-    .base-tags {
+    .service-base-tag {
+        display: flex;
+        justify-content: space-between;
         height: 30px;
-        background: #f5f6fa;
-        padding: 3px 120px 3px 10px;
+        background: #fff;
+        padding: 3px 10px;
         box-shadow: 0 3px 3px rgba(146, 146, 146, 0.1);
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
+        border-top: 1px solid #f5f6fa;
+        .tags-close-box {
+            height: 24px;
+            line-height: 22px;
+            padding:0 10px;
+            position: static;
+            min-height: auto;
+            .el-button {
+                height: 24px;
+                line-height: 22px;
+                padding:0 10px;
+            }
+        }
     }
-    .tags-list {
+    .service-base-tag .tags-list {
         overflow-x: auto;
+        overflow-y: hidden;
         white-space: nowrap;
+        width: calc(100% - 120px);
         &::-webkit-scrollbar{height: 0;}
         .el-tag {
             border: 0;
             height: 24px;
             line-height: 24px;
             margin-right: 10px;
+            cursor: pointer;
         }
         .tags-li-title{
             text-decoration: none;
@@ -158,17 +172,5 @@
             }
         }
     }
-    .tags-close-box {
-        position: absolute;
-        top: 3px;
-        right: 10px;
-        height: 24px;
-        line-height: 22px;
-        padding:0 10px;
-        .el-button {
-            height: 24px;
-            line-height: 22px;
-            padding:0 10px;
-        }
-    }
+
 </style>

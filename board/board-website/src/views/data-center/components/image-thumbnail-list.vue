@@ -1,24 +1,25 @@
 <template>
     <div class="img_layer" :style="{width: vData.width+'px'}">
-        <!-- <div><i class="el-icon-d-arrow-left"/></div> -->
+        <!-- <div><i class="board-icon-d-arrow-left"/></div> -->
         <div v-for="(item, index) in sampleList" class="img_items" :key="item.id">
             <div class="img_item" @click="methods.selectImage(item, index)" :style="{border: item.$isselected ? '1px solid #438bff' : ''}">
                 <el-image :src="item.img_src" :id="item.id" fit="contain">
                     <template #reference>
                         <div class="image-slot">
-                            <i class="el-icon-picture-outline"></i>
+                            <i class="board-icon-picture-outline"></i>
                         </div>
                     </template>
                 </el-image>
             </div>
             <p class="label_tips" v-if="!item.labeled && !vData.width">未标注</p>
         </div>
-        <!-- <div><i class="el-icon-d-arrow-right"/></div> -->
+        <!-- <div><i class="board-icon-d-arrow-right"/></div> -->
     </div>
 </template>
 
 <script>
     import { reactive, onBeforeMount } from 'vue';
+    import { baseURL } from '@src/utils/constant';
     export default {
         props: {
             sampleList: Array,
@@ -26,7 +27,7 @@
         },
         setup(props, context) {
             const vData = reactive({
-                baseUrl: window.api.baseUrl,
+                baseUrl: baseURL(),
                 width:   0,
             });
 
@@ -39,7 +40,7 @@
             onBeforeMount(_=> {
                 vData.width = props.width;
             });
-            
+
             return {
                 vData,
                 methods,
@@ -72,7 +73,7 @@
             width: 50px;
             height: 80px;
             text-align: center;
-            .el-image {
+            .board-image {
                 height: 100%;
             }
         }

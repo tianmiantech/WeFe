@@ -3,7 +3,7 @@
         class="page"
         shadow="never"
     >
-        el-form
+        board-form
     </el-card>
 </template>
 

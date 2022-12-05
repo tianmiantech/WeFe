@@ -1,153 +1,130 @@
 const path = require('path');
 const webpack = require('webpack');
-const { context } = require('./package.json');
-const { HashedModuleIdsPlugin } = require('webpack');
+const pkg = require('./package.json');
+const AutoImport = require('unplugin-auto-import/webpack');
+const Components = require('unplugin-vue-components/webpack');
+const { ElementPlusResolver } = require('unplugin-vue-components/resolvers');
+const ElementPlus = require('unplugin-element-plus/webpack');
+// const { HashedModuleIdsPlugin } = require('webpack');
 const argv = require('minimist')(process.argv.slice(2));
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-const resolvers = require('unplugin-vue-components/resolvers');
-const components = require('unplugin-vue-components/webpack');
+const tailSplit = argv._[2] ? argv._[2].split('=')[1] : '';
+/* const components = require('unplugin-vue-components/webpack');
+const { ElementPlusResolver: elementPlusResolver } = require('unplugin-vue-components/resolvers');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer'); */
+// const addCssPrefix = require('postcss-change-css-prefix');
+
 // const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
-const { program } = require('commander');
+// const { program } = require('commander');
 
 // 使用program去获取参数, 和参数顺序无关
-program.option('-p, --prod <string>', 'prod');
-program.parse(process.argv);
-const options = program.opts();
+// program.option('-p, --prod <string>', 'prod');
+// program.parse(process.argv);
+// const options = program.opts();
+const { welab } = pkg;
+const { contextPath: APP_CODE } = welab || {};
 
-const argvs = argv._[1] ? argv._[1].split('=') : '';
-const tailSplit = argv._[2] ? argv._[2].split('=')[1] : '';
-const isProd = process.env.NODE_ENV === 'production';
 const resolve = dir => path.resolve(__dirname, dir);
-const CONTEXT_ENV = argvs[1] || context || '';
+
+const { HOST_ENV } = argv;
+
+console.log(HOST_ENV, APP_CODE);
+
+// 对应分支名称.
+const isProd = process.env.NODE_ENV === 'production';
+
 const buildDate = '3.1.0';
+const port = 8082;
 
 module.exports = {
-    assetsDir:           isProd ? `${CONTEXT_ENV}` : '',
-    indexPath:           isProd ? `${CONTEXT_ENV || '.'}/index.html` : 'index.html',
-    productionSourceMap: process.env.NODE_ENV === 'development',
+    assetsDir:           './', 
+    indexPath:           './index.html', 
+    productionSourceMap: false,
+    outputDir:           `dist/${APP_CODE}`,
+    publicPath:          `/${APP_CODE}/`,
     pages:               {
         index: {
             entry:    'src/app/app.js',
             template: 'index.html',
             filename: 'index.html',
-            BASE_URL: `${CONTEXT_ENV ? `/${CONTEXT_ENV}/` : '/'}`,
+            BASE_URL: `${APP_CODE ? `/${APP_CODE}/` : `/${APP_CODE}/`}`,
             chunks:   'inital',
         },
     },
     css: {
-        extract: false, // close it for less tiny css files
+        extract:       false,
+        loaderOptions: {
+            scss: {
+                // sass 版本 9 中使用 additionalData 版本 8 中使用 prependData
+                prependData: `
+                    @use "@src/assets/styles/element.scss" as *;
+                `,
+            },
+        },
     },
-    configureWebpack: (config) => {
-        config.entry.app = ['@babel/polyfill', './src/app/app.js'];
-
-        if (isProd) {
-            // production...
-            const DEPLOY_ENV = argvs[0] || 'prod';
-
-            config.optimization = {
-                splitChunks: {
-                    chunks:                 'all',
-                    minSize:                50 * 10e3, // 50k
-                    maxSize:                244 * 10e3, // 244k
-                    minChunks:              2,
-                    maxAsyncRequests:       4,
-                    maxInitialRequests:     4,
-                    automaticNameDelimiter: '~',
-                    name:                   true,
-                    cacheGroups:            {
-                        echarts: {
-                            name:     'echarts',
-                            test:     /[\\/]node_modules[\\/]echarts[\\/]/,
-                            priority: 20,
-                        },
-                        /* 'antv-g6': {
-                            name:     'antv-g6',
-                            test:     /[\\/]node_modules[\\/]@antv[\\/]/,
-                            priority: 20,
-                        }, */
-                        'cheetah-grid': {
-                            name:     'cheetah-grid',
-                            test:     /[\\/]node_modules[\\/](cheetah-grid|vue-cheetah-grid|zrender)[\\/]/,
-                            priority: 20,
-                        },
-                        vendors: {
-                            test:     /[\\/]node_modules[\\/](vue|vuex|vue-router|element-plus)[\\/]/,
-                            priority: -10,
-                        },
-                    },
-                },
-            };
-
-            config.plugins.push(
-                new webpack.DefinePlugin({
-                    'process.env.prod':        JSON.stringify(`${options.prod}`),
-                    'process.env.DEPLOY_ENV':  JSON.stringify(`${DEPLOY_ENV}`),
-                    'process.env.CONTEXT_ENV': JSON.stringify(`${CONTEXT_ENV}`),
-                    'process.env.VERSION':     JSON.stringify(`${buildDate}`),
-                    'process.env.TAIL':        JSON.stringify(`${tailSplit}`),
-                }),
-                new HashedModuleIdsPlugin(),
-                new CopyWebpackPlugin([
-                    {
-                        from: 'public/*',
-                        to:   `${CONTEXT_ENV || '.'}/img/`,
-                    },
-                ]),
-            );
-        } else {
-            // development...
-            const DEPLOY_ENV = argvs[0] || 'dev';
-
-            config.plugins.push(
-                new webpack.DefinePlugin({
-                    'process.env.prod':        JSON.stringify(`${options.prod}`),
-                    'process.env.DEPLOY_ENV':  JSON.stringify(`${DEPLOY_ENV}`),
-                    'process.env.VERSION':     JSON.stringify(`${buildDate}`),
-                    'process.env.CONTEXT_ENV': '""',
-                }),
-            );
-
-            config.devtool = 'source-map';
-        }
-
-        if (argv['report']) {
-            config.plugins.push(new BundleAnalyzerPlugin());
-        }
-
-        // on demand import
-        config.plugins.push(
-            components({
-                // eslint-disable-next-line new-cap
-                resolvers: [resolvers.ElementPlusResolver()],
+    configureWebpack: {
+        devtool: 'source-map',
+        plugins: [
+            new webpack.DefinePlugin({
+                'process.env.VERSION':  JSON.stringify(`${buildDate}`),
+                'process.env.HOST_ENV': JSON.stringify(`${HOST_ENV}`),
+                'process.env.APP_CODE': JSON.stringify(`${APP_CODE}`),
             }),
-        );
+            // 按需引入会自动引入无需手动import（直接使用api仍需手动import）
+            AutoImport({
+                resolvers: [ElementPlusResolver(
+                    {
+                        exclude:     new RegExp(/^(?!.*loading-directive).*$/),
+                        importStyle: 'sass',
+                    },
+                )],
+            }),
+            Components({
+                resolvers: [ElementPlusResolver({ importStyle: 'sass' })],
+            }),
+            // 加入这句，手动import时才会按需加载对应样式，否则只有html形式使用才有样式
+            ElementPlus({
+                useSource: true,
+            }),
+            new CopyWebpackPlugin([
+                {
+                    from: 'public/*',
+                    to:   `${APP_CODE || '.'}/img/`,
+                },
+            ]),
+        ],
+        resolve: {
+            extensions: ['.js', '.vue', '.json'],
+            alias:      {
+                '@': path.join(__dirname, './src'),
+            },
+        },
+        output: {
+            // packageName需要与主项目中的引入子应用的name值相对应，统一为路由上下文名字
+            library:       `${pkg.name}-[name]`,
+            libraryTarget: 'umd', // 把子应用打包成 umd 库格式
+            jsonpFunction: `webpackJsonp_${pkg.name}`,
+        },
     },
-    chainWebpack: (config) => {
+    chainWebpack: config => {
         config.module
             .rule('scss')
-            .use('cache-loader')
-            .loader('cache-loader')
-            .end()
-            .oneOfs.store.forEach((item) => {
-                item.use('cache-loader')
-                    .loader('cache-loader')
-                    .end()
-                    .use('sass-resources-loader')
+            .oneOfs.store.forEach(item => {
+                item.use('sass-resources-loader')
                     .loader('sass-resources-loader')
                     .options({
                         sourceMap: true,
-                        resources: 'src/assets/styles/_variable.scss',
+                        resources: ['src/assets/styles/_variable.scss'],
                     })
                     .end();
             });
 
-        config.module
+        /* config.module
             .rule('vue')
             .use('cache-loader')
             .loader('cache-loader')
             .end()
-            .use('vue-loader');
+            .use('vue-loader'); */
 
         config.resolve.alias
             .set('@src', resolve('src'))
@@ -156,12 +133,11 @@ module.exports = {
             .set('@js', resolve('src/assets/js'))
             .set('@styles', resolve('src/assets/styles'))
             .set('@views', resolve('src/views'))
-            .end()
             .end();
 
-        if (isProd) {
-            config.optimization.minimizer('terser').tap((args) => {
-                args[0].terserOptions.compress.warnings = false;
+        /* if (isProd) {
+            config.optimization.minimizer('terser').tap(args => {
+                args[0].terserOptions.compress.warnings = true;
                 args[0].terserOptions.compress.drop_console = true;
                 args[0].terserOptions.compress.drop_debugger = true;
                 args[0].terserOptions.compress.pure_funcs = ['console.log'];
@@ -170,30 +146,42 @@ module.exports = {
 
                 return args;
             });
-        }
+        } */
         // config.plugin('speed').use(SpeedMeasurePlugin);
     },
     devServer: {
-        hot:        true,
-        liveReload: true,
+        port,
+        hot:              true,
+        liveReload:       true,
+        // 关闭主机检查，使微应用可以被 fetch
+        disableHostCheck: true,
+        // 配置跨域请求头，解决开发环境的跨域问题
+        headers:          {
+            'Access-Control-Allow-Origin': '*',
+        },
         /**
-         * http://localhost:8080/board-service
+         * http://localhost:8080/manager-service
          * @author claude
          * @description webpack devServer proxy
          */
-         headers:    {
-            'Access-Control-Allow-Origin': '*',
-        },
         proxy: {
             '/api': {
-                target:       'https://xbd-fat.wolaidai.com/board-service-03/',
+                target:       'https://xxx.com/',
                 secure:       false,
                 timeout:      1000000,
                 changeOrigin: true,
                 pathRewrite:  {
-                    ['^/api']: '/',
+                    ['^/board-service']: '/',
                 },
             },
+            '/iam': {
+                target:       'https://xxx.com/',
+                secure:       false,
+                timeout:      1000000,
+                changeOrigin: true,
+
+            },
+
         },
     },
 };

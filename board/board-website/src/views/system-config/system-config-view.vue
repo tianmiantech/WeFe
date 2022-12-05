@@ -75,7 +75,7 @@
                                             183.3.218.18
                                         </div>
                                     </template>
-                                    <el-icon class="el-icon-opportunity">
+                                    <el-icon class="board-icon-opportunity">
                                         <elicon-opportunity />
                                     </el-icon>
                                 </el-tooltip>
@@ -106,6 +106,26 @@
                                 </el-button>
                             </el-form-item>
                         </fieldset>
+
+                        <el-dialog title="初始化" v-model="dialogVisibleInfo" width="500px" custom-class="unset-dialog-height">
+                            <!-- <el-form :model="form">
+                                <el-form-item label="账号" :label-width="formLabelWidth">
+                                    <el-input v-model="form.phone_number" type="text" clearable
+                                              placeholder="请输入Serving管理员账号(手机号)"></el-input>
+                                </el-form-item>
+                                <el-form-item label="密码" :label-width="formLabelWidth">
+                                    <el-input v-model="form.password" type="password" clearable
+                                              placeholder="请输入密码"></el-input>
+                                </el-form-item>
+                            </el-form> -->
+                            <p>确认初始化吗？</p>
+                            <template #footer>
+                                <el-button @click="dialogVisibleInfo = false">取消</el-button>
+                                <el-button type="primary" @click="init">确定</el-button>
+                            </template>
+                        </el-dialog>
+                    </el-col>
+                    <el-col :span="12">
                         <fieldset>
                             <legend>数据集存储</legend>
                             <el-form-item label="类型：">
@@ -142,26 +162,7 @@
                                 />
                             </el-form-item>
                         </fieldset>
-
-                        <el-dialog title="初始化" v-model="dialogVisibleInfo" width="40%" custom-class="unset-dialog-height">
-                            <el-form :model="form">
-                                <el-form-item label="账号" :label-width="formLabelWidth">
-                                    <el-input v-model="form.phone_number" type="text" clearable
-                                              placeholder="请输入Serving管理员账号(手机号)"></el-input>
-                                </el-form-item>
-                                <el-form-item label="密码" :label-width="formLabelWidth">
-                                    <el-input v-model="form.password" type="password" clearable
-                                              placeholder="请输入密码"></el-input>
-                                </el-form-item>
-                            </el-form>
-                            <template #footer>
-                                <el-button @click="dialogVisibleInfo = false">取消</el-button>
-                                <el-button type="primary" @click="init">确定</el-button>
-                            </template>
-                        </el-dialog>
-                    </el-col>
-                    <el-col :span="12">
-                        <fieldset>
+                        <!-- <fieldset>
                             <legend>提醒</legend>
                             <el-form-item label="任务失败邮件提醒：">
                                 <el-radio v-model="config.alert_config.email_alert_on_job_error" :label="true">
@@ -226,7 +227,7 @@
                                 <el-input v-model="config.aliyun_sms_channel.sign_name" />
                             </el-form-item>
 
-                        </fieldset>
+                        </fieldset> -->
                     </el-col>
                 </el-row>
 
@@ -295,19 +296,19 @@
 
             async init() {
 
-                const password = [
-                    this.form.phone_number,
-                    this.form.password,
-                    this.form.phone_number,
-                    this.form.phone_number.substr(0, 3),
-                    this.form.password.substr(this.form.password.length - 3),
-                ].join('');
+                // const password = [
+                //     this.form.phone_number,
+                //     this.form.password,
+                //     this.form.phone_number,
+                //     this.form.phone_number.substr(0, 3),
+                //     this.form.password.substr(this.form.password.length - 3),
+                // ].join('');
 
                 const { code, message } = await this.$http.post({
                     url:  '/member/sync_to_serving',
                     data: {
-                        phone_number: this.form.phone_number,
-                        password:     md5(password),
+                        // phone_number: this.form.phone_number,
+                        // password:     md5(password),
                     },
                 });
 
@@ -484,10 +485,10 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-form-item{
+    .board-form-item{
         width: 100%;
     }
-    .el-icon-opportunity {
+    .board-icon-opportunity {
         font-size: 16px;
         color: $--color-warning;
         position: absolute;
