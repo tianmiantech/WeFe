@@ -255,10 +255,10 @@ public class GatewayService extends BaseGatewayService {
 
             // 检查通信是否正常，避免在多成员广播时，出现部分成员成功，部分失败的情况。
             String key = memberId + "_call_board_alive";
+            // 使用缓存，避免高频请求。
             if (!CACHE_MAP.containsKey(key)) {
                 try {
                     callOtherMemberBoard(memberId, AliveApi.class, null, Object.class);
-                    // 在通信正常时添加缓存，避免高频请求。
                     CACHE_MAP.put(key, null);
                 } catch (StatusCodeWithException e) {
                     throw e;
