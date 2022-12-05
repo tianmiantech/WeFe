@@ -9,7 +9,7 @@
                 label="TopN"
                 width="150">
             </el-table-column>
-            <el-table-column label="训练集" align="center">
+            <el-table-column v-if="refer!=='Oot'" label="训练集" align="center">
                 <el-table-column
                     label="cutoff 区间"
                     width="120">
@@ -34,7 +34,7 @@
                     </template>
                 </el-table-column>
             </el-table-column>
-            <el-table-column label="验证集" align="center">
+            <el-table-column :label="refer==='Oot' ? '测试集': '验证集'" align="center">
                 <el-table-column
                     label="cutoff 区间"
                     width="120">
@@ -67,7 +67,16 @@
     import { reactive } from 'vue';
 
     export default {
-        name: 'TopN',
+        name:  'TopN',
+        props: {
+            /**
+             * 判断来源
+             */
+            refer: {
+                type:    String,
+                default: 'Evaluation',
+            },
+        },
         setup(props) {
             const vData = reactive({
                 loading:       false,
@@ -80,7 +89,7 @@
             const methods = {};
 
             const renderTopnTable = (result) => {
-                const topnList = result.train_topn || [];
+                const topnList = result.train_topn || result.validate_topn;
 
                 vData.validate_topn = result.validate_topn;
                 if(topnList && topnList.length) {

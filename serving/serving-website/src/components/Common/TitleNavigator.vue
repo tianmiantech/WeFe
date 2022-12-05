@@ -55,7 +55,9 @@ export default {
 
                         this.getTitles();
                         this.hightlightTitle();
-                        this.list[0].highlight = true;
+                        if (this.list.length) {
+                            this.list[0].highlight = true;
+                        }
                     }, 300);
                 }
             },
@@ -174,7 +176,6 @@ export default {
             }
         },
     },
-    
 };
 </script>
 

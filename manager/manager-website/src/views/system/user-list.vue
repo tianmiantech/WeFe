@@ -19,13 +19,15 @@
                     <el-option value="false" label="否"></el-option>
                 </el-select>
             </el-form-item>
-            <el-button
-                type="primary"
-                native-type="submit"
-                @click="query"
-            >
-                搜索
-            </el-button>
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    native-type="submit"
+                    @click="query"
+                >
+                    搜索
+                </el-button>
+            </el-form-item>
             <div class="mb20">
                 <el-button
                     v-if="userInfo.super_admin_role"
@@ -92,10 +94,10 @@
                 >
                     <template v-slot="scope">
                         <span v-if="scope.row.cancelled">
-                            <i class="el-icon-check"></i>
+                            <i class="manager-icon-check"></i>
                         </span>
                         <span v-else>
-                            <i class="el-icon-close"></i>
+                            <i class="manager-icon-close"></i>
                         </span>
                     </template>
                 </el-table-column>

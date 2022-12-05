@@ -165,14 +165,14 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-dialog__wrapper{
-        :deep(.el-dialog){
+    .manager-dialog__wrapper{
+        :deep(.manager-dialog){
             min-width: 360px;
             max-width: 460px;
         }
     }
     .form-code{
-        :deep(.el-input-group__append){
+        :deep(.manager-input-group__append){
             padding:0;
             width: 90px;
             overflow: hidden;
@@ -183,7 +183,7 @@
         height: 30px;
         cursor: pointer;
     }
-    .login-form :deep(.el-input) {width: 90%;}
+    .login-form :deep(.manager-input) {width: 90%;}
     .login-form :deep(.login-btn) {
         width: 100px;
         display: block;
@@ -191,9 +191,9 @@
         font-size: 14px;
     }
     .login-form{
-        .el-form-item{display: flex;}
-        :deep(.el-form-item__label) {width: 70px;}
-        :deep(.el-form-item__content) {flex: 1;}
+        .manager-form-item{display: flex;}
+        :deep(.manager-form-item__label) {width: 70px;}
+        :deep(.manager-form-item__content) {flex: 1;}
     }
-    .el-button + .el-button{margin-left:0;}
+    .manager-button + .manager-button{margin-left:0;}
 </style>

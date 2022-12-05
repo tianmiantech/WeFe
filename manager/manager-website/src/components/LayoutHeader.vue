@@ -10,7 +10,7 @@
                     type="text"
                     @click="backward"
                 >
-                    <i class="el-icon-arrow-left" />返回{{ vData.meta.titleParams.parentTitle || vData.meta.title }}
+                    <i class="manager-icon-arrow-left" />返回{{ vData.meta.titleParams.parentTitle || vData.meta.title }}
                 </el-button>
                 <span
                     v-if="vData.meta.titleParams.htmlTitle"
@@ -34,30 +34,17 @@
                     placement="bottom"
                 >
                     <i
-                        class="el-icon-full-screen"
+                        class="manager-icon-full-screen"
                         @click="fullScreenSwitch"
                     />
                 </el-tooltip>
             </span>
-            <div class="heading-user">
+            <div v-if="!vData.isInQianKun" class="heading-user">
                 你好,
-                <el-dropdown
-                    class="ml5"
-                    @command="handleCommand"
-                >
-                    <span class="el-dropdown-link">
-                        <strong>{{ userInfo.nickname }}</strong>
-                        <i class="el-icon-arrow-down" />
-                    </span>
-                    <template #dropdown>
-                        <el-dropdown-menu>
-                            <el-dropdown-item command="logout">
-                                <i class="el-icon-switch-button" />
-                                退出
-                            </el-dropdown-item>
-                        </el-dropdown-menu>
-                    </template>
-                </el-dropdown>
+                <span class="manager-dropdown-link">
+                    <strong>{{ userInfo.nickname }}</strong>
+                    <i class="manager-icon-arrow-down" />
+                </span>
             </div>
         </div>
         <layout-tags v-show="tagsList.length" />
@@ -98,6 +85,7 @@
                 loading:       false,
                 hasUnreadNums: 0,
                 meta:          route.meta,
+                isInQianKun:   window.__POWERED_BY_QIANKUN__ || false,
             });
             const backward = () => {
                 const { meta: { titleParams }, query } = route;
@@ -224,7 +212,7 @@
 
             return {
                 vData,
-                userInfo: userInfo.value,
+                userInfo,
                 tagsList: tagsList.value,
                 backward,
                 handleCommand,
@@ -255,7 +243,7 @@
             height: 30px;
             line-height: 30px;
             text-align: center;
-            [class*="el-icon-"],
+            [class*="manager-icon-"],
             .iconfont {
                 width: 30px;
                 height: 30px;

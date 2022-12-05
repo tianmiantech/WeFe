@@ -92,7 +92,7 @@
                             <!-- <span :class="[item.unread ? 'warning' : 'success', 'mr5 ml5']">{{item.unread ? '[未读]' : '[已读]'}}</span> -->
                             <span v-if="item.unread" class="unread_tips"></span>
                             <p :class="{'collapse-title': windowWidth<=1440, 'mr5': true}">{{ item.title }}</p>
-                            <el-icon v-if="item.unread" class="el-icon-message unread-icon">
+                            <el-icon v-if="item.unread" class="board-icon-message unread-icon">
                                 <elicon-message />
                             </el-icon>
                             <span class="time">{{ dateFormat(item.created_time) }}</span>
@@ -159,7 +159,7 @@
                         <template #title>
                             <span v-if="item.unread" class="unread_tips"></span>
                             {{ item.title }}
-                            <el-icon v-if="item.unread" class="el-icon-message unread-icon">
+                            <el-icon v-if="item.unread" class="board-icon-message unread-icon">
                                 <elicon-message />
                             </el-icon>
                             <span class="time">{{ dateFormat(item.created_time) }}</span>
@@ -188,7 +188,7 @@
                 </div>
             </el-tab-pane>
         </el-tabs>
-        
+
     </el-card>
 </template>
 
@@ -208,10 +208,10 @@
                     error:   'danger',
                 },
                 message_level_icon: {
-                    info:    'el-icon-info info level',
-                    success: 'el-icon-success success level',
-                    warning: 'el-icon-warning warning level',
-                    error:   'el-icon-error error level',
+                    info:    'board-icon-info info level',
+                    success: 'board-icon-success success level',
+                    warning: 'board-icon-warning warning level',
+                    error:   'board-icon-error error level',
                 },
                 message_search: {
                     unread:       null,
@@ -306,11 +306,11 @@
                 });
 
                 if(code === 0) {
-                    this.noMore = data.list.length < 15;
+                    this.noMore = data?.list?.length < 15;
                     if (this.activeName === 'todoList' || this.activeName === 'cooperateNotice') {
                         let isEventList = true;
                         const eventlist = ['CreateProject', 'AgreeJoinProject', 'ApplyJoinProject', 'DisagreeJoinProject', 'ApplyDataResource', 'AgreeApplyDataResource', 'DisagreeApplyDataResource'];
-                        const list = data.list.map((item, i) => {
+                        const list = data?.list?.map((item, i) => {
                             if (eventlist.indexOf(item.event) !== -1) {
                                 const content = JSON.parse(item.content);
 
@@ -336,14 +336,14 @@
                                 this.message_list.push(list[i]);
                             }
                         } else {
-                            for(const i in data.list){ 
-                                this.message_list.push(data.list[i]); 
-                            } 
+                            for(const i in data.list){
+                                this.message_list.push(data.list[i]);
+                            }
                         }
                     } else {
-                        for(const i in data.list){ 
-                            this.message_list.push(data.list[i]); 
-                        } 
+                        for(const i in data.list){
+                            this.message_list.push(data.list[i]);
+                        }
                     }
                     this.message_search.page_index++;
                 }
@@ -398,10 +398,10 @@
             width: 100%;
             max-height: 484px;
             border: unset;
-            .el-collapse-item__header{
+            .board-collapse-item__header{
                 color: #aaa;
             }
-            .unread .el-collapse-item__header{
+            .unread .board-collapse-item__header{
                 color: #1B233B;
                 font-weight: bold;
                 .unread-icon{
@@ -409,7 +409,7 @@
                     margin-left: 5px;
                 }
             }
-            .el-collapse-item__header{
+            .board-collapse-item__header{
                 position:relative;
                 white-space: nowrap;
                 overflow: hidden;
@@ -425,11 +425,11 @@
                     color: #999;
                 }
             }
-            .el-tag{
+            .board-tag{
                 margin-left: 8px;
                 margin-right: 8px;
             }
-            .el-collapse-item__content{
+            .board-collapse-item__content{
                 padding:8px;
                 text-indent: 30px;
             }
@@ -466,7 +466,7 @@
         .msg-tabs {
             margin-top: -5px;
             overflow: auto;
-            .el-tabs__content {
+            .board-tabs__content {
                 padding: 5px;
             }
             .search_box {

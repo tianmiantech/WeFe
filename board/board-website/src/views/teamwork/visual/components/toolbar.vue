@@ -796,7 +796,7 @@
             }
             &.inactive {color:#999;}
         }
-        :deep(.el-loading-spinner){margin-top:-12px;}
+        :deep(.board-loading-spinner){margin-top:-12px;}
         :deep(.circular){
             width: 20px;
             height: 20px;

@@ -1,7 +1,7 @@
 <template>
     <div
         ref="card-count"
-        class="card-count el-card"
+        class="card-count board-card"
         @click="changeDrawer"
     >
         <el-icon>
@@ -30,7 +30,7 @@
                         <p>2, 多个发起方请前往项目详情添加</p>
                     </template>
 
-                    <el-icon class="el-icon-opportunity">
+                    <el-icon class="board-icon-opportunity">
                         <elicon-opportunity />
                     </el-icon>
                 </el-tooltip>
@@ -78,14 +78,14 @@
                             </el-form-item>
                             <el-form-item>
                                 <span class="f12 mr10">是否含 Y:</span>
-                                <el-icon v-if="dataset.contains_y" class="el-icon-check">
+                                <el-icon v-if="dataset.contains_y" class="board-icon-check">
                                     <elicon-check />
                                 </el-icon>
-                                <el-icon v-else class="el-icon-close">
+                                <el-icon v-else class="board-icon-close">
                                     <elicon-close />
                                 </el-icon>
                             </el-form-item>
-                            <el-icon class="el-icon-circle-close" @click="removeDataSet(index, dataset)">
+                            <el-icon class="board-icon-circle-close" @click="removeDataSet(index, dataset)">
                                 <elicon-circle-close />
                             </el-icon>
                         </el-form>
@@ -120,14 +120,14 @@
                                 </el-form-item>
                                 <el-form-item>
                                     <span class="f12 mr10">是否含 Y:</span>
-                                    <el-icon v-if="dataset.contains_y" class="el-icon-check">
+                                    <el-icon v-if="dataset.contains_y" class="board-icon-check">
                                         <elicon-check />
                                     </el-icon>
-                                    <el-icon v-else class="el-icon-close">
+                                    <el-icon v-else class="board-icon-close">
                                         <elicon-close />
                                     </el-icon>
                                 </el-form-item>
-                                <el-icon class="el-icon-circle-close" @click="removeDataSet(index, dataset)">
+                                <el-icon class="board-icon-circle-close" @click="removeDataSet(index, dataset)">
                                     <elicon-circle-close />
                                 </el-icon>
                             </el-form>
@@ -356,13 +356,13 @@
 </script>
 
 <style lang="scss">
-    .el-overlay.speed-card{
+    .board-overlay.speed-card{
         left:auto;
         width: 331px;
         background: none;
         border-left: 1px solid #f0f0f0;
-        .el-drawer__header{margin-bottom:0;}
-        .el-drawer__body{height:calc(100% - 44px);}
+        .board-drawer__header{margin-bottom:0;}
+        .board-drawer__body{height:calc(100% - 44px);}
     }
 </style>
 
@@ -393,12 +393,12 @@
             color:#fff;
         }
     }
-    .el-icon-opportunity{color:$--color-warning;}
+    .board-icon-opportunity{color:$--color-warning;}
     .member-wrapper{
         height:calc(100vh - 160px);
         padding: 0 0 70px;
         position: relative;
-        .el-button{
+        .board-button{
             position: absolute;
             right: 20px;
             bottom: 20px;
@@ -423,11 +423,11 @@
             padding-right: 30px;
             &:first-child{margin-top: 0;}
         }
-        .el-form-item{margin:0;}
-        :deep(.el-form-item__label){font-size: 12px;}
-        :deep(.el-form-item__label),
-        :deep(.el-form-item__content){line-height:16px;}
-        .el-icon-circle-close{
+        .board-form-item{margin:0;}
+        :deep(.board-form-item__label){font-size: 12px;}
+        :deep(.board-form-item__label),
+        :deep(.board-form-item__content){line-height:16px;}
+        .board-icon-circle-close{
             position: absolute;
             right: 10px;
             top: 50%;
@@ -441,8 +441,8 @@
         }
     }
     .data-link{word-break: break-all;}
-    .el-icon-check,
-    .el-icon-close{vertical-align: middle;}
-    .el-icon-check{color:$--color-success;}
-    .el-icon-close{color:$--color-danger;}
+    .board-icon-check,
+    .board-icon-close{vertical-align: middle;}
+    .board-icon-check{color:$--color-success;}
+    .board-icon-close{color:$--color-danger;}
 </style>

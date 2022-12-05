@@ -197,12 +197,12 @@
                             pos_label,
                         });
                         if(psi_param) {
-                            const { need_psi, bin_method, bin_number, split_points } = psi_param;
+                            const { need_psi, bin_method, bin_num, split_points } = psi_param;
                             vData.form.need_psi = need_psi;
                             if(need_psi) {
                                 vData.binValue = {
                                     method:       bin_method,
-                                    binNumber:    bin_number,
+                                    binNumber:    bin_num,
                                     split_points: split_points? split_points.join() : '',
                                 };
                             }
@@ -237,8 +237,12 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-input-number{
+    .board-input-number{
         width: 104px;
         margin:0 10px;
+        // :deep(.board-input__inner){
+        //     padding-left:5px;
+        //     padding-right: 40px;
+        // }
     }
 </style>

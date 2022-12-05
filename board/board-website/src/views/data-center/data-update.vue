@@ -117,7 +117,7 @@
                                                 </span>
                                             </p>
 
-                                            <el-icon class="el-icon-close" @click="deleteSelectedMember(item, index)">
+                                            <el-icon class="board-icon-close" @click="deleteSelectedMember(item, index)">
                                                 <elicon-close />
                                             </el-icon>
                                         </li>
@@ -510,9 +510,9 @@
 
 <style lang="scss" scoped>
     .page{overflow: visible;}
-    .el-pagination{overflow: auto;}
-    .el-upload {position: relative;}
-    .el-upload__input {
+    .board-pagination{overflow: auto;}
+    .board-upload {position: relative;}
+    .board-upload__input {
         position: absolute;
         top: 0;
         right: 0;
@@ -531,7 +531,7 @@
     .save-btn {
         width: 100px;
     }
-    .el-tag + .el-tag {
+    .board-tag + .board-tag {
         margin-left: 10px;
     }
     .input-new-tag {
@@ -555,7 +555,7 @@
     .flex-center {
         display: flex;
         align-items: center;
-        .el-icon-close {
+        .board-icon-close {
             margin-right: unset;
             cursor: pointer;
             color: rgb(201, 199, 199);

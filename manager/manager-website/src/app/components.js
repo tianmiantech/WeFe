@@ -4,7 +4,7 @@
 import bus from './eventHub';
 import http from '@src/http/http';
 import CGrid from 'vue-cheetah-grid';
-import elComponents from './element-import';
+import { elIcons, elComponents } from './element-import';
 import locale from 'element-plus/lib/locale/lang/zh-cn';
 import CommonComponents from '@comp/components-install.js';
 import { dateFormat, dateLast } from '@src/utils/date';
@@ -13,38 +13,42 @@ import '@js/polyfill/requestAnimationFrame';
 import '@styles/base.scss';
 
 export default {
-    install (Vue) {
+    install (app) {
         // global properties for date
-        Vue.config.globalProperties.dateLast = dateLast;
-        Vue.config.globalProperties.dateFormat = dateFormat;
-        Vue.config.globalProperties.timeFormat = timeFormat;
-        Vue.config.globalProperties.$http = http;
-        Vue.config.globalProperties.$bus = bus;
+        app.config.globalProperties.dateLast = dateLast;
+        app.config.globalProperties.dateFormat = dateFormat;
+        app.config.globalProperties.timeFormat = timeFormat;
+        app.config.globalProperties.$http = http;
+        app.config.globalProperties.$bus = bus;
 
         // register element-plus components on demand
-        for (const component in elComponents) {
-            Vue.use(elComponents[component]);
+        // for (const component in elComponents) {
+        //     app.use(elComponents[component]);
+        // }
+
+        for (const component in elIcons) {
+            app.component(`elicon${component}`, elIcons[component]);
         }
 
         // set default language & size
-        Vue.config.globalProperties.$ELEMENT = {
+        app.config.globalProperties.$ELEMENT = {
             size: 'small',
             locale,
         };
 
         const messageBox = elComponents['ElMessageBox'];
 
-        Vue.config.globalProperties.$message =
-            elComponents['ElMessage'];
-        Vue.config.globalProperties.$alert = messageBox.alert;
-        Vue.config.globalProperties.$confirm = messageBox.confirm;
-        Vue.config.globalProperties.$prompt = messageBox.prompt;
-        Vue.config.globalProperties.$notify =
-            elComponents['ElNotification'];
+        app.config.globalProperties.$message = elComponents['ElMessage'];
+        app.config.globalProperties.$alert = messageBox.alert;
+        app.config.globalProperties.$confirm = messageBox.confirm;
+        app.config.globalProperties.$prompt = messageBox.prompt;
+        app.config.globalProperties.$notify = elComponents['ElNotification'];
 
         CommonComponents.forEach(component => {
-            Vue.component(component.name, component);
+            app.component(component.name, component);
         });
-        Vue.use(CGrid);
+        app.use(CGrid);
+
+        console.log('manager install function');
     },
 };

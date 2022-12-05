@@ -138,8 +138,8 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-tab-pane{min-height: 500px;}
-    .el-tag {margin-right: 10px;}
+    .board-tab-pane{min-height: 500px;}
+    .board-tag {margin-right: 10px;}
     .strong{font-weight: bold;}
     .data-set-meta{
         font-family: Menlo,Monaco,Consolas,Courier,monospace;
@@ -147,8 +147,8 @@
         margin-top: 15px;
     }
     .dataset-desc{max-width: 700px;}
-    .el-descriptions{
-        :deep(.el-descriptions__header) {display: block;}
+    .board-descriptions{
+        :deep(.board-descriptions__header) {display: block;}
         :deep(.is-bordered-label){width: 100px;}
     }
 </style>
