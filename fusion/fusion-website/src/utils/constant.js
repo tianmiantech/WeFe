@@ -33,7 +33,9 @@ export const appCode = () => getServiceName() || 'fusion';
 
 // 全局变量
 export function baseURL (){
-    return isQianKun() ? `${getOrigin()}/${appCode()}-service` : process.env[`VUE_APP_${process.env.HOST_ENV}`];
+    const lastTwo = appCodes.substring(appCodes.length - 2);
+    const second = /^\d+$/.test(lastTwo) ? lastTwo : '';
+    return isQianKun() ? `${getOrigin()}/${appCode()}-service` : `${process.env[`VUE_APP_${process.env.HOST_ENV}`]}-${second || '01'}`;
 }
 
 // localstorage name

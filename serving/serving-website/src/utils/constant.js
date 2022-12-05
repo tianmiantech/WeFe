@@ -33,10 +33,10 @@ console.log('appCode()',appCode());
 
 // 全局变量
 export function baseURL (){
-    const appCodes = appCode();
-    const [first,second] = appCodes.split('-');
+    const lastTwo = appCodes.substring(appCodes.length - 2);
+    const second = /^\d+$/.test(lastTwo) ? lastTwo : '';
 
-    return isQianKun() ? `${getOrigin()}/${appCode()}-service` : `${process.env[`VUE_APP_${process.env.HOST_ENV}`]}${first}-service-${second || '01'}`;
+    return isQianKun() ? `${getOrigin()}/${appCode()}-service` : `${process.env[`VUE_APP_${process.env.HOST_ENV}`]}-${second || '01'}`;
 }
 
 // localstorage name
