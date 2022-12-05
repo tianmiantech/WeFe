@@ -53,13 +53,9 @@ public class MemberFeatureInfoModel extends MemberModel {
     public static class Feature extends AbstractCheckModel {
         @Check(name = "特征名")
         private String name;
-
-        private double iv;
-
-        private double cv;
-
-        private double missRate;
-
+        public Double cv;
+        public Double iv;
+        public Double missingRate;
         private String method;
 
         public String getName() {
@@ -70,36 +66,36 @@ public class MemberFeatureInfoModel extends MemberModel {
             this.name = name;
         }
 
-        public double getIv() {
-            return iv;
-        }
-
-        public void setIv(double iv) {
-            this.iv = iv;
-        }
-
-        public double getCv() {
-            return cv;
-        }
-
-        public void setCv(double cv) {
-            this.cv = cv;
-        }
-
-        public double getMissRate() {
-            return missRate;
-        }
-
-        public void setMissRate(double missRate) {
-            this.missRate = missRate;
-        }
-
         public String getMethod() {
             return method;
         }
 
         public void setMethod(String method) {
             this.method = method;
+        }
+
+        public Double getCv() {
+            return cv;
+        }
+
+        public void setCv(Double cv) {
+            this.cv = cv;
+        }
+
+        public Double getIv() {
+            return iv;
+        }
+
+        public void setIv(Double iv) {
+            this.iv = iv;
+        }
+
+        public Double getMissingRate() {
+            return missingRate;
+        }
+
+        public void setMissingRate(Double missingRate) {
+            this.missingRate = missingRate;
         }
     }
 

@@ -87,7 +87,7 @@ class JobDao:
         with DB.connection_context():
             running_job_list = Job \
                 .select() \
-                .where((Job.status == JobStatus.RUNNING) | (Job.status == JobStatus.WAIT_SUCCESS))
+                .where((Job.status == JobStatus.RUNNING) | (Job.status == JobStatus.WAIT_SUCCESS) | (Job.status == JobStatus.WAIT_STOP))
 
             return running_job_list
 
