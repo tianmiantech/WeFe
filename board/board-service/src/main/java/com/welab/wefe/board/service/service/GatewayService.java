@@ -40,11 +40,13 @@ import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import net.jodah.expiringmap.ExpiringMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -223,6 +225,11 @@ public class GatewayService extends BaseGatewayService {
     }
 
     /**
+     * cache
+     */
+    protected static final ExpiringMap<String, Object> CACHE_MAP = ExpiringMap.builder().expiration(60, TimeUnit.SECONDS).maxSize(500).build();
+
+    /**
      * 在将消息广播到其它成员之前的检查
      * 1. 检查是否在黑名单中
      * 2. 检查与之通信情况是否正常
@@ -247,7 +254,17 @@ public class GatewayService extends BaseGatewayService {
             }
 
             // 检查通信是否正常，避免在多成员广播时，出现部分成员成功，部分失败的情况。
-            callOtherMemberBoard(memberId, AliveApi.class, null, Object.class);
+            String key = memberId + "_call_board_alive";
+            if (!CACHE_MAP.containsKey(key)) {
+                try {
+                    callOtherMemberBoard(memberId, AliveApi.class, null, Object.class);
+                    // 在通信正常时添加缓存，避免高频请求。
+                    CACHE_MAP.put(key, null);
+                } catch (StatusCodeWithException e) {
+                    throw e;
+                }
+            }
+
         }
     }
 
