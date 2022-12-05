@@ -48,9 +48,6 @@ public class InitializeUnionModeApi extends AbstractNoneOutputApi<InitializeUnio
 
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        //校验账号密码 check方法。
-        //accountService.accountCheck(input.getPhoneNumber(), input.getPassword());
-
         //initialize
         IdentityInfoModel identityInfoModel = input.convertToIdentityInfoModel();
         UnionInfoModel unionInfoModel = input.convertToUnionInfoModel();
@@ -80,12 +77,6 @@ public class InitializeUnionModeApi extends AbstractNoneOutputApi<InitializeUnio
 
         @Check(name = "union地址", require = true)
         private String unionBaseUrl;
-
-        @Check(name = "serving超级管理员账号", require = true)
-        private String phoneNumber;
-
-        @Check(name = "serving超级管理员密码", require = true)
-        private String password;
 
 
         public IdentityInfoModel convertToIdentityInfoModel() {
@@ -136,22 +127,6 @@ public class InitializeUnionModeApi extends AbstractNoneOutputApi<InitializeUnio
 
         public void setRsaPrivateKey(String rsaPrivateKey) {
             this.rsaPrivateKey = rsaPrivateKey;
-        }
-
-        public String getPhoneNumber() {
-            return phoneNumber;
-        }
-
-        public void setPhoneNumber(String phoneNumber) {
-            this.phoneNumber = phoneNumber;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
         }
 
         public String getUnionBaseUrl() {
