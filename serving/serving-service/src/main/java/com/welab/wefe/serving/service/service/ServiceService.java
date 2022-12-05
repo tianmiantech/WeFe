@@ -640,7 +640,7 @@ public class ServiceService {
     private boolean isIpWhiteList(RouteApi.Input input, ClientServiceMysqlModel clientServiceMysqlModel) {
         String clientIp = ServiceUtil.getIpAddr(input.request);
 
-        return clientServiceMysqlModel.getIpAdd() != null && Arrays.asList(clientServiceMysqlModel.getIpAdd().split(",|，")).contains(clientIp);
+        return clientServiceMysqlModel.getIpAdd() != null && (Arrays.asList(clientServiceMysqlModel.getIpAdd().split(",|，")).contains(clientIp) || Arrays.asList(clientServiceMysqlModel.getIpAdd().split(",|，")).contains("*"));
     }
 
     public TableServiceMySqlModel findById(String serviceId) {
