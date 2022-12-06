@@ -50,8 +50,8 @@ public class EcdhPsiServer {
     private static final Logger LOG = LoggerFactory.getLogger(EcdhPsiServer.class);
 
     private BigInteger serverPrivateD;
-    private int threads = 4;
-    private int threadTimeoutSeconds = 60 * 30;
+    private int threads = Runtime.getRuntime().availableProcessors();
+    private static final String CURVE_NAME = "prime256v1";
 
     public EcdhPsiServer() {
         this.serverPrivateD = generaterPrivateKey();
@@ -63,7 +63,7 @@ public class EcdhPsiServer {
     public List<String> encryptDataset(List<String> inputSet) {
         LOG.info("server begin encryptDataset");
         // 初始化椭圆曲线
-        ECParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec("prime256v1");
+        ECParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec(CURVE_NAME);
         EllipticCurve ellipticCurve = new EllipticCurve(ecSpec);
         List<String> encryptedSet = new CopyOnWriteArrayList<>();
         List<Set<String>> partitionList = PartitionUtil.partitionList(inputSet, threads);
@@ -79,11 +79,13 @@ public class EcdhPsiServer {
                 }
             });
         }
+        executorService.shutdown();
         try {
-            executorService.shutdown();
-            executorService.awaitTermination(threadTimeoutSeconds, TimeUnit.SECONDS);
+            while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                // pass
+            }
         } catch (InterruptedException e) {
-            throw new RuntimeException(e.getMessage());
+            e.printStackTrace();
         } finally {
             executorService.shutdown();
         }
@@ -97,7 +99,7 @@ public class EcdhPsiServer {
     public Map<Long, String> encryptDatasetMap(Map<Long, String> inputMap) {
         LOG.info("server begin encryptDatasetMap");
         // 初始化椭圆曲线
-        ECParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec("prime256v1");
+        ECParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec(CURVE_NAME);
         EllipticCurve ellipticCurve = new EllipticCurve(ecSpec);
         ECCurve ecCurve = ellipticCurve.getEcCurve();
 
@@ -117,11 +119,13 @@ public class EcdhPsiServer {
                 }
             });
         }
+        executorService.shutdown();
         try {
-            executorService.shutdown();
-            executorService.awaitTermination(threadTimeoutSeconds, TimeUnit.SECONDS);
+            while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                // pass
+            }
         } catch (InterruptedException e) {
-            throw new RuntimeException(e.getMessage());
+            e.printStackTrace();
         } finally {
             executorService.shutdown();
         }
@@ -129,22 +133,32 @@ public class EcdhPsiServer {
         return encryptedMap;
     }
 
-    private BigInteger generaterPrivateKey() {
-        LOG.info("server begin generaterPrivateKey");
+    @Deprecated
+    private BigInteger generaterPrivateKey1() {
         ECParameterSpec ecSpec;
         Security.addProvider(new BouncyCastleProvider());
-
         KeyPairGenerator keyGenerator;
         try {
             keyGenerator = KeyPairGenerator.getInstance("EC", "BC");
-            ecSpec = ECNamedCurveTable.getParameterSpec("prime256v1");
+            ecSpec = ECNamedCurveTable.getParameterSpec(CURVE_NAME);
             keyGenerator.initialize(ecSpec, new SecureRandom());
         } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException | NoSuchProviderException e) {
             throw new RuntimeException("prime256v1 key generator not available");
         }
         KeyPair pair = keyGenerator.genKeyPair();
-        LOG.info("server end generaterPrivateKey");
         return ((ECPrivateKey) pair.getPrivate()).getD();
+    }
+
+    /**
+     * step 0 生成一个私钥
+     */
+    private BigInteger generaterPrivateKey() {
+        ECParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec("prime256v1");
+        BigInteger n = ecSpec.getN();
+        // 随机状态
+        SecureRandom secureRandom = new SecureRandom();
+        BigInteger k = new BigInteger(n.bitLength(), secureRandom).mod(n);
+        return k;
     }
 
 }

@@ -46,7 +46,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         serverDataset = new ArrayList<>();
         for (long i = 0; i < 10; i++)
             serverDataset.add("MATCHING-" + i);
-        for (long i = 0; i < 1000; i++)
+        for (long i = 0; i < 1000000; i++)
             serverDataset.add("SERVER-ONLY-" + i);
     }
 

@@ -15,6 +15,7 @@
  */
 
 package com.welab.wefe.mpc.psi.sdk.ecdh;
+
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
@@ -56,8 +57,8 @@ public class EcdhPsiClient {
     private Set<ECPoint> serverDoubleEncryptedDataset; // 保存经过自己二次加密后的服务端的数据
 
     private AtomicLong idAtomicCounter; // id 计数器
-    private int threads = 4;
-    protected int threadTimeoutSeconds = 60 * 30;
+    private int threads = Runtime.getRuntime().availableProcessors();
+    private static final String CURVE_NAME = "prime256v1";
 
     public EcdhPsiClient() {
         this.serverDoubleEncryptedDataset = ConcurrentHashMap.newKeySet();
@@ -65,7 +66,7 @@ public class EcdhPsiClient {
         this.clientDoubleEncryptedDatasetMap = new ConcurrentHashMap<>();
 
         this.idAtomicCounter = new AtomicLong(0);
-        ECParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec("prime256v1");
+        ECParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec(CURVE_NAME);
         this.ellipticCurve = new EllipticCurve(ecSpec);
         this.ecCurve = ecSpec.getCurve();
         this.clientPrivateD = generaterPrivateKey(ecSpec);
@@ -86,16 +87,17 @@ public class EcdhPsiClient {
                 for (Map.Entry<Long, ECPoint> entry : partition.entrySet()) {
                     // 如果服务端的数据中存在客户端的数据
                     if (this.serverDoubleEncryptedDataset.contains(entry.getValue()))
-                        psi.add(ConverterUtil
-                                .convertBigInteger2String(clientOriginalDatasetMap.get(entry.getKey())));
+                        psi.add(ConverterUtil.convertBigInteger2String(clientOriginalDatasetMap.get(entry.getKey())));
                 }
             });
         }
+        executorService.shutdown();
         try {
-            executorService.shutdown();
-            executorService.awaitTermination(threadTimeoutSeconds, TimeUnit.SECONDS);
+            while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                // pass
+            }
         } catch (InterruptedException e) {
-            throw new RuntimeException(e.getMessage());
+            e.printStackTrace();
         } finally {
             executorService.shutdown();
         }
@@ -127,18 +129,19 @@ public class EcdhPsiClient {
         for (Set<String> partition : partitionList) {
             executorService.submit(() -> {
                 for (String serverEncryptedEntry : partition) {
-                    ECPoint ecPointValue = ConverterUtil.convertString2ECPoint(this.ecCurve,
-                            serverEncryptedEntry);
+                    ECPoint ecPointValue = ConverterUtil.convertString2ECPoint(this.ecCurve, serverEncryptedEntry);
                     ECPoint encryptedValue = EllipticCurve.multiply(ecPointValue, this.clientPrivateD);
                     this.serverDoubleEncryptedDataset.add(encryptedValue);
                 }
             });
         }
+        executorService.shutdown();
         try {
-            executorService.shutdown();
-            executorService.awaitTermination(threadTimeoutSeconds, TimeUnit.SECONDS);
+            while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                // pass
+            }
         } catch (InterruptedException e) {
-            throw new RuntimeException(e.getMessage());
+            e.printStackTrace();
         } finally {
             executorService.shutdown();
         }
@@ -167,11 +170,13 @@ public class EcdhPsiClient {
                 }
             });
         }
+        executorService.shutdown();
         try {
-            executorService.shutdown();
-            executorService.awaitTermination(threadTimeoutSeconds, TimeUnit.SECONDS);
+            while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                // pass
+            }
         } catch (InterruptedException e) {
-            throw new RuntimeException(e.getMessage());
+            e.printStackTrace();
         } finally {
             executorService.shutdown();
         }

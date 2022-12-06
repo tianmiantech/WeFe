@@ -60,9 +60,8 @@ public abstract class AbstractHttpTransferVariable {
             body.put("data", params);
             data = body.toJSONString();
         }
-        logger.info("request:" + data + ",url=" + url);
+//        logger.info("request:" + data + ",url=" + url);
         HttpResponse response = HttpRequest.post(url).timeout(HttpGlobalConfig.getTimeout()).body(data).execute();
-        logger.info("response:" + response);
         while (response == null || response.getStatus() != HttpStatus.HTTP_OK) {
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
@@ -70,20 +69,17 @@ public abstract class AbstractHttpTransferVariable {
                 logger.error(e.getMessage(), e);
             }
             response = HttpRequest.post(url).timeout(HttpGlobalConfig.getTimeout()).body(data).execute();
-            logger.debug("response:" + response);
         }
-
+//        logger.info("response:" + response);
         String responseString = response.body();
         JSONObject res = JSONObject.parseObject(responseString);
-        if(res.getIntValue("code") != 0) {
+        if (res.getIntValue("code") != 0) {
             String errorMessage = res.getString("message") + ",customer_id=" + mConfig.getCommercialId() + ",url="
                     + url;
             res.put("message", errorMessage);
             return res.toJSONString();
         }
         String result = res.getString("data");
-        logger.debug(url);
-        logger.debug(JSONObject.toJSONString(res, true));
         return result;
     }
 }

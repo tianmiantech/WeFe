@@ -87,10 +87,10 @@ public class ApiExecutor {
         }
         switch (annotation.logLevel()) {
             case "debug":
-                LOG.debug("request({}):{}", apiName.toLowerCase(), params.toString());
+                LOG.debug("request({}):{}", apiName.toLowerCase(), StringUtils.substring(params.toString(), 0, 500));
                 break;
             default:
-                LOG.info("request({}):{}", apiName.toLowerCase(), params.toString());
+                LOG.info("request({}):{}", apiName.toLowerCase(), StringUtils.substring(params.toString(), 0, 500));
         }
         ApiResult<?> result = null;
         try {
@@ -170,9 +170,9 @@ public class ApiExecutor {
         String content = result.toLogString(omitLog);
 
         if ("debug".equals(annotation.logLevel())) {
-            LOG.debug("response({}):{}", annotation.path(), content);
+            LOG.debug("response({}):{}", annotation.path(), StringUtils.substring(content, 0, 500));
         } else {
-            LOG.info("response({}):{}", annotation.path(), content);
+            LOG.info("response({}):{}", annotation.path(), StringUtils.substring(content, 0, 500));
         }
     }
 
