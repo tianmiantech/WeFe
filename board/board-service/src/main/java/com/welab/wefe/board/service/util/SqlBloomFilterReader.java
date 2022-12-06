@@ -17,7 +17,6 @@
 package com.welab.wefe.board.service.util;
 
 import com.welab.wefe.board.service.dto.fusion.BloomFilterColumnInputModel;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.jdbc.JdbcClient;
 import com.welab.wefe.common.jdbc.base.JdbcScanner;
 import org.apache.commons.collections4.CollectionUtils;
@@ -68,7 +67,7 @@ public class SqlBloomFilterReader extends AbstractBloomFilterReader {
 
         try {
             totalRowCount = jdbcClient.selectRowCount(sql);
-        } catch (StatusCodeWithException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return totalRowCount;

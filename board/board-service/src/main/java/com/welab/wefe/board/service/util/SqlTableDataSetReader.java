@@ -69,7 +69,7 @@ public class SqlTableDataSetReader extends AbstractTableDataSetReader {
 
         try {
             totalRowCount = jdbcClient.selectRowCount(sql);
-        } catch (StatusCodeWithException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return totalRowCount;
