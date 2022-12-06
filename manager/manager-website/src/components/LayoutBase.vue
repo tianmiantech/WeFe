@@ -1,11 +1,14 @@
 <template>
-    <el-container :class="{ 'side-collapsed': vData.isCollapsed }">
+    <el-container
+        :class="{ 'side-collapsed': vData.isCollapsed }"
+        :style="{height: vData.isInQianKun ? 'calc(100vh - var(--tm-header-height))' : '100%'}"
+    >
         <layout-side />
 
         <el-container>
             <el-header
                 ref="layout-header"
-                height="90px"
+                height="80px"
             >
                 <layout-header v-if="vData.isRouterAlive" />
             </el-header>
@@ -50,9 +53,13 @@
         getCurrentInstance,
         onBeforeMount,
     } from 'vue';
+    import { useStore } from 'vuex';
     import LayoutSide from './LayoutSide/LayoutSide.vue';
     import LayoutHeader from './LayoutHeader.vue';
     import LoginDialog from './LoginDialog.vue';
+    import { isQianKun } from '@src/http/utils';
+    import { getSystemLicense } from '@src/service/permission';
+    import { appCode } from '@src/utils/constant';
 
     export default {
         components: {
@@ -61,13 +68,15 @@
             LoginDialog,
         },
         setup() {
+            const store = useStore();
             const instance = getCurrentInstance();
-            const { $bus } = instance.appContext.config.globalProperties;
+            const { $bus, $http } = instance.appContext.config.globalProperties;
             const vData = reactive({
                 ws:            null,
                 isCollapsed:   false,
                 isRouterAlive: true,
                 members:       [],
+                isInQianKun:   window.__POWERED_BY_QIANKUN__ || false,
             });
             const methods = {
                 refresh() {
@@ -80,11 +89,44 @@
                 },
             };
 
+            // 初始化
+            const init = async() => {
+                const { code, data } = await $http.get({
+                    url: '/account/sso_login',
+                });
+
+                if (code === 0) {
+                    store.commit('UPDATE_USERINFO', data);
+                }
+            };
+
+            // 获取应用信息
+            const getAppInfo = async() => {
+                const data = await getSystemLicense();
+
+                if (data) {
+                    store.commit('APP_INFO', data);
+                }
+            };
+
             provide('refresh', methods.refresh);
 
             onBeforeMount(() => {
-                const { prefixPath } = window.api;
-                const asideCollapsedKey = `${prefixPath}AsideCollapsed`;
+                if (isQianKun()) {
+                    getAppInfo();
+                }
+                if (!isQianKun()) {
+                    init();
+                }
+                // 默认设置 adminrole & superadminrole 为 true
+                const userInfo = {
+                    admin_role:       true,
+                    super_admin_role: true,
+                };
+
+                store.commit('UPDATE_USERINFO', userInfo);
+
+                const asideCollapsedKey = `${appCode()}AsideCollapsed`;
 
                 // collapsed left menus
                 const $isCollapsed = window.localStorage.getItem(asideCollapsedKey);
@@ -104,7 +146,7 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-header {
+    .manager-header {
         color: #000;
         position: relative;
         background: $header-background;

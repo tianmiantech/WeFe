@@ -23,7 +23,7 @@
         </div>
         <el-button
             size="mini"
-            type="primary"
+            type="warning"
             class="tags-close-box"
             @click="closeOther"
         >
@@ -120,12 +120,13 @@
 
 <style lang="scss">
     .base-tags {
-        height: 30px;
-        background: #f5f6fa;
+        // height: 30px;
+        border-top:1px solid #f5f6fa;
+        background: #fff;
         padding: 3px 120px 3px 10px;
         box-shadow: 0 3px 3px rgba(146, 146, 146, 0.1);
         position: absolute;
-        top: 100%;
+        bottom: 0;
         left: 0;
         right: 0;
     }

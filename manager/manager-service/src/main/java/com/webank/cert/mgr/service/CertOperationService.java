@@ -27,6 +27,7 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -57,7 +58,6 @@ import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertInfo;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertKeyInfo;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertRequestInfo;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 
 @Service
@@ -162,7 +162,7 @@ public class CertOperationService {
             throws Exception {
         X500NameInfo issuer = X500NameInfo.builder().commonName(commonName).organizationName(organizationName)
                 .organizationalUnitName(organizationUnitName).build();
-        String userId = CurrentAccount.id();
+        String userId = CurrentAccountUtil.get().getId();
         Date beginDate = new Date();
         Date endDate = new Date(beginDate.getTime() + CertConstants.DEFAULT_VALIDITY);
 //        KeyUsage keyUsage = new KeyUsage(KeyUsage.dataEncipherment); // 证书使用用途 数据加密
@@ -191,7 +191,7 @@ public class CertOperationService {
     @Transactional
     public CertVO createIssuerCert(String rootCertId, String commonName, String organizationName,
             String organizationUnitName) throws Exception {
-        String userId = CurrentAccount.id();
+        String userId = CurrentAccountUtil.get().getId();
         X500NameInfo subject = X500NameInfo.builder().commonName(commonName).organizationName(organizationName)
                 .organizationalUnitName(organizationUnitName).build();
         Date beginDate = new Date();
@@ -254,16 +254,6 @@ public class CertOperationService {
 
     /**
      * 签发用户的证书
-     * 
-     * @param issuerCertId         isRootCert = false, isCaCert = true的证书ID
-     * @param commonName
-     * @param userId
-     * @param organizationUnitName
-     * @param organizationName
-     * @param email
-     * @param certRequestContent
-     * @return
-     * @throws Exception
      */
     @Transactional
     public CertVO createUserCert(String issuerCertId, String memberId, String certRequestContent) throws Exception {
@@ -329,7 +319,7 @@ public class CertOperationService {
         certKeyInfo.setKeyAlg(priAlg);
         certKeyInfo.setKeyPem(DatabaseEncryptUtil.encrypt(pemPrivateKey));
         certKeyInfo.setUserId(userId);
-        certKeyInfo.setCreatedBy(CurrentAccount.id());
+        certKeyInfo.setCreatedBy(CurrentAccountUtil.get().getId());
         certKeyInfo = certDao.save(certKeyInfo);
         return certKeyInfo;
     }
@@ -346,7 +336,7 @@ public class CertOperationService {
             String organizationName, String userId) {
         CertRequestInfo certRequestInfo = new CertRequestInfo();
         certRequestInfo.setUserId(userId);
-        certRequestInfo.setCreatedBy(CurrentAccount.id());
+        certRequestInfo.setCreatedBy(CurrentAccountUtil.get().getId());
         certRequestInfo.setSubjectKeyId(subjectKeyId);
         certRequestInfo.setSubjectCN(commonName);
         certRequestInfo.setSubjectOrg(organizationName);
@@ -377,7 +367,7 @@ public class CertOperationService {
             String issuerCertId, String csrId) {
         CertInfo certInfo = new CertInfo();
         certInfo.setUserId(userId);
-        certInfo.setCreatedBy(CurrentAccount.id());
+        certInfo.setCreatedBy(CurrentAccountUtil.get().getId());
         certInfo.setIssuerCN(issuerCommonName);
         certInfo.setIssuerOrg(issuerOrgName);
         certInfo.setpCertId(issuerCertId);

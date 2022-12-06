@@ -42,7 +42,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.TaskResultType;
@@ -590,7 +590,7 @@ public class TaskResultService extends AbstractService {
         root.put("status", "stopped");
 
         taskResult.setResult(root.toJSONString());
-        taskResult.setUpdatedBy(CurrentAccount.id());
+        taskResult.setUpdatedBy(CurrentAccountUtil.get().getId());
         taskResultRepository.save(taskResult);
     }
 

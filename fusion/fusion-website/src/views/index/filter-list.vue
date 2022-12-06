@@ -132,6 +132,7 @@
 
 <script>
     import table from '@src/mixins/table.js';
+    import { getHeader } from '@src/http/utils';
 
     export default {
         mixins: [table],
@@ -142,7 +143,8 @@
                     status: '',
                 },
                 headers: {
-                    token: localStorage.getItem('token') || '',
+                    // token: localStorage.getItem('token') || '',
+                    ... getHeader(),
                 },
                 getListApi: '/filter/query',
             };

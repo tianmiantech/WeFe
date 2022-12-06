@@ -18,7 +18,7 @@ package com.welab.wefe.board.service.database.repository.base;
 
 import com.welab.wefe.board.service.dto.base.PagingInput;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
@@ -101,7 +101,7 @@ public class BaseRepositoryImpl<T, ID extends Serializable> extends SimpleJpaRep
         update
                 .set(root.get(key), value)
                 .set(root.get("updatedTime"), new Date())
-                .set(root.get("updatedBy"), CurrentAccount.id())
+                .set(root.get("updatedBy"), CurrentAccountUtil.get().getId())
                 .where(cb.equal(root.get("id"), id));
 
         return entityManager
@@ -121,7 +121,7 @@ public class BaseRepositoryImpl<T, ID extends Serializable> extends SimpleJpaRep
 
         update
                 .set(root.get("updatedTime"), new Date())
-                .set(root.get("updatedBy"), CurrentAccount.id())
+                .set(root.get("updatedBy"), CurrentAccountUtil.get().getId())
                 .where(cb.equal(root.get("id"), id));
 
         return entityManager
@@ -137,7 +137,7 @@ public class BaseRepositoryImpl<T, ID extends Serializable> extends SimpleJpaRep
         Root<T> root = update.from(clazz);
 
         if (hasUpdatedBy) {
-            update.set(root.get("updatedBy"), CurrentAccount.id());
+            update.set(root.get("updatedBy"), CurrentAccountUtil.get().getId());
         }
 
         update

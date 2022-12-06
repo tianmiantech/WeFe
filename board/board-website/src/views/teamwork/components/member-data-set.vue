@@ -402,9 +402,9 @@
         destroy-on-close
         v-model="vData.cooperAuthDialog.show"
     >
-        <div class="el-message-box__container">
-            <i class="el-message-box__status el-icon-warning" />
-            <div class="el-message-box__message">{{ vData.cooperAuthDialog.flag ? '同意加入合作' : (form.isPromoter ? '退出此次项目合作' : '拒绝与发起方的此次项目合作') }}</div>
+        <div class="board-message-box__container">
+            <i class="board-message-box__status board-icon-warning" />
+            <div class="board-message-box__message">{{ vData.cooperAuthDialog.flag ? '同意加入合作' : (form.isPromoter ? '退出此次项目合作' : '拒绝与发起方的此次项目合作') }}</div>
         </div>
         <p class="f14 mt20 mb10 color-danger">审核意见:</p>
         <el-input

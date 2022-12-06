@@ -8,7 +8,7 @@ html, body, article, hgroup, figure, main, section, header, footer, aside, nav, 
  * font, line height...
  */
 body {
-    font-family: $font-family;
+    // font-family: $font-family;
     font-size: $font-size-larger;
     background-color: --background-color-base;
     -webkit-font-smoothing: antialiased;
@@ -60,26 +60,25 @@ input::-webkit-inner-spin-button{
 input[type="number"]{-moz-appearance:textfield;}
 
 // reset element-plus style
-.el-table__body{
-    .el-tag{
-        height: auto;
+.manager-table__body{
+    .manager-tag{
         white-space: normal;
     }
 }
-.el-card{z-index: 1;}
-.el-radio__label{padding-left: 5px;}
-.el-dialog__header{min-height: 50px;}
-.el-loading-parent--relative{z-index: 10;}
-.el-table__empty-block{width: 100% !important;}
-.el-scrollbar__bar{z-index: 1000;}
-.el-button--medium,
-.el-button--small{
-    .el-loading-spinner{margin-top: -10px;}
+.manager-card{z-index: 1;}
+.manager-radio__label{padding-left: 5px;}
+.manager-dialog__header{min-height: 50px;margin-right: 0;}
+.manager-loading-parent--relative{z-index: 10;}
+.manager-table__empty-block{width: 100% !important;}
+.manager-scrollbar__bar{z-index: 1000;}
+.manager-button--medium,
+.manager-button--small{
+    .manager-loading-spinner{margin-top: -10px;}
     .circular{
         width: 20px;
         height: 20px;
     }
 }
-.el-table th.is-leaf {
+.manager-table th.is-leaf {
     font-size: 14px;
 }

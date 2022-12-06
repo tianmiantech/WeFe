@@ -485,7 +485,7 @@
 $border-default: 1px solid #f5f5f7;
 .page-card{min-height: calc(100vh - 40px);}
 .model-compare-page {
-    :deep(.el-card__body) {
+    :deep(.board-card__body) {
         display: flex;
         .model-list-filter {
             width: 352px;
@@ -493,10 +493,10 @@ $border-default: 1px solid #f5f5f7;
             border-right: $border-default;
             display: flex;
             flex-direction: column;
-            .el-form--inline .el-form-item {
+            .board-form--inline .board-form-item {
                 margin-right: 10px;
             }
-            .el-form {
+            .board-form {
                 border-bottom: $border-default;
             }
             .model-list-box {
@@ -520,7 +520,7 @@ $border-default: 1px solid #f5f5f7;
                         display: flex;
                         justify-content: space-between;
                         align-items: center;
-                        .el-tooltip__trigger {
+                        .board-tooltip__trigger {
                             display: flex;
                             justify-content: space-between;
                             cursor: pointer;
@@ -563,7 +563,7 @@ $border-default: 1px solid #f5f5f7;
                 justify-content: space-between;
                 padding: 0 0 20px 20px;
                 .result-item {
-                    .el-descriptions__body .el-descriptions__table.is-bordered .el-descriptions__cell {
+                    .board-descriptions__body .board-descriptions__table.is-bordered .board-descriptions__cell {
                         word-break: break-all;
                     }
                     h4 {

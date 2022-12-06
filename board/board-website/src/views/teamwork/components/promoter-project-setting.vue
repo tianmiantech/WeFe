@@ -1,7 +1,7 @@
 <template>
     <div class="project-setting-icon">
         <el-icon
-            class="el-icon-setting f20 ml10"
+            class="board-icon-setting f20 ml10"
             @click="showProjectSetting"
         >
             <elicon-setting />
@@ -132,9 +132,9 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-form-item{
-        :deep(.el-input__inner) {
-            padding-right: 60px;
-        }
-    }
+    // .board-form-item{
+    //     :deep(.board-input__inner) {
+    //         padding-right: 60px;
+    //     }
+    // }
 </style>

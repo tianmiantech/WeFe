@@ -4,9 +4,9 @@
 @import "./_element-ui.scss";
 @import "./_font.scss";
 
-#app {
+#board-app {
     width: 100%;
-    min-height: 100vh;
+    // min-height: 100vh;
 }
 
 /* global router view animate */
@@ -32,7 +32,7 @@
 }
 
 /* container */
-.el-container{min-height: 100vh;}
+.board-container{height: 100%;overflow: auto;}
 .base-container {
     overflow-x: hidden;
     position: relative;
@@ -50,9 +50,9 @@
 
 .page{min-height: calc(100vh - 120px);}
 
-.el-dialog__header,
-.el-message-box__header{background:#F5F7FA;}
-.el-dialog__body{padding: 20px;}
+.board-dialog__header,
+.board-message-box__header{background:#F5F7FA;}
+.board-dialog__body{padding: 20px;}
 
 fieldset legend {
     color: $color-link-base;
@@ -62,6 +62,8 @@ fieldset legend {
 
 /* reset scrollbar style for windows */
 .customed-scrollbar{
+    height: 100vh;
+    overflow: hidden;
     ::-webkit-scrollbar {
         width: 5px;
         height: 5px;

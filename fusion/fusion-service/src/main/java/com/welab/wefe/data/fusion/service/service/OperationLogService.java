@@ -16,11 +16,9 @@
 
 package com.welab.wefe.data.fusion.service.service;
 
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.data.fusion.service.api.operation.LogQueryApi;
 import com.welab.wefe.data.fusion.service.database.entity.OperationLogMysqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.OperationLogRepository;
@@ -40,9 +38,6 @@ public class OperationLogService extends AbstractService {
     OperationLogRepository mOperationLogRepository;
 
     public PagingOutput<OperationLogOutputModel> query(LogQueryApi.Input input) throws StatusCodeWithException {
-        if (!CurrentAccount.isAdmin()) {
-            StatusCode.PERMISSION_DENIED.throwException("普通用户无法进行此操作。");
-        }
 
         Specification<OperationLogMysqlModel> where = Where
                 .create()

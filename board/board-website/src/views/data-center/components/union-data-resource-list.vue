@@ -20,7 +20,7 @@
             </div>
         </template>
         <el-table-column label="添加" width="60" v-slot="scope">
-            <el-icon title="快捷创建项目" class="el-icon-folder-add" @click="addDataSet($event, scope.row)">
+            <el-icon title="快捷创建项目" class="board-icon-folder-add" @click="addDataSet($event, scope.row)">
                 <elicon-folder-add />
             </el-icon>
         </el-table-column>
@@ -232,7 +232,7 @@
         line-height: 30px;
         padding:100px 0;
     }
-    .el-icon-folder-add{
+    .board-icon-folder-add{
         cursor: pointer;
         font-size: 16px;
         color: $color-link-base;

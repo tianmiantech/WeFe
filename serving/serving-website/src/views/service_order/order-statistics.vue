@@ -156,7 +156,6 @@
                     <p>{{ scope.row.date_time }}</p>
                 </template>
             </el-table-column>
-
         </el-table>
 
         <div
@@ -178,47 +177,48 @@
 
 <script>
 import table from '@src/mixins/table';
-import {mapGetters} from 'vuex';
+import { mapGetters } from 'vuex';
+import { downLoadFileTool } from '@src/utils/tools';
 
 export default {
-    name: 'OrderStatistics',
+    name:   'OrderStatistics',
     mixins: [table],
     data() {
         return {
-            loading: false,
-            list: [],
-            services: [],
-            clients: [],
+            loading:    false,
+            list:       [],
+            services:   [],
+            clients:    [],
             getListApi: '/orderstatistics/query-list',
-            search: {
-                serviceName: '',
-                requestPartnerName: '',
-                responsePartnerName: '',
+            search:     {
+                serviceName:            '',
+                requestPartnerName:     '',
+                responsePartnerName:    '',
                 statisticalGranularity: 'minute',
-                startTime: '',
-                endTime: '',
+                startTime:              '',
+                endTime:                '',
             },
-            defaultTime: [],
+            defaultTime:      [],
             dialogPagination: {
-                total: '',
-                page_size: 10,
-                page_index: 1,
-                serviceId: '',
-                clientId: '',
+                total:       '',
+                page_size:   10,
+                page_index:  1,
+                serviceId:   '',
+                clientId:    '',
                 change_flag: false,
             },
 
             statistical_granularity: [
-                {value: 'month', label: '月'},
-                {value: 'day', label: '日'},
-                {value: 'hour', label: '小时'},
-                {value: 'minute', label: '分钟'},
+                { value: 'month', label: '月' },
+                { value: 'day', label: '日' },
+                { value: 'hour', label: '小时' },
+                { value: 'minute', label: '分钟' },
             ],
 
             apiCallDetails: [],
 
             dialogTableVisible: false,
-            defaultSearch: false,
+            defaultSearch:      false,
         };
     },
 
@@ -248,16 +248,15 @@ export default {
 
 
         downloadStatistics() {
-
-            const api = `${window.api.baseUrl}/orderstatistics/download?serviceName=${this.search.serviceName}&requestPartnerName=${this.search.requestPartnerName}&responsePartnerName=${this.search.responsePartnerName}&statisticalGranularity=${this.search.statisticalGranularity}&startTime=${this.search.startTime}&endTime=${this.search.endTime}&token=${this.userInfo.token}&version=${Math.random()}`;
-            const link = document.createElement('a');
-
-            link.href = api;
-            link.target = '_blank';
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-
+            downLoadFileTool('/orderstatistics/download', {
+                serviceName:         this.search.serviceName,
+                requestPartnerName:  this.search.requestPartnerName,
+                responsePartnerName: this.search.responsePartnerName,
+                orderType:           this.search.orderType,
+                startTime:           this.search.startTime,
+                endTime:             this.search.endTime,
+                version:             Math.random(),
+            });
         },
 
 
@@ -290,8 +289,8 @@ export default {
         },
 
         async getServices() {
-            const {code, data} = await this.$http.post({
-                url: '/service/query',
+            const { code, data } = await this.$http.post({
+                url:  '/service/query',
                 data: {
                     status: 1,
                 },
@@ -303,7 +302,7 @@ export default {
         },
 
         async getClients() {
-            const {code, data} = await this.$http.post({
+            const { code, data } = await this.$http.post({
                 url: '/client/query-list',
             });
 
@@ -319,15 +318,15 @@ export default {
             this.dialogPagination.clientId = clientId;
 
             this.apiCallDetails = [];
-            const {code, data} = await this.$http.post({
-                url: '/orderstatistics/query-list',
+            const { code, data } = await this.$http.post({
+                url:  '/orderstatistics/query-list',
                 data: {
-                    serviceId: this.dialogPagination.serviceId,
-                    clientId: this.dialogPagination.clientId,
+                    serviceId:  this.dialogPagination.serviceId,
+                    clientId:   this.dialogPagination.clientId,
                     page_index: change_flag ? this.dialogPagination.page_index - 1 : 0,
-                    page_size: change_flag ? this.dialogPagination.page_size : 10,
-                    startTime: this.search.startTime,
-                    endTime: this.search.endTime,
+                    page_size:  change_flag ? this.dialogPagination.page_size : 10,
+                    startTime:  this.search.startTime,
+                    endTime:    this.search.endTime,
                 },
             });
 

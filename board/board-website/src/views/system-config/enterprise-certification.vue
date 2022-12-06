@@ -71,25 +71,25 @@
 
                     <el-upload
                         ref="uploader"
-                        class="el-uploader"
+                        class="board-uploader"
                         v-loading="pending"
                         :file-list="fileList"
                         :on-remove="onRemove"
                         :on-preview="onPreview"
                         :http-request="() => {}"
                         :before-upload="beforeUpload"
-                        :headers="{ token: userInfo.token }"
+                        :headers="{ 'x-user-token': getXUserToken() }"
                         accept=".png,.jpg,.pdf"
                         action="#"
                         drag
                     >
-                        <el-icon class="el-icon--upload">
+                        <el-icon class="board-icon--upload">
                             <elicon-upload-filled />
                         </el-icon>
                         <div>
                             将文件 (.jpg/png/PDF) 拖拽到此处或<p><el-button type="primary">点此上传</el-button>
                             </p>
-                            <div class="el-upload__tip">jpg/png 文件最大 5M, PDF 最大 10M</div>
+                            <div class="board-upload__tip">jpg/png 文件最大 5M, PDF 最大 10M</div>
                         </div>
                     </el-upload>
                 </el-form-item>
@@ -136,6 +136,9 @@
 
 <script>
     import { mapGetters } from 'vuex';
+    import { getToken } from '@tianmiantech/util';
+    import { getTokenName } from '@src/utils/tools';
+    import { downLoadFileTool } from '@src/utils/tools';
 
     export default {
         inject: ['refresh'],
@@ -231,20 +234,9 @@
 
             downloadFile(event, file) {
                 if(this.loading || !this.agreementId) return;
-                this.loading = true;
-
-                const api = `${window.api.baseUrl}/union/download/file?fileId=${file? file.fileId : this.agreementId}&token=${this.userInfo.token}`;
-                const link = document.createElement('a');
-
-                link.href = api;
-                link.target = '_blank';
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
-
-                setTimeout(() => {
-                    this.loading = false;
-                }, 300);
+                downLoadFileTool('/data_output_info/model_export', {
+                    fileId: file? file.fileId : this.agreementId,
+                });
             },
 
             blobToDataURI(blob, callback) {
@@ -393,48 +385,51 @@
                     }, 500);
                 }
             },
+
+            getXUserToken () {
+                return getToken(getTokenName());
+            },
         },
     };
 </script>
 
 <style lang="scss" scoped>
-    .el-form{max-width: 500px;}
-    .el-link{line-height: 1;}
-    .el-uploader{
-        margin-top: 100px;
-        :deep(.el-upload-dragger){width:500px;}
-        :deep(.el-upload-list__item-thumbnail){display: none;}
-        :deep(.el-upload-list__item-name){
+    .board-form{max-width: 500px;}
+    .board-link{line-height: 1;}
+    .board-uploader{
+        :deep(.board-upload-dragger){width:500px;}
+        :deep(.board-upload-list__item-thumbnail){display: none;}
+        :deep(.board-upload-list__item-name){
             line-height: 30px !important;
             margin:0;
-            .el-icon{display:none;}
+            .board-icon{display:none;}
         }
-        :deep(.el-upload-list__item){
+        :deep(.board-upload-list__item){
             padding:10px;
             height: 50px;
         }
     }
-    .el-upload__tip{
+    .board-upload__tip{
         padding:20px;
         line-height: 16px;
     }
-    .el-icon--upload{
+    .board-icon--upload{
         display: block;
         margin:20px auto 0;
     }
-    .el-select{
+    .board-select{
         height:32px;
-        :deep(.el-input) {
-            .el-input__inner {
+        :deep(.board-input) {
+            .board-input__inner {
                 background:#fff;
                 height:30px;
             }
         }
-        :deep(.el-icon) {
+        :deep(.board-icon) {
             svg{top:-3px;}
         }
     }
-    .el-icon-full-screen{
+    .board-icon-full-screen{
         cursor: pointer;
         position: absolute;
         right: 0;
@@ -456,7 +451,7 @@
             left: 30px;
             overflow:auto;
         }
-        .el-icon{
+        .board-icon{
             position: absolute;
             top:10px;
             right:0;

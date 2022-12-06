@@ -27,7 +27,7 @@ import com.welab.wefe.board.service.util.JdbcManager;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -53,7 +53,7 @@ public class DataSourceService extends AbstractService {
         testdbconnect(input);
 
         DataSourceMysqlModel model = ModelMapper.map(input, DataSourceMysqlModel.class);
-        model.setCreatedBy(CurrentAccount.id());
+        model.setCreatedBy(CurrentAccountUtil.get().getId());
 //        model.setPassword(Md5.of(model.getPassword()));
         dataSourceRepo.save(model);
 

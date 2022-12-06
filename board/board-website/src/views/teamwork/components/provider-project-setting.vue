@@ -2,7 +2,7 @@
     <div class="project-setting-icon">
         <el-icon
             v-if="!project.is_exited && project.audit_status !== 'disagree'"
-            class="el-icon-setting"
+            class="board-icon-setting"
             @click="showDialogForProjectSetting=true"
         >
             <elicon-setting />

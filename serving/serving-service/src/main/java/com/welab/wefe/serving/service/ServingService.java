@@ -16,7 +16,6 @@
 
 package com.welab.wefe.serving.service;
 
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
@@ -44,9 +43,9 @@ public class ServingService implements ApplicationContextAware {
         Launcher
                 .instance()
                 .apiPackageClass(ServingService.class)
-                .apiLogger(new ServingApiLogger())
+                //.apiLogger(new ServingApiLogger())
                 // Login status check method
-                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null || annotation.allowAccessWithSign())
+                //.checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null || annotation.allowAccessWithSign())
                 .apiPermissionPolicy((request, annotation, params) -> {
                     if (!annotation.allowAccessWithSign()) {
                         return;

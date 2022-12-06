@@ -25,17 +25,17 @@
     font-size: 16px;
 }
 
-.el-divider{
+.manager-divider{
     margin: 14px 0;
     background:#e9ecef;
 }
 
-.el-form-item{
+.manager-form-item{
     margin-bottom: 16px;
 }
 
 .form-code{
-    :deep(.el-input-group__append){
+    :deep(.manager-input-group__append){
         padding:0;
         width: 90px;
         overflow: hidden;
@@ -46,12 +46,12 @@
     height: 30px;
     cursor: pointer;
 }
-.el-checkbox{
+.manager-checkbox{
     font-weight: normal;
 }
 
-:deep(.el-form-item__label,
-    .el-checkbox__label) {
+:deep(.manager-form-item__label,
+    .manager-checkbox__label) {
         font-size: 13px;
     }
 

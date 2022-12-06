@@ -25,7 +25,7 @@
                 <span class="name f14">
                     <el-icon
                         v-if="member.audit_status !== 'agree'"
-                        class="el-icon-warning-outline color-danger"
+                        class="board-icon-warning-outline color-danger"
                     >
                         <elicon-warning />
                     </el-icon>
@@ -68,7 +68,7 @@
                             <el-icon
                                 v-if="!disabled"
                                 title="移除"
-                                class="el-icon-circle-close f20"
+                                class="board-icon-circle-close f20"
                                 @click="methods.removeDataSet(index)"
                             >
                                 <elicon-circle-close />
@@ -180,14 +180,14 @@
                             <label
                                 v-if="list[index * 5 + i - 1]"
                                 :for="`label-${index * 5 + i - 1}`"
-                                class="el-checkbox"
+                                class="board-checkbox"
                                 @click.prevent.stop="methods.checkboxChange($event, list[index * 5 + i - 1])"
                             >
-                                <span :class="['el-checkbox__input', { 'is-checked': vData.checkedColumnsArr.includes(list[index * 5 + i - 1]) }]">
-                                    <span class="el-checkbox__inner"></span>
-                                    <input :id="`label-${index * 5 + i - 1}`" class="el-checkbox__original" type="checkbox" />
+                                <span :class="['board-checkbox__input', { 'is-checked': vData.checkedColumnsArr.includes(list[index * 5 + i - 1]) }]">
+                                    <span class="board-checkbox__inner"></span>
+                                    <input :id="`label-${index * 5 + i - 1}`" class="board-checkbox__original" type="checkbox" />
                                 </span>
-                                <span class="el-checkbox__label">{{ list[index * 5 + i - 1] }}</span>
+                                <span class="board-checkbox__label">{{ list[index * 5 + i - 1] }}</span>
                             </label>
                         </template>
                     </template>
@@ -849,7 +849,7 @@
         top: -4px;
     }
     .dialog-min-width{min-width: 800px;}
-    .el-icon-circle-close{
+    .board-icon-circle-close{
         cursor: pointer;
         color:$--color-danger;
         position: absolute;
@@ -858,21 +858,21 @@
     }
     .data-set{
         border-top: 1px solid $border-color-base;
-        .el-form{
+        .board-form{
             padding: 5px 10px;
             border: 1px solid $border-color-base;
             border-top: 0;
         }
-        :deep(.el-form-item){
+        :deep(.board-form-item){
             display:flex;
             margin-bottom:0;
             flex-wrap: wrap;
-            .el-form-item__label{
+            .board-form-item__label{
                 font-size: 12px;
                 text-align: left;
                 line-height: 24px;
             }
-            .el-form-item__content{
+            .board-form-item__content{
                 font-size: 12px;
                 line-height: 22px;
                 word-break:break-all;

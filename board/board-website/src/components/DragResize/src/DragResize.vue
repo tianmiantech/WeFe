@@ -26,21 +26,21 @@
         >
             <el-icon
                 v-if="vData.size === 'max'"
-                class="icons el-icon-minus"
+                class="icons board-icon-minus"
                 @click="methods.min"
             >
                 <elicon-minus />
             </el-icon>
             <el-icon
                 v-if="vData.size !== 'max'"
-                class="icons el-icon-plus"
+                class="icons board-icon-plus"
                 @click="methods.max"
             >
                 <elicon-plus />
             </el-icon>
             <el-icon
                 v-if="showHideBtn"
-                class="icons el-icon-close"
+                class="icons board-icon-close"
                 @click="methods.hide"
             >
                 <elicon-close />
@@ -341,9 +341,9 @@
             }
         }
     }
-    .el-icon-minus{background: #f1b92a;}
-    .el-icon-plus{background: #35c895;}
-    .el-icon-close{background: #f85564;}
+    .board-icon-minus{background: #f1b92a;}
+    .board-icon-plus{background: #35c895;}
+    .board-icon-close{background: #f85564;}
 }
 .control-points{
     .icon-btn{

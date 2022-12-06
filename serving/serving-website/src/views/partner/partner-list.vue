@@ -104,7 +104,7 @@
                 width="70"
             >
                 <template slot-scope="scope">
-                    <p>{{scope.row.is_union_member ? '是':'否'}}</p>
+                    <p>{{ scope.row.is_union_member ? '是':'否' }}</p>
                 </template>
             </el-table-column>
             <el-table-column
@@ -112,7 +112,7 @@
                 width="70"
             >
                 <template slot-scope="scope">
-                    <p>{{scope.row.is_me ? '是':'否'}}</p>
+                    <p>{{ scope.row.is_me ? '是':'否' }}</p>
                 </template>
             </el-table-column>
 
@@ -143,8 +143,8 @@
                     <el-button
                         v-if="scope.row.status === 0"
                         type="success"
-                        @click="open(scope.row,1)"
                         style="margin-left: 3px"
+                        @click="open(scope.row,1)"
                     >
                         启用
                     </el-button>

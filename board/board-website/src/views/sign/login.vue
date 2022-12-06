@@ -282,7 +282,7 @@
 <style lang="scss" scoped>
     @import "./sign.scss";
 
-    .el-main{
+    .board-main{
         max-width: 1400px;
         padding-bottom: 60px;
         position: relative;
@@ -301,7 +301,7 @@
         width: 400px;
         line-height: 1.4;
         font-size: 14px;
-        .el-carousel {
+        .board-carousel {
             height: 100%;
             position: fixed;
             top: 0;
@@ -309,7 +309,7 @@
             width: 300px;
         }
 
-        .el-carousel__item {
+        .board-carousel__item {
             position: absolute;
             top: 0;
             left: 0;
@@ -332,7 +332,7 @@
     .login-btn{width:100%;}
 
     @media screen and (max-width:1440px) {
-        .el-main{max-width: 1000px;}
+        .board-main{max-width: 1000px;}
         .carousel {width: 300px;}
     }
 

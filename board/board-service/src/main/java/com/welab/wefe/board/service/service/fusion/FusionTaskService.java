@@ -43,7 +43,7 @@ import com.welab.wefe.board.service.util.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
@@ -550,7 +550,7 @@ public class FusionTaskService extends AbstractService {
 
         OnlineDemoBranchStrategy.hackOnDelete(input, task, "只能删除自己创建的流程。");
 
-        if (!input.fromGateway() && !task.getCreatedBy().equals(CurrentAccount.id()) && !CurrentAccount.isAdmin()) {
+        if (!input.fromGateway() && !task.getCreatedBy().equals(CurrentAccountUtil.get().getId())) {
             throw new StatusCodeWithException("只能删除自己创建的流程。", StatusCode.UNSUPPORTED_HANDLE);
         }
 
