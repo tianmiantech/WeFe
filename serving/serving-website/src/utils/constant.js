@@ -37,7 +37,7 @@ export function baseURL (){
     const lastTwo = appCodes.substring(appCodes.length - 2);
     const second = /^\d+$/.test(lastTwo) ? lastTwo : '';
 
-    return isQianKun() ? `${getOrigin()}/${appCode()}-service` : `${process.env[`VUE_APP_${process.env.HOST_ENV}`]}-${second || '01'}`;
+    return isQianKun() ? `${getOrigin()}/${appCode()}-service` : `${process.env[`VUE_APP_${process.env.HOST_ENV}`]}${second ? `-${second}` : ''}`;
 }
 
 // localstorage name
