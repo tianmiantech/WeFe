@@ -73,7 +73,7 @@
                                 project_id: scope.row.project_id,
                                 flow_id: scope.row.flow_id,
                                 job_id: scope.row.job_id,
-                                is_project_admin: is_project_admin
+                                is_project_admin: is_project_admin || 'true'
                             }
                         }"
                     >
@@ -88,7 +88,7 @@
                 width="105px"
             >
                 <template v-slot="scope">
-                    <RoleTag :role="scope.row.my_role" />
+                    <RoleTag :role="scope.row.my_role" :key="scope.row.job_id" />
                 </template>
             </el-table-column>
             <el-table-column
@@ -115,6 +115,7 @@
                                     {{ scope.row.message }}
                                 </template>
                                 <JobStatusTag
+                                    :key="scope.row.job_id"
                                     :status="scope.row.status"
                                 />
                             </el-tooltip>
@@ -293,7 +294,7 @@
 
             this.flow_id = flow_id;
             this.project_id = project_id;
-            this.is_project_admin = is_project_admin;
+            this.is_project_admin = is_project_admin || 'true';
             this.pagination.page_size = 20;
             this.getTableList();
         },
@@ -418,7 +419,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    :deep(.el-icon-refresh-right) {
+    :deep(.board-icon-refresh-right) {
         font-size: 18px;
         color: #4c84ff;
         background: #efefef;

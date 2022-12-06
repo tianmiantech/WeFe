@@ -18,7 +18,7 @@
                 <div class="tree-node-label f14">{{ node.label }}</div>
                 <el-icon
                     v-if="node.level > 1 && data.id !== userInfo.id"
-                    class="el-icon-chat-round"
+                    class="board-icon-chat-round"
                 >
                     <elicon-chat-round />
                 </el-icon>
@@ -93,11 +93,12 @@
                     data: {
                         page_size: 100,
                     },
+                    systemError: false,
                 });
 
                 vData.loading = false;
                 if(code === 0) {
-                    vData.members = data.list.map(member => {
+                    vData.members = data?.list?.map(member => {
                         return {
                             ...member,
                             label: member.name,
@@ -150,7 +151,7 @@
         text-overflow: ellipsis;
         max-width: 140px;
     }
-    .el-icon-chat-round{
+    .board-icon-chat-round{
         cursor: pointer;
         &:hover{color:$color-link-base-hover;}
     }

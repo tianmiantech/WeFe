@@ -17,7 +17,5 @@ import ServiceStatus from './components/service-available-list.vue';
 </script>
 
 <style lang="scss" scoped>
-.el-row {
-    height: calc(100vh - 120px);
-}
+    .board-row{height: calc(100vh - 120px);}
 </style>

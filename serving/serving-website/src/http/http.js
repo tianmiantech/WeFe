@@ -52,6 +52,7 @@ methods.forEach(method => {
     http[method] = (config = {}, options = {}) => {
         if (typeof config === 'string') {
             options.url = config;
+            console.log('config.url', config);
         } else if (!config.url) {
             window.$app.$message.error('接口不存在!');
             return new Promise(() => {

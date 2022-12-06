@@ -20,7 +20,6 @@
                     type="primary"
                     native-type="button"
                     @click="methods.addKeywords"
-                    class="mb10"
                 >
                     +新增关键词
                 </el-button>
@@ -222,5 +221,5 @@
             margin:20px 20px 0 0;
         }
     }
-    .el-tag{cursor: pointer;}
+    .manager-tag{cursor: pointer;}
 </style>

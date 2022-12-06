@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,38 +30,38 @@ import com.welab.wefe.serving.service.service.AccountService;
 @Api(path = "account/queryAll", name = "account/queryAll")
 public class QueryAllApi extends AbstractApi<NoneApiInput, List<QueryAllApi.Output>> {
 
-	@Autowired
-	private AccountService accountService;
+    @Autowired
+    private AccountService accountService;
 
-	@Override
-	protected ApiResult<List<Output>> handle(NoneApiInput input) throws Exception {
-		return success(accountService.queryAll());
-	}
+    @Override
+    protected ApiResult<List<Output>> handle(NoneApiInput input) throws Exception {
+        return success(accountService.queryAll());
+    }
 
-	public static class Output extends AbstractApiOutput {
+    public static class Output extends AbstractApiOutput {
 
-		private String id;
+        private String id;
 
-		private String nickname;
+        private String nickname;
 
-		// region getter/setter
+        // region getter/setter
 
-		public String getNickname() {
-			return nickname;
-		}
+        public String getNickname() {
+            return nickname;
+        }
 
-		public String getId() {
-			return id;
-		}
+        public String getId() {
+            return id;
+        }
 
-		public void setId(String id) {
-			this.id = id;
-		}
+        public void setId(String id) {
+            this.id = id;
+        }
 
-		public void setNickname(String nickname) {
-			this.nickname = nickname;
-		}
+        public void setNickname(String nickname) {
+            this.nickname = nickname;
+        }
 
-		// endregion
-	}
+        // endregion
+    }
 }

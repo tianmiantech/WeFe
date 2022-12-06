@@ -24,7 +24,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.data.fusion.service.database.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.GlobalConfigRepository;
 import com.welab.wefe.data.fusion.service.dto.entity.globalconfig.GlobalConfigInput;
@@ -95,7 +95,7 @@ public class BaseGlobalConfigService extends AbstractService {
             one = new GlobalConfigMysqlModel();
             one.setGroup(group);
             one.setName(name);
-            one.setCreatedBy(CurrentAccount.id());
+            one.setCreatedBy(CurrentAccountUtil.get().getId());
         } else {
             if (one.getValue() != null && value == null) {
                 StatusCode.SQL_ERROR.throwException("不能试用 null 覆盖非控值");
@@ -110,7 +110,7 @@ public class BaseGlobalConfigService extends AbstractService {
         }
 
         one.setValue(value);
-        one.setUpdatedBy(CurrentAccount.id());
+        one.setUpdatedBy(CurrentAccountUtil.get().getId());
 
         if (comment != null) {
             one.setComment(comment);

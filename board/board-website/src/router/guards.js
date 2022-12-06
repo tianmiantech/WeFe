@@ -20,124 +20,41 @@
  *          logged in and to.path === login or like register, go index
  */
 
-import { baseIsLogin, setStorage } from './auth';
+import { setStorage } from './auth';
+import { MENU_LIST } from '@src/utils/constant';
+import { isQianKun } from '@src/http/utils';
+import {prefixPath} from './routes';
 
-const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV ? `/${process.env.CONTEXT_ENV}/` : '/'}`;
-const blacklist = ['register', 'find-password', 'init', 'upload'];
+const whiteList = ['portal/login', `${prefixPath()}home`,'/portal/manager/', `${prefixPath()}init`];
 
 export default router => {
     router.beforeEach((to, from, next) => {
-        const { baseUrl } = window.api;
-        const isLogin = baseIsLogin();
+        const menuList = setStorage().getItem(MENU_LIST) || '[]';
+        const authority = JSON.parse(menuList) || [];
 
-        let inited = setStorage().getItem(`${baseUrl}_system_inited`);
-
-        inited == null ? inited = false : inited = JSON.parse(inited);
-
-        if (inited && to.name === 'init') {
-            next({ name: 'index', replace: true });
+        console.log(to.path, 'to.path');
+        if(whiteList.includes(to.path)){
+            /** 白名单，直接跳 */
+            return next();
         }
 
-        // matched is all path
-        if (to.matched.some(record => record.meta.requiresAuth !== false)) {
-            // need to login
-            if (isLogin) {
-                const { redirect } = from.query;
+        // if(!isLogin){
+        //     // 未登录 且在微前端中，跳回登录页
+        //     if (window.__POWERED_BY_QIANKUN__){
+        //             window.location.href = `/portal/login?tenantid=${localStorage.getItem('tenantid')}`;
+        //     }
+        // }
 
-                if(redirect) {
-                    let pathIsBlackList = false;
-                    const redirectUrl = decodeURIComponent(redirect);
-                    const params = redirectUrl.split('?');
-                    const path = params[0];
-                    const query = params[1];
-                    const queryArr = query && query.length ? query.split(/=|&/) : [];
-                    const queryObject = {};
+        const isExits = (name) => authority.includes(name);
 
-                    queryArr.forEach((val, i) => {
-                        const key = queryArr[i - 1];
-
-                        if (i % 2 === 0 && val) {
-                            queryObject[val] = '';
-                        }
-                        if (i % 2 === 1) {
-                            queryObject[key] = val;
-                        }
-                    });
-
-                    for (let i = 0; i < blacklist.length; i++) {
-                        if (path === `${prefixPath}${blacklist[i]}`) {
-                            pathIsBlackList = true;
-                            break;
-                        }
-                    }
-
-                    if (pathIsBlackList) {
-                        next();
-                    } else {
-                        if (to.fullPath === redirectUrl || to.path === redirectUrl.split('?')[0]) {
-                            // break the loop
-                            next();
-                        } else {
-                            next({ path, query: queryObject, replace: true });
-                        }
-                    }
-                } else {
-                    if (inited) {
-                        next();
-                    } else {
-                        if (to.fullPath === `${prefixPath}init`) {
-                            next();
-                        } else {
-                            next({
-                                name:    'init',
-                                replace: true,
-                            });
-                        }
-                    }
-                }
-            } else {
-                next({
-                    path:    `${prefixPath}login`,
-                    query:   { redirect: encodeURIComponent(to.fullPath) },
-                    replace: true,
-                });
-            }
-        } else if (to.matched.some(record => record.meta.requiresLogout)) {
-            // logged in and to.path === login
-            if (isLogin) {
-                next({ name: 'index', replace: true });
-            } else {
-                next();
-            }
-        } else {
-            // no need to login
+        console.log('isExits board', isExits(to.name), to.name, to.path);
+        console.log(isQianKun());
+        if(isExits(to.name) || !to.name || !isQianKun()){
             next();
-        }
-    });
-
-    router.beforeResolve((to, from, next) => {
-        const { baseUrl } = window.api;
-        const isLogin = baseIsLogin();
-
-        let inited = setStorage().getItem(`${baseUrl}_system_inited`);
-
-        inited == null ? inited = false : inited = JSON.parse(inited);
-
-        if (!isLogin) {
-            router.$app.config.globalProperties.$bus.$emit('change-layout-header-title', '');
         } else {
-            if (inited) {
-                router.$app.config.globalProperties.$bus.$emit('change-layout-header-title', '');
-            } else {
-                if (to.name !== 'init') {
-                    return next({
-                        name:    'init',
-                        replace: true,
-                    });
-                }
-            }
+            // window.$app.config.globalProperties.$message.error({ message: '页面不存在或权限未开放' });
+            next({ name: `home` });
         }
-        next();
     });
 
     router.afterEach(route => {

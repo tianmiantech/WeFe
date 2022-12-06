@@ -1,5 +1,5 @@
 <template>
-    <div v-loading="vData.loading" class="el-form">
+    <div v-loading="vData.loading" class="board-form">
         <template v-if="vData.commonResultData.task">
             <el-collapse
                 v-model="activeName"
@@ -65,11 +65,21 @@
                         vData.commonResultData = {
                             task: data[0],
                         };
-                        const { psi_results } = result || {};
+                        const { psi_results, role } = result || {};
                         const { promoter_psi: { feature_psi_results: promoter_bin_psi_results = {} } = {},provider_psi } = psi_results || {};
 
                         vData.promoter_psi = promoter_bin_psi_results || {};
                         vData.provider_psi = provider_psi || [];
+
+                        if(role === 'provider'){
+                            const { feature_psi_results } = psi_results;
+
+                            bodyCollapse.value = feature_psi_results.member_id;
+                            vData.provider_psi = [
+                                { feature_psi_results },
+                            ];
+                            vData.promoter_psi = undefined;
+                        }
 
                         if(result) {
                             vData.hasResult = true;

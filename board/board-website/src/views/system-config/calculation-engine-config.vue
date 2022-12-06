@@ -344,7 +344,7 @@
     margin-bottom: 20px;
 }
 .config_form {
-    :deep(.el-form-item) {
+    :deep(.board-form-item) {
         margin-bottom: 8px;
         width: 100%;
     }

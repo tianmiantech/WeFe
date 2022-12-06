@@ -18,6 +18,7 @@ package com.welab.wefe.common.data.mongodb.entity.union;
 
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.entity.base.AbstractNormalMongoModel;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
@@ -26,6 +27,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = MongodbTable.Union.DATA_RESOURCE_LAZY_UPDATE_MODEL)
 public class DataResourceLazyUpdateModel extends AbstractNormalMongoModel {
     private String dataResourceId;
+    private DataResourceType dataResourceType;
     private String labelList;
     private int totalDataCount;
     private int labeledCount;
@@ -107,5 +109,13 @@ public class DataResourceLazyUpdateModel extends AbstractNormalMongoModel {
 
     public void setLabelCompleted(boolean labelCompleted) {
         this.labelCompleted = labelCompleted;
+    }
+
+    public DataResourceType getDataResourceType() {
+        return dataResourceType;
+    }
+
+    public void setDataResourceType(DataResourceType dataResourceType) {
+        this.dataResourceType = dataResourceType;
     }
 }
