@@ -140,7 +140,7 @@ public abstract class AbstractSendTransferMetaService {
         if (!GrpcUtil.checkGatewayUriValid(selfMemberEntity.getGatewayInternalUri())) {
             //再次刷新下,防止缓存没来得及更新
             memberCache.refreshSelfMemberCache();
-            if (!GrpcUtil.checkGatewayUriValid(selfMemberEntity.getGatewayInternalUri())) {
+            if (!GrpcUtil.checkGatewayUriValid(memberCache.getSelfMember().getGatewayInternalUri())) {
                 return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "请设置自己的网关内网地址,格式为 HOST:PORT", transferMeta.getSessionId());
             }
         }
