@@ -27,6 +27,7 @@ import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -37,10 +38,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -170,6 +168,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
                 foreignField("member_id").
                 as("member");
         lookupOperations.add(lookupToMember);
+        dataResourceTypeList = (CollectionUtils.isEmpty(dataResourceTypeList) ? Arrays.asList(DataResourceType.ImageDataSet, DataResourceType.TableDataSet, DataResourceType.BloomFilter) : dataResourceTypeList);
 
         for (DataResourceType dataResourceType : dataResourceTypeList) {
             String joinCollectionName = null;
@@ -203,6 +202,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         UnwindOperation unwindMember = Aggregation.unwind("member", true);
         unwindOperations.add(unwindMember);
 
+        dataResourceTypeList = (CollectionUtils.isEmpty(dataResourceTypeList) ? Arrays.asList(DataResourceType.ImageDataSet, DataResourceType.TableDataSet, DataResourceType.BloomFilter) : dataResourceTypeList);
         for (DataResourceType dataResourceType : dataResourceTypeList) {
             String unwindField = null;
             if (DataResourceType.ImageDataSet.compareTo(dataResourceType) == 0) {
@@ -252,7 +252,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         MatchOperation memberMatch = Aggregation.match(memberCriteria);
         matchOperations.add(memberMatch);
 
-        if (dataResourceQueryInput.getDataResourceType().contains(DataResourceType.ImageDataSet)) {
+        if (dataResourceQueryInput.getDataResourceType().contains(DataResourceType.ImageDataSet) || CollectionUtils.isEmpty(dataResourceQueryInput.getDataResourceType())) {
             String forJobType = dataResourceQueryInput.getForJobType() == null ? null : dataResourceQueryInput.getForJobType().name();
             Criteria imageDataSetCriteria = new QueryBuilder()
                     .append(StringUtil.camelCaseToUnderLineCase(MongodbTable.Union.IMAGE_DATASET) + ".for_job_type", forJobType)
@@ -263,7 +263,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         }
 
         if (dataResourceQueryInput.getDataResourceType().contains(DataResourceType.TableDataSet)
-                || dataResourceQueryInput.getDataResourceType().contains(DataResourceType.BloomFilter)) {
+                || dataResourceQueryInput.getDataResourceType().contains(DataResourceType.BloomFilter) || CollectionUtils.isEmpty(dataResourceQueryInput.getDataResourceType())) {
             Criteria tableDataSetCriteria = new QueryBuilder()
                     .append(StringUtil.camelCaseToUnderLineCase(MongodbTable.Union.TABLE_DATASET) + ".contains_y", null == dataResourceQueryInput.getContainsY() ? null : String.valueOf(dataResourceQueryInput.getContainsY() ? 1 : 0))
                     .getCriteria();
@@ -298,7 +298,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         MatchOperation memberMatch = Aggregation.match(memberCriteria);
         matchOperations.add(memberMatch);
 
-        if (dataResourceQueryInput.getDataResourceType().contains(DataResourceType.ImageDataSet)) {
+        if (dataResourceQueryInput.getDataResourceType().contains(DataResourceType.ImageDataSet) || CollectionUtils.isEmpty(dataResourceQueryInput.getDataResourceType())) {
             String forJobType = dataResourceQueryInput.getForJobType() == null ? null : dataResourceQueryInput.getForJobType().name();
             Criteria imageDataSetCriteria = new QueryBuilder()
                     .append(StringUtil.camelCaseToUnderLineCase(MongodbTable.Union.IMAGE_DATASET) + ".for_job_type", forJobType)
@@ -309,14 +309,13 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         }
 
         if (dataResourceQueryInput.getDataResourceType().contains(DataResourceType.TableDataSet)
-                || dataResourceQueryInput.getDataResourceType().contains(DataResourceType.BloomFilter)) {
+                || dataResourceQueryInput.getDataResourceType().contains(DataResourceType.BloomFilter) || CollectionUtils.isEmpty(dataResourceQueryInput.getDataResourceType())) {
             Criteria tableDataSetCriteria = new QueryBuilder()
                     .append(StringUtil.camelCaseToUnderLineCase(MongodbTable.Union.TABLE_DATASET) + ".contains_y", null == dataResourceQueryInput.getContainsY() ? null : String.valueOf(dataResourceQueryInput.getContainsY() ? 1 : 0))
                     .getCriteria();
             MatchOperation tableDataSetMatch = Aggregation.match(tableDataSetCriteria);
             matchOperations.add(tableDataSetMatch);
         }
-
 
         return matchOperations;
     }
