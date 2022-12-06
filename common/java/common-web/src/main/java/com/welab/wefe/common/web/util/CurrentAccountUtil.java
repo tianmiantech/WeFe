@@ -49,7 +49,7 @@ public class CurrentAccountUtil {
     /**
      * 默认用户名称
      */
-    private static final String DEFAULT_ACCOUNT_NAME = "WeFe隐私计算";
+    private static final String DEFAULT_ACCOUNT_NAME = "admin";
     /**
      * 默认用户手机号
      */
