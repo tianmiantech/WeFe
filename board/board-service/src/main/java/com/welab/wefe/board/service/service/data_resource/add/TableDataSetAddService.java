@@ -190,6 +190,7 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
 
         // update data set upload task info
         DataResourceUploadTaskMysqlModel uploadProgress = dataResourceUploadTaskService.findByDataResourceId(model.getId());
+        dataResourceUploadTaskService.updateMessageBeforeStart(model.getId(), "正在计算数据集样本总量...");
         dataResourceUploadTaskService.update(uploadProgress, x -> x.setTotalDataCount(dataSetReader.getTotalDataRowCount()));
 
         // get data set headers

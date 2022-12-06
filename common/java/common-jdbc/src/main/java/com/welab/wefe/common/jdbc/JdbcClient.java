@@ -321,6 +321,9 @@ public class JdbcClient {
         Connection connection = createConnection();
         try {
             ps = connection.prepareStatement(sql);
+            // 务必加上这两个设置，否则默认取全量数据内存会炸。
+            ps.setFetchSize(1);
+            ps.setMaxRows(1);
             return ps.execute();
         } catch (SQLException e) {
             LOG.error(e.getMessage(), e);
