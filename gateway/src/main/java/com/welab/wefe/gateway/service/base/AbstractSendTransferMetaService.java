@@ -140,9 +140,6 @@ public abstract class AbstractSendTransferMetaService {
         if (!GrpcUtil.checkGatewayUriValid(selfMemberEntity.getGatewayInternalUri())) {
             return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "请设置自己的网关内网地址,格式为 HOST:PORT", transferMeta.getSessionId());
         }
-        if (!GrpcUtil.checkGatewayUriValid(selfMemberEntity.getGatewayExternalUri())) {
-            return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "请设置自己的网关外网地址,格式为 HOST:PORT", transferMeta.getSessionId());
-        }
 
         MemberEntity dstMemberEntity = memberCache.get(dstMember.getMemberId());
         // Avoid the problem that the gateway starts first and the board module starts later,
@@ -152,8 +149,15 @@ public abstract class AbstractSendTransferMetaService {
             return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "成员id[" + dstMember.getMemberId() + "]不存在，请确认成员信息是否已同步到Union.", transferMeta.getSessionId());
         }
 
-        if (StringUtil.isEmpty(dstMemberEntity.getGatewayExternalUri())) {
-            return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "成员[" + dstMemberEntity.getName() + "]未设置网关公网地址.", transferMeta.getSessionId());
+        dstMember = dstMember.toBuilder().setMemberName(dstMemberEntity.getName()).build();
+        BasicMetaProto.Endpoint dstEndpoint = dstMember.getEndpoint();
+        if (StringUtil.isEmpty(dstEndpoint.getIp())) {
+            if (!selfMemberEntity.getId().equals(dstMember.getMemberId())) {
+                PartnerConfigEntity partnerConfig = PartnerConfigCache.getInstance().get(dstMember.getMemberId());
+                if (null == partnerConfig || StringUtil.isEmpty(partnerConfig.getGatewayAddress())) {
+                    return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "成员[" + dstMemberEntity.getName() + "]未设置网关公网地址.", transferMeta.getSessionId());
+                }
+            }
         }
 
         return ReturnStatusBuilder.ok(transferMeta.getSessionId());

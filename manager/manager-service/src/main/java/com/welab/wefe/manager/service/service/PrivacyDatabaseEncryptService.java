@@ -38,6 +38,7 @@ public class PrivacyDatabaseEncryptService {
         }
         for (Account account : list) {
             account.setPhoneNumber(DatabaseEncryptUtil.encrypt(account.getPhoneNumber()));
+            account.setUpdateTime(System.currentTimeMillis());
             accountMongoRepo.save(account);
         }
     }

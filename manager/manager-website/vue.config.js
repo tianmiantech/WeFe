@@ -157,7 +157,7 @@ module.exports = {
          */
         proxy: {
             '/manager-service': {
-                target:       'https://tbapi-dev.tianmiantech.com/manager-service',
+                target:       'https://xxx.com/manager-service',
                 secure:       false,
                 timeout:      1000000,
                 changeOrigin: true,
@@ -166,7 +166,7 @@ module.exports = {
                 },
             },
             '/iam': {
-                target:       'https://tbapi-dev.tianmiantech.com/',
+                target:       'https://xxx.com/',
                 secure:       false,
                 timeout:      1000000,
                 changeOrigin: true,

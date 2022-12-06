@@ -13,44 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.welab.wefe.data.fusion.service.api.account;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.util.Base64Util;
-import com.welab.wefe.common.util.Md5;
-import com.welab.wefe.common.web.api.base.AbstractApi;
+import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
-import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.data.fusion.service.service.AccountService;
-import org.bouncycastle.crypto.digests.MD5Digest;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Base64;
-
-/**
- * @author lonnie
- */
-@Api(path = "account/reset/password", name = "reset account password")
-public class ResetPasswordApi extends AbstractApi<ResetPasswordApi.Input, String> {
+@Api(path = "account/sso_login", name = "sso_login", login = false)
+public class SsoLoginApi extends AbstractNoneInputApi<SsoLoginApi.Output> {
 
     @Autowired
     private AccountService accountService;
 
     @Override
-    protected ApiResult<String> handle(Input input) throws StatusCodeWithException {
-        return success(accountService.resetPassword(input));
+    protected ApiResult<Output> handle() throws StatusCodeWithException {
+        return success(accountService.ssoLogin());
     }
 
-    public static class Input extends AbstractApiInput {
-
-        @Check(name = "用户唯一标识", require = true)
+    public static class Output extends AbstractApiOutput {
         private String id;
 
-        @Check(name = "确认密码",require = true)
-        private String password;
+        private String token;
+
+        private String phoneNumber;
+
+        private String nickname;
 
         public String getId() {
             return id;
@@ -60,13 +51,28 @@ public class ResetPasswordApi extends AbstractApi<ResetPasswordApi.Input, String
             this.id = id;
         }
 
-        public String getPassword() {
-            return password;
+        public String getToken() {
+            return token;
         }
 
-        public void setPassword(String password) {
-            this.password = password;
+        public void setToken(String token) {
+            this.token = token;
+        }
+
+        public String getPhoneNumber() {
+            return phoneNumber;
+        }
+
+        public void setPhoneNumber(String phoneNumber) {
+            this.phoneNumber = phoneNumber;
+        }
+
+        public String getNickname() {
+            return nickname;
+        }
+
+        public void setNickname(String nickname) {
+            this.nickname = nickname;
         }
     }
-
 }

@@ -21,51 +21,57 @@ import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.web.dto.Captcha;
-import com.welab.wefe.common.web.service.CaptchaService;
+import com.welab.wefe.manager.service.service.AccountService;
+import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * @author hunter.zhao
- */
-@Api(path = "account/captcha", name = "get captcha", login = false)
-public class CaptchaApi extends AbstractNoneInputApi<CaptchaApi.Output> {
+
+@Api(path = "account/sso_login", name = "sso_login", login = false)
+public class SsoLoginApi extends AbstractNoneInputApi<SsoLoginApi.Output> {
+
+    @Autowired
+    private AccountService accountService;
 
     @Override
     protected ApiResult<Output> handle() throws StatusCodeWithException {
-        Captcha captcha = CaptchaService.get();
-
-        Output output = new Output();
-        output.setKey(captcha.getKey());
-        output.setImage(captcha.getImage());
-        return success(output);
+        return success(accountService.ssoLogin());
     }
 
     public static class Output extends AbstractApiOutput {
+        private String id;
+        private String token;
+        private String phoneNumber;
+        private String nickname;
 
-        private String image;
-
-        private String key;
-
-
-        //region getter/setter
-
-        public String getImage() {
-            return image;
+        public String getId() {
+            return id;
         }
 
-        public void setImage(String image) {
-            this.image = image;
+        public void setId(String id) {
+            this.id = id;
         }
 
-        public String getKey() {
-            return key;
+        public String getToken() {
+            return token;
         }
 
-        public void setKey(String key) {
-            this.key = key;
+        public void setToken(String token) {
+            this.token = token;
         }
 
+        public String getPhoneNumber() {
+            return phoneNumber;
+        }
 
-        //endregion
+        public void setPhoneNumber(String phoneNumber) {
+            this.phoneNumber = phoneNumber;
+        }
+
+        public String getNickname() {
+            return nickname;
+        }
+
+        public void setNickname(String nickname) {
+            this.nickname = nickname;
+        }
     }
 }

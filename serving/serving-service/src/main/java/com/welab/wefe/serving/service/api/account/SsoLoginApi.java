@@ -16,38 +16,33 @@
 
 package com.welab.wefe.serving.service.api.account;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
+import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
-import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.AccountService;
+import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * @author lonnie
- */
-@Api(path = "account/enable", name = "change account enable status")
-public class EnableApi extends AbstractNoneOutputApi<EnableApi.Input> {
+@Api(path = "account/sso_login", name = "sso_login", login = false)
+public class SsoLoginApi extends AbstractNoneInputApi<SsoLoginApi.Output> {
 
     @Autowired
     private AccountService accountService;
 
     @Override
-    protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        accountService.enable(input);
-        return success();
+    protected ApiResult<Output> handle() throws StatusCodeWithException {
+        return success(accountService.ssoLogin());
     }
 
-    public static class Input extends AbstractApiInput {
-
-        @Check(name = "id唯一标识", require = true)
+    public static class Output extends AbstractApiOutput {
         private String id;
 
-        @Check(name = "是否可用", require = true)
-        private Boolean enable;
+        private String token;
+
+        private String phoneNumber;
+
+        private String nickname;
 
         public String getId() {
             return id;
@@ -57,12 +52,28 @@ public class EnableApi extends AbstractNoneOutputApi<EnableApi.Input> {
             this.id = id;
         }
 
-        public Boolean getEnable() {
-            return enable;
+        public String getToken() {
+            return token;
         }
 
-        public void setEnable(Boolean enable) {
-            this.enable = enable;
+        public void setToken(String token) {
+            this.token = token;
+        }
+
+        public String getPhoneNumber() {
+            return phoneNumber;
+        }
+
+        public void setPhoneNumber(String phoneNumber) {
+            this.phoneNumber = phoneNumber;
+        }
+
+        public String getNickname() {
+            return nickname;
+        }
+
+        public void setNickname(String nickname) {
+            this.nickname = nickname;
         }
     }
 }

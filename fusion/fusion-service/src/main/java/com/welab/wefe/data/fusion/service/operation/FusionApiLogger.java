@@ -21,7 +21,6 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.delegate.api_log.AbstractApiLogger;
 import com.welab.wefe.common.web.delegate.api_log.ApiLog;
 import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.data.fusion.service.api.account.CaptchaApi;
 import com.welab.wefe.data.fusion.service.api.bloomfilter.GetBloomFilterStateApi;
 import com.welab.wefe.data.fusion.service.api.dataset.GetDataSetStateApi;
 import com.welab.wefe.data.fusion.service.api.file.MergeApi;
@@ -43,7 +42,6 @@ public class FusionApiLogger extends AbstractApiLogger {
     @Override
     protected List<Class<? extends AbstractApi>> getIgnoreLogApiList() {
         return Arrays.asList(
-                CaptchaApi.class,
                 GetBloomFilterStateApi.class,
                 GetDataSetStateApi.class,
                 UploadApi.class,

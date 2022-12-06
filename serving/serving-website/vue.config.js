@@ -181,7 +181,7 @@ module.exports = {
      */
     proxy: {
       '/serving-service': {
-        target:       'https://tbapi-dev.tianmiantech.com/serving-service',
+        target:       'https://xxx.com/serving-service',
         secure:       false,
         timeout:      1000000,
         changeOrigin: true,
@@ -190,7 +190,7 @@ module.exports = {
         },
       },
       '/iam': {
-        target:       'https://tbapi-dev.tianmiantech.com/',
+        target:       'https://xxx.com/',
         secure:       false,
         timeout:      1000000,
         changeOrigin: true,
