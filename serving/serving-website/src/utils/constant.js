@@ -33,6 +33,7 @@ console.log('appCode()',appCode());
 
 // 全局变量
 export function baseURL (){
+    const appCodes = appCode();
     const lastTwo = appCodes.substring(appCodes.length - 2);
     const second = /^\d+$/.test(lastTwo) ? lastTwo : '';
 
