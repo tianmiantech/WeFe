@@ -151,12 +151,13 @@ public abstract class AbstractSendTransferMetaService {
 
         dstMember = dstMember.toBuilder().setMemberName(dstMemberEntity.getName()).build();
         BasicMetaProto.Endpoint dstEndpoint = dstMember.getEndpoint();
-        if (selfMemberEntity.getId().equals(dstMember.getMemberId()) && StringUtil.isEmpty(dstEndpoint.getIp()) && !GrpcUtil.checkGatewayUriValid(selfMemberEntity.getGatewayExternalUri())) {
-            return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "请设置自己的网关外网地址,格式为 HOST:PORT", transferMeta.getSessionId());
-        }
-
-        if (StringUtil.isEmpty(dstMemberEntity.getGatewayExternalUri())) {
-            return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "成员[" + dstMemberEntity.getName() + "]未设置网关公网地址.", transferMeta.getSessionId());
+        if (StringUtil.isEmpty(dstEndpoint.getIp())) {
+            if (!selfMemberEntity.getId().equals(dstMember.getMemberId())) {
+                PartnerConfigEntity partnerConfig = PartnerConfigCache.getInstance().get(dstMember.getMemberId());
+                if (null == partnerConfig || StringUtil.isEmpty(partnerConfig.getGatewayAddress())) {
+                    return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "成员[" + dstMemberEntity.getName() + "]未设置网关公网地址.", transferMeta.getSessionId());
+                }
+            }
         }
 
         return ReturnStatusBuilder.ok(transferMeta.getSessionId());
