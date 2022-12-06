@@ -332,6 +332,7 @@ class FunctionConfig(object):
     FC_DEFAULT_PARTITION = 10
     FC_MAX_PARTITION = 100
     FC_PARTITION_DATA_SIZE = 5000
+    SPARK_MAX_PARTITION = 200
 
 
 class AccelerationType(object):

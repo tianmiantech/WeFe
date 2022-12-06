@@ -25,6 +25,7 @@ from common.python.common.consts import NAMESPACE
 from common.python.storage.storage import Storage
 from common.python.utils import conf_utils, log_utils
 from common.python.utils.core_utils import deserialize
+from multiprocessing.pool import Pool
 
 FORCE_SERI = False
 LOGGER = log_utils.get_logger()
@@ -42,9 +43,21 @@ def get_db_conn(database='default'):
     ck_user = conf_utils.get_comm_config(consts.COMM_CONF_KEY_CK_USER)
     ck_pwd = conf_utils.get_comm_config(consts.COMM_CONF_KEY_CK_PWD)
     ck_port = conf_utils.get_comm_config(consts.COMM_CONF_KEY_CK_PORT)
+
+    # env_ck_host = '10.10.62.1'
+    # ck_user = 'welab'
+    # ck_pwd = 'welab2020'
+    # env_ck_port = 9000
+
     return Client(host=env_ck_host or ck_host, user=ck_user, password=ck_pwd, database=database,
                   port=env_ck_port or ck_port)
 
+
+def fun_deserialize(item_batch_data):
+    result = []
+    for key,value in item_batch_data:
+        result.append((deserialize(key), deserialize(value)))
+    return result
 
 class ClickHouseStorage(Storage):
 
@@ -70,10 +83,12 @@ class ClickHouseStorage(Storage):
 
     def init_tb(self):
         sql = f"CREATE TABLE IF NOT EXISTS {self.table_name}(`eventDate` Date, `k` String, `v` String, `id` String)" \
-              f"ENGINE = MergeTree() PARTITION BY toDate(eventDate) ORDER BY (id) SETTINGS index_granularity = 8192"
+              f"ENGINE = MergeTree() PARTITION BY toYYYYMM(eventDate) ORDER BY (id) SETTINGS index_granularity = 8192"
         try:
             client = self.get_conn()
             client.execute(sql)
+        except Exception as e:
+            print(e)
         finally:
             client.disconnect()
 
@@ -100,15 +115,19 @@ class ClickHouseStorage(Storage):
     def put_all(self, kv_list: Iterable, use_serialize=True, chunk_size=100000):
         use_serialize = set_force_serialize(use_serialize)
         sql = f"INSERT INTO {self.table_name} (eventDate,k,v,id) values"
-        write_batch = 10000
-        max_workers = None
-        try:
+        write_batch = 500000
+        max_workers = 2
+        use_pool = False
+        now = datetime.datetime.now()
+
+        # TODO: 根据size控制写入批次
+        if use_pool:
             with ThreadPoolExecutor(max_workers=max_workers) as t:
                 data = []
                 all_task = []
                 for k, v in kv_list:
                     k_bytes, v_bytes = self.kv_to_bytes(k=k, v=v, use_serialize=use_serialize)
-                    data.append([datetime.datetime.now(), k_bytes, v_bytes, str(uuid.uuid1())])
+                    data.append([now, k_bytes, v_bytes, str(uuid.uuid1())])
                     if len(data) == write_batch:
                         all_task.append(t.submit(self.ck_execute, sql, data))
                         data = []
@@ -117,8 +136,17 @@ class ClickHouseStorage(Storage):
 
                 for future in as_completed(all_task):
                     future.result()
-        finally:
-            pass
+
+        else:
+            data = []
+            for k, v in kv_list:
+                k_bytes, v_bytes = self.kv_to_bytes(k=k, v=v, use_serialize=use_serialize)
+                data.append([now, k_bytes, v_bytes, str(uuid.uuid1())])
+                if len(data) == write_batch:
+                    self.ck_execute(sql, data)
+                    data = []
+            if len(data) > 0:
+                self.ck_execute(sql, data)
 
     def put_if_absent(self, k, v, use_serialize=True):
         use_serialize = set_force_serialize(use_serialize)
@@ -139,21 +167,45 @@ class ClickHouseStorage(Storage):
         finally:
             client.disconnect()
 
-    def collect(self, min_chunk_size=0, use_serialize=True, partition=None) -> list:
+    def collect(self, min_chunk_size=0, use_serialize=True, partition=None) -> Iterable:
         use_serialize = set_force_serialize(use_serialize)
-        sql = f"SELECT k,v FROM {self.table_name} ORDER BY k DESC"
+        # sql = f"SELECT k,v FROM {self.table_name} ORDER BY k DESC"
+        sql = f"SELECT k,v FROM {self.table_name}"
+        use_pool = True if self.count() > 1000000 else False
+        print(f'use_pool:{use_pool}')
         try:
             client = self.get_conn()
             data = client.execute_iter(sql)
-            for item in data:
-                key, value = item[0], item[1]
-                if use_serialize:
-                    yield deserialize(key), deserialize(value)
-                else:
-                    yield key, value
-                    # yield bytes_to_string(key), value
+
+            if not use_pool:
+                for item in data:
+                    key, value = item[0], item[1]
+                    if use_serialize:
+                        yield deserialize(key), deserialize(value)
+                    else:
+                        yield key, value
+            else:
+                
+                batch_data = self.generate_batch(data)        
+
+                pool = Pool(10)
+                result = pool.imap(fun_deserialize, batch_data)
+                for item_batch_result in result:
+                    for k,v in item_batch_result:
+                        yield k,v
+
         finally:
             client.disconnect()
+
+    def generate_batch(self, data:Iterable):
+        batch = []
+        for k,v in data:
+            batch.append((k,v))
+            if len(batch) == 10000:
+                yield batch
+                batch = []
+        if batch:
+            yield batch
 
     def delete(self, k, use_serialize=True):
         use_serialize = set_force_serialize(use_serialize)
@@ -195,17 +247,27 @@ class ClickHouseStorage(Storage):
 
         if n <= 0:
             n = 1
-        it = self.collect(use_serialize=use_serialize)
-        rtn = list()
-        i = 0
-        for item in it:
-            if keysOnly:
-                rtn.append(item[0])
-            else:
-                rtn.append(item)
-            i += 1
-            if i == n:
-                break
+
+        rtn = []
+        try:
+            sql = f"SELECT k,v FROM {self.table_name} limit {n}"
+            client = self.get_conn()
+            data = client.execute_iter(sql)
+
+            for item in data:
+                key, value = item[0], item[1]
+                if use_serialize:
+                    if keysOnly:
+                        rtn.append(deserialize(key))
+                    else:
+                        rtn.append((deserialize(key), deserialize(value)))
+                else:
+                    if keysOnly:
+                        rtn.append(key)
+                    else:
+                        rtn.append((key, value))
+        finally:
+            client.disconnect()
         return rtn
 
     def first(self, keysOnly=False, use_serialize=True):
@@ -292,10 +354,15 @@ def clean_up_tables(name_pattern, namespace=None):
 
 
 if __name__ == '__main__':
-    storage = ClickHouseStorage(_type=None, namespace="wefe_data", name="111111111111111")
+    storage = ClickHouseStorage(_type=None, namespace="wefe_data", name="test_112101")
     # clean_up_tables("442a9be30a66423c9798e6ae18a152a0")
-    storage.put_all([(1, 1), (2, 2)])
+    # storage.put_all([(1, 1), (2, 2)])
     # print(list(storage.collect()))
     # del_all_database()
 
     # storage.save_as(name="yuxin_auto_create_test",namespace="wefe")
+
+    # for k,v in storage.collect():
+    #     print(k, v)
+
+    # print(storage.take(n=100))

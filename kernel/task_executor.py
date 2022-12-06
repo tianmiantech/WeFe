@@ -381,18 +381,18 @@ class TaskExecutor(object):
             # The average amount of data processed by each function shard
             default_size = FunctionConfig.FC_PARTITION_DATA_SIZE
 
-            min_rows = 0
+            max_rows = 0
             features_count = 0
             for component_dataset in data_sets:
                 if component_dataset["component_type"] in (ComponentName.DATA_IO, ComponentName.OOT):
                     for member in component_dataset["members"]:
                         member_dataset_row = member["data_set_rows"]
                         features_count += member["data_set_features"] if "data_set_features" in member else 0
-                        if member_dataset_row < min_rows or min_rows == 0:
-                            min_rows = member_dataset_row
+                        if member_dataset_row > max_rows:
+                            max_rows = member_dataset_row
 
             fc_partitions = int(
-                min_rows / default_size if min_rows % default_size == 0 else min_rows / default_size + 1)
+                max_rows / default_size if max_rows % default_size == 0 else max_rows / default_size + 1)
             options[features_count_key] = features_count
 
             if fc_partitions > max_partitions:
@@ -400,8 +400,9 @@ class TaskExecutor(object):
             elif fc_partitions > 0:
                 options[fc_partition_key] = fc_partitions
 
-        # at present, the two parameters are consistent
-        options[spark_partition_key] = options[fc_partition_key]
+            options[spark_partition_key] = FunctionConfig.SPARK_MAX_PARTITION \
+                if fc_partitions > FunctionConfig.SPARK_MAX_PARTITION \
+                else fc_partitions
 
         # members_backend
         options[RuntimeOptionKey.MEMBERS_BACKEND] = TaskExecutor.parse_members_backend(task_config)
@@ -410,7 +411,7 @@ class TaskExecutor(object):
         options[RuntimeOptionKey.MEMBERS_FC_PROVIDER] = TaskExecutor.parse_members_fc_provider(task_config)
 
         return options
-
+        
     @staticmethod
     def parse_members_backend(task_config: dict):
         members_backend = {}
