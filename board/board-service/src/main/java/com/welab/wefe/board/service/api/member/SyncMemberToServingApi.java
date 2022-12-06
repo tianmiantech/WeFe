@@ -17,7 +17,6 @@
 package com.welab.wefe.board.service.api.member;
 
 import com.welab.wefe.board.service.service.SystemInitializeService;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -39,31 +38,11 @@ public class SyncMemberToServingApi extends AbstractApi<SyncMemberToServingApi.I
 
     @Override
     protected ApiResult<Object> handle(Input input) throws Exception {
-        systemInitializeService.syncMemberToServing(input.getPhoneNumber(), input.getPassword());
+        systemInitializeService.syncMemberToServing();
         return success();
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "serving超级管理员账号", require = true)
-        private String phoneNumber;
 
-        @Check(name = "serving超级管理员密码", require = true)
-        private String password;
-
-        public String getPhoneNumber() {
-            return phoneNumber;
-        }
-
-        public void setPhoneNumber(String phoneNumber) {
-            this.phoneNumber = phoneNumber;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
     }
 }

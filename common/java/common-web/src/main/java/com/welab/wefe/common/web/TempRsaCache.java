@@ -17,6 +17,7 @@
 package com.welab.wefe.common.web;
 
 import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
 import org.slf4j.Logger;
@@ -52,7 +53,7 @@ public class TempRsaCache {
      */
     public static String getPublicKey() {
         RSAUtil.RsaKeyPair rsaKeyPair = RSAUtil.generateKeyPair();
-        KEY_PAIR_MAP_BY_USER.put(CurrentAccount.id(), rsaKeyPair);
+        KEY_PAIR_MAP_BY_USER.put(CurrentAccountUtil.get().getId(), rsaKeyPair);
         return rsaKeyPair.publicKey;
     }
 
@@ -60,7 +61,7 @@ public class TempRsaCache {
      * 解密
      */
     public static String decrypt(String ciphertext) throws Exception {
-        RSAUtil.RsaKeyPair rsaKeyPair = KEY_PAIR_MAP_BY_USER.get(CurrentAccount.id());
+        RSAUtil.RsaKeyPair rsaKeyPair = KEY_PAIR_MAP_BY_USER.get(CurrentAccountUtil.get().getId());
         try {
             return RSAUtil.decryptByPrivateKey(ciphertext, rsaKeyPair.privateKey);
         } catch (Exception e) {

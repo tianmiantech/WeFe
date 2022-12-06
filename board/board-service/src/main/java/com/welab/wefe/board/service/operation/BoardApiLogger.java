@@ -16,7 +16,6 @@
 
 package com.welab.wefe.board.service.operation;
 
-import com.welab.wefe.board.service.api.account.CaptchaApi;
 import com.welab.wefe.board.service.api.data_resource.upload_task.DataResourceUploadTaskDetailApi;
 import com.welab.wefe.board.service.api.data_resource.upload_task.DataResourceUploadTaskQueryApi;
 import com.welab.wefe.board.service.api.file.FileUploadApi;
@@ -48,7 +47,6 @@ public class BoardApiLogger extends AbstractApiLogger {
     @Override
     protected List<Class<? extends AbstractApi>> getIgnoreLogApiList() {
         return Arrays.asList(
-                CaptchaApi.class,
                 FlowQueryApi.class,
                 ProjectMemberAuditListApi.class,
                 GetJobProgressApi.class,

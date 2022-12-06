@@ -17,9 +17,7 @@
 package com.welab.wefe.board.service.api.dev;
 
 import com.welab.wefe.board.service.constant.Config;
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -36,10 +34,6 @@ public class ShowConfigApi extends AbstractNoneInputApi<Config> {
 
     @Override
     protected ApiResult<Config> handle() throws StatusCodeWithException {
-        if (!CurrentAccount.isSuperAdmin()) {
-            StatusCode.PERMISSION_DENIED.throwException("仅超级管理员可查看");
-        }
-
         return success(config);
     }
 }

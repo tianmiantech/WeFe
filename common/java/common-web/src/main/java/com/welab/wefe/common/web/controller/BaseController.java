@@ -16,14 +16,14 @@
 
 package com.welab.wefe.common.web.controller;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
-import java.util.TreeMap;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
+import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.util.UrlUtil;
+import com.welab.wefe.common.web.ApiExecutor;
+import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import org.apache.catalina.connector.RequestFacade;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
@@ -38,14 +38,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.parser.Feature;
-import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.util.UrlUtil;
-import com.welab.wefe.common.web.ApiExecutor;
-import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.common.web.dto.ApiResult;
+import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author Zane
@@ -98,47 +96,47 @@ public class BaseController {
     public ResponseEntity<ApiResult<?>> post(HttpServletRequest httpServletRequest) throws IOException {
         long start = System.currentTimeMillis();
 
-        // Retrieve the token from the header
-        String token = httpServletRequest.getHeader("token");
-        if (StringUtil.isEmpty(token)) {
-            token = httpServletRequest.getParameter("token");
+        try {
+            CurrentAccountUtil.set(httpServletRequest);
+
+            JSONObject params;
+            MultiValueMap<String, MultipartFile> files = null;
+
+            // Ordinary request
+            if (httpServletRequest instanceof RequestFacade) {
+                RequestFacade request = (RequestFacade) httpServletRequest;
+                JSONObject bodyParams = getBodyParamsFromHttpRequest(request);
+                params = buildRequestParams(request.getParameterMap(), bodyParams);
+            }
+
+            // A request to include a file
+            else if (httpServletRequest instanceof StandardMultipartHttpServletRequest) {
+                StandardMultipartHttpServletRequest request = (StandardMultipartHttpServletRequest) httpServletRequest;
+                params = buildRequestParams(request.getParameterMap(), null);
+                files = request.getMultiFileMap();
+            }
+
+            // Other requests are not supported
+            else {
+                throw new UnsupportedOperationException("Unsupported request types：" + httpServletRequest.getClass().getSimpleName());
+            }
+
+            String path = httpServletRequest.getPathInfo() == null ? httpServletRequest.getServletPath() : httpServletRequest.getPathInfo();
+            // Multi-level paths under/Tools are supported. Eg: the tools/a/b/c
+            path = StringUtil.trim(path, '/');
+
+            ApiResult<?> response = ApiExecutor.execute(httpServletRequest, start, path, params, files);
+            response.spend = System.currentTimeMillis() - start;
+
+            if (response.data instanceof ResponseEntity) {
+                return (ResponseEntity) response.data;
+            } else {
+                return ResponseEntity.status(response.httpCode).body(response);
+            }
+        } finally {
+            CurrentAccountUtil.remove();
         }
-        CurrentAccount.token(token);
 
-        JSONObject params;
-        MultiValueMap<String, MultipartFile> files = null;
-
-        // Ordinary request
-        if (httpServletRequest instanceof RequestFacade) {
-            RequestFacade request = (RequestFacade) httpServletRequest;
-            JSONObject bodyParams = getBodyParamsFromHttpRequest(request);
-            params = buildRequestParams(request.getParameterMap(), bodyParams);
-        }
-
-        // A request to include a file
-        else if (httpServletRequest instanceof StandardMultipartHttpServletRequest) {
-            StandardMultipartHttpServletRequest request = (StandardMultipartHttpServletRequest) httpServletRequest;
-            params = buildRequestParams(request.getParameterMap(), null);
-            files = request.getMultiFileMap();
-        }
-
-        // Other requests are not supported
-        else {
-            throw new UnsupportedOperationException("Unsupported request types：" + httpServletRequest.getClass().getSimpleName());
-        }
-
-        String path = httpServletRequest.getPathInfo() == null ? httpServletRequest.getServletPath() : httpServletRequest.getPathInfo();
-        // Multi-level paths under/Tools are supported. Eg: the tools/a/b/c
-        path = StringUtil.trim(path, '/');
-
-        ApiResult<?> response = ApiExecutor.execute(httpServletRequest, start, path, params, files);
-        response.spend = System.currentTimeMillis() - start;
-
-        if (response.data instanceof ResponseEntity) {
-            return (ResponseEntity) response.data;
-        } else {
-            return ResponseEntity.status(response.httpCode).body(response);
-        }
     }
 
 
@@ -156,7 +154,7 @@ public class BaseController {
                 }
 
                 if (values.length == 1) {
-                    getParams.put(key, "null" .equalsIgnoreCase(values[0]) ? null : values[0]);
+                    getParams.put(key, "null".equalsIgnoreCase(values[0]) ? null : values[0]);
                 } else {
                     getParams.put(key, values);
                 }

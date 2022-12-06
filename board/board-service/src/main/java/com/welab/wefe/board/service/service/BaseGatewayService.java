@@ -234,11 +234,6 @@ public class BaseGatewayService extends AbstractService {
 
         GatewayMetaProto.Member dstMember = builder
                 .build();
-        if (StringUtil.isNotEmpty(dstGatewayUri)) {
-            String dstHost = dstGatewayUri.split(":")[0];
-            int dstPort = Integer.parseInt(dstGatewayUri.split(":")[1]);
-            dstMember = dstMember.toBuilder().setEndpoint(BasicMetaProto.Endpoint.newBuilder().setIp(dstHost).setPort(dstPort).build()).build();
-        }
 
         if (StringUtil.isNotEmpty(dstGatewayUri)) {
             String dstIp = dstGatewayUri.split(":")[0];

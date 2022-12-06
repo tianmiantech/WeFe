@@ -25,9 +25,7 @@ import org.springframework.stereotype.Component;
  * @author ivenn.zheng
  * @date 2022/7/5
  */
-@Component
-@PropertySource(value = {"file:${common.path}"}, encoding = "utf-8")
-@ConfigurationProperties
+@Component("commonConfig")
 public class CommonConfig {
 
     @Value("${privacy.database.encrypt.enable:false}")

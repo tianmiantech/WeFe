@@ -19,7 +19,7 @@ package com.welab.wefe.serving.service.service;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.service.api.member.QueryApi;
 import com.welab.wefe.serving.service.api.partner.DetailPartnerApi;
@@ -277,7 +277,7 @@ public class PartnerService {
         partnerMysqlModel.setEmail("");
         partnerMysqlModel.setRemark("");
         partnerMysqlModel.setServingBaseUrl(url);
-        partnerMysqlModel.setCreatedBy(CurrentAccount.get() == null ? "board推送" : CurrentAccount.get().getId());
+        partnerMysqlModel.setCreatedBy(CurrentAccountUtil.get() == null ? "board推送" : CurrentAccountUtil.get().getId());
         partnerMysqlModel.setCode(code);
         partnerMysqlModel.setIsUnionMember(isUnionMember);
         partnerRepository.save(partnerMysqlModel);

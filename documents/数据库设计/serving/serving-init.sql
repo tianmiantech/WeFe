@@ -21,7 +21,6 @@ CREATE TABLE `account`
     `audit_comment`         varchar(512)          DEFAULT NULL COMMENT '审核意见',
     `enable`                tinyint(1) NOT NULL COMMENT '是否可用',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `index_unique_phonenumber` (`phone_number`),
     KEY                     `idx_create_time` (`created_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='账号 ';
 

@@ -44,8 +44,8 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.util.ThreadUtil;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
@@ -1059,7 +1059,7 @@ public class ProjectService extends AbstractService {
             project.setStatusUpdatedTime(new Date());
             project.setProgress(0);
             project.setProgressUpdatedTime(new Date());
-            project.setUpdatedBy(CurrentAccount.id());
+            project.setUpdatedBy(CurrentAccountUtil.get().getId());
             project.setAuditStatus(AuditStatus.auditing);
             project.setAuditStatusFromMyself(AuditStatus.auditing);
             project.setFlowStatusStatistics(new ProjectFlowStatisticsResult().toJsonString());
@@ -1113,7 +1113,7 @@ public class ProjectService extends AbstractService {
             projectUpdateMap.put("statusUpdatedTime", new Date());
             projectUpdateMap.put("progress", 0);
             projectUpdateMap.put("progressUpdatedTime", new Date());
-            projectUpdateMap.put("updatedBy", CurrentAccount.id());
+            projectUpdateMap.put("updatedBy", CurrentAccountUtil.get().getId());
             projectUpdateMap.put("auditStatus", AuditStatus.auditing);
             projectUpdateMap.put("auditStatusFromMyself", AuditStatus.auditing);
             projectUpdateMap.put("auditStatusFromOthers", null);
@@ -1285,7 +1285,7 @@ public class ProjectService extends AbstractService {
 
         // 如果是定时任务触发的关闭，操作者设置为超级管理员。
         if (byScheduledJob) {
-            project.setClosedBy(accountService.getSuperAdmin().id);
+            project.setClosedBy(CurrentAccountUtil.get().getId());
         } else {
             project.setClosedBy(project.getOperatorId(input));
 

@@ -47,7 +47,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.wefe.checkpoint.dto.MemberAvailableCheckOutput;
 import com.welab.wefe.common.wefe.enums.*;
 import org.apache.commons.collections4.CollectionUtils;
@@ -477,7 +477,7 @@ public class ProjectFlowJobService extends AbstractService {
         job.setFederatedLearningType(flow.getFederatedLearningType());
         job.setMyRole(myRole);
         job.setJobId(input.getJobId());
-        job.setCreatedBy(CurrentAccount.id());
+        job.setCreatedBy(CurrentAccountUtil.get().getId());
         job.setName(flow.getFlowName());
         job.setProgress(0);
         job.setStatus(JobStatus.wait_run);
@@ -833,7 +833,7 @@ public class ProjectFlowJobService extends AbstractService {
         }
 
         jobMembers.forEach(x -> {
-            x.setCreatedBy(CurrentAccount.id());
+            x.setCreatedBy(CurrentAccountUtil.get().getId());
             x.setProjectId(projectId);
             x.setFlowId(flowId);
             x.setJobId(jobId);
