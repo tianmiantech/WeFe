@@ -16,7 +16,6 @@
     <modules>
         <module>mpc-pir-server</module>
         <module>mpc-pir-sdk</module>
-        <module>mpc-ecdh-pir-sdk</module>
     </modules>
 
     <properties>

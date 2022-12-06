@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.entity;
+package com.welab.wefe.mpc.psi.sdk.ecdh;
 
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -41,8 +42,8 @@ import org.bouncycastle.math.ec.ECPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.welab.wefe.util.ConverterUtil;
-import com.welab.wefe.util.PartitionUtil;
+import com.welab.wefe.mpc.psi.sdk.util.ConverterUtil;
+import com.welab.wefe.mpc.psi.sdk.util.PartitionUtil;
 
 public class EcdhPsiServer {
 
@@ -59,22 +60,22 @@ public class EcdhPsiServer {
     /**
      * step 1 对自己的数据集进行加密
      */
-    public Set<String> encryptDataset(Set<String> inputSet) {
+    public List<String> encryptDataset(List<String> inputSet) {
         LOG.info("server begin encryptDataset");
         // 初始化椭圆曲线
         ECParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec("prime256v1");
         EllipticCurve ellipticCurve = new EllipticCurve(ecSpec);
-        Set<String> encryptedSet = ConcurrentHashMap.newKeySet();
-        List<Set<String>> partitionList = PartitionUtil.partitionSet(inputSet, threads);
+        List<String> encryptedSet = new CopyOnWriteArrayList<>();
+        List<Set<String>> partitionList = PartitionUtil.partitionList(inputSet, threads);
         ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
 
         for (Set<String> partition : partitionList) {
             executorService.submit(() -> {
                 for (String stringValue : partition) {
-                    BigInteger bigIntegerValue = ConverterUtil.convertStringToBigInteger(stringValue);
+                    BigInteger bigIntegerValue = ConverterUtil.convertString2BigInteger(stringValue);
                     ECPoint encryptedValue = EllipticCurve.multiply(ellipticCurve.mapMessage(bigIntegerValue),
                             this.serverPrivateD);
-                    encryptedSet.add(ConverterUtil.convertECPointToString(encryptedValue));
+                    encryptedSet.add(ConverterUtil.convertECPoint2String(encryptedValue));
                 }
             });
         }
@@ -109,10 +110,10 @@ public class EcdhPsiServer {
             executorService.submit(() -> {
                 for (Map.Entry<Long, String> entry : partition.entrySet()) {
                     // 将值转为椭圆曲线上的点
-                    ECPoint ecPointValue = ConverterUtil.convertStringToECPoint(ecCurve, entry.getValue());
+                    ECPoint ecPointValue = ConverterUtil.convertString2ECPoint(ecCurve, entry.getValue());
                     // 使用服务端私钥进行计算，得到加密后的值
                     ECPoint encryptedValue = EllipticCurve.multiply(ecPointValue, serverPrivateD);
-                    encryptedMap.put(entry.getKey(), ConverterUtil.convertECPointToString(encryptedValue));
+                    encryptedMap.put(entry.getKey(), ConverterUtil.convertECPoint2String(encryptedValue));
                 }
             });
         }

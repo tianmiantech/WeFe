@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.entity;
+package com.welab.wefe.mpc.psi.sdk.ecdh;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;

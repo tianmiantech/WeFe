@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.util;
+package com.welab.wefe.mpc.psi.sdk.util;
 
 import java.util.*;
 
@@ -68,6 +68,37 @@ public class PartitionUtil {
             throw new IllegalArgumentException("'numPartitions' must be greater than 0");
 
         Iterator<T> iterator = set.iterator();
+        int partitionToWrite = 0;
+        int cont = 0;
+        while (iterator.hasNext()) {
+            partitions.get(partitionToWrite).add(iterator.next());
+            cont++;
+            if (cont >= partitionSize) {
+                partitionToWrite++;
+                cont = 0;
+            }
+        }
+        return partitions;
+    }
+    
+    /**
+     * 分片
+     */
+    public static <T> List<Set<T>> partitionList(List<T> list, int numPartitions) {
+        if (list == null) {
+            throw new NullPointerException("The set must not be null");
+        }
+
+        List<Set<T>> partitions = new ArrayList<>(numPartitions);
+        for (int i = 0; i < numPartitions; i++)
+            partitions.add(i, new HashSet<>());
+
+        int size = list.size();
+        int partitionSize = (int) Math.ceil((double) size / numPartitions);
+        if (numPartitions <= 0)
+            throw new IllegalArgumentException("'numPartitions' must be greater than 0");
+
+        Iterator<T> iterator = list.iterator();
         int partitionToWrite = 0;
         int cont = 0;
         while (iterator.hasNext()) {

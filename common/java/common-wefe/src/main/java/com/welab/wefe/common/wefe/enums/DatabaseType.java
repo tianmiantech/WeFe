@@ -43,5 +43,7 @@ public enum DatabaseType {
     /**
      * Cassandra
      */
-    Cassandra
+    Cassandra,
+    
+    Doris,
 }

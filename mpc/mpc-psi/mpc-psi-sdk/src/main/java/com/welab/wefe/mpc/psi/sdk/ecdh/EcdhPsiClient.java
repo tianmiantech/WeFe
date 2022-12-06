@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.entity;
-
+package com.welab.wefe.mpc.psi.sdk.ecdh;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
@@ -42,8 +41,8 @@ import org.bouncycastle.math.ec.ECPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.welab.wefe.util.ConverterUtil;
-import com.welab.wefe.util.PartitionUtil;
+import com.welab.wefe.mpc.psi.sdk.util.ConverterUtil;
+import com.welab.wefe.mpc.psi.sdk.util.PartitionUtil;
 
 public class EcdhPsiClient {
 
@@ -88,7 +87,7 @@ public class EcdhPsiClient {
                     // 如果服务端的数据中存在客户端的数据
                     if (this.serverDoubleEncryptedDataset.contains(entry.getValue()))
                         psi.add(ConverterUtil
-                                .convertBigIntegerToString(clientOriginalDatasetMap.get(entry.getKey())));
+                                .convertBigInteger2String(clientOriginalDatasetMap.get(entry.getKey())));
                 }
             });
         }
@@ -111,7 +110,7 @@ public class EcdhPsiClient {
         LOG.info("client begin convertDoubleEncryptedClientDataset2ECPoint");
         for (Map.Entry<Long, String> entry : doubleEncryptedClientDatasetMap.entrySet()) {
             this.clientDoubleEncryptedDatasetMap.put(entry.getKey(),
-                    ConverterUtil.convertStringToECPoint(this.ecCurve, entry.getValue()));
+                    ConverterUtil.convertString2ECPoint(this.ecCurve, entry.getValue()));
         }
         LOG.info("client end convertDoubleEncryptedClientDataset2ECPoint");
     }
@@ -119,16 +118,16 @@ public class EcdhPsiClient {
     /**
      * step 3 客户端使用私钥多线程加密服务端的数据集
      */
-    public void encryptServerDataset(Set<String> serverEncryptedDataset) {
+    public void encryptServerDataset(List<String> serverEncryptedDataset) {
         LOG.info("client begin encryptServerDataset");
-        List<Set<String>> partitionList = PartitionUtil.partitionSet(serverEncryptedDataset, this.threads);
+        List<Set<String>> partitionList = PartitionUtil.partitionList(serverEncryptedDataset, this.threads);
 
         ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
 
         for (Set<String> partition : partitionList) {
             executorService.submit(() -> {
                 for (String serverEncryptedEntry : partition) {
-                    ECPoint ecPointValue = ConverterUtil.convertStringToECPoint(this.ecCurve,
+                    ECPoint ecPointValue = ConverterUtil.convertString2ECPoint(this.ecCurve,
                             serverEncryptedEntry);
                     ECPoint encryptedValue = EllipticCurve.multiply(ecPointValue, this.clientPrivateD);
                     this.serverDoubleEncryptedDataset.add(encryptedValue);
@@ -150,9 +149,9 @@ public class EcdhPsiClient {
      * 
      * step 2 客户端使用私钥多线程加密自己的数据集
      */
-    public Map<Long, String> encryptClientOriginalDataset(Set<String> originalDataset) {
+    public Map<Long, String> encryptClientOriginalDataset(List<String> originalDataset) {
         LOG.info("client begin encryptOriginalDataset");
-        List<Set<String>> clientDatasetPartitions = PartitionUtil.partitionSet(originalDataset, threads);
+        List<Set<String>> clientDatasetPartitions = PartitionUtil.partitionList(originalDataset, threads);
         Map<Long, String> clientEncryptedDatasetMap = new ConcurrentHashMap<>();
         ExecutorService executorService = Executors.newFixedThreadPool(clientDatasetPartitions.size());
 
@@ -164,7 +163,7 @@ public class EcdhPsiClient {
                             clientPrivateD);
                     Long key = idAtomicCounter.incrementAndGet();
                     clientOriginalDatasetMap.put(key, bigIntegerValue);
-                    clientEncryptedDatasetMap.put(key, ConverterUtil.convertECPointToString(encryptedValue));
+                    clientEncryptedDatasetMap.put(key, ConverterUtil.convertECPoint2String(encryptedValue));
                 }
             });
         }
@@ -183,7 +182,8 @@ public class EcdhPsiClient {
     /**
      * step 1 生成一个私钥
      */
-    private BigInteger generaterPrivateKey(ECParameterSpec ecSpec) {
+    @Deprecated
+    private BigInteger generaterPrivateKey1(ECParameterSpec ecSpec) {
         LOG.info("client begin generaterPrivateKey");
         Security.addProvider(new BouncyCastleProvider());
         KeyPairGenerator keyGenerator;
@@ -199,9 +199,9 @@ public class EcdhPsiClient {
     }
 
     /**
-     * 生成一个私钥
+     * step 1 生成一个私钥
      */
-    private BigInteger generaterPrivateKey1(ECParameterSpec ecSpec) {
+    private BigInteger generaterPrivateKey(ECParameterSpec ecSpec) {
         BigInteger n = ecSpec.getN();
         // 随机状态
         SecureRandom secureRandom = new SecureRandom();

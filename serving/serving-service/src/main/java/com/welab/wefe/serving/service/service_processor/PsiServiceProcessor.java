@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -28,6 +29,8 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
+import com.welab.wefe.mpc.psi.sdk.ecdh.EcdhPsiServer;
+import com.welab.wefe.mpc.psi.sdk.util.EcdhUtil;
 import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
 import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
@@ -37,45 +40,85 @@ import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
  */
 public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMySqlModel> {
 
+    private static final ConcurrentHashMap<String, EcdhPsiServer> ECDH_SERVER_MAP = new ConcurrentHashMap<>();
+    private static final List<String> serverDataset;
+    static {
+        serverDataset = new ArrayList<>();
+        for (long i = 0; i < 10; i++)
+            serverDataset.add("MATCHING-" + i);
+        for (long i = 0; i < 1000; i++)
+            serverDataset.add("SERVER-ONLY-" + i);
+    }
+
     @Override
     public JObject process(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {
-        String p = data.getString("p");
-        List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
-        if (CollectionUtils.isEmpty(clientIds)) {
-            clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
-        }
+        String idsTableName = model.getIdsTableName();
+        // ID在mysql表中
+        if (!idsTableName.contains("#")) {
+            String p = data.getString("p");
+            List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
+            if (CollectionUtils.isEmpty(clientIds)) {
+                clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
+            }
+            QueryPrivateSetIntersectionRequest request = new QueryPrivateSetIntersectionRequest();
+            request.setClientIds(clientIds);
+            request.setP(p);
+            QueryPrivateSetIntersectionResponse response = new QueryPrivateSetIntersectionResponse();
+            BigInteger mod = new BigInteger(request.getP(), 16);
+            int keySize = 1024;
+            BigInteger serverKey = new BigInteger(keySize, new Random());
+            JSONObject dataSource = JObject.parseObject(model.getDataSource());
+            String sql = "select id from " + model.getIdsTableName();
+            List<String> needFields = new ArrayList<>();
+            needFields.add("id");
 
-        QueryPrivateSetIntersectionRequest request = new QueryPrivateSetIntersectionRequest();
-        request.setClientIds(clientIds);
-        request.setP(p);
-        QueryPrivateSetIntersectionResponse response = new QueryPrivateSetIntersectionResponse();
-        BigInteger mod = new BigInteger(request.getP(), 16);
-        int keySize = 1024;
-        BigInteger serverKey = new BigInteger(keySize, new Random());
-        JSONObject dataSource = JObject.parseObject(model.getDataSource());
-        String sql = "select id from " + model.getIdsTableName();
-        List<String> needFields = new ArrayList<>();
-        needFields.add("id");
+            DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
+            if (dataSourceModel == null) {
+                return JObject.create(response);
+            }
 
-        DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
-        if (dataSourceModel == null) {
+            List<Map<String, String>> result = dataSourceService.queryList(dataSourceModel, sql, needFields);
+            List<String> serverIds = new ArrayList<>();
+            for (Map<String, String> item : result) {
+                serverIds.add(item.get("id"));
+            }
+            List<String> encryptServerIds = new ArrayList<>(serverIds.size());
+            serverIds.forEach(
+                    serverId -> encryptServerIds.add(DiffieHellmanUtil.encrypt(serverId, serverKey, mod).toString(16)));
+            response.setServerEncryptIds(encryptServerIds);
+
+            List<String> encryptClientIds = new ArrayList<>(request.getClientIds().size());
+            request.getClientIds().forEach(
+                    id -> encryptClientIds.add(DiffieHellmanUtil.encrypt(id, serverKey, mod, false).toString(16)));
+            response.setClientIdByServerKeys(encryptClientIds);
+            return JObject.create(response);
+        } else {
+            String databaseType = idsTableName.split("#")[0];
+            String dbConnUrl = idsTableName.split("#")[1];
+            String requestId = data.getString("requestId");
+            String callbackUrl = data.getString("callback_url");
+            List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
+            if (CollectionUtils.isEmpty(clientIds)) {
+                clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
+            }
+            Map<Long, String> clientEncryptedDatasetMap = EcdhUtil.convert2Map(clientIds);
+            EcdhPsiServer server = ECDH_SERVER_MAP.get(requestId);
+            if (server == null) {
+                server = new EcdhPsiServer();
+                ECDH_SERVER_MAP.put(requestId, server);
+            }
+            // 对客户端数据进行二次加密
+            Map<Long, String> doubleEncryptedClientDatasetMap = server.encryptDatasetMap(clientEncryptedDatasetMap);
+            
+            List<String> doubleEncryptedClientDataset = EcdhUtil.convert2List(doubleEncryptedClientDatasetMap);
+            // 服务端对自己的数据集进行加密
+            List<String> serverEncryptedDataset = server.encryptDataset(serverDataset);
+            // 把上面两个set发给客户端
+            QueryPrivateSetIntersectionResponse response = new QueryPrivateSetIntersectionResponse();
+            response.setClientIdByServerKeys(doubleEncryptedClientDataset);
+            response.setRequestId(requestId);
+            response.setServerEncryptIds(serverEncryptedDataset);
             return JObject.create(response);
         }
-
-        List<Map<String, String>> result = dataSourceService.queryList(dataSourceModel, sql, needFields);
-        List<String> serverIds = new ArrayList<>();
-        for (Map<String, String> item : result) {
-            serverIds.add(item.get("id"));
-        }
-        List<String> encryptServerIds = new ArrayList<>(serverIds.size());
-        serverIds.forEach(
-                serverId -> encryptServerIds.add(DiffieHellmanUtil.encrypt(serverId, serverKey, mod).toString(16)));
-        response.setServerEncryptIds(encryptServerIds);
-
-        List<String> encryptClientIds = new ArrayList<>(request.getClientIds().size());
-        request.getClientIds()
-                .forEach(id -> encryptClientIds.add(DiffieHellmanUtil.encrypt(id, serverKey, mod, false).toString(16)));
-        response.setClientIdByServerKeys(encryptClientIds);
-        return JObject.create(response);
     }
 }

@@ -24,18 +24,19 @@ import java.util.List;
  **/
 public class QueryPrivateSetIntersectionResponse {
 
-    private String uuid;
+    private String requestId;
     private List<String> serverEncryptIds;
     private List<String> clientIdByServerKeys;
     private String message;
     private int code;
 
-    public String getUuid() {
-        return uuid;
+
+    public String getRequestId() {
+        return requestId;
     }
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 
     public List<String> getServerEncryptIds() {

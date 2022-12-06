@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package com.welab.wefe;
+package com.welab.wefe.mpc.psi.sdk;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.welab.wefe.entity.EcdhPsiClient;
-import com.welab.wefe.entity.EcdhPsiServer;
+import com.welab.wefe.mpc.psi.sdk.ecdh.EcdhPsiClient;
+import com.welab.wefe.mpc.psi.sdk.ecdh.EcdhPsiServer;
 
-public class Main {
+public class ECDHPrivateSetIntersectionTest {
 
-    private static Set<String> serverDataset;
-    private static Set<String> clientDataset;
+    private static List<String> serverDataset;
+    private static List<String> clientDataset;
 
     public static void main(String[] args) {
         long serverSize = 30;
-        long clientSize = 20;
+        long clientSize = 30;
         long intersectionSize = 3;
         initDatasets(serverSize, clientSize, intersectionSize);
 
@@ -44,7 +45,7 @@ public class Main {
         // 服务端将二次加密后的数据发给客户端，客户端进行转换成椭圆曲线上的点
         client.convertDoubleEncryptedClientDataset2ECPoint(doubleEncryptedClientDatasetMap);
         // 服务端对自己的数据集进行加密
-        Set<String> serverEncryptedDataset = server.encryptDataset(serverDataset);
+        List<String> serverEncryptedDataset = server.encryptDataset(serverDataset);
         // 服务端发给客户端,客户端进行二次加密
         client.encryptServerDataset(serverEncryptedDataset);
         // 进行对齐
@@ -58,7 +59,7 @@ public class Main {
     }
 
     private static void initClientDataset(long matching, long mismatching) {
-        clientDataset = new HashSet<>();
+        clientDataset = new ArrayList<>();
         for (long i = 0; i < matching; i++)
             clientDataset.add("MATCHING-" + i);
         for (long i = matching; i < (matching + mismatching); i++)
@@ -66,7 +67,7 @@ public class Main {
     }
 
     private static void initServerDataset(long matching, long mismatching) {
-        serverDataset = new HashSet<>();
+        serverDataset = new ArrayList<>();
         for (long i = 0; i < matching; i++)
             serverDataset.add("MATCHING-" + i);
         for (long i = 0; i < mismatching; i++)

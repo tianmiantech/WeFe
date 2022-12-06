@@ -338,17 +338,28 @@ public class ServiceService {
 
     private String generateIdsTable(TableServiceMySqlModel model) {
         String keysTableName = "";
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
         if (model.getServiceType() != ServiceTypeEnum.PSI.getCode()) {// 对于 交集查询 需要额外生成对应的主键数据
             return keysTableName;
         }
         JSONObject dataSource = JObject.parseObject(model.getDataSource());
-        DataSourceMySqlModel oldDataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
-        if (oldDataSourceModel == null) {
+        DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
+        if (dataSourceModel == null) {
             return keysTableName;
         }
+        // 如果是mysql的数据源，则需要生成ID
+        if (dataSourceModel.getDatabaseType().name().equalsIgnoreCase(DatabaseType.MySql.name())) {
+            keysTableName = generateMySqlIdsTable(dataSourceModel, dataSource);
+        } else { // 如果不是mysql的，则直接使用原数据源
+            keysTableName = dataSourceModel.getDatabaseType().name() + "#" + dataSourceModel.getHost();
+        }
+        return keysTableName;
+    }
+    
+
+    private String generateMySqlIdsTable(final DataSourceMySqlModel oldDataSourceModel, JSONObject dataSource) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
         DataSourceMySqlModel newDataSourceMySqlModel = (DataSourceMySqlModel) SerializationUtils.clone(oldDataSourceModel);
-        keysTableName = newDataSourceMySqlModel.getDatabaseName() + "_" + dataSource.getString("table");
+        String keysTableName = newDataSourceMySqlModel.getDatabaseName() + "_" + dataSource.getString("table");
         JSONArray keyCalcRules = dataSource.getJSONArray("key_calc_rules");
         List<String> needFields = new ArrayList<>();
         for (int i = 0; i < keyCalcRules.size(); i++) {
@@ -667,7 +678,6 @@ public class ServiceService {
                 status = ServiceResultEnum.SERVICE_FAIL;
                 return result;
             }
-
             serviceProcessor = ServiceProcessorUtils.get(service.getServiceType());
             JObject serviceResult = serviceProcessor.process(JObject.create(input.getData()), service);
             result.putAll(serviceResult);
