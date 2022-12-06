@@ -120,7 +120,6 @@ public class ProjectFlowNodeService {
                 if (dataSetInfo != null) {
                     member.dataSetRows = dataSetInfo.getTotalDataCount();
                     member.dataSetFeatures = dataSetInfo.getFeatureCount();
-                    member.labelDistribution = dataSetInfo.getLabelDistribution();
                 }
                 dataSet.members.add(member);
             }
