@@ -55,6 +55,16 @@
                         否
                     </el-radio>
                 </el-form-item>
+                <el-form-item label="密钥类型：">
+                    <el-select v-model="form.secret_key_type">
+                        <el-option
+                        v-for="item in secret_key_type_list"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
                 <!-- <el-form-item
                     label="Board Service Address："
                     class="is-required"
@@ -147,11 +157,16 @@
                     member_mobile:                '',
                     member_allow_public_data_set: true,
                     // gateway_uri:                  '',
+                    secret_key_type:              'rsa',
                 },
                 memberCard: {
                     visible:    false,
                     transition: false,
                 },
+                secret_key_type_list: [
+                    {label: 'rsa', value: 'rsa'},
+                    {label: 'sm2', value: 'sm2'},
+                ]
             };
         },
         computed: {
@@ -267,7 +282,7 @@
 
 .sign-box {
     padding-top: 0;
-    margin-top: 170px;
+    margin-top: 50px;
     background: #fff;
     border-radius: 3px;
     padding: 20px;
