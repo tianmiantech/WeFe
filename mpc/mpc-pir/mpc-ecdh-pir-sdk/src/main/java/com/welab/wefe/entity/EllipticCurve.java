@@ -1,18 +1,29 @@
+/*
+ * Copyright 2022 Tianmian Tech. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.welab.wefe.entity;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
-import java.security.SecureRandom;
 import java.util.Objects;
-import java.util.Random;
 
-import org.bouncycastle.crypto.params.ECDomainParameters;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECFieldElement;
 import org.bouncycastle.math.ec.ECPoint;
-
-import com.welab.wefe.exception.CustomRuntimeException;
 
 /**
  * 椭圆曲线实现类以及点之间的操作实现 y^2 = x^3 + a*x + b (mod p)
@@ -110,23 +121,6 @@ public class EllipticCurve {
                 .mod(this.p).intValue() == 0;
     }
 
-    EncryptedRandomValue generateEncryptedRandomValue(BigInteger inputValue, ECPoint ecPoint) {
-        Random secureRandom = new SecureRandom();
-        ECPoint point2DInputValue = mapMessage(inputValue);
-        ECPoint randomPointInv;
-        ECPoint randomPoint;
-        ECPoint encryptedValue;
-        BigInteger y;
-        do {
-            y = new BigInteger(this.ecParameterSpec.getN().bitCount(), secureRandom).mod(this.ecParameterSpec.getN());
-            randomPoint = multiply(this.g, y);
-            randomPointInv = multiply(ecPoint, y);
-            encryptedValue = add(randomPointInv, point2DInputValue);
-        } while (y.compareTo(BigInteger.ZERO) == 0 || randomPoint.isInfinity() || randomPointInv.isInfinity());
-
-        return new EncryptedRandomValue(encryptedValue, randomPoint);
-    }
-
     @Override
     public String toString() {
         return "EllipticCurve{" + "A=" + this.a + ", B=" + this.b + ", P=" + this.p + ", N=" + this.n + ", G=" + this.g
@@ -145,7 +139,7 @@ public class EllipticCurve {
         else if (keySize == 512 || keySize == 521)
             return "secp521r1";
         else
-            throw new CustomRuntimeException("Input key size (" + keySize
+            throw new RuntimeException("Input key size (" + keySize
                     + ") currently not supported for EC algorithms (ECDH and ECRSA). Supported values are 160, 224, 256, 384, 512 or 521.");
     }
 
@@ -161,19 +155,11 @@ public class EllipticCurve {
         else if (Objects.equals(name, "secp521r1"))
             return "01ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
         else
-            throw new CustomRuntimeException("Curve currently not supported.");
-    }
-
-    private static ECPoint add(ECPoint p1, ECPoint p2) {
-        return p1.add(p2);
+            throw new RuntimeException("Curve currently not supported.");
     }
 
     static ECPoint multiply(ECPoint p, BigInteger k) {
         return p.multiply(k);
-    }
-
-    static ECPoint sub(ECPoint point2D, ECPoint point2D1) {
-        return point2D.subtract(point2D1);
     }
 
     private static BigInteger sqrtP(BigInteger res, BigInteger p) {
@@ -213,9 +199,9 @@ public class EllipticCurve {
      * @param m BigInteger input value
      * @return ECPoint mapping of the input value
      */
-    ECPoint mapMessage(BigInteger m) {
+    public ECPoint mapMessage(BigInteger m) {
         if (this.p.compareTo(m) < 0)
-            throw new CustomRuntimeException("Unexpected: Hashing missing");
+            throw new RuntimeException("Unexpected: Hashing missing");
         BigInteger k = BigInteger.valueOf(200);
         BigInteger km1 = k.subtract(BigInteger.ONE);
         BigInteger start = m.multiply(k);
@@ -228,38 +214,37 @@ public class EllipticCurve {
                 BigInteger r = sqrtP(y, this.p);
                 ECPoint res = this.ecCurve.createPoint(x, r);
                 if (!belongs(res))
-                    throw new CustomRuntimeException("Found mapping outside the curve");
+                    throw new RuntimeException("Found mapping outside the curve");
                 return res;
             }
 
         }
-        throw new CustomRuntimeException("Failed to map message");
+        throw new RuntimeException("Failed to map message");
     }
 
-    public static ECPoint hashToCurve(byte[] message, ECParameterSpec ecSpec) {
+    public ECPoint hashToCurve(BigInteger m) {
         // 计算输入消息的哈希值，尝试构建坐标x和坐标y，如果失败，则继续哈希
-        byte[] messageHashBytes = digestToBytes(message);
+        byte[] messageHashBytes = digestToBytes(m.toByteArray());
         while (true) {
             ECFieldElement x, y;
             // 哈希结果不需要模n，交给ECFieldElement判断结果是否合法
             BigInteger messageHash = byteArrayToNonNegBigInteger(messageHashBytes);
             try {
-                x = ecSpec.getCurve().fromBigInteger(messageHash);
+                x = this.ecCurve.fromBigInteger(messageHash);
             } catch (IllegalArgumentException e) {
                 // 如果无法将哈希结果转换为坐标x，意味着哈希结果不是有效的椭圆曲线点，重新哈希
                 messageHashBytes = digestToBytes(messageHashBytes);
                 continue;
             }
-            y = x.square().add(ecSpec.getCurve().getA()).multiply(x)
-                    .add(ecSpec.getCurve().getB()).sqrt();
+            y = x.square().add(this.ecCurve.getA()).multiply(x).add(this.ecCurve.getB()).sqrt();
             if (y == null) {
                 // 如果y无解，重新哈希
                 messageHashBytes = digestToBytes(messageHashBytes);
                 continue;
             }
-            ECPoint ecPoint = ecSpec.getCurve().createPoint(x.toBigInteger(), y.toBigInteger());
+            ECPoint ecPoint = this.ecCurve.createPoint(x.toBigInteger(), y.toBigInteger());
             // clearing the cofactor
-            ecPoint = ecPoint.multiply(ecSpec.getCurve().getCofactor());
+            ecPoint = ecPoint.multiply(this.ecCurve.getCofactor());
             if (ecPoint == null || !ecPoint.isValid()) {
                 messageHashBytes = digestToBytes(messageHashBytes);
                 continue;
@@ -285,24 +270,6 @@ public class EllipticCurve {
             return d.digest(s.getBytes("UTF-8"));
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    static class EncryptedRandomValue {
-        private ECPoint encrypted;
-        private ECPoint random;
-
-        EncryptedRandomValue(ECPoint encrypted, ECPoint random) {
-            this.encrypted = encrypted;
-            this.random = random;
-        }
-
-        ECPoint getEncrypted() {
-            return this.encrypted;
-        }
-
-        ECPoint getRandom() {
-            return this.random;
         }
     }
 }
