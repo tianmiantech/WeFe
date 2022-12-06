@@ -79,7 +79,7 @@ public class ServingService extends AbstractService {
     /**
      * Update serving global configuration
      */
-    public void refreshMemberInfo(MemberInfoModel model, String unionBaseUrl, String phoneNumber, String password) throws StatusCodeWithException {
+    public void refreshMemberInfo(MemberInfoModel model, String unionBaseUrl) throws StatusCodeWithException {
 
         TreeMap<String, Object> params = new TreeMap<>();
         params.put("member_id", model.getMemberId());
@@ -87,8 +87,6 @@ public class ServingService extends AbstractService {
         params.put("rsa_private_key", model.getRsaPrivateKey());
         params.put("rsa_public_key", model.getRsaPublicKey());
         params.put("union_base_url", unionBaseUrl);
-        params.put("phoneNumber", phoneNumber);
-        params.put("password", password);
 
         request("global_config/initialize/union", params, false);
     }

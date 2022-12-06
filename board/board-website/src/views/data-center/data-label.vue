@@ -17,7 +17,7 @@
                     <div class="label_search">
                         <el-input type="text" placeholder="请输入标签名称" v-model="vData.labelName" @input="methods.labelSearch">
                             <template #suffix>
-                                <el-icon class="el-input__icon"><elicon-search /></el-icon>
+                                <el-icon class="board-input__icon"><elicon-search /></el-icon>
                             </template>
                         </el-input>
                     </div>
@@ -27,7 +27,7 @@
                                 <div v-for="(item, index) in vData.count_by_sample_list" :key="item.label" class="label_item">
                                     <p class="span_label" @click="vData.forJobType === 'classify' ? methods.labelSampleEvent(item.label) : ''" :style="{'cursor': vData.forJobType === 'classify' ? 'pointer' : 'auto'}">{{item.label}}</p>
                                     <!-- <span v-if="item.keycode !== '' && index<10" class="span_tips">快捷键<span class="span_count">{{item.keycode}}</span></span> -->
-                                    <el-icon v-if="item.iscustomized" class="el-icon-close label_close" @click="methods.deleteLabel(index)"><elicon-circle-close-filled /></el-icon>
+                                    <el-icon v-if="item.iscustomized" class="board-icon-close label_close" @click="methods.deleteLabel(index)"><elicon-circle-close-filled /></el-icon>
                                 </div>
                             </div>
                         </template>
@@ -391,12 +391,12 @@
     height: calc(100vh - 120px);
     .check_label {
         position: relative;
-        .el-tabs__nav {
-            .el-tabs__item {
+        .board-tabs__nav {
+            .board-tabs__item {
                 font-size: 16px;
             }
         }
-        .el-tabs__content {
+        .board-tabs__content {
             display: flex;
             border: 1px solid #eee;
             height: calc(100vh - 270px);
@@ -419,7 +419,7 @@
                     @include flex_box;
                     justify-content: center;
                     border-bottom: 1px solid #eee;
-                    .el-input__suffix {
+                    .board-input__suffix {
                         position: absolute;
                         top: 5px;
                     }
@@ -499,22 +499,22 @@
 <style lang="scss" scoped>
 @mixin inputStyle {
     height: 40px;
-    :deep(input.el-input__inner) {
+    :deep(input.board-input__inner) {
         height: 40px;
     }
-    :deep(.el-input__prefix) {
+    :deep(.board-input__prefix) {
         top: 5px;
     }
 }
 .page_layer_label {
     .label_search {
-        .el-input {
+        .board-input {
             width: 90%;
             @include inputStyle;
         }
     }
     .label_info {
-        .el-input {
+        .board-input {
             @include inputStyle;
         }
     }

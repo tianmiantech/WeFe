@@ -14,34 +14,32 @@ const originalPush = Router.prototype.push;
 const originalReplace = Router.prototype.replace;
 
 Router.prototype.push = function push(location) {
-    return originalPush.call(this, location).catch(err => err);
+  return originalPush.call(this, location).catch((err) => err);
 };
 Router.prototype.replace = function replace(location) {
-    return originalReplace.call(this, location).catch(err => err);
+  return originalReplace.call(this, location).catch((err) => err);
 };
 
 Vue.use(Router);
 
-// 实例化路由
-const createRouter = routes => new Router({
-    routes,
-    mode: 'history',
+function createRouter(){
+  const base = window.__POWERED_BY_QIANKUN__
+  ? '/portal/'
+  : '/';
+
+  // 实例化路由
+  const router = new Router({
+    routes: baseRoutes(),
+    base,
+    mode:   'history',
     scrollBehavior() {
-        return { x: 0, y: 0 };
+      return { x: 0, y: 0 };
     },
 });
 
-const router = createRouter(baseRoutes);
-
-// 添加动态路由
-router.$addRoutes = (array) => {
-    // 清空 matcher
-    router.matcher = createRouter([]).matcher;
-    // 重新添加路由以重建 matcher
-    router.addRoutes(array);
-};
-
 // 路由守卫
-guards(router);
+// guards(router);
+return router
+}
 
-export default router;
+export default createRouter;

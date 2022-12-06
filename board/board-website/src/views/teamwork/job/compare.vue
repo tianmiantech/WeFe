@@ -532,7 +532,7 @@
         font-size: 18px;
     }
     .compare-head{
-        :deep(.el-table__body-wrapper){display: none;}
+        :deep(.board-table__body-wrapper){display: none;}
     }
     .head-id{
         font-weight: normal;
@@ -540,13 +540,13 @@
         margin-top: 10px;
         font-size: 12px;
     }
-    .el-collapse-item{
-        :deep(.el-collapse-item__header):hover{background: #F5F7FA;}
+    .board-collapse-item{
+        :deep(.board-collapse-item__header):hover{background: #F5F7FA;}
     }
-    .el-collapse{
-        :deep(.el-collapse-item__content){padding-bottom: 0;}
+    .board-collapse{
+        :deep(.board-collapse-item__content){padding-bottom: 0;}
     }
-    .el-table{
+    .board-table{
         border-top:1px solid #EBEEF5;
         :deep(td){vertical-align: top;}
         :deep(.result){

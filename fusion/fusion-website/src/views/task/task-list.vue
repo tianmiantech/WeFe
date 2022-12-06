@@ -195,6 +195,7 @@
 <script>
     import table from '@src/mixins/table.js';
     import TaskStatusTag from '@src/components/views/task-status-tag';
+    import { getHeader } from '@src/http/utils';
 
     export default {
         components: {
@@ -235,7 +236,8 @@
                 }],
 
                 headers: {
-                    token: localStorage.getItem('token') || '',
+                    // token: localStorage.getItem('token') || '',
+                    ... getHeader(),
                 },
                 getListApi: '/task/paging',
                 myRoleList: [

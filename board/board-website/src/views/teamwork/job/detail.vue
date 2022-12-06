@@ -29,12 +29,12 @@
                     </router-link>
                     <br>
                 </h2>
-                <div class="el-row">
-                    <div class="el-col">
+                <div class="board-row">
+                    <div class="board-col">
                         <el-form class="flex-form">
                             <el-form-item label="任务状态">
                                 <el-tag
-                                    class="el-tag--dark"
+                                    class="board-tag--dark"
                                     :type="form.tagStatus"
                                 >
                                     {{ jobStatus[form.status] }}
@@ -42,10 +42,10 @@
                             </el-form-item>
                             <el-form-item label="我方身份">
                                 <el-tag
-                                    class="el-tag--dark"
+                                    class="board-tag--dark"
                                     :type="form.my_role === 'promoter' ? 'success' : 'dark'"
                                 >
-                                    <i :class="[form.my_role === 'promoter' ? 'el-icon-star-off' : 'el-icon-medal']" />
+                                    <i :class="[form.my_role === 'promoter' ? 'board-icon-star-off' : 'board-icon-medal']" />
                                     {{ form.my_role }}
                                 </el-tag>
                             </el-form-item>
@@ -64,7 +64,7 @@
                             <DownloadJobLog :job-id="jobId" />
                         </el-form>
                     </div>
-                    <div class="el-col graph">
+                    <div class="board-col graph">
                         <div
                             ref="canvas"
                             style="height:100%;"
@@ -438,9 +438,9 @@
         margin:0 0 20px;
         font-size: 20px;
     }
-    .el-form-item{margin-bottom: 10px;}
-    .el-row{display: flex;}
-    .el-col{width: 40%;}
+    .board-form-item{margin-bottom: 10px;}
+    .board-row{display: flex;}
+    .board-col{width: 40%;}
     .graph{
         flex: 1;
         position: relative;

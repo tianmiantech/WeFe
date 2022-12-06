@@ -22,10 +22,8 @@
                     clearable
                 />
             </el-form-item>
-            <el-form-item
-                v-if="userInfo.admin_role || userInfo.super_admin_role"
-                label="审核状态："
-            >
+
+            <el-form-item label="审核状态：">
                 <el-select
                     v-model="search.audit_status"
                     style="width: 176px;"
@@ -391,7 +389,7 @@
             return {
                 dialogAuditAccountVisible: false,
                 formLabelWidth:            '100px',
-                search:  {
+                search:                    {
                     phone_number: '',
                     nickname:     '',
                     audit_status: '',

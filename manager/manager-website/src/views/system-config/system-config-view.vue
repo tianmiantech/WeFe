@@ -70,7 +70,7 @@
                                             183.3.218.18
                                         </div>
                                     </template>
-                                    <i class="el-icon-s-opportunity" />
+                                    <i class="manager-icon-s-opportunity" />
                                 </el-tooltip>
                             </el-form-item>
                         </fieldset>
@@ -130,7 +130,7 @@
                                         <i
                                             title="显示密码"
                                             style="cursor:pointer;"
-                                            class="el-icon-view iconfont icon-xianshizy"
+                                            class="manager-icon-view iconfont icon-xianshizy"
                                             @click="changePass('show')"
                                         />
                                     </template>
@@ -147,7 +147,7 @@
                                         <i
                                             title="隐藏密码"
                                             style="cursor:pointer;"
-                                            class="el-icon-view iconfont icon-yincangby"
+                                            class="manager-icon-view iconfont icon-yincangby"
                                             @click="changePass('hide')"
                                         />
                                     </template>
@@ -240,7 +240,7 @@
 </script>
 
 <style lang="scss" scoped>
-.el-icon-s-opportunity {
+.manager-icon-s-opportunity {
     font-size: 16px;
     color: $--color-warning;
     position: absolute;

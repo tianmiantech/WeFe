@@ -72,6 +72,7 @@
 
 <script>
     import { mapGetters } from 'vuex';
+    import { getHeader,baseURL } from '@src/http/utils';
 
     export default {
         data() {
@@ -83,14 +84,14 @@
                 },
                 file_upload_options: {
                     files:               [],
-                    target:              window.api.baseUrl + '/file/upload',
+                    target:              baseURL() + '/file/upload',
                     singleFile:          true,
                     // chunks check
                     testChunks:          true,
                     chunkSize:           8 * 1024 * 1024,
                     simultaneousUploads: 4,
                     headers:             {
-                        token: '',
+                        ...getHeader(),
                     },
                     query: {
                         fileType: 'MachineLearningModelFile',
@@ -117,7 +118,7 @@
             ...mapGetters(['userInfo']),
         },
         created() {
-            this.file_upload_options.headers.token = this.userInfo.token;
+            // this.file_upload_options.headers.token = this.userInfo.token;
         },
         methods: {
             fileAdded(file) {

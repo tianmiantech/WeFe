@@ -1,5 +1,5 @@
 <template>
-    <ul v-if="vData.isTitleOk" :class="['navigator-list', { show: vData.showNavigation }]">
+    <ul v-if="vData.isTitleOk" :class="['navigator-list', { show: vData.showNavigation, 'top-qiankun': vData.isInQianKun }]">
         <li
             v-for="(item, index) in vData.list"
             :key="index"
@@ -13,7 +13,7 @@
     </ul>
     <div v-if="vData.show" class="navigator">
         <el-icon
-            class="backToTop el-icon-arrow-up"
+            class="backToTop board-icon-arrow-up"
             @click="toBack"
         >
             <elicon-arrow-up />
@@ -46,6 +46,7 @@
                 isTitleOk:           false,
                 updateTitleIdxTimer: null,
                 updateOkTimer:       null,
+                isInQianKun:         window.__POWERED_BY_QIANKUN__ || false,
             });
             const getElementOffset = el => {
                 let offsetTop = el.offsetTop,
@@ -177,15 +178,15 @@
 
             onMounted(() => {
                 init();
+                if($bus){
+                    $bus.$on('loginAndRefresh', () => {
+                        init();
+                    });
 
-                $bus.$on('loginAndRefresh', () => {
-                    init();
-                });
-
-                $bus.$on('update-title-navigator', e => {
-                    init();
-                    
-                });
+                    $bus.$on('update-title-navigator', e => {
+                        init();
+                    });
+                }
             });
 
             watch(
@@ -246,7 +247,8 @@
         background:#fff;
         &.show{transform: translateX(-10px);}
     }
-    .el-link{
+    .top-qiankun { top: 140px; }
+    .board-link{
         font-size: 12px;
         margin-top:5px;
         width: 100%;

@@ -60,8 +60,8 @@
 </script>
 
 <style lang="scss">
-    .el-breadcrumb {
+    .manager-breadcrumb {
         padding-bottom: 10px;
-        .el-breadcrumb__inner {font-weight: bold;}
+        .manager-breadcrumb__inner {font-weight: bold;}
     }
 </style>

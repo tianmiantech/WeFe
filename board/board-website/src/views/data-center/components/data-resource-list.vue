@@ -158,7 +158,7 @@
                         content="编辑"
                         placement="top"
                     >
-                        <el-icon class="el-icon-edit-outline" style="font-size:16px;">
+                        <el-icon class="board-icon-edit-outline" style="font-size:16px;">
                             <elicon-edit />
                         </el-icon>
                     </el-tooltip>
@@ -169,7 +169,7 @@
                     content="删除"
                     placement="top"
                 >
-                    <el-icon class="el-icon-delete ml10 mr10" style="color: red;cursor:pointer;font-size:16px;" @click="deleteData(scope.row)">
+                    <el-icon class="board-icon-delete ml10 mr10" style="color: red;cursor:pointer;font-size:16px;" @click="deleteData(scope.row)">
                         <elicon-delete />
                     </el-icon>
                 </el-tooltip>

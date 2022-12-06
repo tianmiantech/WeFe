@@ -68,7 +68,7 @@
                                                 <span class="name f16">
                                                     <i
                                                         v-if="member.audit_status !== 'agree'"
-                                                        class="el-icon-warning-outline color-danger"
+                                                        class="board-icon-warning-outline color-danger"
                                                     />
                                                     {{ member.member_name }}
                                                 </span>
@@ -100,7 +100,7 @@
                                                         {{ row.data_resource.name }}
                                                         <el-icon
                                                             v-if="!vData.disabled && vData.is_project_admin !== 'false'"
-                                                            class="el-icon-circle-close f16 ml10"
+                                                            class="board-icon-circle-close f16 ml10"
                                                             @click="methods.removeDataSet(index)"
                                                         >
                                                             <elicon-circle-close />
@@ -406,7 +406,7 @@
                 active:           0,
                 flow_id:          route.query.flow_id,
                 project_id:       route.query.project_id,
-                is_project_admin: route.query.is_project_admin,
+                is_project_admin: route.query.is_project_admin || 'true',
                 form:             {
                     flow_name: '',
                     flow_desc: '',
@@ -1240,7 +1240,7 @@
     min-height: calc(100vh - 180px);
     display: flex;
     justify-content: space-between;
-    :deep(.el-collapse-item__header) {
+    :deep(.board-collapse-item__header) {
         font-size: 16px;
     }
     .left_content {
@@ -1262,7 +1262,7 @@
                 h4 {
                     margin-top: 10px;
                 }
-                .el-slider {
+                .board-slider {
                     margin-top: 15px;
                 }
             }
@@ -1272,12 +1272,12 @@
                     margin-left: 10px;
                 }
                 .data-set {
-                    .el-form-item {
+                    .board-form-item {
                         display: flex;
                         margin-bottom: 0;
                     }
                 }
-                .el-icon-circle-close {
+                .board-icon-circle-close {
                     cursor: pointer;
                     color: $--color-danger;
                     position: relative;
@@ -1303,7 +1303,7 @@
         width: 135px;
         height: 320px;
         margin-left: 70px;
-        :deep(.el-step__title) {
+        :deep(.board-step__title) {
             font-size: 14px;
             font-weight: 600;
             // cursor: pointer;
@@ -1311,15 +1311,15 @@
         :deep(.is-finish) {
             color: #5088fc;
         }
-        :deep(.el-step__icon) {
+        :deep(.board-step__icon) {
             width: 20px;
             height: 20px;
         }
-        :deep(.el-step.is-vertical .el-step__line) {
+        :deep(.board-step.is-vertical .board-step__line) {
             top: 2px;
             left: 9px;
         }
-        :deep(.el-step__head.is-finish) {
+        :deep(.board-step__head.is-finish) {
             border-color: #5088fc;
         }
     }
@@ -1336,7 +1336,7 @@
 <style lang="scss">
 .unedit-tips {
     margin-bottom: 10px;
-    .el-alert__content {
+    .board-alert__content {
         height: 18px;
         line-height: 23px;
         padding: 0 6px;

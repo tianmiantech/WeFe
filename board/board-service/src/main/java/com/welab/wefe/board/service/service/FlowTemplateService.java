@@ -20,7 +20,7 @@ import com.welab.wefe.board.service.api.project.flow.SaveFlowTemplateApi.Input;
 import com.welab.wefe.board.service.database.entity.flow.FlowTemplateMySqlModel;
 import com.welab.wefe.board.service.database.repository.FlowTemplateRepository;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -55,7 +55,7 @@ public class FlowTemplateService extends AbstractService {
         model.setDescription(input.getDescription());
         model.setGraph(input.getGraph());
         model.setName(input.getName());
-        model.setCreatedBy(CurrentAccount.id());
+        model.setCreatedBy(CurrentAccountUtil.get().getId());
         flowTemplateRepository.save(model);
         return model.getId();
     }

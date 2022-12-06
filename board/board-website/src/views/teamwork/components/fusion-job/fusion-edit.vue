@@ -82,7 +82,7 @@
                     RSA-PSI 算法要求至少一方需要选择布隆过滤器资源, 另一方则必须为数据资源资源
                 </span>
 
-                <el-form class="el-card p20 flex-form mt10">
+                <el-form class="board-card p20 flex-form mt10">
                     <!-- promoter -->
                     <h4 class="f14">发起方:</h4>
                     <p class="f14 mt5 mb5">{{ vData.promoter.member_name }} <span style="color:#999;">({{ vData.promoter.member_id }})</span></p>
@@ -465,7 +465,7 @@
             const {
                 id,
                 project_id,
-                is_project_admin,
+                is_project_admin = 'true',
             } = route.query;
 
             const vData = reactive({
@@ -952,12 +952,12 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-input,
-    .el-textarea{max-width: 400px;}
+    .board-input,
+    .board-textarea{max-width: 400px;}
     .member-list{max-width: 650px;
         .flex-form {
-            .el-form-item{margin-bottom: 0;}
-            :deep(.el-form-item__label){
+            .board-form-item{margin-bottom: 0;}
+            :deep(.board-form-item__label){
                 color:#999;
                 font-size: 12px;
             }

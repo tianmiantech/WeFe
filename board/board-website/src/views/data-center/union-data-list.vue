@@ -380,7 +380,7 @@
 <style lang="scss" scoped>
     .page{
         :deep(.card-dialog) {
-            .el-dialog__body {
+            .board-dialog__body {
                 overflow: hidden;
                 display: flex;
                 justify-content: center;
@@ -388,7 +388,7 @@
             }
         }
     }
-    .el-icon-folder-add{
+    .board-icon-folder-add{
         cursor: pointer;
         font-size: 16px;
         color: $color-link-base;

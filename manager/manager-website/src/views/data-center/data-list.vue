@@ -117,17 +117,18 @@
                     <el-option :key="1" value="false" label="否"></el-option>
                 </el-select>
             </el-form-item>
-
-            <el-button
-                type="primary"
-                native-type="submit"
-                :disabled="vData.loading"
-                @click="getList({ to: true, resetPagination: true })"
-            >
-                查询
-            </el-button>
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    native-type="submit"
+                    :disabled="vData.loading"
+                    @click="getList({ to: true, resetPagination: true })"
+                >
+                    查询
+                </el-button>
+            </el-form-item>
         </el-form>
-        
+
         <el-table
             v-loading="vData.loading"
             :data="vData.list"
@@ -445,7 +446,7 @@
 <style lang="scss" scoped>
     .page{
         :deep(.card-dialog) {
-            .el-dialog__body {
+            .manager-dialog__body {
                 overflow: hidden;
                 display: flex;
                 justify-content: center;
@@ -453,7 +454,7 @@
             }
         }
     }
-    .el-icon-folder-add{
+    .manager-icon-folder-add{
         cursor: pointer;
         font-size: 16px;
         color: $color-link-base;

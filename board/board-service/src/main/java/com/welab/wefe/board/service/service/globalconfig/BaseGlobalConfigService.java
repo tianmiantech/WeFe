@@ -31,11 +31,11 @@ import com.welab.wefe.common.fieldvalidate.secret.Secret;
 import com.welab.wefe.common.fieldvalidate.secret.SecretUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.TempRsaCache;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.wefe.dto.global_config.base.AbstractConfigModel;
 import com.welab.wefe.common.wefe.dto.global_config.base.ConfigModel;
 import com.welab.wefe.common.wefe.dto.global_config.base.GlobalConfigInput;
-import com.welab.wefe.common.web.TempRsaCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -96,7 +96,7 @@ public class BaseGlobalConfigService extends AbstractService {
             one = new GlobalConfigMysqlModel();
             one.setGroup(group);
             one.setName(name);
-            one.setCreatedBy(CurrentAccount.id());
+            one.setCreatedBy(CurrentAccountUtil.get().getId());
         } else {
             if (one.getValue() != null && value == null) {
                 StatusCode.SQL_ERROR.throwException("不能使用 null 覆盖非空值");
@@ -111,7 +111,7 @@ public class BaseGlobalConfigService extends AbstractService {
         }
 
         one.setValue(value);
-        one.setUpdatedBy(CurrentAccount.id());
+        one.setUpdatedBy(CurrentAccountUtil.get().getId());
 
         if (comment != null) {
             one.setComment(comment);

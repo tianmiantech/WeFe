@@ -28,7 +28,7 @@ import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
@@ -316,9 +316,9 @@ public class ServiceService {
             throw new StatusCodeWithException("服务英文名称 【" + input.getUrl() + "】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
         }
         model = ModelMapper.map(input, TableServiceMySqlModel.class);
-        model.setCreatedBy(CurrentAccount.id());
+        model.setCreatedBy(CurrentAccountUtil.get().getId());
         model.setCreatedTime(new Date());
-        model.setUpdatedBy(CurrentAccount.id());
+        model.setUpdatedBy(CurrentAccountUtil.get().getId());
         model.setUpdatedTime(new Date());
         if (model.getServiceType() == ServiceTypeEnum.PSI.getCode()) {// 对于 交集查询 需要额外生成对应的主键数据
             String idsTableName = generateIdsTable(model);
@@ -515,7 +515,7 @@ public class ServiceService {
         if (StringUtils.isNotBlank(input.getServiceConfig())) {
             model.setServiceConfig(input.getServiceConfig());
         }
-        model.setUpdatedBy(CurrentAccount.id());
+        model.setUpdatedBy(CurrentAccountUtil.get().getId());
         model.setUpdatedTime(new Date());
         if (model.getServiceType() == ServiceTypeEnum.PSI.getCode()) {// 对于 交集查询 需要额外生成对应的主键数据
             String idsTableName = generateIdsTable(model);
@@ -640,7 +640,7 @@ public class ServiceService {
     private boolean isIpWhiteList(RouteApi.Input input, ClientServiceMysqlModel clientServiceMysqlModel) {
         String clientIp = ServiceUtil.getIpAddr(input.request);
 
-        return clientServiceMysqlModel.getIpAdd() != null && Arrays.asList(clientServiceMysqlModel.getIpAdd().split(",|，")).contains(clientIp);
+        return clientServiceMysqlModel.getIpAdd() != null && (Arrays.asList(clientServiceMysqlModel.getIpAdd().split(",|，")).contains(clientIp) || Arrays.asList(clientServiceMysqlModel.getIpAdd().split(",|，")).contains("*"));
     }
 
     public TableServiceMySqlModel findById(String serviceId) {

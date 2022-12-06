@@ -21,7 +21,7 @@
             </div>
             <i
                 v-else
-                class="el-icon-plus avatar-uploader-icon"
+                class="manager-icon-plus avatar-uploader-icon"
                 :style="{ width: `${width}px`, height: `${width}px`, 'line-height': `${width}px` }"
             />
         </el-upload>
@@ -133,14 +133,14 @@
         }
     }
     .avatar-uploader{
-        :deep(.el-upload) {
+        :deep(.manager-upload) {
             cursor: pointer;
             border-radius: 8px;
             position: relative;
             overflow: hidden;
         }
         &.disabled{
-            :deep(.el-upload) {
+            :deep(.manager-upload) {
                 background:#f5f5f5;
                 cursor: not-allowed;
             }

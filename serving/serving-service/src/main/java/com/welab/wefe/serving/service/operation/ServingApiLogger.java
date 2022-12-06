@@ -23,7 +23,6 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.delegate.api_log.AbstractApiLogger;
 import com.welab.wefe.common.web.delegate.api_log.ApiLog;
-import com.welab.wefe.serving.service.api.account.CaptchaApi;
 import com.welab.wefe.serving.service.api.pir.PrivateInformationRetrievalForNaorPinkasResultsApi;
 import com.welab.wefe.serving.service.api.pir.PrivateInformationRetrievalForRandomApi;
 import com.welab.wefe.serving.service.api.pir.PrivateInformationRetrievalForRandomLegalApi;
@@ -38,7 +37,6 @@ public class ServingApiLogger extends AbstractApiLogger {
     @Override
     protected List<Class<? extends AbstractApi>> getIgnoreLogApiList() {
         return Arrays.asList(
-        		CaptchaApi.class,
         		PrivateInformationRetrievalForRandomApi.class,
         		PrivateInformationRetrievalForRandomLegalApi.class,
         		PrivateInformationRetrievalForResultsApi.class,

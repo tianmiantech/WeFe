@@ -54,7 +54,7 @@
         </div>
 
         <div class="mt20">
-            <p class="el-form-item mt20">
+            <p class="board-form-item mt20">
                 运行模式:
                 <el-radio-group
                     v-model="vData.workMode"
@@ -248,18 +248,18 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-form-item{
-        .el-form-item__label{
+    .board-form-item{
+        .board-form-item__label{
             line-height: 28px !important;
         }
     }
-    .el-checkbox-group{
+    .board-checkbox-group{
         max-height: 500px;
         overflow: auto;
         font-size: 14px;
     }
-    .el-checkbox{user-select:auto;}
-    .el-tag-list{
+    .board-checkbox{user-select:auto;}
+    .board-tag-list{
         max-height: 140px;
         overflow: auto;
     }

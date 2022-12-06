@@ -101,7 +101,7 @@
             <el-upload
                 v-loading="pending"
                 :http-request="() => {}"
-                :headers="{ token: userInfo.token }"
+                :headers="headers"
                 :before-upload="beforeUpload"
                 :on-success="uploadFinished"
                 accept=".pdf"
@@ -109,12 +109,12 @@
                 action="#"
                 drag
             >
-                <i class="el-icon-upload"></i>
-                <div class="el-upload__text">
+                <i class="manager-icon-upload"></i>
+                <div class="manager-upload__text">
                     拖拽文件或 <em>点击上传</em>
                 </div>
                 <template #tip>
-                    <div class="el-upload__tip">
+                    <div class="manager-upload__tip">
                         只支持 PDF, 最大10M
                     </div>
                 </template>
@@ -126,7 +126,7 @@
             v-model="preview.visible"
         >
             <div :class="['preview-box', { fullscreen: preview.fullscreen }]">
-                <!-- <i class="el-icon-full-screen" @click="preview.fullscreen = !preview.fullscreen"></i> -->
+                <!-- <i class="manager-icon-full-screen" @click="preview.fullscreen = !preview.fullscreen"></i> -->
                 <embed
                     v-if="preview.visible"
                     :src="preview.fileData"
@@ -145,6 +145,8 @@
 <script>
     import { mapGetters } from 'vuex';
     import table from '@src/mixins/table';
+    import { getHeader } from '../http/utils';
+    import { downLoadFileTool } from '@src/utils/tools';
 
     export default {
         inject: ['refresh'],
@@ -172,6 +174,9 @@
                     fileData:   '',
                     fileType:   '',
                     fullscreen: false,
+                },
+                headers: {
+                    ... getHeader(),
                 },
             };
         },
@@ -208,21 +213,10 @@
                 }
             },
             downloadFile() {
-                if(this.loading) return;
-                this.loading = true;
 
-                const api = `${window.api.baseUrl}/download/file?fileId=${this.preview.fileId}&token=${this.userInfo.token}`;
-                const link = document.createElement('a');
-
-                link.href = api;
-                link.target = '_blank';
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
-
-                setTimeout(() => {
-                    this.loading = false;
-                }, 300);
+                downLoadFileTool('/download/file', {
+                    fileId: this.preview.fileId,
+                });
             },
             enable(event, row) {
                 this.$confirm('确定要启用该文件吗? 其他文件将被禁用!', '警告', {
@@ -303,7 +297,7 @@
 
 <style lang="scss" scoped>
     .card-list{min-height: calc(100vh - 250px);}
-    .el-icon-full-screen{
+    .manager-icon-full-screen{
         cursor: pointer;
         position: absolute;
         right: 0;

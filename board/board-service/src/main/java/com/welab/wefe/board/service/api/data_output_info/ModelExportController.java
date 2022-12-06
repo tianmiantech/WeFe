@@ -20,8 +20,8 @@ import com.welab.wefe.board.service.service.modelexport.ModelExportService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.common.web.service.account.AccountInfo;
+import com.welab.wefe.common.web.service.account.SsoAccountInfo;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.wefe.enums.ModelExportLanguage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +61,7 @@ public class ModelExportController {
             token = httpServletRequest.getParameter("token");
             httpServletResponse.setCharacterEncoding("UTF-8");
             out = httpServletResponse.getWriter();
-            AccountInfo info = CurrentAccount.get(token);
+            SsoAccountInfo info = CurrentAccountUtil.get();
             if (null == info) {
                 out.write(JObject.create().append("code", StatusCode.PARAMETER_VALUE_INVALID.getCode())
                         .append("message", "未登录").toString());
@@ -99,7 +99,8 @@ public class ModelExportController {
             // export
             String exportResult = modelExportService.handle(jobId, modelFlowNodeId, role, language);
 
-            httpServletResponse.setHeader("content-disposition", "attachment;filename=" + "model." + ModelExportLanguage.getLanguageSuffix(language));
+            httpServletResponse.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
+            httpServletResponse.setHeader("Content-Disposition", "attachment;filename=" + "model." + ModelExportLanguage.getLanguageSuffix(language));
             httpServletResponse.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
             out.write(exportResult);
             out.flush();
