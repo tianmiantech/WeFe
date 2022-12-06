@@ -234,7 +234,6 @@
                                 if(row.name === this.dataInfo.primary_key_column) {
                                     name = `${row.name}（主键）`;
                                 }
-
                                 return {
                                     ...row,
                                     特征名称: name,

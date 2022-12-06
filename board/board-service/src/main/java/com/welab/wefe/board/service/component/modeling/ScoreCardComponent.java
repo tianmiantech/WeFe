@@ -51,7 +51,7 @@ public class ScoreCardComponent extends AbstractModelingComponent<ScoreCardCompo
         FlowGraphNode intersectionNode2 = graph.findOneNodeFromParent(node, ComponentType.HorzFeatureBinning);
         FlowGraphNode intersectionNode3 = graph.findOneNodeFromParent(node, ComponentType.MixBinning);
         if (intersectionNode == null && intersectionNode2 == null && intersectionNode3 == null) {
-            throw new FlowNodeException(node, "请在前面添加分箱组件。");
+            throw new FlowNodeException(node, "请在前置流程中添加" + ComponentType.Binning.getLabel() + "组件。");
         }
 
         FlowGraphNode intersectionNode4 = graph.findOneNodeFromParent(node, ComponentType.HorzLR);

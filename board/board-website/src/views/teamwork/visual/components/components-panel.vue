@@ -203,7 +203,7 @@
 </template>
 
 <script>
-    import {
+import {
         componentsList,
         helpComponents,
         paramComponents,
@@ -420,13 +420,13 @@
                         const formData = refInstance.methods.checkParams();
 
                         if(formData) {
-                            this.submitFormData($event, formData.params);
+                            this.submitFormData($event, formData.params, formData.callback);
                         }
                     }
                 }
             },
 
-            async submitFormData($event, params) {
+            async submitFormData($event, params,callback) {
                 const btnState = {};
 
                 if($event !== 'node-update') {
@@ -468,6 +468,10 @@
                             message:  '保存成功!',
                         });
                     }
+
+                    if(typeof callback === 'function'){
+                        callback();
+                    }
                 }
             },
         },
@@ -503,13 +507,13 @@
         color: white;
         background: gray;
         border-radius: 0px 0px 4px 4px;
-        
+
         padding:0px;
         border-left: 1px solid #e5e9f2;
         border-right: 1px solid #e5e9f2;
         border-bottom: 1px solid #e5e9f2;
 
-        
+
     }
 }
 .component-form{
@@ -544,8 +548,9 @@
     & > :deep(.el-tabs__header) {
         margin:0;
         border-left: 1px solid #dfe4ed;
+        border-top: 1px solid #dfe4ed;
         position: absolute;
-        left: -51px;
+        left: -60px;
         top: 0;
         z-index: 1;
         height:auto;
@@ -592,6 +597,9 @@
     :deep(.el-tabs__item){
         font-size: 13px;
         color:#909399;
+        &.is-active {
+            color: #409eff;
+        }
     }
 }
 </style>

@@ -139,6 +139,9 @@ public class BaseGlobalConfigService extends AbstractService {
 
     public <T extends AbstractConfigModel> T getModel(String group) {
         Class<T> clazz = (Class<T>) AbstractConfigModel.getModelClass(group);
+        if (clazz == null) {
+            throw new RuntimeException("未找到对应的 ConfigModel：" + group);
+        }
         return getModel(clazz);
     }
 

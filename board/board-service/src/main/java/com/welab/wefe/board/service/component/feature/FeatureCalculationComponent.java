@@ -51,6 +51,13 @@ public class FeatureCalculationComponent extends AbstractComponent<FeatureCalcul
 
     @Override
     protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
+        if (true) {
+            throw new FlowNodeException(
+                    node,
+                    "“计算特征价值”组件已被弃用，请使用“特征统计”组件替代其计算CV的功能。"
+            );
+        }
+
         FlowGraphNode intersectionNode = graph.findOneNodeFromParent(node, ComponentType.Intersection);
         if (intersectionNode == null) {
             throw new FlowNodeException(node, "请在前面添加样本对齐组件。");
@@ -193,6 +200,11 @@ public class FeatureCalculationComponent extends AbstractComponent<FeatureCalcul
     protected boolean needIntersectedDataSetBeforeMe() {
         return true;
     }
+
+//    @Override
+//    public List<FlowDataSetOutputModel> getTableDataSetOutputFeatures(List<FlowDataSetOutputModel> dataSetList, Params params) {
+//        return null;
+//    }
 
     @Override
     public boolean hasParams() {

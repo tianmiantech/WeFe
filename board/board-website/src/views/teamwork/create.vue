@@ -403,7 +403,7 @@
                 <el-icon>
                     <elicon-info-filled />
                 </el-icon>
-                只有己方成员时可进行本地建模
+                本地建模：“只支持自方成员间进行本地建模”
             </p>
         </div>
 

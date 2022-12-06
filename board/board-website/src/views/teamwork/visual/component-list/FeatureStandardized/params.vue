@@ -121,6 +121,7 @@
                                         member_id:          member.member_id,
                                         member_name:        member.member_name,
                                         member_role:        member.member_role,
+                                        data_set_id:        member.data_set_id,
                                         $checkedAll:        false,
                                         $indeterminate:     false,
                                         $checkedColumnsArr: [],

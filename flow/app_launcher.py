@@ -91,7 +91,7 @@ class AppLauncher:
         with DB.connection_context():
             jobs = Job.select().where(
                 (
-                        Job.status == JobStatus.WAIT_RUN
+                        Job.status == JobStatus.WAIT_SUCCESS
                 ) | (
                         Job.status == JobStatus.WAIT_STOP
                 ) | (

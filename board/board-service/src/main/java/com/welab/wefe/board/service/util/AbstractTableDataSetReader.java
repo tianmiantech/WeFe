@@ -17,15 +17,18 @@
 package com.welab.wefe.board.service.util;
 
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetColumnInputModel;
+import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.Validator;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.ColumnDataTypeInferrer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -186,6 +189,17 @@ public abstract class AbstractTableDataSetReader implements Closeable {
                         value = StringUtil.trim(value, '0', '.');
                     }
                     isValid = Validator.isInteger(value);
+                    break;
+                case DateTime:
+                    Date date = Convert.toDate(value);
+                    // 这里的 value 一定不为空，所以当 date 为空说明字符串不是时间格式。
+                    if (date == null) {
+                        isValid = false;
+                    }
+                    // 对日期格式进行标准化，避免各种形状的日期格式对 kernel 造成困扰。
+                    else {
+                        entry.setValue(DateUtil.toString(date, DateUtil.YYYY_MM_DD_HH_MM_SS));
+                    }
                     break;
                 case Enum:
                 case String:

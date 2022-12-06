@@ -114,7 +114,10 @@
                                     <span class="el-checkbox__inner"></span>
                                     <input :id="`label-${index * 5 + i - 1}`" class="el-checkbox__original" type="checkbox" />
                                 </span>
-                                <span class="el-checkbox__label">{{ list[index * 5 + i - 1] }}</span>
+                                <span class="el-checkbox__label">
+                                    {{ list[index * 5 + i - 1] }}
+                                    <FeatureTagVue :name="list[index * 5 + i - 1]" :member_id="vData.data_set_list[vData.row_index].member_id" />
+                                </span>
                             </label>
                         </template>
                     </template>
@@ -142,6 +145,7 @@
         reactive,
         getCurrentInstance,
     } from 'vue';
+    import FeatureTagVue from '../common/featureTag.vue';
 
     export default {
         name:  'HorzOneHot',
@@ -153,6 +157,9 @@
             currentObj:   Object,
             jobId:        String,
             class:        String,
+        },
+        components: {
+            FeatureTagVue,
         },
         setup(props, context) {
             const { appContext } = getCurrentInstance();
