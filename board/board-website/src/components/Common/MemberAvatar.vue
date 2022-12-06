@@ -21,7 +21,7 @@
             </div>
             <el-icon
                 v-else
-                class="el-icon-plus avatar-uploader-icon"
+                class="board-icon-plus avatar-uploader-icon"
                 :style="{ width: `${width}px`, height: `${width}px`, 'line-height': `${width}px` }"
             >
                 <elicon-plus />
@@ -135,14 +135,14 @@
         }
     }
     .avatar-uploader{
-        :deep(.el-upload) {
+        :deep(.board-upload) {
             cursor: pointer;
             border-radius: 8px;
             position: relative;
             overflow: hidden;
         }
         &.disabled{
-            :deep(.el-upload) {
+            :deep(.board-upload) {
                 background:#f5f5f5;
                 cursor: not-allowed;
             }

@@ -17,8 +17,8 @@
 package com.welab.wefe.board.service.database.entity.base;
 
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 
 import javax.persistence.MappedSuperclass;
 import java.util.Date;
@@ -42,7 +42,7 @@ public abstract class AbstractBaseMySqlModel extends AbstractMySqlModel {
     private String updatedBy;
 
     public AbstractBaseMySqlModel() {
-        setCreatedBy(CurrentAccount.id());
+        setCreatedBy(CurrentAccountUtil.get().getId());
     }
 
     public void setCreatedBy(AbstractApiInput input) {
@@ -66,7 +66,8 @@ public abstract class AbstractBaseMySqlModel extends AbstractMySqlModel {
         } else if (input.fromGateway()) {
             result = input.callerMemberInfo.getMemberId();
         } else {
-            result = CurrentAccount.id();
+            //result = CurrentAccount.id();
+            result = CurrentAccountUtil.get().getId();
         }
         return result;
     }

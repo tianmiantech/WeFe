@@ -20,7 +20,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.RSAUtil;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.dto.SignedApiInput;
 
 import java.nio.charset.StandardCharsets;
@@ -45,11 +44,6 @@ public class RsaVerifyTest {
     }
 
     private static void rsaVerify(JSONObject params) throws Exception {
-
-        // 如果是登录状态，不验签。
-        if (CurrentAccount.get() != null) {
-            return;
-        }
 
         SignedApiInput signedApiInput = params.toJavaObject(SignedApiInput.class);
 

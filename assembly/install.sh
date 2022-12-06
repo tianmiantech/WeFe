@@ -15,7 +15,7 @@ case "$application" in
         /bin/bash ./board/board-service/assembly/scripts/install.sh $application
         ;;
     wefe-board-website)
-        /bin/bash -x ./board/board-website/assembly/scripts/install.sh $application
+        /bin/bash ./board/board-website/assembly/scripts/install.sh $application
         ;;
     wefe-union-service)
         /bin/bash ./union/union-service/assembly/scripts/install.sh $application

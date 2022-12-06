@@ -3,11 +3,7 @@
 @import "./_element-ui.scss";
 @import "./_reset.scss";
 @import "./_main.scss";
-
-#app {
-    width: 100vw;
-    min-height: 100vh;
-}
+@import "../../themeconfig/theme.css";
 
 /* 全局 loading */
 .fade-enter-active,
@@ -34,8 +30,7 @@
 }
 
 .base-wrapper{
-    padding: 20px;
-    min-height: 500px;
+    // min-height: 500px;
     &>.fade-enter-active,
     &>.fade-leave-active {
         position: absolute;
@@ -46,7 +41,8 @@
 
 /* 自定义页面滚动条样式 */
 .customed-scrollbar{
-    overflow-x: hidden;
+    height: 100vh;
+    overflow: hidden;
     ::-webkit-scrollbar {
         width: 5px;
         height: 5px;

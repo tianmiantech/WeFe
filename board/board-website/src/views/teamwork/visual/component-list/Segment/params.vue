@@ -136,10 +136,10 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-form-item{
+    .board-form-item{
         margin-bottom: 10px;
     }
-    .el-slider{
+    .board-slider{
         margin:0 14px;
     }
 </style>

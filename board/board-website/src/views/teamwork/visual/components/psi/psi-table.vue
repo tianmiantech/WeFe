@@ -247,7 +247,7 @@
 </script>
 
 <style>
-  .notShowExpand .cell .el-table__expand-icon{display: none;}
+  .notShowExpand .cell .board-table__expand-icon{display: none;}
 
   .iconExpand{cursor: pointer;height: 16px;width: 16px;background-color: #fff;position: relative;display: inline-block;}
   .iconExpand::before{top: 3px;bottom: 3px;height: 9px;width: 1px;content:'';background: currentColor;position: absolute;transform: rotate(-180deg);transition: transform .3s ease-out;}
@@ -256,7 +256,7 @@
   .icon-collage::before{transform: rotate(90deg);}
   .icon-collage::after{transform: rotate(180deg);}
   
-  .psi-table .el-table .el-table__expand-icon{
+  .psi-table .board-table .board-table__expand-icon{
     display: none;
   }
   .psi-table .line{

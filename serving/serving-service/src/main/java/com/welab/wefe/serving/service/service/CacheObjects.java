@@ -242,4 +242,11 @@ public class CacheObjects {
         }
         return getServiceMap().get(serviceId) == null ? "未知" : getServiceMap().get(serviceId);
     }
+
+    public static synchronized void putAccount(AccountMySqlModel account) {
+        if(null == account) {
+            return;
+        }
+        ACCOUNT_MAP.put(account.getId(), account.getNickname());
+    }
 }

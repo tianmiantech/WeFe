@@ -62,17 +62,18 @@ public class FeatureStatisticsComponent extends AbstractComponent<FeatureStatist
 
         // Get the members selected in dataIO
         DataIOComponent.Params dataIOParams = (DataIOComponent.Params) graph.findOneNodeFromParent(node, ComponentType.DataIO).getParamsModel();
+        if (dataIOParams == null) {
+            throw new FlowNodeException(node, "流程中缺少 " + ComponentType.DataIO.getLabel() + " 组件!");
+        }
         List<DataIOComponent.DataSetItem> dataSetItems = dataIOParams.getDataSetList();
 
         AtomicInteger count = new AtomicInteger();
 
-        dataSetItems.forEach(x ->
-                params.getMembers().forEach(y -> {
-                    if (x.getMemberId().equals(y.getMemberId()) && x.getMemberRole() == y.getMemberRole()) {
-                        count.addAndGet(1);
-                    }
-                })
-        );
+        dataSetItems.forEach(x -> params.getMembers().forEach(y -> {
+            if (x.getMemberId().equals(y.getMemberId()) && x.getMemberRole() == y.getMemberRole()) {
+                count.addAndGet(1);
+            }
+        }));
 
         if (!"local".equals(params.workMode) && count.get() != dataSetItems.size()) {
             throw new FlowNodeException(node, "请保证当前节点所有成员都参与。");
@@ -88,24 +89,18 @@ public class FeatureStatisticsComponent extends AbstractComponent<FeatureStatist
     @Override
     protected JSONObject createTaskParams(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
 
-        // Need to use dataIO data set
-        FlowGraphNode dataIONode = graph.findOneNodeFromParent(node, ComponentType.DataIO);
-
-        if (dataIONode == null) {
-            throw new FlowNodeException(node, "请添加DataIO策略!");
-        }
-
-        List<Method> featureMethods = params.getFeatureMethods();
-        List percentileList = new ArrayList();
-        for (Method method : featureMethods) {
-            if ("percentile".equals(method.getName())) {
-                percentileList.add(Integer.parseInt(method.getValue()));
-            }
-        }
+//        List<Method> featureMethods = params.getFeatureMethods();
+//        List<Integer> percentileList = new ArrayList<>();
+//        for (Method method : featureMethods) {
+//            if ("percentile".equals(method.getName())) {
+//                percentileList.add(Integer.parseInt(method.getValue()));
+//            }
+//        }
 
         JObject output = JObject.create()
-                .append("percentage_list", percentileList)
+//                .append("percentage_list", percentileList)
                 .append("work_mode", params.workMode);
+
         return output;
     }
 
@@ -117,10 +112,7 @@ public class FeatureStatisticsComponent extends AbstractComponent<FeatureStatist
     @Override
     protected List<TaskResultMySqlModel> getAllResult(String taskId) {
 
-        List<TaskResultMySqlModel> list = taskResultService.listAllResult(taskId)
-                .stream()
-                .filter(x -> x.getType().equals(TaskResultType.data_feature_statistic))
-                .collect(Collectors.toList());
+        List<TaskResultMySqlModel> list = taskResultService.listAllResult(taskId).stream().filter(x -> x.getType().equals(TaskResultType.data_feature_statistic)).collect(Collectors.toList());
 
 
         // Put the reassembled data in
@@ -157,21 +149,12 @@ public class FeatureStatisticsComponent extends AbstractComponent<FeatureStatist
 
     @Override
     protected List<InputMatcher> inputs(FlowGraph graph, FlowGraphNode node) {
-        return Arrays.asList(
-                InputMatcher.of(
-                        Names.Data.NORMAL_DATA_SET,
-                        new OutputDataTypesOutputFilter(
-                                graph,
-                                IODataType.DataSetInstance
-                        ))
-        );
+        return Arrays.asList(InputMatcher.of(Names.Data.NORMAL_DATA_SET, new OutputDataTypesOutputFilter(graph, IODataType.DataSetInstance)));
     }
 
     @Override
     public List<OutputItem> outputs(FlowGraph graph, FlowGraphNode node) {
-        return Arrays.asList(
-                OutputItem.of(Names.JSON_RESULT, IODataType.Json)
-        );
+        return Arrays.asList(OutputItem.of(Names.JSON_RESULT, IODataType.Json));
     }
 
     @Override
@@ -192,7 +175,6 @@ public class FeatureStatisticsComponent extends AbstractComponent<FeatureStatist
     }
 
     public static class Params extends AbstractCheckModel {
-        @Check(require = true)
         private List<Method> featureMethods;
 
         @Check(name = "模式状态")

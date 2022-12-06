@@ -7,43 +7,85 @@
         style="background: white"
     >
         <template #header>
-            <div class="clearfix mb10" style="display: flex; justify-content: space-between;">
+            <div class="mb10" style="display: flex; justify-content: space-between;">
                 <div style="display: flex; align-items: center;">
                     <h3 class="card-title f19" style="position: relative; right: 10px; top: -10px;">
-                        <el-icon :class="['el-icon-odometer', 'mr10', 'ml10']" style="font-size: xx-large; top:9px; right: -3px; color: dodgerblue"><elicon-odometer />
+                        <el-icon :class="['board-icon-odometer', 'mr10', 'ml10']" style="font-size: xx-large; top:9px; right: -3px; color: dodgerblue"><elicon-odometer />
                         </el-icon>
                         训练列表  
                     </h3>
                     <template v-if="form.isPromoter">
-                            <el-button
-                                v-if="!form.closed && !form.is_exited && form.is_project_admin"
-                                class="ml10"
-                                size="small"
-                                type="primary"
-                                @click="addFlowMethod"
-                                style="position: relative; top:-4px; left: -15px; background: lightgreen; border: none;"
-                            >
-                                新建训练
-                            </el-button>
-                        </template>
-                        <span v-else class="ml10 f12">(协作方无法添加训练)</span>
+                        <el-button
+                            v-if="!form.closed && !form.is_exited && form.is_project_admin"
+                            class="ml10"
+                            size="small"
+                            type="primary"
+                            @click="addFlowMethod"
+                            style="position: relative; top:-4px; left: -15px; background: lightgreen; border: none;"
+                        >
+                            新建训练
+                        </el-button>
+                    </template>
+                    <span v-else class="ml10 f12">(协作方无法添加训练)</span>
                 </div>
                 <div v-if="form.is_project_admin" class="right-sort-area">
                     <div class="right-sort-area">
-                        <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp" title="向上" style="color: lightgray"><elicon-top /></el-icon>
-                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-bottom', 'mr10', 'ml10']" @click="moveDown" title="向下" style="color: lightgray"><elicon-bottom /></el-icon>
-                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-caret-top', {'mr10': maxIndex === sortIndex}]" @click="toTop" title="置顶" style="color: lightgray"><elicon-caret-top /></el-icon>
-                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-caret-bottom', 'mr10', 'ml10']" @click="toBottom" title="置底" style="color: lightgray"><elicon-caret-bottom /></el-icon>
+                        <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['board-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp" title="向上" style="color: lightgray"><elicon-top /></el-icon>
+                        <el-icon v-if="maxIndex !== sortIndex" :class="['board-icon-bottom', 'mr10', 'ml10']" @click="moveDown" title="向下" style="color: lightgray"><elicon-bottom /></el-icon>
+                        <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['board-icon-caret-top', {'mr10': maxIndex === sortIndex}]" @click="toTop" title="置顶" style="color: lightgray"><elicon-caret-top /></el-icon>
+                        <el-icon v-if="maxIndex !== sortIndex" :class="['board-icon-caret-bottom', 'mr10', 'ml10']" @click="toBottom" title="置底" style="color: lightgray"><elicon-caret-bottom /></el-icon>
                     </div>
                 </div>
             </div>
         </template>
+
+        <el-form inline @submit.prevent>
+            <el-form-item label="联邦任务类型：">
+                <el-select v-model="flowListForm.federatedLearningType" clearable>
+                    <el-option
+                        v-for="item in flTList"
+                        :key="item.value"
+                        :value="item.value"
+                        :label="item.label"
+                    />
+                </el-select>
+            </el-form-item>
+            <el-form-item label="状态：">
+                <el-select v-model="flowListForm.status" clearable>
+                    <el-option
+                        v-for="item in statusList"
+                        :key="item.value"
+                        :value="item.value"
+                        :label="item.label"
+                    />
+                </el-select>
+            </el-form-item>
+            <el-form-item label="创建者：">
+                <el-select v-model="flowListForm.creator" filterable clearable>
+                    <el-option
+                        v-for="item in creatorList"
+                        :key="item.id"
+                        :value="item.id"
+                        :label="item.nickname"
+                    />
+                </el-select>
+            </el-form-item>
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    @click="getFlowList"
+                >
+                    搜索
+                </el-button>
+            </el-form-item>
+        </el-form>
 
         <el-table
             ref="multipleTable"
             max-height="500px"
             :data="list"
             stripe
+            border
         >
             <el-table-column
                 label="训练名称"
@@ -59,7 +101,7 @@
                     <el-link
                         type="primary"
                         :underline="false"
-                        @click="linkTo(form.project_type === 'DeepLearning' ? 'teamwork/detail/deep-learning/flow' : 'teamwork/detail/flow', { flow_id: scope.row.flow_id, project_id: project_id, training_type: form.project_type === 'DeepLearning' ? scope.row.deep_learning_job_type : '', is_project_admin: form.is_project_admin })"
+                        @click="linkTo(form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow', { flow_id: scope.row.flow_id, project_id: project_id, training_type: form.project_type === 'DeepLearning' ? scope.row.deep_learning_job_type : '', is_project_admin: form.is_project_admin })"
                     >
                         {{ scope.row.flow_name }}
                     </el-link>
@@ -115,7 +157,7 @@
                             type="primary"
                             class="link mr10"
                             :underline="false"
-                            @click="linkTo('teamwork/detail/deep-learning/flow', { flow_id: scope.row.flow_id, project_id: project_id, training_type: scope.row.deep_learning_job_type, is_project_admin: form.is_project_admin })"
+                            @click="linkTo('project-deeplearning-flow', { flow_id: scope.row.flow_id, project_id: project_id, training_type: scope.row.deep_learning_job_type, is_project_admin: form.is_project_admin })"
                         >
                             查看
                         </el-link>
@@ -124,7 +166,7 @@
                             type="primary"
                             class="mr10"
                             :underline="false"
-                            @click="linkTo('teamwork/detail/deep-learning/check-flow', { flow_id: scope.row.flow_id, flow_name: scope.row.flow_name, project_id: project_id, project_name: form.name })"
+                            @click="linkTo('project-deeplearning-flow', { flow_id: scope.row.flow_id, flow_name: scope.row.flow_name, project_id: project_id, project_name: form.name })"
                         >
                             校验
                         </el-link>
@@ -209,7 +251,6 @@
             <el-form @submit.prevent>
                 <el-form-item
                     label="选择目标项目："
-                    label-width="100px"
                 >
                     <el-switch
                         v-model="thisProject"
@@ -221,7 +262,6 @@
                 <el-form-item
                     v-if="!thisProject"
                     label="选择目标项目："
-                    label-width="100px"
                 >
                     <el-autocomplete
                         v-model="copyFlowDialog.targetProject"
@@ -271,7 +311,7 @@
         >
             <template #title>
                 选择模版:
-                <span class="ml10 f14 el-alert__description">(训练创建后将无法更改训练类型)</span>
+                <span class="ml10 f14 board-alert__description">(训练创建后将无法更改训练类型)</span>
             </template>
 
             <div
@@ -336,7 +376,7 @@
         >
             <template #title>
                 选择模版:
-                <span class="ml10 f14 el-alert__description">(训练创建后将无法更改训练类型)</span>
+                <span class="ml10 f14 board-alert__description">(训练创建后将无法更改训练类型)</span>
             </template>
 
             <div
@@ -368,8 +408,9 @@
     import table from '@src/mixins/table';
     import FlowStatusTag from '@src/components/views/flow-status-tag';
     import { mapGetters } from 'vuex';
+    import { appCode } from '@src/utils/constant';
 
-    const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV ? `/${process.env.CONTEXT_ENV}/` : '/'}`;
+    const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${appCode() ? `/${appCode()}/` : '/'}`;
 
     export default {
         components: {
@@ -424,8 +465,46 @@
                     mix_lr:   require('@assets/images/mix_lr.png'),
                     mix_xgb:  require('@assets/images/mix_xgb.png'),
                 },
-                flowTimer: null,
-                config:    {}, // deeplearning config
+                flowTimer:    null,
+                config:       {}, // deeplearning config
+                flowListForm: {
+                    federatedLearningType: '',
+                    status:                '',
+                    creator:               '',
+                },
+                flTList: [
+                    {
+                        label: '横向',
+                        value: 'horizontal',
+                    },
+                    {
+                        label: '纵向',
+                        value: 'vertical',
+                    },
+                    {
+                        label: '混合',
+                        value: 'mix',
+                    },
+                ],
+                statusList: [
+                    {
+                        label: '编辑中',
+                        value: 'editing',
+                    },
+                    {
+                        label: '运行中',
+                        value: 'running',
+                    },
+                    {
+                        label: '运行成功',
+                        value: 'success',
+                    },
+                    {
+                        label: '中断',
+                        value: 'interrupted',
+                    },
+                ],
+                creatorList: [],
             };
         },
         computed: {
@@ -449,12 +528,26 @@
             this.getFlowList();
             this.getTemplateList();
             this.getConfigInfo();
+            this.loadMemberList();
         },
         beforeUnmount() {
             clearTimeout(this.timer);
             clearTimeout(this.flowTimer);
         },
         methods: {
+            async loadMemberList(keyward) {
+                const { code, data } = await this.$http.post({
+                    url:  '/account/query',
+                    data: {
+                        page_size: 200,
+                        name:      keyward,
+                    },
+                });
+
+                if (code === 0) {
+                    this.creatorList = data.list;
+                }
+            },
             afterTableRender() {
                 clearTimeout(this.timer);
 
@@ -479,6 +572,7 @@
                         project_id:             this.project_id,
                         page_index:             this.pagination.page_index - 1,
                         page_size:              this.pagination.page_size,
+                        ...this.flowListForm,
                     },
                 });
 
@@ -494,6 +588,8 @@
                         this.flowTimer = setTimeout(() => {
                             this.getFlowList({ requestFromRefresh: true });
                         }, 5000);
+                    } else {
+                        this.list = [];
                     }
                     clearTimeout(this.flowTimer);
                     this.flowTimer = setTimeout(() => {
@@ -579,23 +675,36 @@
                         flow_id:          data.flow_id,
                         training_type:    deeplearning ? opt.federated_learning_type : '',
                         project_id:       this.project_id,
-                        is_project_admin: this.form.is_project_admin,
+                        is_project_admin: this.form.is_project_admin || 'true',
                     };
 
-                    this.linkTo(deeplearning ? 'teamwork/detail/deep-learning/flow' : 'teamwork/detail/flow', query);
+                    this.linkTo(deeplearning ? 'project-deeplearning-flow' : 'project-flow', query);
                 }
             },
 
             linkTo(path, query) {
-                let href = `${prefixPath}${path}?`;
+                if (path === 'teamwork/detail/job/history'){
+                    // if (window.__POWERED_BY_QIANKUN__) {
+                    this.$router.replace({
+                        name: 'project-job-history',
+                        query,
+                    });
+                    // } else {
+                    //     let href = `${prefixPath}${path}?`;
 
-                for(const key in query) {
-                    const val = query[key];
+                    //     for(const key in query) {
+                    //         const val = query[key];
 
-                    href += `${key}=${val}&`;
+                    //         href += `${key}=${val}&`;
+                    //     }
+                    //     window.location.href = href;
+                    // }
+                } else {
+                    this.$router.replace({
+                        name: path,
+                        query,
+                    });
                 }
-
-                window.location.href = href;
             },
 
             changeProject(value) {
@@ -732,11 +841,11 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-alert__description{
+    .board-alert__description{
         color: $--color-danger;
     }
     h3{margin: 10px;}
-    .el-dropdown{top: -1px;}
+    .board-dropdown{top: -1px;}
     .model-list{
         display: flex;
         justify-content: center;
@@ -754,7 +863,7 @@
     }
     .empty-flow{
         .model-img{background: #F5F7FA;}
-        .el-icon-plus{
+        .board-icon-plus{
             font-size: 50px;
             color:#DCDFE6;
         }
@@ -768,8 +877,8 @@
         border:1px solid #ebebeb;
     }
     .link{text-decoration: none;}
-    .el-switch{
-        :deep(.el-switch__label){
+    .board-switch{
+        :deep(.board-switch__label){
             color: #999;
             &.is-active{color: $--color-primary;}
         }

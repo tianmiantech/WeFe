@@ -7,18 +7,18 @@
         style="background: white;"
     >
         <template #header>
-            <div class="clearfix mb10 flex-row">
+            <div class="mb10 flex-row">
                 
                 <h3 class="card-title f19">
-                    <el-icon :class="['el-icon-office-building', 'mr10', 'ml10']" style="font-size: xx-large; top:9px; right: -3px; color: dodgerblue"><elicon-office-building />
+                    <el-icon :class="['board-icon-office-building', 'mr10', 'ml10']" style="font-size: xx-large; top:9px; right: -3px; color: dodgerblue"><elicon-office-building />
                     </el-icon>
                     参与成员
                 </h3>
                 <div v-if="form.is_project_admin" class="right-sort-area">
-                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp" title="向上" style="color: lightgray"><elicon-top /></el-icon>
-                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-bottom', 'mr10', 'ml10']" @click="moveDown" title="向下" style="color: lightgray"><elicon-bottom /></el-icon>
-                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-caret-top', {'mr10': maxIndex === sortIndex}]" @click="toTop" title="置顶" style="color: lightgray"><elicon-caret-top /></el-icon>
-                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-caret-bottom', 'mr10', 'ml10']" @click="toBottom" title="置底" style="color: lightgray"><elicon-caret-bottom /></el-icon>
+                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['board-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp" title="向上" style="color: lightgray"><elicon-top /></el-icon>
+                    <el-icon v-if="maxIndex !== sortIndex" :class="['board-icon-bottom', 'mr10', 'ml10']" @click="moveDown" title="向下" style="color: lightgray"><elicon-bottom /></el-icon>
+                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['board-icon-caret-top', {'mr10': maxIndex === sortIndex}]" @click="toTop" title="置顶" style="color: lightgray"><elicon-caret-top /></el-icon>
+                    <el-icon v-if="maxIndex !== sortIndex" :class="['board-icon-caret-bottom', 'mr10', 'ml10']" @click="toBottom" title="置底" style="color: lightgray"><elicon-caret-bottom /></el-icon>
                     
                 </div>
             </div>
@@ -624,7 +624,7 @@
     position: absolute;
     right: 0px;
     top: 0px;
-    .el-icon-setting{
+    .board-icon-setting{
         cursor: pointer;
         color:#5088fc;
     }
@@ -633,8 +633,8 @@
 </style>
 
 <style lang="scss" scoped>
-    .el-tabs{
-        :deep(.el-tab-pane){position: relative;}
+    .board-tabs{
+        :deep(.board-tab-pane){position: relative;}
     }
     .service-offline{
         color: $--color-danger;

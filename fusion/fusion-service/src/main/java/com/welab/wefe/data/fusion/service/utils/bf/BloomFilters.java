@@ -16,14 +16,21 @@
 
 package com.welab.wefe.data.fusion.service.utils.bf;
 
-import com.google.common.base.Preconditions;
-
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.BitSet;
 import java.util.Collection;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Bloom filter implementation class
@@ -33,15 +40,15 @@ import java.util.Collection;
  * @author hunter.zhao
  */
 public class BloomFilters<E> implements Serializable {
-
+    protected static final Logger LOG = LoggerFactory.getLogger(BloomFilters.class);
     private static final long serialVersionUID = -2326638072608273135L;
-    private BitSet bitset;
-    private int bitSetSize;
+    private BitArray bitset;
+    private long bitSetSize;
     private double bitsPerElement;
     //Maximum number of elements that can be added
-    private int expectedNumberOfFilterElements;
+    private long expectedNumberOfFilterElements;
     //The actual number of elements in the filter container
-    private int numberOfAddedElements;
+    private long numberOfAddedElements;
     // The number of hash functions
     private int k;
 
@@ -71,13 +78,22 @@ public class BloomFilters<E> implements Serializable {
      * @param n Represents the maximum number of elements that a filter can add
      * @param k Represents the number of hash functions to be used
      */
-    public BloomFilters(double c, int n, int k) {
+    public BloomFilters(double c, long n, int k) {
         this.expectedNumberOfFilterElements = n;
         this.k = k;
         this.bitsPerElement = c;
-        this.bitSetSize = (int) Math.ceil(c * n);
+        this.bitSetSize = (long) Math.ceil(c * n);
         numberOfAddedElements = 0;
-        this.bitset = new BitSet(bitSetSize);
+        this.bitset = new BitArray(bitSetSize);
+    }
+    
+    public BloomFilters(long bitSetSize, double c, long n, int k) {
+        this.expectedNumberOfFilterElements = n;
+        this.k = k;
+        this.bitsPerElement = c;
+        this.bitSetSize = bitSetSize;
+        numberOfAddedElements = 0;
+        this.bitset = new BitArray(bitSetSize);
     }
 
     /**
@@ -86,21 +102,22 @@ public class BloomFilters<E> implements Serializable {
      * @param bitSetSize              Specifies the total size of the filter
      * @param expectedNumberOElements Specifies the maximum number of elements that a filter can add
      */
-    public BloomFilters(int bitSetSize, int expectedNumberOElements) {
-        this(bitSetSize / (double) expectedNumberOElements, expectedNumberOElements, (int) Math.round((bitSetSize / (double) expectedNumberOElements) * Math.log(2.0)));
+    public BloomFilters(long bitSetSize, long expectedNumberOElements) {
+        this(bitSetSize, bitSetSize / (double) expectedNumberOElements, expectedNumberOElements,
+                (int) Math.round((bitSetSize / (double) expectedNumberOElements) * Math.log(2.0)));
     }
 
     /**
-     * Construct a filter by specifying a false positive rate.
-     * The number of bits per element and the number of hash functions are calculated based on the false positive rate.
+     * Construct a filter by specifying a false positive rate. The number of bits
+     * per element and the number of hash functions are calculated based on the
+     * false positive rate.
      *
      * @param falsePositiveProbability Expected false positives rate.
      * @param expectedNumberOfElements The number of elements to add
      */
-    public BloomFilters(double falsePositiveProbability, int expectedNumberOfElements) {
+    public BloomFilters(double falsePositiveProbability, long expectedNumberOfElements) {
         // c = k/ln(2)
-        this(Math.ceil(-(Math.log(falsePositiveProbability) / Math.log(2))) / Math.log(2),
-                expectedNumberOfElements,
+        this(Math.ceil(-(Math.log(falsePositiveProbability) / Math.log(2))) / Math.log(2), expectedNumberOfElements,
                 // k = ln(2)m/n
                 (int) Math.ceil(-(Math.log(falsePositiveProbability) / Math.log(2))));
     }
@@ -115,8 +132,8 @@ public class BloomFilters<E> implements Serializable {
      *                                       <code>filterData</code> BitSet.
      * @param filterData                     The BitSet object in the original filter
      */
-    public BloomFilters(int bitSetSize, int expectedNumberOfFilterElements,
-                        int actualNumberOfFilterElements, BitSet filterData) {
+    public BloomFilters(long bitSetSize, long expectedNumberOfFilterElements,
+            long actualNumberOfFilterElements, BitArray filterData) {
         this(bitSetSize, expectedNumberOfFilterElements);
         this.bitset = filterData;
         this.numberOfAddedElements = actualNumberOfFilterElements;
@@ -199,8 +216,8 @@ public class BloomFilters<E> implements Serializable {
     public int hashCode() {
         int hash = 7;
         hash = 61 * hash + (this.bitset != null ? this.bitset.hashCode() : 0);
-        hash = 61 * hash + this.expectedNumberOfFilterElements;
-        hash = 61 * hash + this.bitSetSize;
+        hash = (int)(61 * hash + this.expectedNumberOfFilterElements);
+        hash = (int)(61 * hash + this.bitSetSize);
         hash = 61 * hash + this.k;
         return hash;
     }
@@ -247,14 +264,6 @@ public class BloomFilters<E> implements Serializable {
     }
 
     /**
-     * Emptying filter elements
-     */
-    public void clear() {
-        bitset.clear();
-        numberOfAddedElements = 0;
-    }
-
-    /**
      * Add elements to the filter.
      * The toString() method of the added element will be called, returning the string as the output of the hash function.
      *
@@ -265,8 +274,8 @@ public class BloomFilters<E> implements Serializable {
         String valString = element.toString();
         for (int x = 0; x < k; x++) {
             hash = createHash(valString + Integer.toString(x));
-            hash = hash % (long) bitSetSize;
-            bitset.set(Math.abs((int) hash), true);
+            hash = hash % bitSetSize;
+            bitset.set(Math.abs(hash));
         }
         numberOfAddedElements++;
     }
@@ -293,8 +302,8 @@ public class BloomFilters<E> implements Serializable {
         String valString = element.toString();
         for (int x = 0; x < k; x++) {
             hash = createHash(valString + Integer.toString(x));
-            hash = hash % (long) bitSetSize;
-            if (!bitset.get(Math.abs((int) hash))) {
+            hash = hash % bitSetSize;
+            if (!bitset.get(Math.abs(hash))) {
                 return false;
             }
         }
@@ -318,31 +327,11 @@ public class BloomFilters<E> implements Serializable {
     }
 
     /**
-     * I'm going to get some value
-     *
-     * @param bit The location of the bit.
-     * @return Returns true if the bit is set.
-     */
-    public boolean getBit(int bit) {
-        return bitset.get(bit);
-    }
-
-    /**
-     * Sets the value of a bit of the filter
-     *
-     * @param bit   The location to set.
-     * @param value True indicates that the configuration is successful. False indicates that the change is cleared.
-     */
-    public void setBit(int bit, boolean value) {
-        bitset.set(bit, value);
-    }
-
-    /**
      * Returns an array of bits that hold information.
      *
      * @return An array of.
      */
-    public BitSet getBitSet() {
+    public BitArray getBitSet() {
         return bitset;
     }
 
@@ -351,7 +340,7 @@ public class BloomFilters<E> implements Serializable {
      *
      * @return The array size.
      */
-    public int size() {
+    public long size() {
         return this.bitSetSize;
     }
 
@@ -360,7 +349,7 @@ public class BloomFilters<E> implements Serializable {
      *
      * @return Number of elements.
      */
-    public int count() {
+    public long count() {
         return this.numberOfAddedElements;
     }
 
@@ -369,7 +358,7 @@ public class BloomFilters<E> implements Serializable {
      *
      * @return The largest number.
      */
-    public int getExpectedNumberOfElements() {
+    public long getExpectedNumberOfElements() {
         return expectedNumberOfFilterElements;
     }
 
@@ -393,28 +382,36 @@ public class BloomFilters<E> implements Serializable {
 
 
     public void writeTo(OutputStream out) throws IOException {
+        LOG.info("writeTo in file begin");
         DataOutputStream dout = new DataOutputStream(out);
-        dout.writeInt(bitSetSize);
-        dout.writeInt(expectedNumberOfFilterElements);
-        dout.writeInt(getBitSet().toByteArray().length);
-        dout.write(getBitSet().toByteArray());
+        dout.writeLong(bitSetSize); // 位数
+        dout.writeLong(expectedNumberOfFilterElements); // 元素个数
+        dout.writeInt(getBitSet().size()); // 底层数组大小
+        for(long a : getBitSet().getData()) {
+            dout.writeLong(a);
+        }
+        dout.flush();
+        LOG.info("writeTo in file end");
     }
 
     public static BloomFilters readFrom(InputStream in) throws IOException {
+        LOG.info("read From file begin");
         Preconditions.checkNotNull(in, "InputStream");
-
         try {
             DataInputStream din = new DataInputStream(in);
-            int bitSetSize = din.readInt();
-            int expectedNumberOfFilterElements = din.readInt();
-            int dataLength = din.readInt();
-            byte[] data = new byte[dataLength];
-
+            long bitSetSize = din.readLong(); // 位数
+            long expectedNumberOfFilterElements = din.readLong();// 元素个数
+            LOG.info("read From file, expectedNumberOfFilterElements = " + expectedNumberOfFilterElements);
+            int dataLength = din.readInt();// 底层数组大小
+            LOG.info("read From file, dataLength = " + dataLength);
+            long[] data = new long[dataLength];
             for (int i = 0; i < data.length; ++i) {
-                data[i] = din.readByte();
+                data[i] = din.readLong();
             }
-
-            return new BloomFilters(bitSetSize, expectedNumberOfFilterElements, expectedNumberOfFilterElements, BitSet.valueOf(data));
+//            din.read(data);
+//            din.readFully(data);
+            LOG.info("read From file, bitSetSize = " + bitSetSize);
+            return new BloomFilters(bitSetSize, expectedNumberOfFilterElements, expectedNumberOfFilterElements, BitArray.valueOf(data));
         } catch (RuntimeException var9) {
             String message = "Unable to deserialize BloomFilter from InputStream.";
             throw new IOException(message, var9);

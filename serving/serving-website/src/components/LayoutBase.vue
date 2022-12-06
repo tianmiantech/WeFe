@@ -1,12 +1,18 @@
 <template>
-    <el-container :class="{ 'side-collapsed': isCollapsed }">
+    <el-container
+        :class="{ 'side-collapsed': isCollapsed }"
+        :style="{height: isQiankun ? 'calc(100vh - var(--tm-header-height))' : '100%'}"
+    >
         <!-- 侧边栏开始 -->
         <layout-side :is-collapsed="isCollapsed" />
         <!-- 侧边栏结束 -->
 
-        <el-container style="margin-left: 200px">
+        <el-container>
             <!-- 头部开始 -->
-            <el-header ref="layout-header">
+            <el-header
+                ref="layout-header"
+                height="80px"
+            >
                 <layout-header />
             </el-header>
             <!-- 头部结束 -->
@@ -22,27 +28,23 @@
                         <router-view v-if="isRouterAlive" />
                     </transition>
                 </div>
-                <TitleNavigator />
             </el-main>
             <!-- 主体结束 -->
         </el-container>
-        <LoginDialog />
     </el-container>
 </template>
 
 <script>
 import LayoutSide from '../components/LayoutSide/LayoutSide.vue';
 import LayoutHeader from '../components/LayoutHeader.vue';
-import LoginDialog from '../components/LoginDialog.vue';
-import TitleNavigator from '../components/Common/TitleNavigator.vue';
+import { getSystemLicense } from '@src/service/permission';
+import { isQianKun } from '@src/http/utils';
 
 export default {
     name:       'App',
     components: {
         LayoutSide,
         LayoutHeader,
-        LoginDialog,
-        TitleNavigator,
     },
     provide() {
         return {
@@ -54,9 +56,16 @@ export default {
             isRouterAlive: true,
             isCollapsed:   false,
             loading:       true,
+            isQiankun:     isQianKun(),
         };
     },
     created() {
+        this.init();
+
+        if (this.isQiankun) {
+            this.getAppInfo();
+        }
+
         this.$nextTick(() => {
             this.loading = false;
         });
@@ -69,25 +78,38 @@ export default {
             window.localStorage.setItem('AsideCollapsed', asideCollapsed);
         });
     },
-    /* mounted() {
-            const { $el } = this.$refs['layout-header'];
-
-            window.addEventListener('scroll', () => {
-                const { scrollTop } = document.documentElement;
-
-                if(scrollTop >= 120) {
-                    $el.style.top = '-120px';
-                } else {
-                    $el.style.top = 0;
-                }
-            });
-        }, */
     methods: {
         refresh() {
             this.isRouterAlive = false;
             this.$nextTick(() => {
                 this.isRouterAlive = true;
             });
+        },
+        async init() {
+            const { code, data } = await this.$http.get({
+                url: '/account/sso_login',
+            });
+
+            if (code === 10000) {
+                this.$store.commit('SYSTEM_INITED', false);
+                this.$store.commit('UPDATE_USERINFO', data);
+
+                this.$router.replace({
+                    name: 'init',
+                });
+            } else if (code === 0) {
+                data.admin_role = true;
+                data.super_admin_role = true;
+                this.$store.commit('UPDATE_USERINFO', data);
+                this.$store.commit('SYSTEM_INITED', true);
+            }
+        },
+        async getAppInfo() {
+            const data = await getSystemLicense();
+
+            if (data) {
+                this.$store.commit('APP_INFO', data);
+            }
         },
     },
 };
@@ -96,11 +118,12 @@ export default {
 <style lang="scss">
 .el-header {
     color: #000;
-    position: fixed;
-    top: 0;
-    right: 0;
-    left: 200px;
-    z-index: 200;
+    // position: fixed;
+    // top: 0;
+    // right: 0;
+    // left: 200px;
+    // z-index: 200;
+    padding: 0;
     background: $header-background;
     border-bottom: 1px solid $border-color-base;
 }
@@ -109,10 +132,9 @@ export default {
 //     padding: 84px 20px 20px;
 // }
 .layout-main {
-    padding: 84px 20px 20px;
     position: relative;
-    min-height: 100vh;
-    height: 0;
+    height: calc(100vh - 120px);
+    overflow: auto;
 }
 .id {
     color: #999;

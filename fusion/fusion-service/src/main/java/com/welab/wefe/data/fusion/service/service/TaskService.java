@@ -45,6 +45,7 @@ import com.welab.wefe.data.fusion.service.task.PsiServerTask;
 import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
 import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -55,6 +56,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.welab.wefe.common.StatusCode.DATA_NOT_FOUND;
@@ -66,6 +72,13 @@ import static com.welab.wefe.common.StatusCode.PARAMETER_VALUE_INVALID;
 @Service
 public class TaskService extends AbstractService {
 
+    ExecutorService threadPool = new ThreadPoolExecutor(
+            Runtime.getRuntime().availableProcessors(),
+            Runtime.getRuntime().availableProcessors() * 2,
+            100L,
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>());
+    
     @Autowired
     TaskRepository taskRepository;
 
@@ -284,7 +297,7 @@ public class TaskService extends AbstractService {
      */
     private void psiServer(HandleApi.Input input, TaskMySqlModel task, PartnerMySqlModel partner) throws StatusCodeWithException {
         LOG.info("fusion task log , psiServer begin");
-        task.setStatus(TaskStatus.Running);
+        task.setStatus(TaskStatus.Ready);
         task.setDataResourceId(input.getDataResourceId());
         task.setDataResourceType(input.getDataResourceType());
         task.setRowCount(input.getRowCount());
@@ -302,38 +315,46 @@ public class TaskService extends AbstractService {
         if (bf == null) {
             throw new StatusCodeWithException("未查找到布隆过滤器", StatusCode.PARAMETER_VALUE_INVALID);
         }
+        if (StringUtils.isBlank(ActuatorManager.ip())) {
+            throw new StatusCodeWithException("socket.servier.ip 配置未找到", StatusCode.SYSTEM_ERROR);
+        }
         LOG.info("fusion task log , psiServer bf = " + JSONObject.toJSONString(bf));
         /**
          * Generate the corresponding task handler
          */
-        AbstractTask server = new PsiServerTask(
-                task.getBusinessId(),
-                bf.getSrc(),
-                new PsiServerActuator(task.getBusinessId(),
-                        task.getDataCount(),
-                        "localhost",
-                        CacheObjects.getOpenSocketPort(),
-                        new BigInteger(bf.getN()),
-                        new BigInteger(bf.getE()),
-                        new BigInteger(bf.getD())
-                )
-        );
-
-        ActuatorManager.set(server);
-        LOG.info("fusion task log , server run");
-        server.run();
-
-        //The callback
-        JSONObject response = thirdPartyService.callback(
-                partner.getBaseUrl(),
-                task.getBusinessId(),
-                CallbackType.running,
-                ActuatorManager.ip(),
-                CacheObjects.getOpenSocketPort()
-        );
-        LOG.info("fusion task log , call " + partner.getBaseUrl() + ", response = " + JSONObject.toJSONString(response));
+        threadPool.execute(() -> {
+            final CountDownLatch latch = new CountDownLatch(1);
+            AbstractTask server = new PsiServerTask(task.getBusinessId(), bf.getSrc(),
+                    new PsiServerActuator(task.getBusinessId(), task.getDataCount(), "localhost",
+                            CacheObjects.getOpenSocketPort(), new BigInteger(bf.getN()), new BigInteger(bf.getE()),
+                            new BigInteger(bf.getD())),
+                    latch);
+            ActuatorManager.set(server);
+            LOG.info("fusion task log , server run");
+            server.run();
+            try {
+                latch.await();// 等待服务端bloomfilter等相关数据加载好
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            // 通知客户端，服务端已经准备好了，客户端可以跑了
+            try {
+                task.setStatus(TaskStatus.Running);
+                task.setDataResourceId(input.getDataResourceId());
+                task.setDataResourceType(input.getDataResourceType());
+                task.setRowCount(input.getRowCount());
+                task.setUpdatedTime(new Date());
+                taskRepository.save(task);
+                
+                JSONObject response = thirdPartyService.callback(partner.getBaseUrl(), task.getBusinessId(),
+                        CallbackType.running, ActuatorManager.ip(), CacheObjects.getOpenSocketPort());
+                LOG.info("fusion task log , call " + partner.getBaseUrl() + ", response = "
+                        + JSONObject.toJSONString(response));
+            } catch (StatusCodeWithException e) {
+                e.printStackTrace();
+            }
+        });
     }
-
 
     /**
      * Receive alignment request

@@ -16,28 +16,10 @@
 
 package com.welab.wefe.board.service.service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.data_resource.table_data_set.DetailApi;
 import com.welab.wefe.board.service.api.project.job.task.GetFeatureApi;
-import com.welab.wefe.board.service.api.project.job.task.SelectFeatureApi;
-import com.welab.wefe.board.service.api.project.job.task.SelectFeatureApi.Input.MemberModel;
 import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.NodeOutputItem;
@@ -45,7 +27,6 @@ import com.welab.wefe.board.service.component.feature.FeatureSelectionComponent;
 import com.welab.wefe.board.service.component.feature.HorzOneHotComponent;
 import com.welab.wefe.board.service.component.feature.HorzOneHotComponent.Params.MemberInfoModel;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
-import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.database.repository.TaskRepository;
@@ -61,12 +42,19 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.wefe.enums.ComponentType;
-import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.TaskResultType;
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author zane.luo
@@ -152,224 +140,6 @@ public class TaskResultService extends AbstractService {
         return taskResultRepository.findOne(where).orElse(null);
     }
 
-    /**
-     * filter the features
-     * (1).cv/iv
-     * (2). Missing rate
-     * (3). Manually select to
-     */
-    public JObject selectFeature(SelectFeatureApi.Input input) throws StatusCodeWithException {
-
-        FlowGraph flowGraph = jobService.createFlowGraph(input.getFlowId());
-        FlowGraphNode node = flowGraph.getNode(input.getFlowNodeId());
-
-        if (input.getSelectType() == SelectFeatureApi.SelectType.cv_iv) {
-            return selectByCvIv(flowGraph, node, input);
-        } else if (input.getSelectType() == SelectFeatureApi.SelectType.miss_rate) {
-            return selectByMissRate(flowGraph, node, input);
-        } else {
-
-            List<MemberModel> members = input.getMembers();
-
-            return JObject.create().append("members", members)
-                    .append("featureNum", members.size());
-        }
-
-    }
-
-    /**
-     * filter the features by cv/iv
-     */
-    private JObject selectByCvIv(FlowGraph flowGraph, FlowGraphNode node, SelectFeatureApi.Input input) throws FlowNodeException {
-
-        JObject result = JObject.create();
-        List<MemberModel> selectMembers = new ArrayList<>();
-        // mix flow
-        if (flowGraph.getFederatedLearningType() == FederatedLearningType.mix) {
-            FlowGraphNode featureStatisticNode = flowGraph.findOneNodeFromParent(node, ComponentType.MixStatistic);
-            if (featureStatisticNode == null) {
-                throw new FlowNodeException(node, "请添加特征统计组件。");
-            }
-
-            FlowGraphNode featureBinningNode = flowGraph.findOneNodeFromParent(node, ComponentType.MixBinning);
-            if (featureBinningNode == null) {
-                throw new FlowNodeException(node, "请添加特征分箱组件。");
-            }
-
-            // Find the task corresponding to the FeatureStatistic node
-            ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
-            TaskMySqlModel featureStatisticTask = taskRepository.findOne(input.getJobId(), featureStatisticNode.getNodeId(), project.getMyRole().name());
-            if (featureStatisticTask == null) {
-                throw new FlowNodeException(node, "找不到对应的特征统计任务。");
-            }
-
-            // Find the task result of FeatureStatistic
-            TaskResultMySqlModel featureStatisticTaskResult = findByTaskIdAndType(featureStatisticTask.getTaskId(), TaskResultType.data_feature_statistic.name());
-
-            if (featureStatisticTaskResult == null) {
-                return JObject.create();
-            }
-
-            JObject statisticResult = JObject.create(featureStatisticTaskResult.getResult());
-
-            TaskMySqlModel featureBinningTask = taskRepository.findOne(input.getJobId(), featureBinningNode.getNodeId(), project.getMyRole().name());
-            if (featureBinningTask == null) {
-                throw new FlowNodeException(node, "找不到对应的特征分箱任务。");
-            }
-            // Find the task result of FeatureBinning
-            TaskResultMySqlModel featureBinningTaskResult = findByTaskIdAndType(featureBinningTask.getTaskId(), TaskResultType.model_binning.name());
-
-            if (featureBinningTaskResult == null) {
-                return JObject.create();
-            }
-
-            List<JObject> featureBinningResults = parseBinningResult(featureBinningTaskResult);
-            List<JObject> statisticResultMembers = statisticResult.getJSONList("members");
-            for (JObject memberObj : statisticResultMembers) {
-                Map<String, Double> cvMap = new HashMap<>();
-                Map<String, Double> ivMap = new HashMap<>();
-
-                String memberId = memberObj.getString("member_id");
-                String role = memberObj.getString("role");
-
-                JObject featureBinningResult = featureBinningResults.stream()
-                        .filter(s -> role.equalsIgnoreCase(s.getString("role"))
-                                && memberId.equalsIgnoreCase(s.getString("memberId")))
-                        .findFirst().orElse(null);
-                if (featureBinningResult != null) {
-                    featureBinningResult = featureBinningResult.getJObject("binningResult");
-                }
-                JObject feature_statistic = memberObj.getJObject("feature_statistic");
-                Set<String> featuresKey = feature_statistic.keySet();
-                for (String feature : featuresKey) {
-                    JObject statisticData = feature_statistic.getJObject(feature);
-                    double cv = statisticData.getDouble("cv");
-                    BigDecimal bg = new BigDecimal(cv);
-                    cvMap.put(feature, bg.setScale(4, RoundingMode.HALF_UP).doubleValue());
-                }
-                if (featureBinningResult != null) {
-                    featuresKey = featureBinningResult.keySet();
-                    for (String feature : featuresKey) {
-                        JObject binningData = featureBinningResult.getJObject(feature);
-                        double iv = binningData.getDouble("iv");
-                        BigDecimal bgiv = new BigDecimal(iv);
-                        ivMap.put(feature, bgiv.setScale(4, RoundingMode.HALF_UP).doubleValue());
-                    }
-                }
-
-                // Get the feature column of the current member
-                List<MemberModel> currentMembers = input.getMembers().stream().filter(
-                                x -> x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.valueOf(role))
-                        .collect(Collectors.toList());
-                if (JobMemberRole.promoter.name().equalsIgnoreCase(role)) {
-                    currentMembers = input.getMembers().stream()
-                            .filter(x -> x.getMemberRole() == JobMemberRole.promoter).collect(Collectors.toList());
-                }
-
-                for (MemberModel model : currentMembers) {
-                    if (cvMap.get(model.getName()) != null) {
-                        model.setCv(cvMap.get(model.getName()));
-                    }
-                    if (ivMap.get(model.getName()) != null) {
-                        model.setIv(ivMap.get(model.getName()));
-                    }
-                }
-
-                // Perform cv filtering
-                for (MemberModel model : currentMembers) {
-                    if (model.getIv() >= input.getIv() && model.getCv() >= input.getCv()) {
-                        selectMembers.add(model);
-                    }
-                }
-            }
-
-        } else {
-            // Find the FeatureCalculation node in the parent node
-            FlowGraphNode featureCalculationNode = flowGraph.findOneNodeFromParent(node, ComponentType.FeatureCalculation);
-
-            if (featureCalculationNode == null) {
-                throw new FlowNodeException(node, "请添加特征计算组件。");
-            }
-
-            // Find the task corresponding to the FeatureCalculation node
-            ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
-            TaskMySqlModel featureCalculationTask = taskRepository.findOne(input.getJobId(), featureCalculationNode.getNodeId(), project.getMyRole().name());
-            if (featureCalculationTask == null) {
-                throw new FlowNodeException(node, "找不到对应的特征计算任务。");
-            }
-
-            // Find the task result of FeatureCalculation
-            TaskResultMySqlModel featureCalculationTaskResult = findByTaskIdAndType(featureCalculationTask.getTaskId(), TaskResultType.model_result.name());
-            if (featureCalculationTaskResult == null) {
-                return JObject.create();
-            }
-
-            result = JObject.create(featureCalculationTaskResult.getResult());
-            List<JObject> calculateResults = result.getJSONList("model_param.calculateResults");
-
-            for (JObject obj : calculateResults) {
-                String role = obj.getString("role");
-                String memberId = obj.getString("memberId");
-
-                List<JObject> results = obj.getJSONList("results");
-
-                JSONArray ivValue = new JSONArray();
-                JSONArray ivCols = new JSONArray();
-                JSONArray cvValue = new JSONArray();
-                JSONArray cvCols = new JSONArray();
-                Map<String, Double> cvMap = new HashMap<>();
-                Map<String, Double> ivMap = new HashMap<>();
-
-                // Store the cv/iv value in the map in the form of key: "x1" value: 0.123
-                for (JObject resultObj : results) {
-
-                    if ("iv_value_thres".equals(resultObj.getString("filterName"))) {
-                        ivValue = resultObj.getJSONArray("values");
-                        ivCols = resultObj.getJSONArray("cols");
-                    }
-                    if ("coefficient_of_variation_value_thres".equals(resultObj.getString("filterName"))) {
-                        cvValue = resultObj.getJSONArray("values");
-                        cvCols = resultObj.getJSONArray("cols");
-                    }
-
-                    for (int i = 0; i < ivCols.size(); i++) {
-                        ivMap.put(ivCols.getString(i), ivValue.getDoubleValue(i));
-                    }
-
-                    for (int i = 0; i < cvCols.size(); i++) {
-                        cvMap.put(cvCols.getString(i), cvValue.getDoubleValue(i));
-                    }
-                }
-
-                // Get the feature column of the current member
-                List<MemberModel> currentMembers = input.getMembers().stream().filter(x -> x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.valueOf(role))
-                        .collect(Collectors.toList());
-
-                // Assign cv/iv values to features
-                for (MemberModel model : currentMembers) {
-                    if (cvMap.get(model.getName()) != null) {
-                        model.setCv(cvMap.get(model.getName()));
-                    }
-                    if (ivMap.get(model.getName()) != null) {
-                        model.setIv(ivMap.get(model.getName()));
-                    }
-                }
-
-                // Filter
-                for (MemberModel model : currentMembers) {
-                    if (model.getIv() >= input.getIv() && model.getCv() >= input.getCv()) {
-                        selectMembers.add(model);
-                    }
-                }
-            }
-
-        }
-
-        return JObject
-                .create()
-                .append("members", selectMembers)
-                .append("featureNum", selectMembers.size());
-    }
 
     private List<JObject> parseBinningResult(TaskResultMySqlModel featureBinningTaskResult) {
         JObject binningResult = JObject.create(featureBinningTaskResult.getResult());
@@ -379,95 +149,6 @@ public class TaskResultService extends AbstractService {
         binningResults.add(promoterBinningResult);
         binningResults.addAll(providerBinningResults);
         return binningResults;
-    }
-
-    /**
-     * filter the features by missing rate
-     */
-    private JObject selectByMissRate(FlowGraph flowGraph, FlowGraphNode node, SelectFeatureApi.Input input) throws FlowNodeException {
-        // Find the FeatureStatistic node in the parent node
-        FlowGraphNode featureStatisticNode = flowGraph.findOneNodeFromParent(node,
-                x -> x.getComponentType() == ComponentType.FeatureStatistic
-                        || x.getComponentType() == ComponentType.MixStatistic
-                        || x.getComponentType() == ComponentType.HorzStatistic);
-
-        if (featureStatisticNode == null) {
-            throw new FlowNodeException(node, "请添加特征统计组件。");
-        }
-
-        // Find the task corresponding to the FeatureStatistic node
-        ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
-        TaskMySqlModel featureStatisticTask = taskRepository.findOne(input.getJobId(), featureStatisticNode.getNodeId(), project.getMyRole().name());
-        if (featureStatisticTask == null) {
-            throw new FlowNodeException(node, "找不到特征统计节点对应的任务。");
-        }
-
-        // Find the task result of FeatureStatistic
-        TaskResultMySqlModel featureStatisticTaskResult = findByTaskIdAndType(featureStatisticTask.getTaskId(), TaskResultType.data_feature_statistic.name());
-
-        if (featureStatisticTaskResult == null) {
-            return JObject.create();
-        }
-
-        JObject result = JObject.create(featureStatisticTaskResult.getResult());
-
-        List<JObject> resultMembers = result.getJSONList("members");
-        List<MemberModel> selectMembers = new ArrayList<>();
-
-        for (JObject memberObj : resultMembers) {
-            Map<String, Double> missingValueMap = new HashMap<>();
-
-            String memberId = memberObj.getString("member_id");
-            String role = memberObj.getString("role");
-
-            JObject feature_statistic = memberObj.getJObject("feature_statistic");
-
-            Set<String> featuresKey = feature_statistic.keySet();
-
-            // Calculate the missing rate from the statistical data of the feature and store it in the map, key: "x1" value: 0.01
-            for (String feature : featuresKey) {
-                JObject statisticData = feature_statistic.getJObject(feature);
-
-                double not_null_count = statisticData.getDouble("not_null_count");
-                double missing_count = statisticData.getDouble("missing_count");
-                double missingValue = missing_count / (missing_count + not_null_count);
-                BigDecimal bg = new BigDecimal(missingValue);
-
-                missingValueMap.put(feature, bg.setScale(4, RoundingMode.HALF_UP).doubleValue());
-            }
-            List<MemberModel> currentMembers = new ArrayList<>();
-            if (featureStatisticNode.getComponentType() == ComponentType.HorzStatistic) {
-                // Get the feature column of the members
-                currentMembers = input.getMembers().stream().collect(Collectors.toList());
-            } else if (featureStatisticNode.getComponentType() == ComponentType.MixStatistic && JobMemberRole.promoter.name().equalsIgnoreCase(memberObj.getString("role"))) {
-                // Get the feature column of the current member
-                currentMembers = input.getMembers().stream().filter(x -> x.getMemberRole() == JobMemberRole.promoter)
-                        .collect(Collectors.toList());
-            } else {
-                // Get the feature column of the current member
-                currentMembers = input.getMembers().stream().filter(x -> x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.valueOf(role))
-                        .collect(Collectors.toList());
-            }
-
-            // Assign values to features with missing values
-            for (MemberModel model : currentMembers) {
-                if (missingValueMap.get(model.getName()) != null) {
-                    model.setMissRate(missingValueMap.get(model.getName()));
-                }
-            }
-
-            // Perform missingValue filtering
-            for (MemberModel model : currentMembers) {
-                if (model.getMissRate() >= input.getMissRate()) {
-                    selectMembers.add(model);
-                }
-            }
-        }
-
-        return JObject
-                .create()
-                .append("members", selectMembers)
-                .append("featureNum", selectMembers.size());
     }
 
     /**
@@ -483,72 +164,123 @@ public class TaskResultService extends AbstractService {
      * 3.做了分箱（不管横向还是纵向还是混合），那就有iv
      */
     public GetFeatureApi.Output getResultFeature(GetFeatureApi.Input input) throws StatusCodeWithException {
-        GetFeatureApi.Output out = new GetFeatureApi.Output();
-        FlowGraph graph = jobService.createFlowGraph(input.getFlowId());
 
+
+        FlowGraph graph = jobService.createFlowGraph(input.getFlowId());
         FlowGraphNode node = graph.getNode(input.getFlowNodeId());
 
-        // If the current node is a feature screening node,
-        // it is necessary to determine whether the previous component has feature calculation (the result has cv/iv)/feature statistics (the result has a missing rate)
-        if (node.getComponentType() == ComponentType.FeatureSelection) {
-            FlowGraphNode featureStatisticNode = graph.findOneNodeFromParent(node,
-                    x -> x.getComponentType() == ComponentType.MixStatistic
-                            || x.getComponentType() == ComponentType.FeatureStatistic
-                            || x.getComponentType() == ComponentType.HorzStatistic);
-            out.setHasFeatureStatistic(false);
-            out.setHasFeatureCalculation(false);
-            if (featureStatisticNode != null && StringUtil.isNotEmpty(input.getJobId())) {
-                ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
-                TaskMySqlModel featureStatisticTask = taskRepository.findOne(input.getJobId(), featureStatisticNode.getNodeId(), project.getMyRole().name());
-                if (featureStatisticTask != null) {
+        // 获取当前节点能够使用的特征列表
+        List<MemberFeatureInfoModel> members = getMemberFeatures(graph, node);
 
-                    TaskResultMySqlModel featureStatisticResult = findByTaskIdAndTypeAndRole(featureStatisticTask.getTaskId(), TaskResultType.data_feature_statistic.name(), project.getMyRole());
-                    if (featureStatisticResult != null) {
-                        out.setHasFeatureStatistic(true); // 缺失率 cv
-                        out.setHasLossRate(true);
-                        out.setHasCV(true);
-                    }
-                }
-            }
+        GetFeatureApi.Output out = new GetFeatureApi.Output();
+        out.setMembers(members);
 
-            FlowGraphNode featureCalculationNode = graph.findOneNodeFromParent(node, ComponentType.FeatureCalculation);
-            if (featureCalculationNode != null && StringUtil.isNotEmpty(input.getJobId())) {
-                ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
-                TaskMySqlModel featureCalculationTask = taskRepository.findOne(input.getJobId(), featureCalculationNode.getNodeId(), project.getMyRole().name());
-                if (featureCalculationTask != null) {
-                    TaskResultMySqlModel featureCalculationResult = findByTaskIdAndTypeAndRole(featureCalculationTask.getTaskId(), TaskResultType.model_result.name(), project.getMyRole());
-                    if (featureCalculationResult != null) {
-                        out.setHasFeatureCalculation(true); // cv_iv
-                        out.setHasCV(true);
-                        out.setHasIV(true);
-                    }
-                }
-            }
-
-            FlowGraphNode featureBinningNode = graph.findOneNodeFromParent(node,
-                    x -> x.getComponentType() == ComponentType.MixBinning
-                            || x.getComponentType() == ComponentType.Binning
-                            || x.getComponentType() == ComponentType.HorzFeatureBinning);
-            if (featureBinningNode != null && StringUtil.isNotEmpty(input.getJobId())) {
-                ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
-                TaskMySqlModel featureBinningTask = taskRepository.findOne(input.getJobId(),
-                        featureBinningNode.getNodeId(), project.getMyRole().name());
-                if (featureBinningTask != null) {
-                    TaskResultMySqlModel featureBinningResult = findByTaskIdAndTypeAndRole(
-                            featureBinningTask.getTaskId(), TaskResultType.model_binning.name(), project.getMyRole());
-                    if (featureBinningResult != null) {
-                        if (!out.isHasFeatureCalculation()) {
-                            out.setHasFeatureCalculation(out.isHasFeatureStatistic());
-                        }
-                        out.setHasIV(true);
-                    }
-                }
-            }
+        // 如果当前节点是特征选择组件，则需要告知是否可使用 cv、iv、缺失率 进行筛选，并填充各特征的cv、iv、缺失率。
+        if (node.getComponentType() == ComponentType.FeatureSelection && graph.getLastJob() != null) {
+            setCvIvMissingRate(out, graph, node);
         }
 
-        List<MemberFeatureInfoModel> members = getMemberFeatures(graph, node);
-        out.setMembers(members);
+
         return out;
+    }
+
+    /**
+     * 缺失率：从特征统计获取
+     * CV：从特征统计获取
+     * IV：从WOE编码（分箱）获取
+     */
+    private void setCvIvMissingRate(GetFeatureApi.Output out, FlowGraph graph, FlowGraphNode node) {
+
+        setInfoAboutStatistic(out, graph, node);
+
+        setInfoAboutBinning(out, graph, node);
+    }
+
+    private void setInfoAboutBinning(GetFeatureApi.Output out, FlowGraph graph, FlowGraphNode node) {
+        String jobId = graph.getLastJob().getJobId();
+
+        FlowGraphNode featureBinningNode = graph.findOneNodeFromParent(node, x -> x.getComponentType().isBinning());
+        if (featureBinningNode == null) {
+            return;
+        }
+        TaskResultMySqlModel taskResult = findByJobIdAndComponentTypeAndType(
+                jobId,
+                featureBinningNode.getComponentType(),
+                TaskResultType.model_binning,
+                graph.getLastJob().getMyRole()
+        );
+        if (taskResult == null) {
+            return;
+        }
+        out.setHasIV(true);
+
+        List<JObject> featureBinningResults = parseBinningResult(taskResult);
+
+        for (JObject memberObj : featureBinningResults) {
+
+            String memberId = memberObj.getString("memberId");
+            JobMemberRole role = JobMemberRole.valueOf(memberObj.getString("role"));
+
+            JObject binningResult = memberObj.getJObject("binningResult");
+
+            if (binningResult != null) {
+
+                for (String feature : binningResult.keySet()) {
+                    JObject binningData = binningResult.getJObject(feature);
+                    double iv = binningData.getDouble("iv");
+                    out.putIv(memberId, role, feature, iv);
+                }
+            }
+
+        }
+    }
+
+    private void setInfoAboutStatistic(GetFeatureApi.Output out, FlowGraph graph, FlowGraphNode node) {
+        String jobId = graph.getLastJob().getJobId();
+
+        FlowGraphNode featureStatisticNode = graph.findOneNodeFromParent(node, x -> x.getComponentType().isStatistic());
+        if (featureStatisticNode == null) {
+            return;
+        }
+        TaskResultMySqlModel taskResult = findByJobIdAndComponentTypeAndType(
+                jobId,
+                featureStatisticNode.getComponentType(),
+                TaskResultType.data_feature_statistic,
+                graph.getLastJob().getMyRole()
+        );
+        if (taskResult == null) {
+            return;
+        }
+        out.setHasFeatureStatistic(true);
+        out.setHasLossRate(true);
+        out.setHasCV(true);
+
+
+        JObject result = JObject.create(taskResult.getResult());
+
+        List<JObject> resultMembers = result.getJSONList("members");
+        for (JObject memberObj : resultMembers) {
+            String memberId = memberObj.getString("member_id");
+            JobMemberRole role = JobMemberRole.valueOf(memberObj.getString("role"));
+
+            JObject feature_statistic = memberObj.getJObject("feature_statistic");
+
+            // Calculate the missing rate from the statistical data of the feature and store it in the map, key: "x1" value: 0.01
+            // 遍历特征列表，计算缺失率。
+            for (String feature : feature_statistic.keySet()) {
+                JObject statisticData = feature_statistic.getJObject(feature);
+
+                double not_null_count = statisticData.getDouble("not_null_count");
+                double missing_count = statisticData.getDouble("missing_count");
+                double missingValue = missing_count / (missing_count + not_null_count);
+                out.putMissingRate(memberId, role, feature, missingValue);
+
+                double cv = statisticData.getDouble("cv");
+                out.putCv(memberId, role, feature, cv);
+            }
+
+        }
+
     }
 
     /**
@@ -858,7 +590,7 @@ public class TaskResultService extends AbstractService {
         root.put("status", "stopped");
 
         taskResult.setResult(root.toJSONString());
-        taskResult.setUpdatedBy(CurrentAccount.id());
+        taskResult.setUpdatedBy(CurrentAccountUtil.get().getId());
         taskResultRepository.save(taskResult);
     }
 

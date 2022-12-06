@@ -143,19 +143,20 @@ export default {
                 callback();
             }
         };
+
         return {
             loading: false,
             client:  {
-                id:     '',
-                name:   '',
-                email:  '',
-                remark: '',
-                code:   '',
-                isUnionMember:'',
-                isMe : '',
-                servingBaseUrl:'',
-                status: '',
-                codeCanUpdate:'',
+                id:             '',
+                name:           '',
+                email:          '',
+                remark:         '',
+                code:           '',
+                isUnionMember:  '',
+                isMe:           '',
+                servingBaseUrl: '',
+                status:         '',
+                codeCanUpdate:  '',
             },
             rules: {
                 name: [
@@ -193,16 +194,16 @@ export default {
                     const { code } = await this.$http.post({
                         url:  '/partner/update',
                         data: {
-                            id:        this.client.id,
-                            name:      this.client.name,
-                            email:     this.client.email,
-                            remark:    this.client.remark,
-                            isUnionMember: this.client.isUnionMember,
-                            servingBaseUrl : this.client.servingBaseUrl,
-                            updatedBy: this.userInfo.nickname,
-                            status:    this.client.status,
-                            code: this.client.code,
-                            isMe:this.client.isMe,
+                            id:             this.client.id,
+                            name:           this.client.name,
+                            email:          this.client.email,
+                            remark:         this.client.remark,
+                            isUnionMember:  this.client.isUnionMember,
+                            servingBaseUrl: this.client.servingBaseUrl,
+                            updatedBy:      this.userInfo.nickname,
+                            status:         this.client.status,
+                            code:           this.client.code,
+                            isMe:           this.client.isMe,
                         },
                     });
 

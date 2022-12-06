@@ -10,6 +10,7 @@
 
 <script>
     import { mapGetters } from 'vuex';
+    import { downLoadFileTool } from '@src/utils/tools'; 
 
     export default {
         props: {
@@ -24,14 +25,9 @@
         },
         methods: {
             async downloadLog(){
-                const api = `${window.api.baseUrl}/job/log/download?job_id=${this.jobId}&token=${this.userInfo.token}`;
-                const link = document.createElement('a');
-
-                link.href = api;
-                link.target = '_blank';
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
+                downLoadFileTool('/job/log/download', {
+                    job_id: this.jobId,
+                });
             },
         },
     };
