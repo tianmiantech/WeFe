@@ -232,7 +232,7 @@
 
                         <ul v-if="addDataType !== 'img'" class="data-set-upload-tip">
                             <template v-if="addDataType === 'csv'">
-                                <li>主键字段必须是第一列，并且会被自动 hash</li>
+                                <!-- <li>主键字段必须是第一列，并且会被自动 hash</li> -->
                                 <li>主键重复的数据会被自动去重，仅保留第 1 条</li>
                                 <li>y 值列的列名必须为 y</li>
                             </template>
