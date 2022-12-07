@@ -82,6 +82,11 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, UpdateApi.Output> {
      * <a href="https://www.tapd.cn/53885119/prong/stories/view/1153885119001086386">查看原始需求</a>
      */
     private void check(Input input) throws StatusCodeWithException {
+        // 编辑时，只在发起方做检查（启动时两边都做）。
+        if (input.fromGateway()) {
+            return;
+        }
+
         List<ComponentType> list = Arrays.asList(ComponentType.DataIO, ComponentType.Evaluation);
         if (!list.contains(input.componentType)) {
             return;
