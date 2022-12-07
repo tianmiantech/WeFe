@@ -33,7 +33,7 @@ npm install  --legacy-peer-deps --verbose
 echo ">> 安装依赖完成"
 
 echo ">> 编译"
-npm run build -- --HOST_ENV $CI_DEPLOY_ENV
+npm run build -- --HOST_ENV $CI_DEPLOY_ENV --SERVICE_NAME $CI_SERVICE_NAME
 echo ">> 编译完成"
 
 ## 生成 JSON 配置文件，此文件作用告知运维怎么拿到实际要部署的代码、配置文件（以目录形式存放）
