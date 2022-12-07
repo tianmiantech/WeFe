@@ -63,7 +63,7 @@ public class JdbcManager {
 				url = String.format("jdbc:hive2://%s:%d/%s", host, port, dbName);
 				break;
 			case MySql:
-				url = String.format("jdbc:mysql://%s:%d/%s", host, port, dbName);
+				url = String.format("jdbc:mysql://%s:%d/%s?characterEncoding=utf8&useSSL=false&rewriteBatchedStatements=true", host, port, dbName);
 				break;
 			case Impala:
 				url = String.format("jdbc:hive2://%s:%d/%s", host, port, dbName);
@@ -183,9 +183,9 @@ public class JdbcManager {
 		try {
 			ps = conn.prepareStatement(sql);
 		    // 使用流式获取数据
-//            ps = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-//            ps.setFetchSize(Integer.MIN_VALUE);
-//            ps.setLargeMaxRows(50000000);
+			ps = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            ps.setFetchSize(Integer.MIN_VALUE);
+            ps.setFetchDirection(ResultSet.FETCH_REVERSE);
 			rs = ps.executeQuery();
 			while (rs.next()) {
 				Map<String, String> fieldMap = new LinkedHashMap<>();
@@ -291,8 +291,9 @@ public class JdbcManager {
 		ResultSet rs = null;
 		try {
 			ps = conn.prepareStatement(sql);
+			ps.setFetchSize(1);
+            ps.setMaxRows(1);
 			rs = ps.executeQuery();
-
 			if (!rs.next()) {
 				return false;
 			}
