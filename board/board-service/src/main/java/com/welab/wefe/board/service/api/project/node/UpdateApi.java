@@ -93,14 +93,17 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, UpdateApi.Output> {
                 .collect(Collectors.toList());
 
         for (FlowGraphNode evaluationNode : evaluationNodes) {
-            checkByEvaluationNode(graph,evaluationNode);
+            checkByEvaluationNode(graph, evaluationNode);
         }
     }
 
-    public void checkByEvaluationNode(FlowGraph graph,FlowGraphNode evaluationNode) throws FlowNodeException {
+    public void checkByEvaluationNode(FlowGraph graph, FlowGraphNode evaluationNode) throws FlowNodeException {
         // 获取 DataIO 所选数据集的分类数
         FlowGraphNode dataIoNode = graph.findOneNodeFromParent(evaluationNode, ComponentType.DataIO);
         DataIOComponent.Params dataIoParams = dataIoNode.getParamsModel();
+        if (dataIoParams == null) {
+            return;
+        }
         int labelSpeciesCount = tableDataSetService
                 .findOneById(dataIoParams.getMyDataSetConfig().dataSetId)
                 .getLabelDistribution()
@@ -109,6 +112,9 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, UpdateApi.Output> {
 
         // 获取评估组件的评估模式
         EvaluationComponent.Params evaluationParams = evaluationNode.getParamsModel();
+        if (evaluationParams == null) {
+            return;
+        }
         EvaluationType evalType = evaluationParams.getEvalType();
 
         // 判断，并输出提示。
