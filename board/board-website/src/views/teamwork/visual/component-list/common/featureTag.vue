@@ -43,7 +43,6 @@
         // }) || [])[0] || {};
         const data = props.featureTypeList[props.data_set_id] || featureType.value[props.data_set_id] || {};
 
-        console.error('vData.featureTypeList',props.featureTypeList)
         return  data[props.name];
     });
 
