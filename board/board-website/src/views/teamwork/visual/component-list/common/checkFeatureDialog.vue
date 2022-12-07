@@ -177,7 +177,6 @@
                     }
                 },
             };
-            console.error('props',props)
 
             const { $data, $methods } = checkFeatureMixin().mixin({
                 props,

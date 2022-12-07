@@ -39,7 +39,10 @@
 
         <el-form-item>
             <el-checkbox-group v-model="data.selected" @change="handleCheckedChange">
-                <el-checkbox v-for="item in allFeature" :key="item" :label="item" />
+                <el-checkbox v-for="item in allFeature" :key="item" :label="item">
+                    {{item}}
+                    <FeatureTagVue :name="item" :data_set_id="data_set_id" />
+                </el-checkbox>
             </el-checkbox-group>
         </el-form-item>
     </el-form>
@@ -48,6 +51,7 @@
 <script setup>
     import { reactive, computed,watch,toRaw ,getCurrentInstance } from 'vue';
     import { replace } from '../../common/utils';
+    import FeatureTagVue from '../../common/featureTag.vue'
     const instance = getCurrentInstance();
     const { $message } = instance.appContext.config.globalProperties;
     // eslint-disable-next-line no-undef
@@ -61,6 +65,10 @@
             type:    Array,
             default: () => [],
         },
+        data_set_id: {
+            type:   String,
+            default: ''
+        }
     });
     
     const data = reactive({
