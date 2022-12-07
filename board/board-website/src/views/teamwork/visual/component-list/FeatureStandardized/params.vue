@@ -101,7 +101,7 @@
                             flow_node_id: model.id,
                         },
                     });
-
+                    let refect = {};
                     nextTick(_ => {
                         vData.loading = false;
                         if (code === 0) {
@@ -117,6 +117,7 @@
                                         });
                                         vData.total_column_count++;
                                     });
+                                    refect[member.member_id] = member.data_set_id;
                                     vData.featureSelectTab.push({
                                         member_id:          member.member_id,
                                         member_name:        member.member_name,
@@ -129,7 +130,10 @@
                                         $feature_list,
                                     });
                                 });
-                                methods.getNodeDetail(model);
+                                methods.getNodeDetail({
+                                    ...model,
+                                    ...refect,
+                                });
                             }
                         }
                     });
@@ -179,6 +183,7 @@
                                         ...member,
                                         $checkedColumns: '',
                                         $feature_list:   member.features,
+                                        data_set_id: model[member.member_id],
                                     };
                                 });
                             }
