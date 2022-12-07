@@ -16,6 +16,45 @@
 
 package com.welab.wefe.serving.service.service;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringSubstitutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -34,53 +73,53 @@ import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
-import com.welab.wefe.mpc.psi.sdk.ecdh.EllipticCurve;
-import com.welab.wefe.mpc.psi.sdk.util.ConverterUtil;
-import com.welab.wefe.mpc.psi.sdk.util.PartitionUtil;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostDecisionTreeModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostNodeModel;
-import com.welab.wefe.serving.service.api.service.*;
+import com.welab.wefe.serving.service.api.service.AddApi;
+import com.welab.wefe.serving.service.api.service.DetailApi;
+import com.welab.wefe.serving.service.api.service.QueryApi;
+import com.welab.wefe.serving.service.api.service.QueryOneApi;
+import com.welab.wefe.serving.service.api.service.RouteApi;
 import com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Output;
 import com.welab.wefe.serving.service.api.service.UpdateApi.Input;
 import com.welab.wefe.serving.service.config.Config;
-import com.welab.wefe.serving.service.database.entity.*;
-import com.welab.wefe.serving.service.database.repository.*;
-import com.welab.wefe.serving.service.dto.*;
-import com.welab.wefe.serving.service.enums.*;
+import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.serving.service.database.entity.BaseServiceMySqlModel;
+import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
+import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
+import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
+import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
+import com.welab.wefe.serving.service.database.entity.ServiceCallLogMysqlModel;
+import com.welab.wefe.serving.service.database.entity.ServiceOrderMysqlModel;
+import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
+import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
+import com.welab.wefe.serving.service.database.repository.AccountRepository;
+import com.welab.wefe.serving.service.database.repository.BaseServiceRepository;
+import com.welab.wefe.serving.service.database.repository.ModelMemberRepository;
+import com.welab.wefe.serving.service.database.repository.TableModelRepository;
+import com.welab.wefe.serving.service.database.repository.TableServiceRepository;
+import com.welab.wefe.serving.service.dto.ModelSqlConfigOutput;
+import com.welab.wefe.serving.service.dto.ModelStatusOutput;
+import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.dto.ServiceDetailOutput;
+import com.welab.wefe.serving.service.dto.TreeNode;
+import com.welab.wefe.serving.service.dto.TreeNodeData;
+import com.welab.wefe.serving.service.enums.CallByMeEnum;
+import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
+import com.welab.wefe.serving.service.enums.ServiceResultEnum;
+import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.service_processor.AbstractServiceProcessor;
 import com.welab.wefe.serving.service.service_processor.ServiceProcessorUtils;
-import com.welab.wefe.serving.service.utils.*;
+import com.welab.wefe.serving.service.utils.MD5Util;
+import com.welab.wefe.serving.service.utils.SHA256Utils;
+import com.welab.wefe.serving.service.utils.ServiceUtil;
+import com.welab.wefe.serving.service.utils.SignUtils;
+import com.welab.wefe.serving.service.utils.ZipUtils;
 import com.welab.wefe.serving.service.utils.component.ScoreCardComponentUtil;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringSubstitutor;
-import org.bouncycastle.math.ec.ECPoint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * 服务 Service
@@ -117,6 +156,7 @@ public class ServiceService {
     private ModelMemberRepository modelMemberRepository;
     @Autowired
     private ModelMemberService modelMemberService;
+    private int threads = Runtime.getRuntime().availableProcessors() / 2;
 
     public com.welab.wefe.serving.service.api.service.DetailApi.Output detail(
             com.welab.wefe.serving.service.api.service.DetailApi.Input input) throws Exception {
@@ -357,6 +397,12 @@ public class ServiceService {
         }
         // 如果是mysql的数据源，则需要生成ID
         if (dataSourceModel.getDatabaseType().name().equalsIgnoreCase(DatabaseType.MySql.name())) {
+            String oldIdsTableName = model.getIdsTableName();
+            try {
+                dataSourceService.update(dataSourceModel, "drop table " + oldIdsTableName);
+            } catch (StatusCodeWithException e) {
+                LOG.error("drop table error , tableName = " + oldIdsTableName);
+            }
             keysTableName = generateMySqlIdsTable(dataSourceModel, dataSource);
         } else { // 如果不是mysql的，则直接使用原数据源
             keysTableName = dataSourceModel.getDatabaseType().name() + "#" + dataSourceModel.getHost();
@@ -395,63 +441,99 @@ public class ServiceService {
                     dataSourceService.createTable(createTableSql, DatabaseType.MySql, newDataSourceMySqlModel.getHost(),
                             newDataSourceMySqlModel.getPort(), newDataSourceMySqlModel.getUserName(), newDataSourceMySqlModel.getPassword(),
                             newDataSourceMySqlModel.getDatabaseName());
-                    
-                    List<Map<String, String>> result = dataSourceService.queryList(newDataSourceMySqlModel, sql + " limit 2000000",
+                    List<Map<String, String>> result = dataSourceService.queryList(newDataSourceMySqlModel, sql,
                             needFields);
                     if (result == null || result.isEmpty()) {
                         return;
                     }
+                    int partitionSize = 500000;
+                    int taskNum = result.size() / partitionSize;
                     LOG.info(newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table")
-                            + " count = " + result.size());
-                    System.out.println(JSONObject.toJSONString(result.get(0)));
-                    System.out.println(keyCalcRules.toJSONString());
-                    List<Set<Map<String, String>>> partitionList = partitionList(result, 8);
-                    ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
-                    List<String> ids = new CopyOnWriteArrayList<>();
-                    for (Set<Map<String, String>> partition : partitionList) {
-                        executorService.submit(() -> {
+                            + " count = " + result.size() + ", taskNum = " + taskNum + ", threads size = "
+                            + this.threads);
+                    List<Set<Map<String, String>>> partitionList = partitionList(result, taskNum);
+                    ExecutorService executorService1 = Executors.newFixedThreadPool(this.threads);
+                    List<List<String>> queues = new CopyOnWriteArrayList<>();
+                    AtomicInteger finishedCount = new AtomicInteger(0);
+                    for (int i = 0; i < partitionList.size(); i++) {
+                        Set<Map<String, String>> partition = partitionList.get(i);
+                        executorService1.submit(() -> {
+                            LOG.info("calcKey begin atomicCount = " + finishedCount.get() + ", partition size = "
+                                    + partition.size());
+                            List<String> queue = new LinkedList<>();
+                            queues.add(queue);
                             for (Map<String, String> map : partition) {
                                 String id = calcKey(keyCalcRules, map);
-                                ids.add(id);
+                                queue.add(id);
                             }
+                            finishedCount.incrementAndGet();
+                            LOG.info("calcKey success atomicCount = " + finishedCount.get() + ", queue size = "
+                                    + queue.size());
                         });
                     }
-                    executorService.shutdown();
+                    executorService1.shutdown();
                     try {
-                        while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
-                            LOG.info("calc size = " + ids.size());
+                        while (!executorService1.awaitTermination(10, TimeUnit.SECONDS)) {
+                            LOG.info("finishedCount = " + finishedCount.get());
+                            int c = 0;
+                            for (List<String> queue : queues) {
+                                LOG.info("index:" + (c++) + ", queue size =" + queue.size());
+                            }
                         }
                     } catch (InterruptedException e) {
                         e.printStackTrace();
-                    } finally {
-                        executorService.shutdown();
-                        executorService = null;
                     }
-                    LOG.info("begin batchInsert");
+                    finally {
+                        executorService1.shutdown();
+                        executorService1 = null;
+                    }
+                    LOG.info("begin batchInsert, queues size = " + queues.size());
                     String insertSql = String.format("insert into %s values (?)", keysTableNameTmp);
-                    
-                    List<Set<String>> idsList = PartitionUtil.partitionList(ids, 8);
-                    executorService = Executors.newFixedThreadPool(idsList.size());
-                    for (Set<String> partition : idsList) {
-                        executorService.submit(() -> {
+                    ExecutorService executorService2 = Executors.newFixedThreadPool(this.threads);
+                    for (final List<String> queue : queues) {
+                        executorService2.submit(() -> {
                             try {
-                                dataSourceService.batchInsert(insertSql, DatabaseType.MySql, newDataSourceMySqlModel.getHost(),
-                                        newDataSourceMySqlModel.getPort(), newDataSourceMySqlModel.getUserName(),
-                                        newDataSourceMySqlModel.getPassword(), newDataSourceMySqlModel.getDatabaseName(), partition);
+                                LOG.info("batchInsert queue size =" + queue.size());
+                                dataSourceService.batchInsert(insertSql, DatabaseType.MySql,
+                                        newDataSourceMySqlModel.getHost(), newDataSourceMySqlModel.getPort(),
+                                        newDataSourceMySqlModel.getUserName(),
+                                        newDataSourceMySqlModel.getPassword(),
+                                        newDataSourceMySqlModel.getDatabaseName(), new HashSet<>(queue));
                             } catch (StatusCodeWithException e) {
                                 e.printStackTrace();
                             }
+//                            while (atomicCount.get() != 8 || !queue.isEmpty()) {
+//                                try {
+//                                    List<String> list = new ArrayList<>();
+//                                    try {
+//                                        Queues.drain(queue, list, 100000, 5, TimeUnit.SECONDS);
+//                                    } catch (InterruptedException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                    if (list.isEmpty()) {
+//                                        continue;
+//                                    }
+//                                    dataSourceService.batchInsert(insertSql, DatabaseType.MySql,
+//                                            newDataSourceMySqlModel.getHost(), newDataSourceMySqlModel.getPort(),
+//                                            newDataSourceMySqlModel.getUserName(),
+//                                            newDataSourceMySqlModel.getPassword(),
+//                                            newDataSourceMySqlModel.getDatabaseName(), new HashSet<>(list));
+//                                } catch (StatusCodeWithException e) {
+//                                    e.printStackTrace();
+//                                }
+//                            }
                         });
                     }
-                    executorService.shutdown();
+                    executorService2.shutdown();
                     try {
-                        while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                        while (!executorService2.awaitTermination(10, TimeUnit.SECONDS)) {
                             // pass
                         }
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     } finally {
-                        executorService.shutdown();
+                        executorService2.shutdown();
+                        executorService2 = null;
                     }
                     LOG.info("end batchInsert");
                 } catch (StatusCodeWithException e1) {

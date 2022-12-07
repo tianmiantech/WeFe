@@ -220,6 +220,17 @@ public class DataSourceService {
 
         return result;
     }
+    
+    public boolean update(DataSourceMySqlModel model, String sql) throws StatusCodeWithException {
+        if (model == null) {
+            throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
+        }
+        JdbcManager jdbcManager = new JdbcManager();
+        Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
+                model.getUserName(), model.getPassword(), model.getDatabaseName());
+        boolean result = jdbcManager.update(conn, sql);
+        return result;
+    }
 
     public Map<String, String> queryOne(DataSourceMySqlModel model, String sql, List<String> returnFields)
             throws StatusCodeWithException {

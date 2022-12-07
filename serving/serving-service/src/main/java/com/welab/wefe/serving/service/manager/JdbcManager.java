@@ -253,7 +253,7 @@ public class JdbcManager {
 
 	public void batchInsert(Connection conn, String sql, Set<String> ids) throws SQLException {
 	    long start = System.currentTimeMillis();
-        log.info("JdbcManager batchInsert start: " + start + ", ids size = " + ids.size());
+        log.info("JdbcManager batchInsert ids size = " + ids.size());
 		conn.setAutoCommit(false);
 		PreparedStatement ps = null;
 		try {
@@ -284,6 +284,25 @@ public class JdbcManager {
 		}
 	}
 
+    public boolean update(Connection conn, String sql) throws StatusCodeWithException {
+        long start = System.currentTimeMillis();
+        log.info("JdbcManager update start: " + start);
+        PreparedStatement ps = null;
+        int rs = 0;
+        try {
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeUpdate();
+            return rs != 0;
+        } catch (SQLException e) {
+            log.error("testQuery error", e);
+            return false;
+        } finally {
+            close(conn, ps, null);
+            long duration = System.currentTimeMillis() - start;
+            log.info("JdbcManager testQuery duration: " + duration);
+        }
+    }
+	   
 	public boolean testQuery(Connection conn, String sql, boolean judgeFieldNum) throws StatusCodeWithException {
 	    long start = System.currentTimeMillis();
         log.info("JdbcManager testQuery start: " + start);
