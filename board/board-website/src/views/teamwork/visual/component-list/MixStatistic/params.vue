@@ -118,7 +118,7 @@
                                 </span>
                                 <span class="el-checkbox__label">
                                     {{ list[index * 5 + i - 1] }}
-                                    <FeatureTagVue :name="list[index * 5 + i - 1]" :member_id="vData.data_set_list[vData.row_index].member_id" />
+                                    <FeatureTagVue :name="list[index * 5 + i - 1]" :data_set_id="vData.check_data_set_id" />
                                 </span>
                             </label>
                         </template>
@@ -177,6 +177,7 @@
                 column_list:       [],
                 checkedColumns:    '',
                 checkedColumnsArr: [],
+                check_data_set_id:  '',
                 showColumnList:    false,
                 columnListLoading: false,
                 indeterminate:     false,
@@ -245,6 +246,7 @@
                 },
 
                 checkColumns(row, index) {
+                    vData.check_data_set_id = row.data_set_id;
                     vData.row_index = index;
                     vData.checkedAll = false;
                     vData.indeterminate = false;
@@ -373,6 +375,7 @@
                     };
                     vData.showColumnList = false;
                     vData.colChecked = true;
+                    vData.check_data_set_id = '';
                 },
 
                 paramsCheck() {
