@@ -122,6 +122,18 @@
             </template>
         </el-table-column>
         <el-table-column
+            label="分类数"
+            prop="label_species_count"
+            width="100"
+            align="center"
+        >
+        <template v-slot="scope">
+                <p>
+                    {{(scope.row.label_species_count > 10000 ? '10000+' : scope.row.label_species_count)}}
+                </p>
+            </template>
+        </el-table-column>
+        <el-table-column
             label="参与项目数"
             prop="usage_count_in_project"
             width="100"
