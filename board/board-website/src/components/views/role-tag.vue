@@ -44,7 +44,7 @@
 </script>
 
 <style lang="scss">
-.el-tag.job_member_role_tag {
+.board-tag.job_member_role_tag {
     width: 80px;
     display: inline-block;
     text-align: center;

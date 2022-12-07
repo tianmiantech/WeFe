@@ -121,7 +121,7 @@
                 查询
             </el-button>
             <el-button native-type="submit" class="mb20 fr" @click="checkUploadingData">
-                上传中的数据资源 <i class="el-icon-right"></i>
+                上传中的数据资源 <i class="board-icon-right"></i>
             </el-button>
         </el-form>
 
@@ -325,15 +325,15 @@
             float: right;
         }
     }
-    .el-tabs{
-        :deep(.el-tabs__header) {height: 40px;}
-        :deep(.el-tabs__nav-wrap){
+    .board-tabs{
+        :deep(.board-tabs__header) {height: 40px;}
+        :deep(.board-tabs__nav-wrap){
             overflow: visible;
             margin-bottom:0;
-            .el-badge{vertical-align: top;}
+            .board-badge{vertical-align: top;}
         }
-        :deep(.el-tabs__nav-scroll){overflow: visible;}
-        :deep(.el-tabs__item){
+        :deep(.board-tabs__nav-scroll){overflow: visible;}
+        :deep(.board-tabs__item){
             height: 40px;
             margin-top: 0;
         }

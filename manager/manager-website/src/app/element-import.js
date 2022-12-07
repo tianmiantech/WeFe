@@ -1,3 +1,5 @@
+import * as elIcons from '@element-plus/icons-vue';
+
 import {
     ElAutocomplete,
     ElDescriptions,
@@ -96,4 +98,7 @@ const elComponents = {
     ElTable,
 };
 
-export default elComponents;
+export {
+    elIcons,
+    elComponents,
+};

@@ -18,9 +18,15 @@
                     />
                 </el-tooltip>
             </span>
-            <div class="heading-user">
+            <div
+                v-if="!isInQianKun"
+                class="heading-user"
+            >
                 你好,
-                <el-dropdown
+                <span class="el-dropdown-link">
+                    <strong>{{ userInfo.nickname }}</strong>
+                </span>
+                <!-- <el-dropdown
                     class="ml5"
                     @command="handleCommand"
                 >
@@ -36,7 +42,7 @@
                             </el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
-                </el-dropdown>
+                </el-dropdown> -->
             </div>
         </div>
         <layout-tags v-show="tagsList.length" />
@@ -56,6 +62,7 @@ export default {
         return {
             headingTitle:   '',
             asideCollapsed: false,
+            isInQianKun:    window.__POWERED_BY_QIANKUN__ || false,
         };
     },
     computed: {

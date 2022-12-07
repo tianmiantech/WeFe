@@ -27,7 +27,7 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
@@ -341,7 +341,7 @@ public class ProjectMemberService {
         }
 
         projectMemberMySqlModel = func.apply(projectMemberMySqlModel);
-        projectMemberMySqlModel.setUpdatedBy(CurrentAccount.id());
+        projectMemberMySqlModel.setUpdatedBy(CurrentAccountUtil.get().getId());
 
         return projectMemberRepo.save(projectMemberMySqlModel);
     }
@@ -352,7 +352,7 @@ public class ProjectMemberService {
         }
 
         func.accept(projectMemberMySqlModel);
-        projectMemberMySqlModel.setUpdatedBy(CurrentAccount.id());
+        projectMemberMySqlModel.setUpdatedBy(CurrentAccountUtil.get().getId());
 
         return projectMemberRepo.save(projectMemberMySqlModel);
 

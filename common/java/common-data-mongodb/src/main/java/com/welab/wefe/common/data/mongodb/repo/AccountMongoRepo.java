@@ -90,65 +90,6 @@ public class AccountMongoRepo extends AbstractMongoRepo {
     }
 
 
-    public void changeAdminRole(String accountId, boolean adminRole) {
-        Query query = new QueryBuilder().append("accountId", accountId).build();
-        Update update = new UpdateBuilder().append("adminRole", adminRole).build();
-        mongoManagerTemplate.updateFirst(query, update, Account.class);
-    }
-
-    public void enableAccount(String accountId, boolean enable, String updateBy, String auditComment) {
-        Query query = new QueryBuilder().append("accountId", accountId).build();
-        Update update = new UpdateBuilder()
-                .append("enable", enable)
-                .append("updatedBy",updateBy)
-                .append("updateTime",System.currentTimeMillis())
-                .append("auditComment",auditComment)
-                .build();
-        mongoManagerTemplate.updateFirst(query, update, Account.class);
-    }
-
-    public void changeAccountToSuperAdminRole(String accountId, String updateBy) {
-        Query query = new QueryBuilder().append("accountId", accountId).build();
-        Update update = new UpdateBuilder()
-                .append("superAdminRole", true)
-                .append("adminRole", true)
-                .append("updatedBy",updateBy)
-                .append("updateTime",System.currentTimeMillis())
-                .build();
-        mongoManagerTemplate.updateFirst(query, update, Account.class);
-    }
-
-    public void cancelSuperAdmin(String accountId) {
-        Query query = new QueryBuilder().append("accountId", accountId).build();
-        Update update = new UpdateBuilder()
-                .append("superAdminRole", false)
-                .append("adminRole", false)
-                .append("updatedBy",accountId)
-                .append("updateTime",System.currentTimeMillis())
-                .build();
-        mongoManagerTemplate.updateFirst(query, update, Account.class);
-    }
-
-
-    public void auditAccount(String accountId, AuditStatus auditStatus, String auditComment) {
-        Query query = new QueryBuilder().append("accountId", accountId).build();
-        Update update = new UpdateBuilder()
-                .append("auditStatus", auditStatus.name())
-                .append("auditComment", auditComment)
-                .build();
-        mongoManagerTemplate.updateFirst(query, update, Account.class);
-    }
-
-    public void updatePassword(String accountId, String password, String salt, JSONArray historyPasswords) {
-        Query query = new QueryBuilder().append("accountId", accountId).build();
-        Update update = new UpdateBuilder()
-                .append("password", password)
-                .append("salt", salt)
-                .append("historyPasswordList", historyPasswords)
-                .append("needUpdatePassword",false)
-                .build();
-        mongoManagerTemplate.updateFirst(query, update, Account.class);
-    }
 
     public void update(String accountId, String nickname, String email) {
         Query query = new QueryBuilder().append("accountId", accountId).build();

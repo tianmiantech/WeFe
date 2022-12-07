@@ -64,7 +64,7 @@
         position: relative;
         padding-bottom: 80px;
         margin:0 15px;
-        .el-image {
+        .board-image {
             width:100%;
             display:block;
             max-width: 230px;
@@ -80,7 +80,7 @@
             line-height: 32px;
         }
     }
-    .el-button{
+    .board-button{
         width: 100%;
         max-width: 200px;
         font-size: 16px;

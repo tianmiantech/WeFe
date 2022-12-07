@@ -121,7 +121,7 @@
                                 </p>
                                 <span
                                     v-if="enterpriseAuth === 0"
-                                    class="el-link el-link--danger"
+                                    class="board-link board-link--danger"
                                     style="white-space: nowrap;"
                                 >
                                     <el-icon class="mr5">
@@ -133,7 +133,7 @@
 
                                 <span
                                     v-if="enterpriseAuth === 1"
-                                    class="el-link el-link--danger"
+                                    class="board-link board-link--danger"
                                 >
                                     <el-icon class="mr5">
                                         <elicon-circle-check />
@@ -142,7 +142,7 @@
                                 </span>
                                 <span
                                     v-if="enterpriseAuth === 2"
-                                    class="el-link el-link--success"
+                                    class="board-link board-link--success"
                                 >
                                     <el-icon class="mr5">
                                         <elicon-circle-check />
@@ -413,9 +413,9 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-form{overflow-x: auto;}
-    .el-form-item {
-        :deep(.el-form-item__label) {
+    .board-form{overflow-x: auto;}
+    .board-form-item {
+        :deep(.board-form-item__label) {
             color: $color-light;
             padding-bottom: 6px;
             line-height: 18px;
@@ -424,14 +424,14 @@
             display: block;
         }
     }
-    .el-form-item--small.el-form-item:last-child{margin:0;}
+    .board-form-item--small.board-form-item:last-child{margin:0;}
     .save-btn {width: 100px;}
 
     @keyframes cardRotate {
         0%{transform: rotateZ(0deg) translateX(100%);}
         100%{transform: rotateZ(1440deg) translateX(0);}
     }
-    .el-dialog__wrapper :deep(.member-card-wrap){
+    .board-dialog__wrapper :deep(.member-card-wrap){
         animation: cardRotate 2s ease-in-out;
         .member-card{margin: 0 auto;}
     }
@@ -508,9 +508,9 @@
 
 <style lang="scss">
 .flex-box {
-    .el-form-item__content {
+    .board-form-item__content {
         display: flex;
-        .el-input {
+        .board-input {
             width: 42%;
         }
     }

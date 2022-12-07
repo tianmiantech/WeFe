@@ -70,7 +70,7 @@
                     type="primary"
                     @click="preStep"
                 >
-                    <el-icon class="el-icon-caret-left">
+                    <el-icon class="board-icon-caret-left">
                         <elicon-caret-left />
                     </el-icon>
                     上一个
@@ -81,7 +81,7 @@
                     @click="nextStep"
                 >
                     下一个
-                    <el-icon class="el-icon-caret-right">
+                    <el-icon class="board-icon-caret-right">
                         <elicon-caret-right />
                     </el-icon>
                 </el-button>
@@ -103,6 +103,7 @@
         onBeforeMount,
     } from 'vue';
     import { useRoute } from 'vue-router';
+    import { appCode } from '@src/utils/constant';
 
     export default {
         name:  'VideoGuideDialog',
@@ -128,7 +129,7 @@
             // hide forever
             const hiddenForever = () => {
                 vData.show = false;
-                window.localStorage.setItem(`${window.api.prefixPath}_hidden_video_guide_forever`, 'true');
+                window.localStorage.setItem(`${appCode()}_hidden_video_guide_forever`, 'true');
             };
             const preStep = () => {
                 vData.active--;
@@ -141,7 +142,7 @@
 
             onBeforeMount(() => {
                 if(route.name === 'index') {
-                    vData.show = !window.localStorage.getItem(`${window.api.prefixPath}_hidden_video_guide_forever`);
+                    vData.show = !window.localStorage.getItem(`${appCode()}_hidden_video_guide_forever`);
                 }
 
                 $bus.$on('show-guide-video', () => {
@@ -170,11 +171,11 @@
         font-weight: bold;
         line-height: 1px;
     }
-    .el-steps {
+    .board-steps {
         margin-bottom: 10px;
-        .el-step{cursor: pointer;}
+        .board-step{cursor: pointer;}
         :deep(.is-process) {color: $--color-primary !important;}
-        :deep(.el-step__title){font-size: 14px;}
+        :deep(.board-step__title){font-size: 14px;}
     }
     .video-guides{
         height: calc(100vh - 200px);

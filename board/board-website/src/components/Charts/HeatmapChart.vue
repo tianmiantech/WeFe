@@ -98,7 +98,7 @@
 
             // init chart
             const initChart = () => {
-                if(chartDom.value.offsetWidth) {
+                if(chartDom.value && chartDom.value.offsetWidth) {
                     chart = init(chartDom.value, {
                         width:  props.config.width,
                         height: props.config.height,

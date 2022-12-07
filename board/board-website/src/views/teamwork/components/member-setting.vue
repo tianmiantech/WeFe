@@ -6,7 +6,7 @@
             </template>
             <el-icon
                 v-if="form.is_project_admin"
-                class="el-icon-delete color-danger f16"
+                class="board-icon-delete color-danger f16"
                 @click="showDialogForMemberSetting=true"
             >
                 <elicon-delete />

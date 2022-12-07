@@ -16,6 +16,17 @@
 
 package com.welab.wefe.board.service.service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.api.project.node.CheckExistEvaluationComponentApi;
 import com.welab.wefe.board.service.api.project.node.UpdateApi;
@@ -37,21 +48,11 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.ProjectFlowStatus;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author zane.luo
@@ -159,7 +160,7 @@ public class ProjectFlowNodeService {
     public List<ProjectFlowNodeOutputModel> updateFlowNode(UpdateApi.Input input) throws StatusCodeWithException {
 
         // 对于网格搜索任务参数自动回写等程序自动修改参数的场景，不需要将状态修改为 editing
-        if (CurrentAccount.get() != null || input.fromGateway()) {
+        if (CurrentAccountUtil.get() != null || input.fromGateway()) {
             // Update flow status
             projectFlowService.updateFlowStatus(input.getFlowId(), ProjectFlowStatus.editing);
         }

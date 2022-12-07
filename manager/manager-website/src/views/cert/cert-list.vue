@@ -155,99 +155,102 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex';
-import table from '@src/mixins/table';
-import EmptyData from "@comp/Common/EmptyData";
+    import { mapGetters } from 'vuex';
+    import table from '@src/mixins/table';
+    import EmptyData from '@comp/Common/EmptyData';
 
-export default {
-    components: {EmptyData},
-    inject: ['refresh'],
-    mixins: [table],
-    data() {
-        return {
-            authorizeId: '',
-            authorizeName: '',
-            init_form: {
-                common_name: '',
-                organization_name: '',
-                organization_unit_name: '',
+    export default {
+        components: { EmptyData },
+        inject:     ['refresh'],
+        mixins:     [table],
+        data() {
+            return {
+                authorizeId:   '',
+                authorizeName: '',
+                init_form:     {
+                    common_name:            '',
+                    organization_name:      '',
+                    organization_unit_name: '',
+                },
+                watchRoute:    true,
+                defaultSearch: true,
+                requestMethod: 'post',
+                getListApi:    'cert/query',
+                authorize:     false,
+            };
+        },
+        computed: {
+            ...mapGetters(['userInfo']),
+        },
+        methods: {
+            changeStatus($event, pk_id, status) {
+                this.$confirm(`你确定要${status === 0 ? '禁用' : '启用'}该证书吗? 此操作不可逆`, '警告', {
+                    type:              'warning',
+                    cancelButtonText:  '取消',
+                    confirmButtonText: '确定',
+                }).then(async _ => {
+                    const { code } = await this.$http.post({
+                        url:  '/cert/update_status',
+                        data: {
+                            cert_id: pk_id,
+                            status,
+                        },
+                        btnState: {
+                            target: $event,
+                        },
+                    });
+
+                    if(code === 0) {
+                        this.$message.success('操作成功!');
+                        this.refresh();
+                    }
+                });
             },
-            watchRoute: true,
-            defaultSearch: true,
-            requestMethod: 'post',
-            getListApi: 'cert/query',
-            authorize: false,
-        };
-    },
-    computed: {
-        ...mapGetters(['userInfo']),
-    },
-    methods: {
-        changeStatus($event, pk_id, status) {
-            this.$confirm(`你确定要${status === 0 ? '禁用' : '启用'}该证书吗? 此操作不可逆`, '警告', {
-                type: 'warning',
-                cancelButtonText: '取消',
-                confirmButtonText: '确定',
-            }).then(async _ => {
-                const { code } = await this.$http.post({
-                    url: '/cert/update_status',
+            trustCert($event, pk_id, op){
+                this.$confirm(`你确定要${op === 'add' ? '添加' : '删除'}该证书到信任库吗?`, '警告', {
+                    type:              'warning',
+                    cancelButtonText:  '取消',
+                    confirmButtonText: '确定',
+                }).then(async _ => {
+                    const { code } = await this.$http.post({
+                        url:  '/trust/certs/update',
+                        data: {
+                            cert_id: pk_id,
+                            op,
+                        },
+                        btnState: {
+                            target: $event,
+                        },
+                    });
+
+                    if(code === 0) {
+                        this.$message.success('操作成功!');
+                        this.refresh();
+                    }
+                });
+            },
+            async initRoot($event) {
+                const { code } =await this.$http.post({
+                    url:  '/cert/init_root',
                     data: {
-                        cert_id: pk_id,
-                        status: status,
+                        common_name:            this.init_form.common_name,
+                        organization_name:      this.init_form.organization_name,
+                        organization_unit_name: this.init_form.organization_unit_name,
                     },
                     btnState: {
                         target: $event,
                     },
                 });
+
                 if(code === 0) {
-                    this.$message.success('操作成功!');
-                    this.refresh();
+                    this.$message.success('初始化成功!');
+                    setTimeout(() => {
+                        this.refresh();
+                    }, 1000);
                 }
-            });
+            },
         },
-        trustCert($event, pk_id, op){
-            this.$confirm(`你确定要${op === "add" ? '添加' : '删除'}该证书到信任库吗?`, '警告', {
-                type: 'warning',
-                cancelButtonText: '取消',
-                confirmButtonText: '确定',
-            }).then(async _ => {
-                const { code } = await this.$http.post({
-                    url: '/trust/certs/update',
-                    data: {
-                        cert_id: pk_id,
-                        op : op,
-                    },
-                    btnState: {
-                        target: $event,
-                    },
-                });
-                if(code === 0) {
-                    this.$message.success('操作成功!');
-                    this.refresh();
-                }
-            });
-        },
-        async initRoot($event) {
-            const { code } =await this.$http.post({
-                url: '/cert/init_root',
-                data: {
-                    common_name: this.init_form.common_name,
-                    organization_name: this.init_form.organization_name,
-                    organization_unit_name: this.init_form.organization_unit_name,
-                },
-                btnState: {
-                    target: $event,
-                },
-            });
-            if(code === 0) {
-                this.$message.success('初始化成功!');
-                setTimeout(() => {
-                    this.refresh();
-                }, 1000);
-            }
-        },
-    },
-};
+    };
 </script>
 
 <style lang="scss" scoped>
@@ -283,7 +286,7 @@ export default {
     color: #eee;
 }
 
-.el-icon-s-promotion {
+.manager-icon-s-promotion {
     cursor: pointer;
 
     &:hover {

@@ -1,5 +1,5 @@
 <template>
-    <div v-loading="vData.loading" class="el-form">
+    <div v-loading="vData.loading" class="board-form">
         <template v-if="vData.commonResultData.task">
             <el-collapse v-model="activeName" @change="methods.collapseChanged">
                 <el-collapse-item title="基础信息" name="1">

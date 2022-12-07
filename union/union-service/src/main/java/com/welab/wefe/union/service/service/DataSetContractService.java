@@ -16,9 +16,19 @@
 
 package com.welab.wefe.union.service.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.alibaba.fastjson.JSON;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.entity.base.AbstractMongoModel;
+import com.welab.wefe.common.data.mongodb.entity.union.DataResourceLazyUpdateModel;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetExtJSON;
+import com.welab.wefe.common.data.mongodb.repo.*;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.DateUtil;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.union.service.api.dataresource.LazyUpdateApi;
+import com.welab.wefe.union.service.contract.DataSetContract;
+import com.welab.wefe.union.service.entity.DataSet;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
@@ -26,16 +36,8 @@ import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.alibaba.fastjson.JSON;
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetExtJSON;
-import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
-import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.DateUtil;
-import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.union.service.contract.DataSetContract;
-import com.welab.wefe.union.service.entity.DataSet;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author yuxin.zhang
@@ -51,6 +53,14 @@ public class DataSetContractService extends AbstractContractService {
     private MemberContractService memberContractService;
     @Autowired
     private DataSetMongoReop dataSetMongoReop;
+    @Autowired
+    private ImageDataSetMongoReop imageDataSetMongoReop;
+    @Autowired
+    private TableDataSetMongoReop tableDataSetMongoReop;
+    @Autowired
+    private BloomFilterMongoReop bloomFilterMongoReop;
+    @Autowired
+    private DataResourceLazyUpdateModelMongoReop dataResourceLazyUpdateModelMongoReop;
 
     public void upsert(DataSet dataset) throws StatusCodeWithException {
         try {
@@ -109,6 +119,39 @@ public class DataSetContractService extends AbstractContractService {
         } catch (Exception e) {
             throw new StatusCodeWithException("Failed to delete data set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
+    }
+
+    public void lazyUpdate(LazyUpdateApi.Input input) throws StatusCodeWithException {
+        AbstractMongoModel dataResourceModel = null;
+        switch (input.getDataResourceType()) {
+            case ImageDataSet:
+                dataResourceModel = imageDataSetMongoReop.findByDataResourceId(input.getDataResourceId());
+                break;
+            case TableDataSet:
+                dataResourceModel = tableDataSetMongoReop.findByDataResourceId(input.getDataResourceId());
+                break;
+            case BloomFilter:
+                dataResourceModel = bloomFilterMongoReop.findByDataResourceId(input.getDataResourceId());
+                break;
+            default:
+                throw new StatusCodeWithException(StatusCode.INVALID_DATASET, "非法的数据源类型：" + input.getDataResourceType());
+        }
+        if (null == dataResourceModel) {
+            throw new StatusCodeWithException(StatusCode.INVALID_DATASET, input.getDataResourceId());
+        }
+        DataResourceLazyUpdateModel dataResourceLazyUpdateModel = dataResourceLazyUpdateModelMongoReop.findByDataResourceId(input.getDataResourceId());
+        dataResourceLazyUpdateModel = (null == dataResourceLazyUpdateModel ? new DataResourceLazyUpdateModel() : dataResourceLazyUpdateModel);
+        dataResourceLazyUpdateModel.setDataResourceId(input.getDataResourceId());
+        dataResourceLazyUpdateModel.setDataResourceType(input.getDataResourceType());
+        dataResourceLazyUpdateModel.setLabeledCount(null == input.getLabeledCount() ? 0 : input.getLabeledCount());
+        dataResourceLazyUpdateModel.setTotalDataCount(null == input.getTotalDataCount() ? 0 : input.getTotalDataCount());
+        dataResourceLazyUpdateModel.setLabelList(input.getLabelList());
+        dataResourceLazyUpdateModel.setUsageCountInJob(null == input.getUsageCountInJob() ? 0 : input.getUsageCountInJob());
+        dataResourceLazyUpdateModel.setUsageCountInFlow(null == input.getUsageCountInFlow() ? 0 : input.getUsageCountInFlow());
+        dataResourceLazyUpdateModel.setUsageCountInProject(null == input.getUsageCountInProject() ? 0 : input.getUsageCountInProject());
+        dataResourceLazyUpdateModel.setUsageCountInMember(null == input.getUsageCountInMember() ? 0 : input.getUsageCountInMember());
+        dataResourceLazyUpdateModel.setLabelCompleted(Boolean.TRUE.equals(input.getLabelCompleted()));
+        dataResourceLazyUpdateModelMongoReop.save(dataResourceLazyUpdateModel);
     }
 
     private List<String> generateParams(DataSet dataSet) {

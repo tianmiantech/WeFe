@@ -20,7 +20,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.SignUtil;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 import com.welab.wefe.data.fusion.service.api.system.GlobalConfigUpdateApi;
 import com.welab.wefe.data.fusion.service.database.entity.AccountMysqlModel;
@@ -46,10 +46,6 @@ public class GlobalConfigService extends BaseGlobalConfigService {
 
 
     public void update(GlobalConfigUpdateApi.Input input) throws StatusCodeWithException {
-        if (!CurrentAccount.isAdmin()) {
-            StatusCode.ILLEGAL_REQUEST.throwException("只有管理员才能执行此操作。");
-        }
-
         for (Map.Entry<String, Map<String, String>> group : input.groups.entrySet()) {
             String groupName = group.getKey();
             Map<String, String> groupItems = group.getValue();
@@ -70,7 +66,7 @@ public class GlobalConfigService extends BaseGlobalConfigService {
     @Transactional(rollbackFor = Exception.class)
     public void updateMemberRsaKey() throws StatusCodeWithException {
 
-        AccountMysqlModel account = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(CurrentAccount.phoneNumber()));
+        AccountMysqlModel account = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(CurrentAccountUtil.get().getPhoneNumber()));
         if (!account.getSuperAdminRole()) {
             throw new StatusCodeWithException("您没有编辑权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
         }

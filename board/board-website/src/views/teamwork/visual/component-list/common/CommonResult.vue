@@ -94,8 +94,8 @@
         float: right;
     }
     .flex-form{
-        .el-form-item{margin-bottom:5px;}
-        :deep(.el-form-item__label),
-        :deep(.el-form-item__content){line-height: 20px;}
+        .board-form-item{margin-bottom:5px;}
+        :deep(.board-form-item__label),
+        :deep(.board-form-item__content){line-height: 20px;}
     }
 </style>

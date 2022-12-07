@@ -92,7 +92,7 @@ $height32: 32px;
         }
     }
     .label-modal-input {
-        .el-input__inner {
+        .board-input__inner {
             font-size: $font14;
             height: $height32 !important;
             box-shadow: inset 0 -1px 0 0 #eee;

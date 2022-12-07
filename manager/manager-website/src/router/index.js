@@ -4,28 +4,41 @@
  */
 
 import { createRouter, createWebHistory } from 'vue-router';
+import guards from './guards';
 import baseRoutes from './routes';
 
-const router = createRouter({
-    routes:  baseRoutes,
-    history: createWebHistory(),
-    scrollBehavior (to, from, savedPosition) {
-        const scrollBehavior = {
-            el:       '#layout-main',
-            top:      savedPosition ? savedPosition.top : 0,
-            left:     savedPosition ? savedPosition.left : 0,
-            behavior: 'smooth',
-        };
+function routeFunction(){
+    const base = window.__POWERED_BY_QIANKUN__ ? '/portal/' : '/';
 
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                const el = document.getElementById('layout-main');
-
-                el && el.scrollTo(scrollBehavior);
-                resolve();
-            }, 200);
-        });
-    },
-});
-
-export default router;
+    const router = createRouter({
+        routes:  baseRoutes(),
+        history: createWebHistory(base),
+        // scrollBehavior (to, from, savedPosition) {
+        //     const scrollBehavior = {
+        //         el:       '#layout-main',
+        //         top:      savedPosition ? savedPosition.top : 0,
+        //         left:     savedPosition ? savedPosition.left : 0,
+        //         behavior: 'smooth',
+        //     };
+    
+        //     return new Promise((resolve, reject) => {
+        //         setTimeout(() => {
+        //             const el = document.getElementById('layout-main');
+    
+        //             el && el.scrollTo(scrollBehavior);
+        //             resolve();
+        //         }, 200);
+        //     });
+        // },
+        scrollBehavior() {
+            return { x: 0, y: 0 };
+        },
+    });
+    
+    // if(window.__POWERED_BY_QIANKUN__){
+    //     guards(router)
+    // }
+    // guards(router);
+    return router;
+}
+export default routeFunction;

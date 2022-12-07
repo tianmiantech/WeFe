@@ -14,18 +14,24 @@
                 <el-form-item>
                     <el-input
                         v-model="vData.member.member_email"
-                        prefix-icon="iconfont icon-email"
                         placeholder="邮箱"
                         :readonly="!edit"
-                    />
+                    >
+                        <template #prefix>
+                            <i class="iconfont icon-email" />
+                        </template>
+                    </el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-input
                         v-model="vData.member.member_mobile"
-                        prefix-icon="iconfont icon-mobile"
                         placeholder="电话"
                         :readonly="!edit"
-                    />
+                    >
+                        <template #prefix>
+                            <i class="iconfont icon-mobile" />
+                        </template>
+                    </el-input>
                 </el-form-item>
             </el-form>
         </div>
@@ -109,12 +115,12 @@
         border:1px solid #eee;
         box-shadow:-10px 10px 10px 4px #ddd;
         &.readonly{
-            :deep(.el-input__inner):hover{
+            :deep(.manager-input__inner):hover{
                 border-color: transparent;
                 background: transparent;
             }
         }
-        :deep(.el-input__inner){color: #fff;}
+        :deep(.manager-input__inner){color: #222;}
     }
     .member-avatar{margin-top: 30px;}
     .member-content{
@@ -123,8 +129,8 @@
         margin-left: 20px;
         padding-left: 0px;
         margin-top: 20px;
-        :deep(.el-form-item){margin-bottom: 0;}
-        :deep(.el-input__inner){
+        :deep(.manager-form-item){margin-bottom: 0;}
+        :deep(.manager-input__inner){
             border-color: transparent;
             background: transparent;
             padding-right: 0;

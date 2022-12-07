@@ -137,7 +137,7 @@
 
 <style lang="scss">
     .base-tags {
-        height: 30px;
+        // height: 30px;
         border-top:1px solid #f5f6fa;
         padding: 3px 120px 3px 10px;
         box-shadow: 0 3px 3px rgba(146, 146, 146, 0.1);
@@ -150,7 +150,7 @@
         overflow-x: auto;
         white-space: nowrap;
         &::-webkit-scrollbar{height: 0;}
-        .el-tag {
+        .board-tag {
             border: 0;
             height: 24px;
             line-height: 24px;
@@ -160,7 +160,7 @@
             text-decoration: none;
             color: $color-text-light;
         }
-        .el-tag__close {
+        .board-tag__close {
             color: $color-text-light;
         }
         .is-active {
@@ -170,7 +170,7 @@
                 background: $color-link-base-hover;
             }
             .tags-li-title,
-            .el-tag__close {
+            .board-tag__close {
                 color: #fff;
             }
         }

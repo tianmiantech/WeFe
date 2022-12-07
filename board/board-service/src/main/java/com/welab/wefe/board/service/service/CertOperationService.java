@@ -15,23 +15,6 @@
  */
 package com.welab.wefe.board.service.service;
 
-import java.math.BigInteger;
-import java.security.KeyPair;
-import java.security.PublicKey;
-import java.security.Security;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.Date;
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.pkcs.PKCS10CertificationRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.webank.cert.toolkit.enums.CertDigestAlgEnums;
 import com.webank.cert.toolkit.enums.CertStatusEnums;
 import com.webank.cert.toolkit.enums.KeyAlgorithmEnums;
@@ -50,8 +33,24 @@ import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.AESUtil;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.wefe.dto.global_config.MemberInfoModel;
+import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigInteger;
+import java.security.KeyPair;
+import java.security.PublicKey;
+import java.security.Security;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+import java.util.List;
 
 @Service
 public class CertOperationService {
@@ -85,7 +84,7 @@ public class CertOperationService {
             throw new StatusCodeWithException("数据不存在", StatusCode.DATA_NOT_FOUND);
         }
         certInfo.setStatus(status);
-        certInfo.setUpdatedBy(CurrentAccount.id());
+        certInfo.setUpdatedBy(CurrentAccountUtil.get().getId());
         certInfo.setUpdatedTime(new Date());
         certInfoRepository.save(certInfo);
     }

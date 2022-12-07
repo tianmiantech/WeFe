@@ -29,7 +29,7 @@ import com.welab.wefe.board.service.dto.entity.MemberOutputModel;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -93,7 +93,7 @@ public class BlacklistService extends AbstractService {
                 model.setBlacklistMemberId(id);
                 model.setRemark(input.getRemark());
                 model.setCreatedTime(new Date());
-                model.setCreatedBy(CurrentAccount.id());
+                model.setCreatedBy(CurrentAccountUtil.get().getId());
                 list.add(model);
             }
         }
