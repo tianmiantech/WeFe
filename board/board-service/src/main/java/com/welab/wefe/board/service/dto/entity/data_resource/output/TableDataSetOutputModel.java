@@ -59,6 +59,10 @@ public class TableDataSetOutputModel extends DataResourceOutputModel {
      * label 的分类数量
      */
     public Integer getLabelSpeciesCount() {
+        // 没有 y 的数据集不输出这个字段（不能为0）
+        if (!containsY) {
+            return null;
+        }
         if (labelDistribution == null) {
             return null;
         }
