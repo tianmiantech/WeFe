@@ -36,7 +36,7 @@ import com.welab.wefe.serving.service.api.service.AddApi.Output;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.service.ServiceService;
 
-@Api(path = "service/update", name = "update service info")
+@Api(path = "service/update", name = "update service info", login=false)
 public class UpdateApi extends AbstractApi<UpdateApi.Input, AddApi.Output> {
 
 	@Autowired

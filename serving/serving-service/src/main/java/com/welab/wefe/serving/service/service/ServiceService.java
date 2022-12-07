@@ -396,15 +396,16 @@ public class ServiceService {
                             newDataSourceMySqlModel.getPort(), newDataSourceMySqlModel.getUserName(), newDataSourceMySqlModel.getPassword(),
                             newDataSourceMySqlModel.getDatabaseName());
                     
-                    List<Map<String, String>> result = dataSourceService.queryList(newDataSourceMySqlModel, sql,
+                    List<Map<String, String>> result = dataSourceService.queryList(newDataSourceMySqlModel, sql + " limit 2000000",
                             needFields);
                     if (result == null || result.isEmpty()) {
                         return;
                     }
                     LOG.info(newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table")
                             + " count = " + result.size());
-                    
-                    List<Set<Map<String, String>>> partitionList = partitionList(result, 4);
+                    System.out.println(JSONObject.toJSONString(result.get(0)));
+                    System.out.println(keyCalcRules.toJSONString());
+                    List<Set<Map<String, String>>> partitionList = partitionList(result, 8);
                     ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
                     List<String> ids = new CopyOnWriteArrayList<>();
                     for (Set<Map<String, String>> partition : partitionList) {
@@ -418,7 +419,7 @@ public class ServiceService {
                     executorService.shutdown();
                     try {
                         while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
-                            // pass
+                            LOG.info("calc size = " + ids.size());
                         }
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -426,9 +427,10 @@ public class ServiceService {
                         executorService.shutdown();
                         executorService = null;
                     }
+                    LOG.info("begin batchInsert");
                     String insertSql = String.format("insert into %s values (?)", keysTableNameTmp);
                     
-                    List<Set<String>> idsList = PartitionUtil.partitionList(ids, 4);
+                    List<Set<String>> idsList = PartitionUtil.partitionList(ids, 8);
                     executorService = Executors.newFixedThreadPool(idsList.size());
                     for (Set<String> partition : idsList) {
                         executorService.submit(() -> {
@@ -451,6 +453,7 @@ public class ServiceService {
                     } finally {
                         executorService.shutdown();
                     }
+                    LOG.info("end batchInsert");
                 } catch (StatusCodeWithException e1) {
                     e1.printStackTrace();
                 }
@@ -494,7 +497,7 @@ public class ServiceService {
     
     private String calcKey(JSONArray keyCalcRules, Map<String, String> data) {
         int size = keyCalcRules.size();
-        StringBuffer encodeValue = new StringBuffer("");
+        StringBuilder encodeValue = new StringBuilder("");
         for (int i = 0; i < size; i++) {
             JSONObject item = keyCalcRules.getJSONObject(i);
             String operator = item.getString("operator");
