@@ -158,7 +158,7 @@ public abstract class AbstractSendTransferMetaService {
         if (StringUtil.isEmpty(dstEndpoint.getIp())) {
             if (!selfMemberEntity.getId().equals(dstMember.getMemberId())) {
                 PartnerConfigEntity partnerConfig = PartnerConfigCache.getInstance().get(dstMember.getMemberId());
-                if (null == partnerConfig || StringUtil.isEmpty(partnerConfig.getGatewayAddress()) || StringUtil.isEmpty(dstMemberEntity.getGatewayExternalUri())) {
+                if ((null == partnerConfig || StringUtil.isEmpty(partnerConfig.getGatewayAddress())) && StringUtil.isEmpty(dstMemberEntity.getGatewayExternalUri())) {
                     return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "成员[" + dstMemberEntity.getName() + "]未设置网关公网地址.", transferMeta.getSessionId());
                 }
             }
