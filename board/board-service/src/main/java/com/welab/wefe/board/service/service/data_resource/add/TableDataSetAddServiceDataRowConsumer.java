@@ -28,7 +28,6 @@ import com.welab.wefe.board.service.util.unique.DataSetMemoryUniqueFilter;
 import com.welab.wefe.common.BatchConsumer;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.ListUtil;
-import com.welab.wefe.common.util.Md5;
 import com.welab.wefe.common.web.Launcher;
 import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.jetty.util.ConcurrentHashSet;
@@ -168,13 +167,6 @@ public class TableDataSetAddServiceDataRowConsumer implements Consumer<LinkedHas
                 batchConsumer.setMaxBatchSize(this.maxBatchSize);
             }
         }
-
-
-        // Salt and hash the primary key
-        String id = String.valueOf(row.get(firstColumnName));
-        id = Md5.of("hello" + id + "world");
-        row.put(firstColumnName, id);
-
 
         List<Object> values = new ArrayList<>(row.values());
 
