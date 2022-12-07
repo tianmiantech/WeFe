@@ -55,7 +55,7 @@ export default _ => {
         uiConfig,
         isDemo,
         adminUserList,
-        featureType: [],
+        featureType: {},
     };
 
     const getters = {
@@ -100,7 +100,6 @@ export default _ => {
             setStorage().setItem(ADMIN_USER_LIST, JSON.stringify(data));
         },
         'UPDATE_FEATURE_TYPE'(state, data){
-            console.log(data, 'featureType')
             state.featureType = data;
         },
     };
