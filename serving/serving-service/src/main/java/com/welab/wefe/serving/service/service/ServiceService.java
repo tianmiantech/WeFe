@@ -399,7 +399,9 @@ public class ServiceService {
         if (dataSourceModel.getDatabaseType().name().equalsIgnoreCase(DatabaseType.MySql.name())) {
             String oldIdsTableName = model.getIdsTableName();
             try {
-                dataSourceService.update(dataSourceModel, "drop table " + oldIdsTableName);
+                if(StringUtils.isNotBlank(oldIdsTableName)) {
+                    dataSourceService.update(dataSourceModel, "drop table " + oldIdsTableName);
+                }
             } catch (StatusCodeWithException e) {
                 LOG.error("drop table error , tableName = " + oldIdsTableName);
             }
