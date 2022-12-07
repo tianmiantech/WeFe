@@ -200,7 +200,7 @@ export default {
             const tipsArray = [];
 
             selectedFeature.value.forEach(item => {
-                const isNumerical = ['Integer', 'Double', 'Long']; 
+                const isNumerical = ['Integer', 'Long']; 
                 if(item.data_type && !isNumerical.includes(item.data_type)){
                     tipsArray.push({
                         name:      item.name,
@@ -212,7 +212,7 @@ export default {
             if(tipsArray.length){
                 $notify({
                     type:     'warning',
-                    offset:   -10,
+                    offset:   5,
                     duration: 2000,
                     title:    '提示',
                     message:  `请知悉：您当前选择的特征有${tipsArray.length}个不是数值型，部分组件不支持输入非数值型特征，必要时可以通过重新选择、热编码、特征转换等方式处理这些特征。非数值型特征：${tipsArray.reduce((pre,cur)=> pre + `${cur.name}(${cur.data_type}),`, '')}`,
