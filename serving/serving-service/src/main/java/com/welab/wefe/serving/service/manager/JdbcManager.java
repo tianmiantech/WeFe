@@ -176,7 +176,7 @@ public class JdbcManager {
 
 	public List<Map<String, String>> queryList(Connection conn, String sql, List<String> returnFields) {
 	    long start = System.currentTimeMillis();
-        log.info("JdbcManager queryList start: " + start);
+        log.info("JdbcManager queryList sql: " + sql);
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		List<Map<String, String>> result = new ArrayList<>();
@@ -264,7 +264,7 @@ public class JdbcManager {
 				ps.addBatch();
 				count++;
 				// 每1000条记录插入一次
-				if (count % 100000 == 0) {
+				if (count % 10000 == 0) {
 					ps.executeBatch();
 					conn.commit();
 					ps.clearBatch();
@@ -524,7 +524,7 @@ public class JdbcManager {
 	 */
 	public long count(Connection conn, String sql) {
 	    long start = System.currentTimeMillis();
-        log.info("JdbcManager count start: " + start);
+        log.info("JdbcManager count start");
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		long totalCount = 0;
@@ -532,6 +532,8 @@ public class JdbcManager {
 		try {
 			String s = sql.replace("*", "count(*)");
 			ps = conn.prepareStatement(s);
+			ps.setFetchSize(1);
+            ps.setMaxRows(1);
 			rs = ps.executeQuery();
 			while (rs.next()) {
 				totalCount = rs.getLong(1);
