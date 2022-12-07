@@ -34,6 +34,9 @@ import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.mpc.psi.sdk.ecdh.EllipticCurve;
+import com.welab.wefe.mpc.psi.sdk.util.ConverterUtil;
+import com.welab.wefe.mpc.psi.sdk.util.PartitionUtil;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostDecisionTreeModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostNodeModel;
@@ -57,6 +60,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
+import org.bouncycastle.math.ec.ECPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,10 +71,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -370,7 +379,6 @@ public class ServiceService {
         keysTableName += ("_" + format.format(new Date()));
         String sql = "SELECT " + StringUtils.join(needFields, ",") + " FROM " + newDataSourceMySqlModel.getDatabaseName() + "."
                 + dataSource.getString("table");
-        Set<String> ids = new HashSet<>();
         try {
             String tmpSql = "SELECT * FROM " + newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table");
             long count = dataSourceService.count(newDataSourceMySqlModel, tmpSql);
@@ -381,26 +389,68 @@ public class ServiceService {
             final String keysTableNameTmp = keysTableName;
             CommonThreadPool.run(() -> {
                 try {
-                    List<Map<String, String>> result = dataSourceService.queryList(newDataSourceMySqlModel, sql, needFields);
-                    if (result == null || result.isEmpty()) {
-                        return;
-                    }
-                    LOG.info(newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table") + " count = "
-                            + result.size());
-                    for (Map<String, String> item : result) {
-                        String id = calcKey(keyCalcRules, item);
-                        ids.add(id);
-                    }
                     String createTableSql = String.format(
                             "CREATE TABLE `%s` (`id` varchar(100) NOT NULL ,PRIMARY KEY (`id`) USING BTREE ) ENGINE=InnoDB;",
                             keysTableNameTmp);
                     dataSourceService.createTable(createTableSql, DatabaseType.MySql, newDataSourceMySqlModel.getHost(),
                             newDataSourceMySqlModel.getPort(), newDataSourceMySqlModel.getUserName(), newDataSourceMySqlModel.getPassword(),
                             newDataSourceMySqlModel.getDatabaseName());
+                    
+                    List<Map<String, String>> result = dataSourceService.queryList(newDataSourceMySqlModel, sql,
+                            needFields);
+                    if (result == null || result.isEmpty()) {
+                        return;
+                    }
+                    LOG.info(newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table")
+                            + " count = " + result.size());
+                    
+                    List<Set<Map<String, String>>> partitionList = partitionList(result, 4);
+                    ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
+                    List<String> ids = new CopyOnWriteArrayList<>();
+                    for (Set<Map<String, String>> partition : partitionList) {
+                        executorService.submit(() -> {
+                            for (Map<String, String> map : partition) {
+                                String id = calcKey(keyCalcRules, map);
+                                ids.add(id);
+                            }
+                        });
+                    }
+                    executorService.shutdown();
+                    try {
+                        while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                            // pass
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } finally {
+                        executorService.shutdown();
+                        executorService = null;
+                    }
                     String insertSql = String.format("insert into %s values (?)", keysTableNameTmp);
-                    dataSourceService.batchInsert(insertSql, DatabaseType.MySql, newDataSourceMySqlModel.getHost(),
-                            newDataSourceMySqlModel.getPort(), newDataSourceMySqlModel.getUserName(), newDataSourceMySqlModel.getPassword(),
-                            newDataSourceMySqlModel.getDatabaseName(), ids);
+                    
+                    List<Set<String>> idsList = PartitionUtil.partitionList(ids, 4);
+                    executorService = Executors.newFixedThreadPool(idsList.size());
+                    for (Set<String> partition : idsList) {
+                        executorService.submit(() -> {
+                            try {
+                                dataSourceService.batchInsert(insertSql, DatabaseType.MySql, newDataSourceMySqlModel.getHost(),
+                                        newDataSourceMySqlModel.getPort(), newDataSourceMySqlModel.getUserName(),
+                                        newDataSourceMySqlModel.getPassword(), newDataSourceMySqlModel.getDatabaseName(), partition);
+                            } catch (StatusCodeWithException e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                    executorService.shutdown();
+                    try {
+                        while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                            // pass
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } finally {
+                        executorService.shutdown();
+                    }
                 } catch (StatusCodeWithException e1) {
                     e1.printStackTrace();
                 }
@@ -411,6 +461,37 @@ public class ServiceService {
         return keysTableName;
     }
 
+    /**
+     * 分片
+     */
+    public static <T> List<Set<T>> partitionList(List<T> list, int numPartitions) {
+        if (list == null) {
+            throw new NullPointerException("The set must not be null");
+        }
+
+        List<Set<T>> partitions = new ArrayList<>(numPartitions);
+        for (int i = 0; i < numPartitions; i++)
+            partitions.add(i, new HashSet<>());
+
+        int size = list.size();
+        int partitionSize = (int) Math.ceil((double) size / numPartitions);
+        if (numPartitions <= 0)
+            throw new IllegalArgumentException("'numPartitions' must be greater than 0");
+
+        Iterator<T> iterator = list.iterator();
+        int partitionToWrite = 0;
+        int cont = 0;
+        while (iterator.hasNext()) {
+            partitions.get(partitionToWrite).add(iterator.next());
+            cont++;
+            if (cont >= partitionSize) {
+                partitionToWrite++;
+                cont = 0;
+            }
+        }
+        return partitions;
+    }
+    
     private String calcKey(JSONArray keyCalcRules, Map<String, String> data) {
         int size = keyCalcRules.size();
         StringBuffer encodeValue = new StringBuffer("");
