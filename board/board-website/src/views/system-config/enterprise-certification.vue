@@ -1,5 +1,5 @@
 <template>
-    <div v-loading="loading" class="page">
+    <div v-loading="loading" class="page enterprise-certification">
         <el-card shadow="never">
             <h3>企业实名认证 <span v-if="form.realNameAuth === 1" class="f14 color-danger">(审核中)</span></h3>
             <el-form
@@ -394,6 +394,11 @@
 </script>
 
 <style lang="scss" scoped>
+    .enterprise-certification{
+        :deep(.board-form-item__label){
+            height: 100%;
+        }
+    }
     .board-form{max-width: 500px;}
     .board-link{line-height: 1;}
     .board-uploader{
