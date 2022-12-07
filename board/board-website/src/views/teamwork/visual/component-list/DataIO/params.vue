@@ -812,6 +812,7 @@
                                 derived_from:      row[0].derived_from,
                                 row_count:         row[0].row_count || row[0].total_data_count,
                                 name:              row[0].name,
+                                label_species_count: row[0].label_species_count,
                             });
                         }
                     });
