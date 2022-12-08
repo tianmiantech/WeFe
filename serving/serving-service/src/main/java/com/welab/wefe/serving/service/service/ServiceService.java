@@ -452,6 +452,9 @@ public class ServiceService {
                     }
                     int partitionSize = 100000;
                     int taskNum = result.size() / partitionSize;
+                    if (taskNum <= 0) {
+                        taskNum = 1;
+                    }
                     LOG.info(newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table")
                             + " count = " + result.size() + ", taskNum = " + taskNum + ", threads size = "
                             + this.threads);
