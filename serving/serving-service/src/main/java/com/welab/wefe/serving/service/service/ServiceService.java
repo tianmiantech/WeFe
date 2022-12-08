@@ -22,24 +22,26 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Set;
+import java.util.Queue;
 import java.util.TreeMap;
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -58,6 +60,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Queues;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
@@ -156,7 +159,7 @@ public class ServiceService {
     private ModelMemberRepository modelMemberRepository;
     @Autowired
     private ModelMemberService modelMemberService;
-    private int threads = Runtime.getRuntime().availableProcessors() / 2;
+    private int threads = Runtime.getRuntime().availableProcessors();
 
     public com.welab.wefe.serving.service.api.service.DetailApi.Output detail(
             com.welab.wefe.serving.service.api.service.DetailApi.Input input) throws Exception {
@@ -448,38 +451,88 @@ public class ServiceService {
                     if (result == null || result.isEmpty()) {
                         return;
                     }
-                    int partitionSize = 500000;
+                    int partitionSize = 100000;
                     int taskNum = result.size() / partitionSize;
                     LOG.info(newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table")
                             + " count = " + result.size() + ", taskNum = " + taskNum + ", threads size = "
                             + this.threads);
-                    List<Set<Map<String, String>>> partitionList = partitionList(result, taskNum);
+                    List<Queue<Map<String, String>>> partitionList = partitionList(result, taskNum);
                     ExecutorService executorService1 = Executors.newFixedThreadPool(this.threads);
-                    List<List<String>> queues = new CopyOnWriteArrayList<>();
-                    AtomicInteger finishedCount = new AtomicInteger(0);
+                    Map<String, BlockingQueue<String>> queues = new ConcurrentHashMap<>();
+                    Map<String, Boolean> finishedMap = new ConcurrentHashMap<>();
                     for (int i = 0; i < partitionList.size(); i++) {
-                        Set<Map<String, String>> partition = partitionList.get(i);
+                        finishedMap.put(i + "", false);
+                        final int finalI = i;
+                        Queue<Map<String, String>> partition = partitionList.get(i);
                         executorService1.submit(() -> {
-                            LOG.info("calcKey begin atomicCount = " + finishedCount.get() + ", partition size = "
-                                    + partition.size());
-                            List<String> queue = new LinkedList<>();
-                            queues.add(queue);
-                            for (Map<String, String> map : partition) {
-                                String id = calcKey(keyCalcRules, map);
+                            LOG.info("calcKey begin index = " + finalI + ", partition size = " + partition.size());
+                            BlockingQueue<String> queue = new LinkedBlockingQueue<>();
+                            queues.put(finalI + "", queue);
+                            while (!partition.isEmpty()) {
+                                String id = calcKey(keyCalcRules, partition.poll());
                                 queue.add(id);
                             }
-                            finishedCount.incrementAndGet();
-                            LOG.info("calcKey success atomicCount = " + finishedCount.get() + ", queue size = "
-                                    + queue.size());
+                            finishedMap.put(finalI + "", true);
+                            LOG.info("calcKey end index = " + finalI + ", queue size = " + queue.size());
                         });
                     }
                     executorService1.shutdown();
+                    LOG.info("begin batchInsert, queues size = " + queues.size());
+                    String insertSql = String.format("insert into %s values (?)", keysTableNameTmp);
+                    int insertThreads = 4;
+                    ExecutorService executorService2 = Executors.newFixedThreadPool(insertThreads);
+                    for (int i = 0; i < insertThreads; i++) {
+                        executorService2.submit(() -> {
+//                            try {
+//                                LOG.info("batchInsert queue size =" + queue.size());
+//                                dataSourceService.batchInsert(insertSql, DatabaseType.MySql,
+//                                        newDataSourceMySqlModel.getHost(), newDataSourceMySqlModel.getPort(),
+//                                        newDataSourceMySqlModel.getUserName(),
+//                                        newDataSourceMySqlModel.getPassword(),
+//                                        newDataSourceMySqlModel.getDatabaseName(), new HashSet<>(queue));
+//                            } catch (StatusCodeWithException e) {
+//                                e.printStackTrace();
+//                            }
+                            while (true) {
+                                int finishedCount = 0;
+                                for (final Entry<String, BlockingQueue<String>> queue : queues.entrySet()) {
+                                    if (!finishedMap.get(queue.getKey())) {
+                                        try {
+                                            List<String> list = new ArrayList<>();
+                                            try {
+                                                Queues.drain(queue.getValue(), list, 100000, 2, TimeUnit.SECONDS);
+                                            } catch (InterruptedException e) {
+                                                e.printStackTrace();
+                                            }
+                                            if (list.isEmpty()) {
+                                                LOG.info("queue is empty, continue");
+                                                break;
+                                            }
+                                            dataSourceService.batchInsert(insertSql, DatabaseType.MySql,
+                                                    newDataSourceMySqlModel.getHost(),
+                                                    newDataSourceMySqlModel.getPort(),
+                                                    newDataSourceMySqlModel.getUserName(),
+                                                    newDataSourceMySqlModel.getPassword(),
+                                                    newDataSourceMySqlModel.getDatabaseName(), new HashSet<>(list));
+                                        } catch (StatusCodeWithException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    else {
+                                        finishedCount ++;
+                                    }
+                                }
+                                if(finishedCount == finishedMap.size()) {
+                                    break;
+                                }
+                            }
+                        });
+                    }
                     try {
                         while (!executorService1.awaitTermination(10, TimeUnit.SECONDS)) {
-                            LOG.info("finishedCount = " + finishedCount.get());
                             int c = 0;
-                            for (List<String> queue : queues) {
-                                LOG.info("index:" + (c++) + ", queue size =" + queue.size());
+                            for (Entry<String, BlockingQueue<String>> queue : queues.entrySet()) {
+                                LOG.info("index:" + (c++) + ", queue size =" + queue.getValue().size());
                             }
                         }
                     } catch (InterruptedException e) {
@@ -488,43 +541,6 @@ public class ServiceService {
                     finally {
                         executorService1.shutdown();
                         executorService1 = null;
-                    }
-                    LOG.info("begin batchInsert, queues size = " + queues.size());
-                    String insertSql = String.format("insert into %s values (?)", keysTableNameTmp);
-                    ExecutorService executorService2 = Executors.newFixedThreadPool(this.threads);
-                    for (final List<String> queue : queues) {
-                        executorService2.submit(() -> {
-                            try {
-                                LOG.info("batchInsert queue size =" + queue.size());
-                                dataSourceService.batchInsert(insertSql, DatabaseType.MySql,
-                                        newDataSourceMySqlModel.getHost(), newDataSourceMySqlModel.getPort(),
-                                        newDataSourceMySqlModel.getUserName(),
-                                        newDataSourceMySqlModel.getPassword(),
-                                        newDataSourceMySqlModel.getDatabaseName(), new HashSet<>(queue));
-                            } catch (StatusCodeWithException e) {
-                                e.printStackTrace();
-                            }
-//                            while (atomicCount.get() != 8 || !queue.isEmpty()) {
-//                                try {
-//                                    List<String> list = new ArrayList<>();
-//                                    try {
-//                                        Queues.drain(queue, list, 100000, 5, TimeUnit.SECONDS);
-//                                    } catch (InterruptedException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                    if (list.isEmpty()) {
-//                                        continue;
-//                                    }
-//                                    dataSourceService.batchInsert(insertSql, DatabaseType.MySql,
-//                                            newDataSourceMySqlModel.getHost(), newDataSourceMySqlModel.getPort(),
-//                                            newDataSourceMySqlModel.getUserName(),
-//                                            newDataSourceMySqlModel.getPassword(),
-//                                            newDataSourceMySqlModel.getDatabaseName(), new HashSet<>(list));
-//                                } catch (StatusCodeWithException e) {
-//                                    e.printStackTrace();
-//                                }
-//                            }
-                        });
                     }
                     executorService2.shutdown();
                     try {
@@ -551,14 +567,14 @@ public class ServiceService {
     /**
      * 分片
      */
-    public static <T> List<Set<T>> partitionList(List<T> list, int numPartitions) {
+    public static <T> List<Queue<T>> partitionList(List<T> list, int numPartitions) {
         if (list == null) {
             throw new NullPointerException("The set must not be null");
         }
 
-        List<Set<T>> partitions = new ArrayList<>(numPartitions);
+        List<Queue<T>> partitions = new ArrayList<>(numPartitions);
         for (int i = 0; i < numPartitions; i++)
-            partitions.add(i, new HashSet<>());
+            partitions.add(i, new ArrayDeque<>());
 
         int size = list.size();
         int partitionSize = (int) Math.ceil((double) size / numPartitions);
