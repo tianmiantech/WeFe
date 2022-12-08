@@ -60,17 +60,33 @@ public abstract class AbstractHttpTransferVariable {
             body.put("data", params);
             data = body.toJSONString();
         }
-//        logger.info("request:" + data + ",url=" + url);
+//        logger.info("request url=" + url);
         HttpResponse response = HttpRequest.post(url).timeout(HttpGlobalConfig.getTimeout()).body(data).execute();
-        while (response == null || response.getStatus() != HttpStatus.HTTP_OK) {
-            try {
-                TimeUnit.MILLISECONDS.sleep(100);
-            } catch (InterruptedException e) {
-                logger.error(e.getMessage(), e);
-            }
-            response = HttpRequest.post(url).timeout(HttpGlobalConfig.getTimeout()).body(data).execute();
+//        int tryCount = 0;
+//        while (response == null || response.getStatus() != HttpStatus.HTTP_OK) {
+//            try {
+//                TimeUnit.MILLISECONDS.sleep(100);
+//            } catch (InterruptedException e) {
+//                logger.error(e.getMessage(), e);
+//            }
+//            response = HttpRequest.post(url).timeout(HttpGlobalConfig.getTimeout()).body(data).execute();
+//            tryCount++;
+//            if (tryCount > 3) {
+//                String errorMessage = "request errror" + ",customer_id=" + mConfig.getCommercialId() + ",url=" + url;
+//                JSONObject res = new JSONObject();
+//                res.put("code", -1);
+//                res.put("message", errorMessage);
+//                return res.toJSONString();
+//            }
+//        }
+        if (response == null || response.getStatus() != HttpStatus.HTTP_OK) {
+            String errorMessage = "request errror" + ",customer_id=" + mConfig.getCommercialId() + ",url=" + url;
+            JSONObject res = new JSONObject();
+            res.put("code", -1);
+            res.put("message", errorMessage);
+            return res.toJSONString();
         }
-//        logger.info("response:" + response);
+        logger.info("request url=" + url + ", response status:" + response.getStatus());
         String responseString = response.body();
         JSONObject res = JSONObject.parseObject(responseString);
         if (res.getIntValue("code") != 0) {
