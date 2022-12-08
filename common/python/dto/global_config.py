@@ -33,6 +33,8 @@ class MemberInfo(object):
     member_logo: str
     # 成员隐身状态
     member_hidden: bool
+    # 密钥类型参数：rsa、sm2
+    secret_key_type: str
 
 
 class BoardConfigModel(object):
