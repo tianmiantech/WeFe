@@ -27,9 +27,23 @@ public class QueryPrivateSetIntersectionResponse {
     private String requestId;
     private List<String> serverEncryptIds;
     private List<String> clientIdByServerKeys;
+
+    /**
+     * 当前批次
+     */
+    private int currentBatch;
+    /**
+     * 是否有下一个批次
+     */
+    private boolean hasNext;
+
+    /**
+     * 是否分批次
+     * */
+    private boolean splitData;
+
     private String message;
     private int code;
-
 
     public String getRequestId() {
         return requestId;
@@ -70,4 +84,29 @@ public class QueryPrivateSetIntersectionResponse {
     public void setCode(int code) {
         this.code = code;
     }
+
+    public int getCurrentBatch() {
+        return currentBatch;
+    }
+
+    public void setCurrentBatch(int currentBatch) {
+        this.currentBatch = currentBatch;
+    }
+
+    public boolean isHasNext() {
+        return hasNext;
+    }
+
+    public void setHasNext(boolean hasNext) {
+        this.hasNext = hasNext;
+    }
+
+    public boolean isSplitData() {
+        return splitData;
+    }
+
+    public void setSplitData(boolean splitData) {
+        this.splitData = splitData;
+    }
+
 }

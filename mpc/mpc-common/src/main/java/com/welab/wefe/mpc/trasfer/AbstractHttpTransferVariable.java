@@ -60,7 +60,7 @@ public abstract class AbstractHttpTransferVariable {
             body.put("data", params);
             data = body.toJSONString();
         }
-//        logger.info("request url=" + url);
+        logger.info("request url=" + url);
         HttpResponse response = HttpRequest.post(url).timeout(HttpGlobalConfig.getTimeout()).body(data).execute();
 //        int tryCount = 0;
 //        while (response == null || response.getStatus() != HttpStatus.HTTP_OK) {
@@ -87,6 +87,7 @@ public abstract class AbstractHttpTransferVariable {
             return res.toJSONString();
         }
         logger.info("request url=" + url + ", response status:" + response.getStatus());
+//        logger.info("response:" + response);
         String responseString = response.body();
         JSONObject res = JSONObject.parseObject(responseString);
         if (res.getIntValue("code") != 0) {

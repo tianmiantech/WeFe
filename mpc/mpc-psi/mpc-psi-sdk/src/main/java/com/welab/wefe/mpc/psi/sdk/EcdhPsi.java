@@ -23,12 +23,16 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
 import com.welab.wefe.mpc.psi.sdk.ecdh.EcdhPsiClient;
 import com.welab.wefe.mpc.psi.sdk.service.PrivateSetIntersectionService;
 import com.welab.wefe.mpc.psi.sdk.util.EcdhUtil;
+import com.welab.wefe.mpc.trasfer.AbstractHttpTransferVariable;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
@@ -37,6 +41,9 @@ import cn.hutool.core.util.StrUtil;
  * @Author: winter
  **/
 public class EcdhPsi {
+
+    private static final Logger logger = LoggerFactory.getLogger(EcdhPsi.class);
+    private static final int DEFAULT_CURRENT_BATH = 0;
 
     /**
      * 多方求交集
@@ -82,18 +89,47 @@ public class EcdhPsi {
         // 发给服务端
         request.setClientIds(EcdhUtil.convert2List(clientEncryptedDatasetMap));
         request.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
+        request.setCurrentBatch(DEFAULT_CURRENT_BATH);
         PrivateSetIntersectionService privateSetIntersectionService = new PrivateSetIntersectionService();
         QueryPrivateSetIntersectionResponse response = privateSetIntersectionService.handle(config, request);
         if (response.getCode() != 0) {
             throw new Exception(response.getMessage());
         }
+        boolean hasNext = response.isHasNext();
         // 获取服务端id
         List<String> encryptServerIds = response.getServerEncryptIds();
         client.encryptServerDataset(encryptServerIds);
 
         // 客户端进行转换成椭圆曲线上的点
         client.convertDoubleEncryptedClientDataset2ECPoint(EcdhUtil.convert2Map(response.getClientIdByServerKeys()));
-        Set<String> result = client.psi();
-        return new ArrayList<>(result);
+        Set<String> allResult = client.psi();
+
+        logger.info("ecdh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
+                + allResult.size() + ", hasNext = " + hasNext);
+        while (hasNext) {
+            // 发给服务端
+            request.setClientIds(null);// 只需要第一次传给服务端
+            request.setCurrentBatch(request.getCurrentBatch() + 1);
+            privateSetIntersectionService = new PrivateSetIntersectionService();
+            response = privateSetIntersectionService.handle(config, request);
+            if (response.getCode() != 0) {
+                throw new Exception(response.getMessage());
+            }
+            hasNext = response.isHasNext();
+            // 获取服务端id
+            encryptServerIds = response.getServerEncryptIds();
+            client.encryptServerDataset(encryptServerIds);
+
+            // 客户端进行转换成椭圆曲线上的点
+            client.convertDoubleEncryptedClientDataset2ECPoint(
+                    EcdhUtil.convert2Map(response.getClientIdByServerKeys()));
+            Set<String> batchResult = client.psi();
+            if (batchResult != null && !batchResult.isEmpty()) {
+                allResult.addAll(batchResult);
+            }
+            logger.info("ecdh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
+                    + allResult.size() + ", hasNext = " + hasNext);
+        }
+        return new ArrayList<>(allResult);
     }
 }

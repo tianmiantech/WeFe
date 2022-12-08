@@ -23,9 +23,9 @@ package com.welab.wefe.mpc.config;
  * @Date: 2021-12-30
  **/
 public class CommunicationConfig {
-    
+
     private String requestId;
-    
+
     /**
      * 查询的接口名
      */

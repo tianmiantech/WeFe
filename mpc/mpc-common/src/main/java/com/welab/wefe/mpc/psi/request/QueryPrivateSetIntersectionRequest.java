@@ -26,11 +26,16 @@ import com.alibaba.fastjson.annotation.JSONField;
  **/
 public class QueryPrivateSetIntersectionRequest {
     private String p;
-    
+
     @JSONField(name = "client_ids")
     private List<String> clientIds;
-    
+
     private String requestId;
+
+    /**
+     * 当前批次
+     */
+    private int currentBatch;
 
     public String getP() {
         return p;
@@ -55,5 +60,13 @@ public class QueryPrivateSetIntersectionRequest {
     public void setRequestId(String requestId) {
         this.requestId = requestId;
     }
-    
+
+    public int getCurrentBatch() {
+        return currentBatch;
+    }
+
+    public void setCurrentBatch(int currentBatch) {
+        this.currentBatch = currentBatch;
+    }
+
 }
