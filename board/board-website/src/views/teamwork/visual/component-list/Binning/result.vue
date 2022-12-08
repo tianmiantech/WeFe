@@ -81,7 +81,7 @@
                             <el-table-column label="特征名称" prop="column"></el-table-column>
                             <el-table-column label="分箱方法" prop="paramsMethod"></el-table-column>
                             <el-table-column label="分箱数量" prop="binNums"></el-table-column>
-                            <el-table-column label="总IV" prop="iv"></el-table-column>
+                            <el-table-column label="总IV" prop="iv" sortable sort-by="iv"></el-table-column>
                         </el-table>
                     </el-tab-pane>
                 </el-tabs>
@@ -296,7 +296,11 @@
                                     isShowWOE:          false,
                                 });
                             }
-
+                            /** 
+                             * 后台返回的表格顺序是乱的，故在此稍微排序
+                             * 可能preview看到的是正的，但是response里面是乱的。
+                             *  */
+                             dataList.sort((a,b) => a.column> b.column ? 1 : -1)
                             list.push({
                                 member_id:   member.member_id,
                                 member_name: member.member_name,

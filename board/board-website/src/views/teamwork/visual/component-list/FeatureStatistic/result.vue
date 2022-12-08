@@ -103,13 +103,18 @@
                                         </el-tabs>
                                     </template>
                                 </el-table-column>
-                                <el-table-column label="特征名称" prop="feature"></el-table-column>
+                                <el-table-column label="特征名称" prop="feature" sortable sort-by="feature" ></el-table-column>
                                 <el-table-column label="特征类型" prop="unique_count">
                                     <template v-slot="scope">
                                         <p>{{JSON.stringify(scope.row.unique_count)==='{}'?'连续型' :'离散型'}}</p>
                                     </template>
                                 </el-table-column>
-                                <el-table-column label="非空值数量 / 缺失数量">
+                                <el-table-column label="类别数目" prop="unique_count_sum" sortable sort-by="unique_count_sum">
+                                    <template v-slot="scope">
+                                        <p>{{scope.row.unique_count_sum || '--'}}</p>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="非空值数量 / 缺失数量" sortable :sort-method="methods.sortMethod"	>
                                     <template v-slot="scope">
                                         <p>{{scope.row.not_null_count}}/{{scope.row.missing_count}}</p>
                                     </template>
@@ -154,6 +159,13 @@
             const { $bus } = appContext.config.globalProperties;
 
             let methods = {
+                sortMethod({not_null_count: a, missing_count: b}, {not_null_count: c, missing_count: d}){
+                    /**
+                     * 用作非空值数量/缺失数量排序
+                     */
+                    return (a>c || (a==c && b>d)) ? -1 : 0; 
+
+                },
                 numberSum(arr) {
                     let total = 0;
 
@@ -186,15 +198,17 @@
                                 } = val;
                                 const pieSeries = [], list = [];
 
-                                for (let i=0; i<Object.values(unique_count).length; i++) {
+                                const unique_count_values = Object.values(unique_count);
+                                const unique_count_keys = Object.keys(unique_count);
+                                for (let i=0; i<unique_count_values.length; i++) {
                                     pieSeries.push({
-                                        name:  Object.keys(unique_count)[i],
-                                        value: Object.values(unique_count)[i],
+                                        name:  unique_count_keys[i],
+                                        value: unique_count_values[i],
                                     });
                                     list.push({
-                                        category:  Object.keys(unique_count)[i],
-                                        count:     Object.values(unique_count)[i],
-                                        frequency: Object.values(unique_count)[i] / methods.numberSum(Object.values(unique_count)),
+                                        category:  unique_count_keys[i],
+                                        count:     unique_count_values[i],
+                                        frequency: unique_count_values[i] / methods.numberSum(unique_count_values),
                                     });
                                 }
 
@@ -265,9 +279,16 @@
                                     median,
                                     q1,
                                     q95,
+                                    unique_count_sum: methods.numberSum(unique_count_values),
                                 });
                                 table[table.length-1].overviewtable.push(val);
                             }
+
+                            /** 
+                             * 后台返回的表格顺序是乱的，故在此稍微排序
+                             * 可能preview看到的是正的，但是response里面是乱的。
+                             *  */
+                            table.sort((a,b) => a.feature> b.feature ? 1 : -1)
 
                             vData.members.push({
                                 member_id:   member.member_id,
