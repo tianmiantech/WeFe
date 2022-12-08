@@ -158,8 +158,7 @@ public class ServiceService {
     private ModelMemberRepository modelMemberRepository;
     @Autowired
     private ModelMemberService modelMemberService;
-    private int threads = Runtime.getRuntime().availableProcessors() <= 1 ? 4
-            : Runtime.getRuntime().availableProcessors();
+    private int threads = Math.max(Runtime.getRuntime().availableProcessors(), 4);
 
     public com.welab.wefe.serving.service.api.service.DetailApi.Output detail(
             com.welab.wefe.serving.service.api.service.DetailApi.Input input) throws Exception {
