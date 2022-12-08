@@ -29,7 +29,7 @@ const resolve = dir => path.resolve(__dirname, dir);
 const { HOST_ENV,SERVICE_NAME } = argv;
 
 APP_CODE = SERVICE_NAME || APP_CODE;
-console.log(HOST_ENV, APP_CODE,welab);
+console.log(HOST_ENV, APP_CODE,welab.contextPath);
 
 // 对应分支名称.
 const isProd = process.env.NODE_ENV === 'production';
