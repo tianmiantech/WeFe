@@ -537,7 +537,7 @@
         methods: {
             async loadMemberList(keyward) {
                 const { code, data } = await this.$http.post({
-                    url:  '/account/query',
+                    url:  '/account/list_all',
                     data: {
                         page_size: 200,
                         name:      keyward,
