@@ -60,7 +60,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.Queues;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
@@ -159,7 +158,8 @@ public class ServiceService {
     private ModelMemberRepository modelMemberRepository;
     @Autowired
     private ModelMemberService modelMemberService;
-    private int threads = Runtime.getRuntime().availableProcessors();
+    private int threads = Runtime.getRuntime().availableProcessors() <= 1 ? 4
+            : Runtime.getRuntime().availableProcessors();
 
     public com.welab.wefe.serving.service.api.service.DetailApi.Output detail(
             com.welab.wefe.serving.service.api.service.DetailApi.Input input) throws Exception {
@@ -457,77 +457,49 @@ public class ServiceService {
                             + " count = " + result.size() + ", taskNum = " + taskNum + ", threads size = "
                             + this.threads);
                     List<Queue<Map<String, String>>> partitionList = partitionList(result, taskNum);
+                    result = null;
                     ExecutorService executorService1 = Executors.newFixedThreadPool(this.threads);
                     Map<String, BlockingQueue<String>> queues = new ConcurrentHashMap<>();
-                    Map<String, Boolean> finishedMap = new ConcurrentHashMap<>();
                     for (int i = 0; i < partitionList.size(); i++) {
-                        finishedMap.put(i + "", false);
                         final int finalI = i;
                         Queue<Map<String, String>> partition = partitionList.get(i);
                         executorService1.submit(() -> {
                             LOG.info("calcKey begin index = " + finalI + ", partition size = " + partition.size());
                             BlockingQueue<String> queue = new LinkedBlockingQueue<>();
                             queues.put(finalI + "", queue);
+                            String insertSql = String.format("insert into %s values (?)", keysTableNameTmp);
                             while (!partition.isEmpty()) {
                                 String id = calcKey(keyCalcRules, partition.poll());
                                 queue.add(id);
+                                if (queue.size() > 100000) {
+                                    try {
+                                        dataSourceService.batchInsert(insertSql, DatabaseType.MySql,
+                                                newDataSourceMySqlModel.getHost(), newDataSourceMySqlModel.getPort(),
+                                                newDataSourceMySqlModel.getUserName(),
+                                                newDataSourceMySqlModel.getPassword(),
+                                                newDataSourceMySqlModel.getDatabaseName(), new HashSet<>(queue));
+                                        queue.clear();
+                                    } catch (StatusCodeWithException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
                             }
-                            finishedMap.put(finalI + "", true);
+                            if (!queue.isEmpty()) {
+                                try {
+                                    dataSourceService.batchInsert(insertSql, DatabaseType.MySql,
+                                            newDataSourceMySqlModel.getHost(), newDataSourceMySqlModel.getPort(),
+                                            newDataSourceMySqlModel.getUserName(),
+                                            newDataSourceMySqlModel.getPassword(),
+                                            newDataSourceMySqlModel.getDatabaseName(), new HashSet<>(queue));
+                                    queue.clear();
+                                } catch (StatusCodeWithException e) {
+                                    e.printStackTrace();
+                                }
+                            }
                             LOG.info("calcKey end index = " + finalI + ", queue size = " + queue.size());
                         });
                     }
                     executorService1.shutdown();
-                    LOG.info("begin batchInsert, queues size = " + queues.size());
-                    String insertSql = String.format("insert into %s values (?)", keysTableNameTmp);
-                    int insertThreads = 4;
-                    ExecutorService executorService2 = Executors.newFixedThreadPool(insertThreads);
-                    for (int i = 0; i < insertThreads; i++) {
-                        executorService2.submit(() -> {
-//                            try {
-//                                LOG.info("batchInsert queue size =" + queue.size());
-//                                dataSourceService.batchInsert(insertSql, DatabaseType.MySql,
-//                                        newDataSourceMySqlModel.getHost(), newDataSourceMySqlModel.getPort(),
-//                                        newDataSourceMySqlModel.getUserName(),
-//                                        newDataSourceMySqlModel.getPassword(),
-//                                        newDataSourceMySqlModel.getDatabaseName(), new HashSet<>(queue));
-//                            } catch (StatusCodeWithException e) {
-//                                e.printStackTrace();
-//                            }
-                            while (true) {
-                                int finishedCount = 0;
-                                for (final Entry<String, BlockingQueue<String>> queue : queues.entrySet()) {
-                                    if (!finishedMap.get(queue.getKey())) {
-                                        try {
-                                            List<String> list = new ArrayList<>();
-                                            try {
-                                                Queues.drain(queue.getValue(), list, 100000, 2, TimeUnit.SECONDS);
-                                            } catch (InterruptedException e) {
-                                                e.printStackTrace();
-                                            }
-                                            if (list.isEmpty()) {
-                                                LOG.info("queue is empty, continue");
-                                                break;
-                                            }
-                                            dataSourceService.batchInsert(insertSql, DatabaseType.MySql,
-                                                    newDataSourceMySqlModel.getHost(),
-                                                    newDataSourceMySqlModel.getPort(),
-                                                    newDataSourceMySqlModel.getUserName(),
-                                                    newDataSourceMySqlModel.getPassword(),
-                                                    newDataSourceMySqlModel.getDatabaseName(), new HashSet<>(list));
-                                        } catch (StatusCodeWithException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                    else {
-                                        finishedCount ++;
-                                    }
-                                }
-                                if(finishedCount == finishedMap.size()) {
-                                    break;
-                                }
-                            }
-                        });
-                    }
                     try {
                         while (!executorService1.awaitTermination(10, TimeUnit.SECONDS)) {
                             int c = 0;
@@ -541,17 +513,6 @@ public class ServiceService {
                     finally {
                         executorService1.shutdown();
                         executorService1 = null;
-                    }
-                    executorService2.shutdown();
-                    try {
-                        while (!executorService2.awaitTermination(10, TimeUnit.SECONDS)) {
-                            // pass
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } finally {
-                        executorService2.shutdown();
-                        executorService2 = null;
                     }
                     LOG.info("end batchInsert");
                 } catch (StatusCodeWithException e1) {
