@@ -22,12 +22,13 @@ const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer'); */
 // program.parse(process.argv);
 // const options = program.opts();
 const { welab } = pkg;
-const { contextPath: APP_CODE } = welab || {};
+let { contextPath: APP_CODE } = welab || {};
 
 const resolve = dir => path.resolve(__dirname, dir);
 
-const { HOST_ENV } = argv;
+const { HOST_ENV,SERVICE_NAME } = argv;
 
+APP_CODE = SERVICE_NAME || APP_CODE;
 console.log(HOST_ENV, APP_CODE);
 
 // 对应分支名称.
@@ -101,9 +102,9 @@ module.exports = {
         },
         output: {
             // packageName需要与主项目中的引入子应用的name值相对应，统一为路由上下文名字
-            library:       `${pkg.name}-[name]`,
+            library:       `${APP_CODE}-[name]`,
             libraryTarget: 'umd', // 把子应用打包成 umd 库格式
-            jsonpFunction: `webpackJsonp_${pkg.name}`,
+            jsonpFunction: `webpackJsonp_${APP_CODE}`,
         },
     },
     chainWebpack: config => {
