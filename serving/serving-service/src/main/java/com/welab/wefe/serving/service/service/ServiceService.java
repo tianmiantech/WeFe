@@ -450,7 +450,7 @@ public class ServiceService {
                     if (result == null || result.isEmpty()) {
                         return;
                     }
-                    int partitionSize = 100000;
+                    int partitionSize = 500000;
                     int taskNum = result.size() / partitionSize;
                     if (taskNum <= 0) {
                         taskNum = 1;
@@ -473,7 +473,7 @@ public class ServiceService {
                             while (!partition.isEmpty()) {
                                 String id = calcKey(keyCalcRules, partition.poll());
                                 queue.add(id);
-                                if (queue.size() > 100000) {
+                                if (queue.size() > 250000) {
                                     try {
                                         dataSourceService.batchInsert(insertSql, DatabaseType.MySql,
                                                 newDataSourceMySqlModel.getHost(), newDataSourceMySqlModel.getPort(),
