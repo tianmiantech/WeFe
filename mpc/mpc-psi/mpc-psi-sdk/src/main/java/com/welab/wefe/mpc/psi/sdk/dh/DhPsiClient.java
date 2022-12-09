@@ -3,9 +3,7 @@ package com.welab.wefe.mpc.psi.sdk.dh;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import org.bouncycastle.math.ec.ECPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,11 +17,11 @@ public class DhPsiClient {
     private static int threads = Runtime.getRuntime().availableProcessors();
     private static int keySize = 1024;
     private ListOperator operator;
-    private BigInteger clientPrivateD;
+    private BigInteger clientPrivateD; // 客户端私钥
     private BigInteger p;
 
-    private List<String> originalClientIds;
-    private List<String> serverIdWithClientKeys;
+    private List<String> originalClientIds; // 原始客户端数据
+    private List<String> serverIdWithClientKeys; // 经过客户端加密后的服务端数据
     private List<String> clientIdByServerKeys; // 保存经过服务端二次加密后客户端的数据
 
     public DhPsiClient() {
@@ -54,10 +52,10 @@ public class DhPsiClient {
     /**
      * step 1 加密客户端ID
      */
-    public List<String> encryptClientOriginalDataset(List<String> originalClientId) {
+    public List<String> encryptClientOriginalDataset() {
         // 加密客户端id
-        List<String> encryptClientIds = new ArrayList<>(originalClientId.size());
-        for (String id : originalClientId) {
+        List<String> encryptClientIds = new ArrayList<>(this.originalClientIds.size());
+        for (String id : this.originalClientIds) {
             encryptClientIds.add(DiffieHellmanUtil.encrypt(id, this.clientPrivateD, this.p).toString(16));
         }
         return encryptClientIds;

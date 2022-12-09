@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,10 +76,10 @@ public class PrivateSetIntersection {
     /**
      * 查询本文id集与服务器id集的集合操作
      *
-     * @param config   服务器的连接信息
-     * @param ids      本方id集
-     * @param keySize  密钥安全长度
-     * @param operator 自定义列表运算结果,默认求两个列表交集
+     * @param config    服务器的连接信息
+     * @param clientIds 本方id集
+     * @param keySize   密钥安全长度
+     * @param operator  自定义列表运算结果,默认求两个列表交集
      * @return
      * @throws Exception
      */
@@ -98,7 +99,7 @@ public class PrivateSetIntersection {
         }
         client.setOriginalClientIds(clientIds);
         // 加密我自己的数据
-        List<String> encryptClientIds = client.encryptClientOriginalDataset(clientIds);
+        List<String> encryptClientIds = client.encryptClientOriginalDataset();
         QueryPrivateSetIntersectionRequest request = new QueryPrivateSetIntersectionRequest();
         request.setP(client.getP().toString(16));
         // 发给服务端
@@ -111,6 +112,8 @@ public class PrivateSetIntersection {
             throw new Exception(response.getMessage());
         }
         boolean hasNext = response.isHasNext();
+        logger.info("dh psi response serverIds size = " + CollectionUtils.size(response.getServerEncryptIds())
+                + ", clientIds size = " + CollectionUtils.size(response.getClientIdByServerKeys()));
         // 获取服务端id, 加密服务端ID
         client.encryptServerDataset(response.getServerEncryptIds());
         // 获取被服务端加密了的客户端ID
@@ -128,6 +131,8 @@ public class PrivateSetIntersection {
                 throw new Exception(response.getMessage());
             }
             hasNext = response.isHasNext();
+            logger.info("dh psi response serverIds size = " + CollectionUtils.size(response.getServerEncryptIds())
+                    + ", clientIds size = " + CollectionUtils.size(response.getClientIdByServerKeys()));
             // 获取服务端id, 加密服务端ID
             client.encryptServerDataset(response.getServerEncryptIds());
             // 获取被服务端加密了的客户端ID
