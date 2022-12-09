@@ -14,30 +14,20 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.api.dataresource.dataset;
+package com.welab.wefe.union.service.service;
 
 import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
 import com.welab.wefe.common.data.mongodb.repo.DataResourceMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.api.base.AbstractApi;
-import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.union.service.dto.dataresource.DataResourcePutInput;
-import com.welab.wefe.union.service.mapper.DataResourceMapper;
-import com.welab.wefe.union.service.service.DataResourceContractService;
-import org.mapstruct.factory.Mappers;
+import com.welab.wefe.union.service.service.contract.DataResourceContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * @author yuxin.zhang
- **/
-public abstract class AbstractDatResourcePutApi<In extends AbstractApiInput, Out> extends AbstractApi<In, Out> {
-
+public abstract class AbstractDataResource {
     @Autowired
     protected DataResourceContractService dataResourceContractService;
     @Autowired
     protected DataResourceMongoReop dataResourceMongoReop;
-
-    protected DataResourceMapper dataResourceMapper = Mappers.getMapper(DataResourceMapper.class);
 
     protected void updateDataResource(DataResource dataResource, DataResourcePutInput input) throws StatusCodeWithException {
         dataResource.setName(input.getName());
@@ -52,5 +42,4 @@ public abstract class AbstractDatResourcePutApi<In extends AbstractApiInput, Out
         dataResource.setUsageCountInJob(String.valueOf(input.getUsageCountInJob()));
         dataResourceContractService.update(dataResource);
     }
-
 }

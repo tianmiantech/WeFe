@@ -16,24 +16,13 @@
 
 package com.welab.wefe.union.service.api.dataresource;
 
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
-import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
-import com.welab.wefe.common.data.mongodb.repo.BloomFilterMongoReop;
-import com.welab.wefe.common.data.mongodb.repo.DataResourceMongoReop;
-import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
-import com.welab.wefe.common.data.mongodb.repo.TableDataSetMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceDetailInput;
 import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryOutput;
-import com.welab.wefe.union.service.mapper.BloomFilterMapper;
-import com.welab.wefe.union.service.mapper.ImageDataSetMapper;
-import com.welab.wefe.union.service.mapper.TableDataSetMapper;
-import org.mapstruct.factory.Mappers;
+import com.welab.wefe.union.service.service.DataResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -41,52 +30,12 @@ import org.springframework.beans.factory.annotation.Autowired;
  **/
 @Api(path = "data_resource/detail", name = "data_resource_detail", allowAccessWithSign = true)
 public class DetailApi extends AbstractApi<ApiDataResourceDetailInput, ApiDataResourceQueryOutput> {
-
     @Autowired
-    protected DataResourceMongoReop dataResourceMongoReop;
-    @Autowired
-    protected BloomFilterMongoReop bloomFilterMongoReop;
-    @Autowired
-    protected ImageDataSetMongoReop imageDataSetMongoReop;
-    @Autowired
-    protected TableDataSetMongoReop tableDataSetMongoReop;
-
-    protected TableDataSetMapper tableDataSetMapper = Mappers.getMapper(TableDataSetMapper.class);
-    protected ImageDataSetMapper imageDataSetMapper = Mappers.getMapper(ImageDataSetMapper.class);
-    protected BloomFilterMapper bloomFilterMapper = Mappers.getMapper(BloomFilterMapper.class);
-
+    private DataResourceService dataResourceService;
 
     @Override
     protected ApiResult<ApiDataResourceQueryOutput> handle(ApiDataResourceDetailInput input) throws StatusCodeWithException {
-        DataResourceQueryOutput dataResourceQueryOutput;
-        switch (input.getDataResourceType()) {
-            case BloomFilter:
-                dataResourceQueryOutput = dataResourceMongoReop.findOneByDataResourceId(input.getDataResourceId(), MongodbTable.Union.BLOOM_FILTER);
-                break;
-            case TableDataSet:
-                dataResourceQueryOutput = dataResourceMongoReop.findOneByDataResourceId(input.getDataResourceId(), MongodbTable.Union.TABLE_DATASET);
-                break;
-            case ImageDataSet:
-                dataResourceQueryOutput = dataResourceMongoReop.findOneByDataResourceId(input.getDataResourceId(), MongodbTable.Union.IMAGE_DATASET);
-                break;
-            default:
-                throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "dataResourceType");
-        }
-
-        return success(getOutput(dataResourceQueryOutput));
-    }
-
-    protected ApiDataResourceQueryOutput getOutput(DataResourceQueryOutput dataResourceQueryOutput) {
-        if (dataResourceQueryOutput == null) {
-            return null;
-        }
-        if (dataResourceQueryOutput.getDataResourceType().compareTo(DataResourceType.TableDataSet) == 0) {
-            return tableDataSetMapper.transferDetail(dataResourceQueryOutput);
-        } else if (dataResourceQueryOutput.getDataResourceType().compareTo(DataResourceType.ImageDataSet) == 0) {
-            return imageDataSetMapper.transferDetail(dataResourceQueryOutput);
-        } else {
-            return bloomFilterMapper.transferDetail(dataResourceQueryOutput);
-        }
+        return success(dataResourceService.detail(input));
     }
 
 }
