@@ -1,13 +1,18 @@
 package com.welab.wefe.mpc.psi.sdk.dh;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.welab.wefe.mpc.psi.sdk.util.PartitionUtil;
 import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 
 public class DhPsiServer {
@@ -28,19 +33,55 @@ public class DhPsiServer {
      * step 1 对自己的数据集进行加密
      */
     public List<String> encryptDataset(List<String> serverIds) {
-        List<String> encryptServerIds = new ArrayList<>(serverIds.size());
-        serverIds.forEach(serverId -> encryptServerIds
-                .add(DiffieHellmanUtil.encrypt(serverId, this.serverPrivateD, this.p).toString(16)));
-        return encryptServerIds;
+        LOG.info("server begin encryptDataset");
+        List<String> encryptedSet = new CopyOnWriteArrayList<>();
+        List<Set<String>> partitionList = PartitionUtil.partitionList(serverIds, threads);
+        ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
+        for (Set<String> partition : partitionList) {
+            executorService.submit(() -> {
+                partition.forEach(serverId -> encryptedSet
+                        .add(DiffieHellmanUtil.encrypt(serverId, this.serverPrivateD, this.p).toString(16)));
+            });
+        }
+        executorService.shutdown();
+        try {
+            while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                // pass
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            executorService.shutdown();
+        }
+        LOG.info("server end encryptDataset");
+        return encryptedSet;
     }
 
     /**
      * step 2 对输入（客户端）的数据进行加密操作
      */
     public List<String> encryptClientDatasetMap(List<String> clientIds) {
-        List<String> encryptClientIds = new ArrayList<>(clientIds.size());
-        clientIds.forEach(id -> encryptClientIds
-                .add(DiffieHellmanUtil.encrypt(id, this.serverPrivateD, this.p, false).toString(16)));
+        LOG.info("server begin encryptClientDatasetMap");
+        List<String> encryptClientIds = new CopyOnWriteArrayList<>();
+        List<Set<String>> partitionList = PartitionUtil.partitionList(clientIds, threads);
+        ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
+        for (Set<String> partition : partitionList) {
+            executorService.submit(() -> {
+                partition.forEach(id -> encryptClientIds
+                        .add(DiffieHellmanUtil.encrypt(id, this.serverPrivateD, this.p, false).toString(16)));
+            });
+        }
+        executorService.shutdown();
+        try {
+            while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                // pass
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            executorService.shutdown();
+        }
+        LOG.info("server end encryptClientDatasetMap");
         return encryptClientIds;
     }
 

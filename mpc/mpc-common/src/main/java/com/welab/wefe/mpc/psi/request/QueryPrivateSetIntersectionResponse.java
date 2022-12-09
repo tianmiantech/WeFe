@@ -37,11 +37,6 @@ public class QueryPrivateSetIntersectionResponse {
      */
     private boolean hasNext;
 
-    /**
-     * 是否分批次
-     * */
-    private boolean splitData;
-
     private String message;
     private int code;
 
@@ -99,14 +94,6 @@ public class QueryPrivateSetIntersectionResponse {
 
     public void setHasNext(boolean hasNext) {
         this.hasNext = hasNext;
-    }
-
-    public boolean isSplitData() {
-        return splitData;
-    }
-
-    public void setSplitData(boolean splitData) {
-        this.splitData = splitData;
     }
 
 }

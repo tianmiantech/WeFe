@@ -3,12 +3,18 @@ package com.welab.wefe.mpc.psi.sdk.dh;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.welab.wefe.mpc.key.DiffieHellmanKey;
 import com.welab.wefe.mpc.psi.sdk.operation.ListOperator;
+import com.welab.wefe.mpc.psi.sdk.util.PartitionUtil;
 import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 
 public class DhPsiClient {
@@ -41,23 +47,60 @@ public class DhPsiClient {
      * step 2 加密服务端ID
      */
     public void encryptServerDataset(List<String> encryptServerIds) {
-        // 对服务端ID进行加密
-        this.serverIdWithClientKeys = new ArrayList<>(encryptServerIds.size());
-        for (String serverId : encryptServerIds) {
-            String encryptValue = DiffieHellmanUtil.encrypt(serverId, this.clientPrivateD, this.p, false).toString(16);
-            serverIdWithClientKeys.add(encryptValue);
+        LOG.info("client begin encryptServerDataset");
+        List<String> doubleEncryptServerIds = new CopyOnWriteArrayList<>();
+        List<Set<String>> partitionList = PartitionUtil.partitionList(encryptServerIds, threads);
+        ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
+        for (Set<String> partition : partitionList) {
+            executorService.submit(() -> {
+                for (String serverId : partition) {
+                    String encryptValue = DiffieHellmanUtil.encrypt(serverId, this.clientPrivateD, this.p, false)
+                            .toString(16);
+                    doubleEncryptServerIds.add(encryptValue);
+                }
+            });
         }
+        executorService.shutdown();
+        try {
+            while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                // pass
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            executorService.shutdown();
+        }
+        // 对服务端ID进行加密
+        this.serverIdWithClientKeys = new ArrayList<>(doubleEncryptServerIds);
+        LOG.info("client end ncryptServerDataset");
     }
 
     /**
      * step 1 加密客户端ID
      */
     public List<String> encryptClientOriginalDataset() {
-        // 加密客户端id
-        List<String> encryptClientIds = new ArrayList<>(this.originalClientIds.size());
-        for (String id : this.originalClientIds) {
-            encryptClientIds.add(DiffieHellmanUtil.encrypt(id, this.clientPrivateD, this.p).toString(16));
+        LOG.info("client begin encryptClientOriginalDataset");
+        List<String> encryptClientIds = new CopyOnWriteArrayList<>();
+        List<Set<String>> partitionList = PartitionUtil.partitionList(this.originalClientIds, threads);
+        ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
+        for (Set<String> partition : partitionList) {
+            executorService.submit(() -> {
+                for (String id : partition) {
+                    encryptClientIds.add(DiffieHellmanUtil.encrypt(id, this.clientPrivateD, this.p).toString(16));
+                }
+            });
         }
+        executorService.shutdown();
+        try {
+            while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                // pass
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            executorService.shutdown();
+        }
+        LOG.info("client end encryptClientOriginalDataset");
         return encryptClientIds;
     }
 
