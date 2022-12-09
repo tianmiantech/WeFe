@@ -22,7 +22,7 @@
                     </el-select>
                 </el-form-item>
             </el-col>
-            <el-col :span="7">
+            <el-col :span="5">
                 <el-form-item
                     :prop="`${index}.operator`"
                     :rules="[{required: true, message: '请选择', trigger: 'change'}]"
@@ -47,7 +47,16 @@
                     <el-input v-model="item.value" />
                 </el-form-item>
             </el-col>
-            <el-col :span="3">
+            <el-col :span="5">
+                <el-icon
+                    v-if="ruleForm.length > 1"
+                    size="18"
+                    color="#F56C6C"
+                    class="filter-plus-btn"
+                    @click="delRule(index)"
+                >
+                    <elicon-remove />
+                </el-icon>
                 <el-icon
                     v-if="(index == ruleForm.length - 1)"
                     size="18"
@@ -56,15 +65,6 @@
                     @click="addRule"
                 >
                     <elicon-circle-plus />
-                </el-icon>
-                <el-icon
-                    v-if="(ruleForm.length > 1 && index != ruleForm.length - 1)"
-                    size="18"
-                    color="#F56C6C"
-                    class="filter-plus-btn"
-                    @click="delRule(index)"
-                >
-                    <elicon-remove />
                 </el-icon>
             </el-col>
         </el-row>
@@ -189,6 +189,9 @@
     display: inline-block;
     color: #909399;
     font-size: 14px;
+}
+.rule-txt {
+    width: 100%;
 }
 .strong{color:$--color-success;}
 </style>

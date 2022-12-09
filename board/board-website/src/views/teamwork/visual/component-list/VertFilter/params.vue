@@ -125,7 +125,6 @@
                         });
                         await methods.getNodeDetail(model);
                     }
-                    // console.log(vData.members);
                     vData.loading = false;
                 },
 
@@ -164,7 +163,6 @@
                     for(const i in vData.members) {
                         const member = vData.members[i];
 
-                        console.log(filterRulesRef.value);
                         member.filter_rules = filterRulesRef.value?.[i].getRule();
                         members.push({
                             member_id:    member.member_id,
