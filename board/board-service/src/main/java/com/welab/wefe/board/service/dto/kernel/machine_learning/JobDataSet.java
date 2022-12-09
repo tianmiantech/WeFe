@@ -17,7 +17,6 @@
 package com.welab.wefe.board.service.dto.kernel.machine_learning;
 
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
@@ -38,6 +37,5 @@ public class JobDataSet {
         public String dataSetId;
         public long dataSetRows;
         public long dataSetFeatures;
-        public JSONObject labelDistribution;
     }
 }
