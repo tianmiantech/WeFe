@@ -179,6 +179,8 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
                 joinCollectionName = MongodbTable.Union.TABLE_DATASET;
             } else if (DataResourceType.BloomFilter.compareTo(dataResourceType) == 0) {
                 joinCollectionName = MongodbTable.Union.BLOOM_FILTER;
+            } else {
+                continue;
             }
 
             joinCollectionNameAlias = StringUtil.camelCaseToUnderLineCase(joinCollectionName);
@@ -211,6 +213,8 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
                 unwindField = MongodbTable.Union.TABLE_DATASET;
             } else if (DataResourceType.BloomFilter.compareTo(dataResourceType) == 0) {
                 unwindField = MongodbTable.Union.BLOOM_FILTER;
+            } else {
+                continue;
             }
             unwindField = StringUtil.camelCaseToUnderLineCase(unwindField);
             unwindOperations.add(Aggregation.unwind(unwindField, true));
@@ -222,7 +226,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
     private List<MatchOperation> buildCurMemberCanSeeMatchOperations(DataResourceQueryInput dataResourceQueryInput) {
         List<MatchOperation> matchOperations = new ArrayList<>();
         List<DataResourceType> dataResourceTypeList = Arrays.asList(DataResourceType.ImageDataSet, DataResourceType.TableDataSet, DataResourceType.BloomFilter);
-        if(CollectionUtils.isNotEmpty(dataResourceQueryInput.getDataResourceType())) {
+        if (CollectionUtils.isNotEmpty(dataResourceQueryInput.getDataResourceType())) {
             dataResourceTypeList = dataResourceQueryInput.getDataResourceType();
         }
         Criteria dataResouceCriteria = new QueryBuilder()
@@ -239,7 +243,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         or.orOperator(
                 new QueryBuilder().append("public_level", "Public").getCriteria(),
                 new QueryBuilder().append("member_id", dataResourceQueryInput.getCurMemberId()).getCriteria(),
-                new QueryBuilder().like("public_member_list", dataResourceQueryInput.getCurMemberId()).notEq("public_level","OnlyMyself").getCriteria()
+                new QueryBuilder().like("public_member_list", dataResourceQueryInput.getCurMemberId()).notEq("public_level", "OnlyMyself").getCriteria()
         );
         dataResouceCriteria.andOperator(or);
 
@@ -283,7 +287,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
     private List<MatchOperation> buildMatchOperations(DataResourceQueryInput dataResourceQueryInput) {
         List<MatchOperation> matchOperations = new ArrayList<>();
         List<DataResourceType> dataResourceTypeList = Arrays.asList(DataResourceType.ImageDataSet, DataResourceType.TableDataSet, DataResourceType.BloomFilter);
-        if(CollectionUtils.isNotEmpty(dataResourceQueryInput.getDataResourceType())) {
+        if (CollectionUtils.isNotEmpty(dataResourceQueryInput.getDataResourceType())) {
             dataResourceTypeList = dataResourceQueryInput.getDataResourceType();
         }
         Criteria dataResouceCriteria = new QueryBuilder()
