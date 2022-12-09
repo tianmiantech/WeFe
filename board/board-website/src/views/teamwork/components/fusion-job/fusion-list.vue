@@ -24,7 +24,7 @@
                                 type="primary"
                                 class="ml10"
                                 size="small"
-                                style="position: relative; top:-4px; left: -15px; background: lightgreen; border: none;"
+                                style="position: relative; top:-4px; left: -15px; background: #007ad1; border: none;"
                             >
                             发起数据融合
                             </el-button>

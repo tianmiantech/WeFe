@@ -542,7 +542,8 @@
     position: relative;
     overflow: visible;
     height:100%;
-    left: 8px;
+    // 这个会横向滚动条
+    // left: 8px;
     border:0;
     & > :deep(.board-tabs__header) {
         margin:0;
