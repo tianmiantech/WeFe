@@ -23,7 +23,7 @@ import com.welab.wefe.union.service.dto.dataresource.DataResourcePutInput;
 import com.welab.wefe.union.service.service.contract.DataResourceContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class AbstractDataResource {
+public abstract class AbstractDataResourceService {
     @Autowired
     protected DataResourceContractService dataResourceContractService;
     @Autowired

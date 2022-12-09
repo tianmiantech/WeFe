@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 
 @Service
-public class BloomFilterService extends AbstractDataResource {
+public class BloomFilterService extends AbstractDataResourceService {
     @Autowired
     protected BloomFilterContractService bloomFilterContractService;
     @Autowired
