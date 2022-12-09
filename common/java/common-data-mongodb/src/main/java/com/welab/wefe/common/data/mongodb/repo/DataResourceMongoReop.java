@@ -221,6 +221,10 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
 
     private List<MatchOperation> buildCurMemberCanSeeMatchOperations(DataResourceQueryInput dataResourceQueryInput) {
         List<MatchOperation> matchOperations = new ArrayList<>();
+        List<DataResourceType> dataResourceTypeList = Arrays.asList(DataResourceType.ImageDataSet, DataResourceType.TableDataSet, DataResourceType.BloomFilter);
+        if(CollectionUtils.isNotEmpty(dataResourceQueryInput.getDataResourceType())) {
+            dataResourceTypeList = dataResourceQueryInput.getDataResourceType();
+        }
         Criteria dataResouceCriteria = new QueryBuilder()
                 .notRemoved()
                 .append("enable", "1")
@@ -228,7 +232,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
                 .like("tags", dataResourceQueryInput.getTag())
                 .append("member_id", dataResourceQueryInput.getMemberId())
                 .append("data_resource_id", dataResourceQueryInput.getDataResourceId())
-                .in("data_resource_type", dataResourceQueryInput.getDataResourceType().stream().map(Enum::name).collect(Collectors.toList()))
+                .in("data_resource_type", dataResourceTypeList.stream().map(Enum::name).collect(Collectors.toList()))
                 .getCriteria();
 
         Criteria or = new Criteria();
@@ -278,6 +282,10 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
 
     private List<MatchOperation> buildMatchOperations(DataResourceQueryInput dataResourceQueryInput) {
         List<MatchOperation> matchOperations = new ArrayList<>();
+        List<DataResourceType> dataResourceTypeList = Arrays.asList(DataResourceType.ImageDataSet, DataResourceType.TableDataSet, DataResourceType.BloomFilter);
+        if(CollectionUtils.isNotEmpty(dataResourceQueryInput.getDataResourceType())) {
+            dataResourceTypeList = dataResourceQueryInput.getDataResourceType();
+        }
         Criteria dataResouceCriteria = new QueryBuilder()
                 .append("status", dataResourceQueryInput.getStatus() == null ? null : dataResourceQueryInput.getStatus() ? 1 : 0)
                 .append("enable", dataResourceQueryInput.getEnable() == null ? null : String.valueOf(dataResourceQueryInput.getEnable() ? 1 : 0))
@@ -285,7 +293,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
                 .like("tags", dataResourceQueryInput.getTag())
                 .append("member_id", dataResourceQueryInput.getMemberId())
                 .append("data_resource_id", dataResourceQueryInput.getDataResourceId())
-                .in("data_resource_type", dataResourceQueryInput.getDataResourceType().stream().map(Enum::name).collect(Collectors.toList()))
+                .in("data_resource_type", dataResourceTypeList.stream().map(Enum::name).collect(Collectors.toList()))
                 .getCriteria();
 
 
