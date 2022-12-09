@@ -190,5 +190,8 @@
     color: #909399;
     font-size: 14px;
 }
+.rule-txt {
+    width: 100%;
+}
 .strong{color:$--color-success;}
 </style>
