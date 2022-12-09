@@ -163,7 +163,9 @@
 
                     for(const i in vData.members) {
                         const member = vData.members[i];
-                        member.filter_rules = filterRulesRef.value[i].getRule();
+
+                        console.log(filterRulesRef.value);
+                        member.filter_rules = filterRulesRef.value?.[i].getRule();
                         members.push({
                             member_id:    member.member_id,
                             member_role:  member.member_role,

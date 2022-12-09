@@ -11,7 +11,7 @@
                     :prop="'['+index+'].feature'"
                     :rules="[{required: true, message: '请选择', trigger: 'change'}]"
                 >
-                    <el-select v-model="item.feature">
+                    <el-select v-model="item.feature" @change="changeFeature(index)">
                         <el-option
                             v-for="(item, index) in featureList"
                             :key="index"
@@ -139,6 +139,10 @@
             const delRule = (index) => {
                 ruleForm.splice(index, 1);
             };
+            // feature 修改
+            const changeFeature = (index) => {
+                ruleForm[index].operator = '';
+            };
 
 
             const validate = async() => {
@@ -171,6 +175,7 @@
                 memberFeatureType,
                 getRule,
                 delRule,
+                changeFeature,
             };
         },
     });
