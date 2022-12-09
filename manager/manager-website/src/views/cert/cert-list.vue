@@ -96,6 +96,7 @@
                 <el-table-column
                     label="操作"
                     fixed="right"
+                    width="150"
                 >
                     <template v-slot="scope">
     <!--                    <template v-if="scope.row.status === 0 && !scope.row.is_ca_cert">-->
