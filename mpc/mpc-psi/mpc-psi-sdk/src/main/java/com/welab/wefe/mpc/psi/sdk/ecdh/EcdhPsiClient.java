@@ -33,6 +33,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.interfaces.ECPrivateKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -109,6 +110,9 @@ public class EcdhPsiClient {
      * step 4 将经过服务端二次加密后的客户端数据集转换成椭圆曲线上的点
      */
     public void convertDoubleEncryptedClientDataset2ECPoint(Map<Long, String> doubleEncryptedClientDatasetMap) {
+        if (!this.clientDoubleEncryptedDatasetMap.isEmpty()) {
+            return;
+        }
         LOG.info("client begin convertDoubleEncryptedClientDataset2ECPoint");
         for (Map.Entry<Long, String> entry : doubleEncryptedClientDatasetMap.entrySet()) {
             this.clientDoubleEncryptedDatasetMap.put(entry.getKey(),

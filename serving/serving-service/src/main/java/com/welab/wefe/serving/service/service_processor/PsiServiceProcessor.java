@@ -15,11 +15,10 @@
  */
 package com.welab.wefe.serving.service.service_processor;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -28,12 +27,11 @@ import org.apache.commons.collections.CollectionUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
+import com.welab.wefe.mpc.psi.sdk.dh.DhPsiServer;
 import com.welab.wefe.mpc.psi.sdk.ecdh.EcdhPsiServer;
 import com.welab.wefe.mpc.psi.sdk.util.EcdhUtil;
 import com.welab.wefe.mpc.psi.sdk.util.PartitionUtil;
-import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
 import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
 
@@ -43,16 +41,20 @@ import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
 public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMySqlModel> {
 
     private static final ConcurrentHashMap<String, EcdhPsiServer> ECDH_SERVER_MAP = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<String, Map<Long, String>> CLIENT_IDS_MAP = new ConcurrentHashMap<>();
-    private static final List<String> serverDataset;
-    private static final int BATCH_SIZE = 500000;
+    private static final ConcurrentHashMap<String, DhPsiServer> DH_SERVER_MAP = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Boolean> ECDH_CLIENT_IDS_MAP = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Boolean> DH_CLIENT_IDS_MAP = new ConcurrentHashMap<>();
+
+    private static List<String> SERVER_DATA_SET = new ArrayList<>();
+    private static final List<String> ECDH_SERVER_DATA_SET = new ArrayList<>();
+    private static final List<String> DH_SERVER_DATA_SET = new ArrayList<>();
+    private static final int BATCH_SIZE = 200000;
 
     static {
-        serverDataset = new ArrayList<>();
         for (long i = 0; i < 1000000; i++) {
-            serverDataset.add("SERVER-ONLY-" + i);
+            ECDH_SERVER_DATA_SET.add("SERVER-ONLY-" + i);
             if (i % 10000 == 0) {
-                serverDataset.add("MATCHING-" + i);
+                ECDH_SERVER_DATA_SET.add("MATCHING-" + i);
             }
         }
     }
@@ -63,43 +65,47 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         // ID在mysql表中
         if (!idsTableName.contains("#")) {
             String p = data.getString("p");
-            List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
-            if (CollectionUtils.isEmpty(clientIds)) {
-                clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
+            // 当前批次
+            int currentBatch = data.getIntValue("currentBatch");
+            String requestId = data.getString("requestId");
+            DhPsiServer server = DH_SERVER_MAP.get(requestId);
+            List<String> encryptClientIds = null;
+            if (server == null) {
+                LOG.info("dh server not found, new one");
+                server = new DhPsiServer(p);
+                DH_SERVER_MAP.put(requestId, server);
             }
-            QueryPrivateSetIntersectionRequest request = new QueryPrivateSetIntersectionRequest();
-            request.setClientIds(clientIds);
-            request.setP(p);
-            QueryPrivateSetIntersectionResponse response = new QueryPrivateSetIntersectionResponse();
-            BigInteger mod = new BigInteger(request.getP(), 16);
-            int keySize = 1024;
-            BigInteger serverKey = new BigInteger(keySize, new Random());
+            if (DH_CLIENT_IDS_MAP.get(requestId) == null) {
+                List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
+                if (CollectionUtils.isEmpty(clientIds)) {
+                    clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
+                }
+                // 对客户端数据进行加密
+                encryptClientIds = server.encryptClientDatasetMap(clientIds);
+                DH_CLIENT_IDS_MAP.put(requestId, true);
+            }
             JSONObject dataSource = JObject.parseObject(model.getDataSource());
             String sql = "select id from " + model.getIdsTableName();
             List<String> needFields = new ArrayList<>();
             needFields.add("id");
-
             DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
             if (dataSourceModel == null) {
-                return JObject.create(response);
+                return JObject.create(new QueryPrivateSetIntersectionResponse());
             }
-
             List<Map<String, String>> result = dataSourceService.queryList(dataSourceModel, sql, needFields);
-            List<String> serverIds = new ArrayList<>();
             for (Map<String, String> item : result) {
-                serverIds.add(item.get("id"));
+                DH_SERVER_DATA_SET.add(item.get("id"));
             }
-            List<String> encryptServerIds = new ArrayList<>(serverIds.size());
-            serverIds.forEach(
-                    serverId -> encryptServerIds.add(DiffieHellmanUtil.encrypt(serverId, serverKey, mod).toString(16)));
-            response.setServerEncryptIds(encryptServerIds);
-
-            List<String> encryptClientIds = new ArrayList<>(request.getClientIds().size());
-            request.getClientIds().forEach(
-                    id -> encryptClientIds.add(DiffieHellmanUtil.encrypt(id, serverKey, mod, false).toString(16)));
+            SERVER_DATA_SET = DH_SERVER_DATA_SET;
+            Set<String> batchData = getBatchData(currentBatch);
+            // 对自己的数据集进行加密
+            List<String> encryptServerIds = server.encryptDataset(new ArrayList<>(batchData));
+            QueryPrivateSetIntersectionResponse response = new QueryPrivateSetIntersectionResponse();
             response.setClientIdByServerKeys(encryptClientIds);
+            response.setServerEncryptIds(encryptServerIds);
             return JObject.create(response);
         } else {
+            SERVER_DATA_SET = ECDH_SERVER_DATA_SET;
             String databaseType = idsTableName.split("#")[0];
             String dbConnUrl = idsTableName.split("#")[1];
             String requestId = data.getString("requestId");
@@ -107,16 +113,14 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             // 当前批次
             int currentBatch = data.getIntValue("currentBatch");
             Map<Long, String> doubleEncryptedClientDatasetMap = null;
+            List<String> doubleEncryptedClientDataset = null;
             EcdhPsiServer server = ECDH_SERVER_MAP.get(requestId);
             if (server == null) {
                 LOG.info("ecdh server not found, new one");
                 server = new EcdhPsiServer();
                 ECDH_SERVER_MAP.put(requestId, server);
             }
-            if (CLIENT_IDS_MAP.get(requestId) != null) {
-                LOG.info("get clientIds in cache");
-                doubleEncryptedClientDatasetMap = CLIENT_IDS_MAP.get(requestId);
-            } else {
+            if (ECDH_CLIENT_IDS_MAP.get(requestId) == null) {
                 List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
                 if (CollectionUtils.isEmpty(clientIds)) {
                     clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
@@ -130,15 +134,16 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
                 Map<Long, String> clientEncryptedDatasetMap = EcdhUtil.convert2Map(clientIds);
                 // 对客户端数据进行二次加密
                 doubleEncryptedClientDatasetMap = server.encryptDatasetMap(clientEncryptedDatasetMap);
-                CLIENT_IDS_MAP.put(requestId, doubleEncryptedClientDatasetMap);
+                ECDH_CLIENT_IDS_MAP.put(requestId, true);
+                doubleEncryptedClientDataset = EcdhUtil.convert2List(doubleEncryptedClientDatasetMap);
             }
             Set<String> batchData = getBatchData(currentBatch);
-            List<String> doubleEncryptedClientDataset = EcdhUtil.convert2List(doubleEncryptedClientDatasetMap);
+
             // 服务端对自己的数据集进行加密
             List<String> serverEncryptedDataset = server.encryptDataset(new ArrayList<>(batchData));
             // 把上面两个set发给客户端
             QueryPrivateSetIntersectionResponse response = new QueryPrivateSetIntersectionResponse();
-            response.setClientIdByServerKeys(doubleEncryptedClientDataset);
+            response.setClientIdByServerKeys(doubleEncryptedClientDataset); // 第一批次会传，后续批次为空
             response.setRequestId(requestId);
             response.setServerEncryptIds(serverEncryptedDataset);
             response.setCurrentBatch(currentBatch);
@@ -150,8 +155,11 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
     }
 
     private Set<String> getBatchData(int currentBatch) {
-        int numPartitions = serverDataset.size() / BATCH_SIZE;
-        List<Set<String>> partitions = PartitionUtil.partitionList(serverDataset, numPartitions);
+        int numPartitions = SERVER_DATA_SET.size() / BATCH_SIZE;
+        if (numPartitions <= 0) {
+            numPartitions = 1;
+        }
+        List<Set<String>> partitions = PartitionUtil.partitionList(SERVER_DATA_SET, numPartitions);
         return partitions.get(currentBatch);
     }
 
@@ -159,7 +167,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
      * 是否需要分批求交
      */
     private boolean isSplitData() {
-        int numPartitions = serverDataset.size() / BATCH_SIZE;
+        int numPartitions = SERVER_DATA_SET.size() / BATCH_SIZE;
         if (numPartitions <= 0) {
             numPartitions = 1;
         }
@@ -170,7 +178,10 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
      * 获取服务端数据总批次数
      */
     private int getNumPartitions() {
-        int numPartitions = serverDataset.size() / BATCH_SIZE;
+        int numPartitions = SERVER_DATA_SET.size() / BATCH_SIZE;
+        if (numPartitions <= 0) {
+            numPartitions = 1;
+        }
         return numPartitions;
     }
 }

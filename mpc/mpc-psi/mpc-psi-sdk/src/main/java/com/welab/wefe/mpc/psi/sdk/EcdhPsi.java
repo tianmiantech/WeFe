@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +33,6 @@ import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
 import com.welab.wefe.mpc.psi.sdk.ecdh.EcdhPsiClient;
 import com.welab.wefe.mpc.psi.sdk.service.PrivateSetIntersectionService;
 import com.welab.wefe.mpc.psi.sdk.util.EcdhUtil;
-import com.welab.wefe.mpc.trasfer.AbstractHttpTransferVariable;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
@@ -96,10 +96,10 @@ public class EcdhPsi {
             throw new Exception(response.getMessage());
         }
         boolean hasNext = response.isHasNext();
-        // 获取服务端id
-        List<String> encryptServerIds = response.getServerEncryptIds();
-        client.encryptServerDataset(encryptServerIds);
-
+        // 获取服务端id, 加密服务端ID
+        client.encryptServerDataset(response.getServerEncryptIds());
+        logger.info("ecdh psi response serverIds size = " + CollectionUtils.size(response.getServerEncryptIds())
+                + ", clientIds size = " + CollectionUtils.size(response.getClientIdByServerKeys()));
         // 客户端进行转换成椭圆曲线上的点
         client.convertDoubleEncryptedClientDataset2ECPoint(EcdhUtil.convert2Map(response.getClientIdByServerKeys()));
         Set<String> allResult = client.psi();
@@ -115,14 +115,14 @@ public class EcdhPsi {
             if (response.getCode() != 0) {
                 throw new Exception(response.getMessage());
             }
+            logger.info("ecdh psi response serverIds size = " + CollectionUtils.size(response.getServerEncryptIds())
+                    + ", clientIds size = " + CollectionUtils.size(response.getClientIdByServerKeys()));
             hasNext = response.isHasNext();
-            // 获取服务端id
-            encryptServerIds = response.getServerEncryptIds();
-            client.encryptServerDataset(encryptServerIds);
-
+            // 获取服务端id, 加密服务端ID
+            client.encryptServerDataset(response.getServerEncryptIds());
             // 客户端进行转换成椭圆曲线上的点
-            client.convertDoubleEncryptedClientDataset2ECPoint(
-                    EcdhUtil.convert2Map(response.getClientIdByServerKeys()));
+//            client.convertDoubleEncryptedClientDataset2ECPoint(
+//                    EcdhUtil.convert2Map(response.getClientIdByServerKeys()));
             Set<String> batchResult = client.psi();
             if (batchResult != null && !batchResult.isEmpty()) {
                 allResult.addAll(batchResult);

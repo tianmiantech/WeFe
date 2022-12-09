@@ -16,20 +16,21 @@
 
 package com.welab.wefe.mpc.psi.sdk;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.welab.wefe.mpc.config.CommunicationConfig;
-import com.welab.wefe.mpc.key.DiffieHellmanKey;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
+import com.welab.wefe.mpc.psi.sdk.dh.DhPsiClient;
 import com.welab.wefe.mpc.psi.sdk.operation.ListOperator;
 import com.welab.wefe.mpc.psi.sdk.operation.impl.IntersectionOperator;
 import com.welab.wefe.mpc.psi.sdk.service.PrivateSetIntersectionService;
-import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
@@ -40,12 +41,16 @@ import cn.hutool.core.util.StrUtil;
  **/
 public class PrivateSetIntersection {
 
+    private static final Logger logger = LoggerFactory.getLogger(PrivateSetIntersection.class);
+    private static final int DEFAULT_CURRENT_BATH = 0;
+
     /**
      * 多方求交集
+     * 
      * @param configs 服务器的通信配置信息列表
-     * @param ids 本方id集
+     * @param ids     本方id集
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     public List<String> query(List<CommunicationConfig> configs, List<String> ids) throws Exception {
         List<String> result = new ArrayList<>(ids);
@@ -75,45 +80,65 @@ public class PrivateSetIntersection {
      * @param keySize  密钥安全长度
      * @param operator 自定义列表运算结果,默认求两个列表交集
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
-    public List<String> query(CommunicationConfig config, List<String> ids, int keySize, ListOperator operator) throws Exception {
-        if (CollectionUtil.isEmpty(ids)) {
+    public List<String> query(CommunicationConfig config, List<String> clientIds, int keySize, ListOperator operator)
+            throws Exception {
+        if (CollectionUtil.isEmpty(clientIds)) {
             throw new IllegalArgumentException("local id is empty");
         }
         if (config == null || StrUtil.isEmpty(config.getServerUrl())) {
             throw new IllegalArgumentException("server config missing");
         }
-        if (keySize < 1) {
-            keySize = 1024;
-        }
+        DhPsiClient client = new DhPsiClient();
         if (operator == null) {
-            operator = new IntersectionOperator();
+            client.setOperator(new IntersectionOperator());
+        } else {
+            client.setOperator(operator);
         }
-
-        DiffieHellmanKey diffieHellmanKey = DiffieHellmanUtil.generateKey(keySize);
-        BigInteger key = DiffieHellmanUtil.generateRandomKey(keySize);
-        List<String> encryptIds = new ArrayList<>(ids.size());
-        for (String id : ids) {
-            encryptIds.add(DiffieHellmanUtil.encrypt(id, key, diffieHellmanKey.getP()).toString(16));
-        }
+        client.setOriginalClientIds(clientIds);
+        // 加密我自己的数据
+        List<String> encryptClientIds = client.encryptClientOriginalDataset(clientIds);
         QueryPrivateSetIntersectionRequest request = new QueryPrivateSetIntersectionRequest();
-        request.setP(diffieHellmanKey.getP().toString(16));
-        request.setClientIds(encryptIds);
+        request.setP(client.getP().toString(16));
+        // 发给服务端
+        request.setClientIds(encryptClientIds);
         request.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
+        request.setCurrentBatch(DEFAULT_CURRENT_BATH);
         PrivateSetIntersectionService privateSetIntersectionService = new PrivateSetIntersectionService();
         QueryPrivateSetIntersectionResponse response = privateSetIntersectionService.handle(config, request);
-        if(response.getCode() != 0) {
+        if (response.getCode() != 0) {
             throw new Exception(response.getMessage());
         }
-        List<String> encryptServerIds = response.getServerEncryptIds();
-        List<String> encryptIdWithServerKeys = response.getClientIdByServerKeys();
-        List<String> serverIdWithClientKeys = new ArrayList<>(encryptServerIds.size());
-        for (String serverId : encryptServerIds) {
-            String encryptValue = DiffieHellmanUtil.encrypt(serverId, key, diffieHellmanKey.getP(), false).toString(16);
-            serverIdWithClientKeys.add(encryptValue);
+        boolean hasNext = response.isHasNext();
+        // 获取服务端id, 加密服务端ID
+        client.encryptServerDataset(response.getServerEncryptIds());
+        // 获取被服务端加密了的客户端ID
+        client.setClientIdByServerKeys(response.getClientIdByServerKeys());
+        List<String> allResult = client.psi();
+        logger.info("dh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
+                + allResult.size() + ", hasNext = " + hasNext);
+        while (hasNext) {
+            // 发给服务端
+            request.setClientIds(null);// 只需要第一次传给服务端
+            request.setCurrentBatch(request.getCurrentBatch() + 1);
+            privateSetIntersectionService = new PrivateSetIntersectionService();
+            response = privateSetIntersectionService.handle(config, request);
+            if (response.getCode() != 0) {
+                throw new Exception(response.getMessage());
+            }
+            hasNext = response.isHasNext();
+            // 获取服务端id, 加密服务端ID
+            client.encryptServerDataset(response.getServerEncryptIds());
+            // 获取被服务端加密了的客户端ID
+//            client.setClientIdByServerKeys(response.getClientIdByServerKeys());
+            List<String> batchResult = client.psi();
+            if (batchResult != null && !batchResult.isEmpty()) {
+                allResult.addAll(batchResult);
+            }
+            logger.info("dh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
+                    + allResult.size() + ", hasNext = " + hasNext);
         }
-
-        return operator.operator(ids, encryptIdWithServerKeys, serverIdWithClientKeys);
+        return allResult;
     }
 }
