@@ -2221,6 +2221,9 @@ export default {
             }
         },
         tableChange() {
+            this.form = {
+                ... this.form,
+            };
             this.getTablesFields();
         },
         async getTablesFields() {
