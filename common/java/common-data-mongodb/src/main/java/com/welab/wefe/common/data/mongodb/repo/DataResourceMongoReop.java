@@ -260,7 +260,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         MatchOperation memberMatch = Aggregation.match(memberCriteria);
         matchOperations.add(memberMatch);
 
-        if (dataResourceQueryInput.getDataResourceType().contains(DataResourceType.ImageDataSet) || CollectionUtils.isEmpty(dataResourceQueryInput.getDataResourceType())) {
+        if (dataResourceTypeList.contains(DataResourceType.ImageDataSet)) {
             String forJobType = dataResourceQueryInput.getForJobType() == null ? null : dataResourceQueryInput.getForJobType().name();
             Criteria imageDataSetCriteria = new QueryBuilder()
                     .append(StringUtil.camelCaseToUnderLineCase(MongodbTable.Union.IMAGE_DATASET) + ".for_job_type", forJobType)
@@ -270,8 +270,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
 
         }
 
-        if (dataResourceQueryInput.getDataResourceType().contains(DataResourceType.TableDataSet)
-                || dataResourceQueryInput.getDataResourceType().contains(DataResourceType.BloomFilter) || CollectionUtils.isEmpty(dataResourceQueryInput.getDataResourceType())) {
+        if (dataResourceTypeList.contains(DataResourceType.TableDataSet) || dataResourceTypeList.contains(DataResourceType.BloomFilter)) {
             Criteria tableDataSetCriteria = new QueryBuilder()
                     .append(StringUtil.camelCaseToUnderLineCase(MongodbTable.Union.TABLE_DATASET) + ".contains_y", null == dataResourceQueryInput.getContainsY() ? null : String.valueOf(dataResourceQueryInput.getContainsY() ? 1 : 0))
                     .getCriteria();
@@ -310,7 +309,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         MatchOperation memberMatch = Aggregation.match(memberCriteria);
         matchOperations.add(memberMatch);
 
-        if (dataResourceQueryInput.getDataResourceType().contains(DataResourceType.ImageDataSet) || CollectionUtils.isEmpty(dataResourceQueryInput.getDataResourceType())) {
+        if (dataResourceTypeList.contains(DataResourceType.ImageDataSet)) {
             String forJobType = dataResourceQueryInput.getForJobType() == null ? null : dataResourceQueryInput.getForJobType().name();
             Criteria imageDataSetCriteria = new QueryBuilder()
                     .append(StringUtil.camelCaseToUnderLineCase(MongodbTable.Union.IMAGE_DATASET) + ".for_job_type", forJobType)
@@ -320,8 +319,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
 
         }
 
-        if (dataResourceQueryInput.getDataResourceType().contains(DataResourceType.TableDataSet)
-                || dataResourceQueryInput.getDataResourceType().contains(DataResourceType.BloomFilter) || CollectionUtils.isEmpty(dataResourceQueryInput.getDataResourceType())) {
+        if (dataResourceTypeList.contains(DataResourceType.TableDataSet) || dataResourceTypeList.contains(DataResourceType.BloomFilter)) {
             Criteria tableDataSetCriteria = new QueryBuilder()
                     .append(StringUtil.camelCaseToUnderLineCase(MongodbTable.Union.TABLE_DATASET) + ".contains_y", null == dataResourceQueryInput.getContainsY() ? null : String.valueOf(dataResourceQueryInput.getContainsY() ? 1 : 0))
                     .getCriteria();
