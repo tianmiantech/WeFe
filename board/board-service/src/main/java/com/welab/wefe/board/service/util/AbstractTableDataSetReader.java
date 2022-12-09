@@ -198,13 +198,15 @@ public abstract class AbstractTableDataSetReader implements Closeable {
                     }
                     // 对日期格式进行标准化，避免各种形状的日期格式对 kernel 造成困扰。
                     else {
-                        entry.setValue(DateUtil.toString(date, DateUtil.YYYY_MM_DD_HH_MM_SS));
+                        isValid = true;
+                        entry.setValue(DateUtil.toString(date, "yyyy-MM-dd HH:mm:ss"));
                     }
                     break;
                 case Enum:
                 case String:
                 default:
-                    return;
+                    isValid = true;
+                    break;
             }
 
             if (!isValid) {

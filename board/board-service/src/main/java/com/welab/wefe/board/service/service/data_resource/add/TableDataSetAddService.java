@@ -209,7 +209,7 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
         // wait for the consumption queue to finish
         dataRowConsumer.waitForFinishAndClose();
 
-        LOG.info("数据集解析完毕：" + model.getId() + " spend:" + ((System.currentTimeMillis() - start) / 1000) + "s");
+        LOG.info("数据集写入 storage 完毕：" + model.getId() + " spend:" + ((System.currentTimeMillis() - start) / 1000) + "s");
 
         // fill model
         model.setContainsY(dataSetReader.isContainsY());
