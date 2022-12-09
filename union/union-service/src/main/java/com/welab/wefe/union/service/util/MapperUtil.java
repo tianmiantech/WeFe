@@ -21,11 +21,13 @@ import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutp
 import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryInput;
 import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
 import com.welab.wefe.common.data.mongodb.dto.member.MemberServiceQueryOutput;
-import com.welab.wefe.common.data.mongodb.entity.union.*;
+import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
+import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
+import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
+import com.welab.wefe.common.data.mongodb.entity.union.Member;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.union.service.api.dataresource.dataset.image.PutApi;
 import com.welab.wefe.union.service.api.dataresource.dataset.nomal.QueryApi;
 import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
@@ -38,9 +40,7 @@ import com.welab.wefe.union.service.dto.dataresource.dataset.table.DataSetDetail
 import com.welab.wefe.union.service.dto.member.ApiMemberServiceQueryOutput;
 import com.welab.wefe.union.service.dto.member.MemberQueryOutput;
 
-import java.util.Arrays;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 public class MapperUtil {
     public static ApiBloomFilterQueryOutput transferDetailBloomFilter(DataResourceQueryOutput dataResourceQueryOutput) {
@@ -76,7 +76,6 @@ public class MapperUtil {
 
     public static DataResourceQueryInput transferDataResourceInput(ApiDataResourceQueryInput entity) {
         DataResourceQueryInput out = ModelMapper.map(entity, DataResourceQueryInput.class);
-        out.setDataResourceType(Arrays.stream(DataResourceType.values()).collect(Collectors.toList()));
         return out;
     }
 
