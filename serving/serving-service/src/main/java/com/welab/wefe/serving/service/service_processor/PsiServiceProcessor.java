@@ -27,11 +27,13 @@ import org.apache.commons.collections.CollectionUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
 import com.welab.wefe.mpc.psi.sdk.dh.DhPsiServer;
 import com.welab.wefe.mpc.psi.sdk.ecdh.EcdhPsiServer;
 import com.welab.wefe.mpc.psi.sdk.util.EcdhUtil;
 import com.welab.wefe.mpc.psi.sdk.util.PartitionUtil;
+import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
 import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
 
@@ -44,8 +46,9 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
     private static final ConcurrentHashMap<String, DhPsiServer> DH_SERVER_MAP = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, Boolean> CLIENT_IDS_MAP = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, Integer> SERVER_DATASET_SIZE = new ConcurrentHashMap<>();
+    protected final Config config = Launcher.getBean(Config.class);
     private static List<String> ECDH_SERVER_DATA_SET;
-    private static final int BATCH_SIZE = 200000;
+    private int batchSize;
     private String type; // psi 算法类型 dh or ecdh
     private int numPartitions; // 服务端数据批次
     private String requestId;
@@ -66,6 +69,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         String idsTableName = model.getIdsTableName();
         String rid = data.getString("requestId");
         this.requestId = rid;
+        this.batchSize = config.getPsiBatchSize();
         // 当前批次
         int currentBatch = data.getIntValue("currentBatch");
         // ID在mysql表中
@@ -147,15 +151,15 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
     private List<String> getECDHServerData() {
         int serverDatasetSize = ECDH_SERVER_DATA_SET.size();
         SERVER_DATASET_SIZE.put(this.requestId, serverDatasetSize);
-        this.numPartitions = Math.max(SERVER_DATASET_SIZE.get(this.requestId) / BATCH_SIZE, 1);
+        this.numPartitions = Math.max(SERVER_DATASET_SIZE.get(this.requestId) / this.batchSize, 1);
         return ECDH_SERVER_DATA_SET;
     }
 
     private List<String> getDHData(TableServiceMySqlModel model, int currentBatch) throws StatusCodeWithException {
         List<String> serverDataSet = new ArrayList<>();
         JSONObject dataSource = JObject.parseObject(model.getDataSource());
-        String sql = "select id from " + model.getIdsTableName() + " limit " + currentBatch * BATCH_SIZE + ", "
-                + BATCH_SIZE;
+        String sql = "select id from " + model.getIdsTableName() + " limit " + currentBatch * this.batchSize + ", "
+                + this.batchSize;
         List<String> needFields = new ArrayList<>();
         needFields.add("id");
         DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
@@ -171,7 +175,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
                     "select * from " + model.getIdsTableName());
             SERVER_DATASET_SIZE.put(this.requestId, serverDatasetSize);
         }
-        this.numPartitions = Math.max(SERVER_DATASET_SIZE.get(this.requestId) / BATCH_SIZE, 1);
+        this.numPartitions = Math.max(SERVER_DATASET_SIZE.get(this.requestId) / this.batchSize, 1);
         LOG.info("get dh data end, serverDatasetSize = " + SERVER_DATASET_SIZE.get(this.requestId) + ", numPartitions="
                 + numPartitions);
         return serverDataSet;
