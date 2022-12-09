@@ -81,6 +81,9 @@
                     <el-form-item label="数据量/特征量：">
                         {{ row.total_data_count ? row.total_data_count : row.row_count }} / {{ row.feature_count }}
                     </el-form-item>
+                    <el-form-item label="分类数：" v-if="(row.contains_y && row.label_species_count)">
+                        {{ row.label_species_count > 10000 ? '10000+':row.label_species_count }}
+                    </el-form-item>
                     <template v-if="row.contains_y">
                         <el-form-item v-if="row.y_positive_sample_count" label="正例样本数量：">
                             {{ row.y_positive_sample_count }}
@@ -271,6 +274,7 @@
                         :search-field="vData.rawSearch"
                         :paramsExclude="['allList', 'list']"
                         :member-id="vData.memberId"
+                        :needClassify="true"
                         @list-loaded="methods.listLoaded"
                         @selectDataSet="methods.selectDataSet"
                         @close-dialog="vData.showSelectDataSet=false;"
@@ -597,16 +601,20 @@
                         item.members.forEach(member => {
                             if(member.job_role === 'promoter' || member.job_role === 'provider') {
                                 const features = member.feature_name_list ? member.feature_name_list.split(',') : [];
+                                const { data_resource,data_set_id } = item || {};
+                                const { label_species_count,derived_from,name } = data_resource || {};
 
                                 memberIds[member.member_id] = {
                                     member_role:       member.job_role,
                                     member_id:         member.member_id,
                                     member_name:       member.member_name,
                                     feature_count:     member.feature_count,
-                                    data_set_id:       item.data_set_id,
-                                    derived_from:      item.data_resource.derived_from,
+                                    data_set_id,
+                                    derived_from,
                                     row_count:         item.row_count ? item.row_count : item.data_resource.total_data_count,
-                                    name:              item.data_resource.name,
+                                    name,
+                                    /** 分类数,用于区分二分类 */
+                                    label_species_count, 
                                     column_name_list:  features,
                                     $column_name_list: features,
                                 };
@@ -804,6 +812,7 @@
                                 derived_from:      row[0].derived_from,
                                 row_count:         row[0].row_count || row[0].total_data_count,
                                 name:              row[0].name,
+                                label_species_count: row[0].label_species_count,
                             });
                         }
                     });

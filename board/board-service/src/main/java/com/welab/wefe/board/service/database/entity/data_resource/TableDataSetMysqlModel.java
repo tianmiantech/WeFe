@@ -96,6 +96,13 @@ public class TableDataSetMysqlModel extends DataResourceMysqlModel {
         this.labelDistribution = labelDistribution.toJson();
     }
 
+    public JSONObject getLabelDistribution() {
+        if (labelDistribution == null) {
+            return new JSONObject();
+        }
+        return labelDistribution;
+    }
+
     // region getter/setter
 
     public String getColumnNameList() {
@@ -184,10 +191,6 @@ public class TableDataSetMysqlModel extends DataResourceMysqlModel {
 
     public void setyPositiveSampleRatio(Double yPositiveSampleRatio) {
         this.yPositiveSampleRatio = yPositiveSampleRatio;
-    }
-
-    public JSONObject getLabelDistribution() {
-        return labelDistribution;
     }
 
     public void setLabelDistribution(JSONObject labelDistribution) {

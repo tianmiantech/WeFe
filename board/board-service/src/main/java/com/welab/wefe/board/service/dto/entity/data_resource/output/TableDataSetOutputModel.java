@@ -16,6 +16,8 @@
 package com.welab.wefe.board.service.dto.entity.data_resource.output;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
+import com.welab.wefe.board.service.dto.vo.data_set.table_data_set.LabelDistribution;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
@@ -45,8 +47,28 @@ public class TableDataSetOutputModel extends DataResourceOutputModel {
     private Long yPositiveSampleCount;
     @Check(name = "正例比例")
     private Double yPositiveSampleRatio;
+
+    /**
+     * 在分类数很大的情况下，这个字段可能会很大，不能直接输出。
+     */
     @Check(name = "label 的分布情况")
+    @JSONField(serialize = false)
     private JSONObject labelDistribution;
+
+    /**
+     * label 的分类数量
+     */
+    public Integer getLabelSpeciesCount() {
+        // 没有 y 的数据集不输出这个字段（不能为0）
+        if (!containsY) {
+            return null;
+        }
+        if (labelDistribution == null) {
+            return null;
+        }
+        return labelDistribution.toJavaObject(LabelDistribution.class).labelSpeciesCount;
+    }
+
 
     // region getter/setter
 
@@ -138,13 +160,9 @@ public class TableDataSetOutputModel extends DataResourceOutputModel {
         this.yPositiveSampleRatio = yPositiveSampleRatio;
     }
 
-    public JSONObject getLabelDistribution() {
-        return labelDistribution;
-    }
-
     public void setLabelDistribution(JSONObject labelDistribution) {
         this.labelDistribution = labelDistribution;
     }
 
-// endregion
+    // endregion
 }
