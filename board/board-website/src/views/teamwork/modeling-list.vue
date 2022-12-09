@@ -27,7 +27,7 @@
                         />
                     </el-select>
                 </el-form-item>
-                <el-form-item label="来源训练：">
+                <el-form-item label="训练来源：">
                     <el-select v-model="vData.search.flow_id" clearable>
                         <el-option
                             v-for="item in vData.flowList"
@@ -47,7 +47,7 @@
                 </el-form-item>
             </el-form>
             <div class="model-list-box">
-                <div class="model-check-tips f14">勾选列表进行对比（<span>{{vData.checkedModelList.length}}</span>/2）</div>
+                <div class="model-check-tips f14">勾选模型进行对比（<span>{{vData.checkedModelList.length}}</span>/2）</div>
                 <div v-if="vData.modelList.length" v-loading="vData.modelLoading">
                     <div v-infinite-scroll="methods.getSearchModelList" infinite-scroll-delay="100" class="model-scroll-box">
                         <div v-for="(item,index) in vData.modelList" :key="item.id" class="model-scroll-item">
