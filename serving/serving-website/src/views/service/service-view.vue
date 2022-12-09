@@ -2209,6 +2209,10 @@ export default {
             this.getDataTable();
         },
         async getDataTable() {
+            if(!this.form.data_source.id){
+                // this.$message.warning('缺少查询参数!');
+                return ;
+            }
             const { code, data } = await this.$http.post({
                 url:  '/data_source/query_tables',
                 data: {
