@@ -97,7 +97,7 @@ public class PirServiceProcessor extends AbstractServiceProcessor<TableServiceMy
                 JSONObject dataSource = JObject.parseObject(model.getDataSource());
                 String dataSourceId = dataSource.getString("id");
                 DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSourceId);
-                String sql = ServiceUtil.generateSQL(id, dataSource, dataSourceModel.getDatabaseName());
+                String sql = ServiceUtil.generateOneSQL(id, dataSource, dataSourceModel.getDatabaseName());
                 String resultfields = ServiceUtil.parseReturnFields(dataSource);
                 try {
                     Map<String, String> resultMap = dataSourceService.queryOne(dataSourceModel, sql,

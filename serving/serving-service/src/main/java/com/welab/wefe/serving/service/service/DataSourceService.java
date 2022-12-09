@@ -158,7 +158,7 @@ public class DataSourceService {
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(databaseType, host, port, userName, password, databaseName);
         if (conn != null) {
-            boolean success = jdbcManager.testQuery(conn, "select 1", false);
+            boolean success = jdbcManager.testQuery(conn, "select 1");
             if (!success) {
                 throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "数据库连接失败");
             }
@@ -205,21 +205,6 @@ public class DataSourceService {
     public DataSourceMySqlModel getDataSourceById(String dataSourceId) {
         return dataSourceRepo.findById(dataSourceId).orElse(null);
     }
-
-    /**
-     * Test whether SQL can be queried normally
-     */
-    public boolean testSqlQuery(DataSourceMySqlModel model, String sql) throws StatusCodeWithException {
-        if (model == null) {
-            throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
-        }
-        JdbcManager jdbcManager = new JdbcManager();
-        Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
-                model.getUserName(), model.getPassword(), model.getDatabaseName());
-        boolean result = jdbcManager.testQuery(conn, sql, true);
-
-        return result;
-    }
     
     public boolean update(DataSourceMySqlModel model, String sql) throws StatusCodeWithException {
         if (model == null) {
@@ -241,7 +226,7 @@ public class DataSourceService {
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
                 model.getUserName(), model.getPassword(), model.getDatabaseName());
-        return jdbcManager.query(conn, sql, returnFields);
+        return jdbcManager.queryOne(conn, sql, returnFields);
     }
 
     public long count(DataSourceMySqlModel model, String sql) throws StatusCodeWithException {

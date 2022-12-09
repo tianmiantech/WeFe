@@ -746,7 +746,7 @@ public class ServiceService {
         String resultfields = ServiceUtil.parseReturnFields(dataSource);
         String dataSourceId = dataSource.getString("id");
         DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSourceId);
-        String sql = ServiceUtil.generateSQL(input.getParams(), dataSource, dataSourceModel.getDatabaseName());
+        String sql = ServiceUtil.generateOneSQL(input.getParams(), dataSource, dataSourceModel.getDatabaseName());
         Map<String, String> result = dataSourceService.queryOne(dataSourceModel, sql,
                 Arrays.asList(resultfields.split(",")));
         Output out = new Output();
@@ -759,7 +759,7 @@ public class ServiceService {
         JSONObject dataSource = JObject.parseObject(input.getDataSource());
         String dataSourceId = dataSource.getString("id");
         DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSourceId);
-        String sql = ServiceUtil.generateSQL(input.getParams(), dataSource, dataSourceModel.getDatabaseName());
+        String sql = ServiceUtil.generateOneSQL(input.getParams(), dataSource, dataSourceModel.getDatabaseName());
         com.welab.wefe.serving.service.api.service.ServiceShowSQLApi.Output out = new com.welab.wefe.serving.service.api.service.ServiceShowSQLApi.Output();
         out.setResult(JObject.create("sql", sql));
         return out;

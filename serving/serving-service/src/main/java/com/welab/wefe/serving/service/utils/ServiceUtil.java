@@ -110,7 +110,7 @@ public class ServiceUtil {
         return buffer;
     }
 
-    public static String generateSQL(String params, JSONObject dataSource, String dbName) {
+    public static String generateOneSQL(String params, JSONObject dataSource, String dbName) {
         String tableName = dbName + "." + dataSource.getString("table");
         String resultfields = parseReturnFields(dataSource);
         String where = parseWhere(dataSource, JObject.create(params));
