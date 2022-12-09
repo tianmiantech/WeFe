@@ -197,22 +197,23 @@
             };
         },
         watch: {
-            '$route.query': {
-                handler (val) {
-                    this.activeTab = val.activeTab || 'allProjects';
-                    for (const key in this.search) {
-                        this.search[key] = '';
-                    }
-                    for (const key in val) {
-                        this.search[key] = val[key] || '';
-                        this.searchRequest[key] = val[key] || '';
-                    }
-                    this.search.closed = val.closed || 'false';
-                    this.search.searchRequest = val.closed || 'false';
-                    this.getProjectList();
-                },
-                deep: true,
-            },
+            // '$route.query': {
+            //     handler (val) {
+            //         console.log('route change')
+            //         this.activeTab = val.activeTab || 'allProjects';
+            //         for (const key in this.search) {
+            //             this.search[key] = '';
+            //         }
+            //         for (const key in val) {
+            //             this.search[key] = val[key] || '';
+            //             this.searchRequest[key] = val[key] || '';
+            //         }
+            //         this.search.closed = val.closed || 'false';
+            //         this.search.searchRequest = val.closed || 'false';
+            //         this.getProjectList();
+            //     },
+            //     deep: true,
+            // },
         },
         mounted() {
             const { query } = this.$route;
@@ -275,13 +276,15 @@
                 this.search.member_id = item.id;
             },
             searchList() {
-                this.$router.push({
-                    query: {
-                        ...this.search,
-                        activeTab: this.activeTab,
-                    },
-                });
-                this.getProjectList();
+                this.$nextTick(()=>{
+                    this.$router.push({
+                        query: {
+                            ...this.search,
+                            activeTab: this.activeTab,
+                        },
+                    });
+                    this.getProjectList();
+                    })
             },
             getProjectList() {
                 this.getProjectStatistic();
