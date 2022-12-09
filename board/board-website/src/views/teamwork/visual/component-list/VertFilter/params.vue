@@ -21,7 +21,7 @@
         </el-form-item> -->
 
         <el-form
-            v-for="member in vData.members"
+            v-for="(member, midx) in vData.members"
             :key="`${member.member_id}-${member.member_role}`"
             :disabled="disabled"
             class="flex-form li"
@@ -60,7 +60,7 @@
                 prop="filter_rules"
                 class="is-required"
             >
-                <filter-rules :memberData="member" ref="filterRulesRef" />
+                <filter-rules :memberData="member" :ref="el => { if(el) filterRulesRef[midx] = el }" />
                 <!-- <el-input
                     type="textarea"
                     v-model="member.filter_rules"
@@ -100,7 +100,7 @@
                 loading: false,
                 members: [],
             });
-            const filterRulesRef = ref();
+            const filterRulesRef = ref([]);
             const methods = {
                 async readData (model) {
                     vData.loading = true;
