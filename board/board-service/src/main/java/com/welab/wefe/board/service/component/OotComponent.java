@@ -268,6 +268,19 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
                 // Mark as modeling component
                 extendOotParams.put("is_model", true);
 
+            } else if (ComponentType.Evaluation.equals(taskType)) {
+                JObject paramsObj = taskConfigObj.getJObject("params");
+                JObject psiParam = paramsObj.getJObject("psi_param");
+                if (null != psiParam && !psiParam.isEmpty()) {
+                    psiParam.put("need_psi", false);
+                }
+                JObject scoreParam = paramsObj.getJObject("score_param");
+                if (null != scoreParam && !scoreParam.isEmpty()) {
+                    scoreParam.put("prob_need_to_bin", false);
+                }
+                paramsObj.put("psi_param", psiParam);
+                paramsObj.put("score_param", scoreParam);
+                taskConfigObj.put("params", paramsObj);
             }
             taskConfigObj.append("oot_params", extendOotParams);
             subTaskConfigMap.put(taskName, taskConfigObj);
@@ -672,7 +685,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
 
     private JObject createPsiParam(Params params) {
         return JObject.create()
-                .append("need_psi", params.psiParam.getNeedPsi())
+                .append("need_psi", false)
                 .append("bin_num", params.psiParam.getBinNum())
                 .append("bin_method", params.psiParam.getBinMethod())
                 .append("split_points", CollectionUtils.isEmpty(params.getPsiParam().getSplitPoints()) ? new ArrayList<>() : params.getPsiParam().getSplitPoints());
@@ -682,7 +695,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         return JObject.create()
                 .append("bin_num", params.scoreParam.getBinNum())
                 .append("bin_method", params.scoreParam.getBinNum())
-                .append("prob_need_to_bin", params.scoreParam.isProbNeedToBin());
+                .append("prob_need_to_bin", false);
     }
 
     /**
