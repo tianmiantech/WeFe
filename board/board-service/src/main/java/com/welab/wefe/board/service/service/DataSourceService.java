@@ -27,7 +27,6 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.jdbc.JdbcClient;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

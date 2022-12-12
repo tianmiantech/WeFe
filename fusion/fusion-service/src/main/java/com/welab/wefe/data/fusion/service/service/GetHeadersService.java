@@ -19,7 +19,6 @@ package com.welab.wefe.data.fusion.service.service;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.jdbc.base.DatabaseType;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.data.fusion.service.api.dataset.GetHeadersApi;
