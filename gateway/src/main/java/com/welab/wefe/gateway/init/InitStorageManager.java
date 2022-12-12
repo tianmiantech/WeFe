@@ -96,7 +96,9 @@ public class InitStorageManager {
             if (null == configModel) {
                 return false;
             }
-            PersistentStorage.init(new ClickhouseConfig(configModel.host, configModel.http_port, configModel.username, configModel.password));
+            ClickhouseConfig clickhouseConfig = new ClickhouseConfig(configModel.host, configModel.http_port, configModel.username, configModel.password);
+            clickhouseConfig.setRemoveAbandoned(false);
+            PersistentStorage.init(clickhouseConfig);
             return true;
         } catch (Exception e) {
             LOG.error("Init persistent storage fail, exception: ", e);
