@@ -134,8 +134,8 @@
 
                     this.componentType = component_type;
                     this.prob_need_to_bin =
-                        task_config && task_config.params && task_config.params.score_param.prob_need_to_bin
-                            ? task_config.params.prob_need_to_bin
+                        task_config && task_config?.params && task_config?.params?.score_param?.prob_need_to_bin
+                            ? task_config?.params?.prob_need_to_bin
                             : prob_need_to_bin
                                 ? prob_need_to_bin
                                 : false;
