@@ -116,8 +116,8 @@ export default {
                 })
                 .then((NodeDetailReq) => {
                     if (NodeDetailReq.code === 0) {
-                        const { members, conditions } =
-                            NodeDetailReq.data.params;
+                        const { members = [], conditions } =
+                            NodeDetailReq.data?.params || {};
                         selectedFeature.value = members.reduce(
                             (acc, cur) => [
                                 ...acc,
