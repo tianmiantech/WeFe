@@ -111,15 +111,14 @@ public class PrivateSetIntersection implements Psi {
         }
         boolean hasNext = response.isHasNext();
         logger.info("dh psi response serverIds size = " + CollectionUtils.size(response.getServerEncryptIds())
-                + ", clientIds size = " + CollectionUtils.size(response.getClientIdByServerKeys()) + ", duration = "
-                + (System.currentTimeMillis() - start));
+                + ", clientIds size = " + CollectionUtils.size(response.getClientIdByServerKeys()));
         // 获取服务端id, 加密服务端ID
         client.encryptServerDataset(response.getServerEncryptIds());
         // 获取被服务端加密了的客户端ID
         client.setClientIdByServerKeys(response.getClientIdByServerKeys());
         List<String> allResult = client.psi();
         logger.info("dh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
-                + allResult.size() + ", hasNext = " + hasNext);
+                + allResult.size() + ", hasNext = " + hasNext + ", duration = " + (System.currentTimeMillis() - start));
         while (hasNext) {
             start = System.currentTimeMillis();
             // 发给服务端
