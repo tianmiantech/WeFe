@@ -17,11 +17,9 @@ package com.welab.wefe.serving.service.service_processor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -90,9 +88,9 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
                 encryptClientIds = server.encryptClientDatasetMap(clientIds);
                 CLIENT_IDS_MAP.put(this.requestId, true);
             }
-            Set<String> batchData = getBatchData(model, currentBatch);
+            List<String> batchData = getBatchData(model, currentBatch);
             // 对自己的数据集进行加密
-            List<String> encryptServerIds = server.encryptDataset(new ArrayList<>(batchData));
+            List<String> encryptServerIds = server.encryptDataset(batchData);
             QueryPrivateSetIntersectionResponse response = new QueryPrivateSetIntersectionResponse();
             response.setClientIdByServerKeys(encryptClientIds);
             response.setServerEncryptIds(encryptServerIds);
@@ -126,9 +124,9 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
                 CLIENT_IDS_MAP.put(this.requestId, true);
                 doubleEncryptedClientDataset = EcdhUtil.convert2List(doubleEncryptedClientDatasetMap);
             }
-            Set<String> batchData = getBatchData(model, currentBatch);
+            List<String> batchData = getBatchData(model, currentBatch);
             // 服务端对自己的数据集进行加密
-            List<String> serverEncryptedDataset = server.encryptDataset(new ArrayList<>(batchData));
+            List<String> serverEncryptedDataset = server.encryptDataset(batchData);
             // 把上面两个set发给客户端
             QueryPrivateSetIntersectionResponse response = new QueryPrivateSetIntersectionResponse();
             response.setClientIdByServerKeys(doubleEncryptedClientDataset); // 第一批次会传，后续批次为空
@@ -198,20 +196,20 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         }
         this.numPartitions = Math.max(SERVER_DATASET_SIZE.get(this.requestId) / this.batchSize, 1);
         LOG.info("get mysql data end, serverDatasetSize = " + SERVER_DATASET_SIZE.get(this.requestId)
-                + ", numPartitions=" + numPartitions);
+                + ", numPartitions=" + numPartitions + ", serverDataSet size = " + serverDataSet.size());
         return serverDataSet;
     }
 
-    private Set<String> getBatchData(TableServiceMySqlModel model, int currentBatch) throws StatusCodeWithException {
+    private List<String> getBatchData(TableServiceMySqlModel model, int currentBatch) throws StatusCodeWithException {
         JSONObject dataSource = JObject.parseObject(model.getDataSource());
         DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
         if (dataSourceModel == null) {
             throw new StatusCodeWithException("datasource not found", StatusCode.DATA_NOT_FOUND);
         }
         if (dataSourceModel.getDatabaseType() == DatabaseType.MySql) {
-            return new HashSet<>(getMysqlData(model, dataSourceModel, dataSource, currentBatch));
+            return getMysqlData(model, dataSourceModel, dataSource, currentBatch);
         } else if (dataSourceModel.getDatabaseType() == DatabaseType.Doris) {
-            return new HashSet<>(getDorisData(model, dataSourceModel, dataSource, currentBatch));
+            return getDorisData(model, dataSourceModel, dataSource, currentBatch);
         }
         throw new StatusCodeWithException("datasource type not support" + dataSourceModel.getDatabaseType(),
                 StatusCode.INVALID_DATASET);
