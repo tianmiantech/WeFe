@@ -87,6 +87,7 @@ public class PrivateSetIntersection implements Psi {
         if (config == null || StrUtil.isEmpty(config.getServerUrl())) {
             throw new IllegalArgumentException("server config missing");
         }
+        long start = System.currentTimeMillis();
         DhPsiClient client = new DhPsiClient();
         if (operator == null) {
             client.setOperator(new IntersectionOperator());
@@ -110,7 +111,8 @@ public class PrivateSetIntersection implements Psi {
         }
         boolean hasNext = response.isHasNext();
         logger.info("dh psi response serverIds size = " + CollectionUtils.size(response.getServerEncryptIds())
-                + ", clientIds size = " + CollectionUtils.size(response.getClientIdByServerKeys()));
+                + ", clientIds size = " + CollectionUtils.size(response.getClientIdByServerKeys()) + ", duration = "
+                + (System.currentTimeMillis() - start));
         // 获取服务端id, 加密服务端ID
         client.encryptServerDataset(response.getServerEncryptIds());
         // 获取被服务端加密了的客户端ID
@@ -119,6 +121,7 @@ public class PrivateSetIntersection implements Psi {
         logger.info("dh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
                 + allResult.size() + ", hasNext = " + hasNext);
         while (hasNext) {
+            start = System.currentTimeMillis();
             // 发给服务端
             request.setClientIds(null);// 只需要第一次传给服务端
             request.setCurrentBatch(request.getCurrentBatch() + 1);
@@ -139,7 +142,8 @@ public class PrivateSetIntersection implements Psi {
                 allResult.addAll(batchResult);
             }
             logger.info("dh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
-                    + allResult.size() + ", hasNext = " + hasNext);
+                    + allResult.size() + ", hasNext = " + hasNext + ",duration = "
+                    + (System.currentTimeMillis() - start));
         }
         return allResult;
     }

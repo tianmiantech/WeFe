@@ -82,8 +82,8 @@ public class EcdhPsi implements Psi {
         if (config == null || StrUtil.isEmpty(config.getServerUrl())) {
             throw new IllegalArgumentException("server config missing");
         }
-        EcdhPsiClient client = new EcdhPsiClient();
         long start = System.currentTimeMillis();
+        EcdhPsiClient client = new EcdhPsiClient();
         // 加密我自己的数据
         Map<Long, String> clientEncryptedDatasetMap = client.encryptClientOriginalDataset(ids);
         QueryPrivateSetIntersectionRequest request = new QueryPrivateSetIntersectionRequest();
