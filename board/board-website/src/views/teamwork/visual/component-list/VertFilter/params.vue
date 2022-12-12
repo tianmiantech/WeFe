@@ -60,7 +60,11 @@
                 prop="filter_rules"
                 class="is-required"
             >
-                <filter-rules :memberData="member" :ref="el => { if(el) filterRulesRef[midx] = el }" />
+                <filter-rules
+                    :disabled="disabled"
+                    :memberData="member"
+                    :ref="el => { if(el) filterRulesRef[midx] = el }"
+                />
                 <!-- <el-input
                     type="textarea"
                     v-model="member.filter_rules"

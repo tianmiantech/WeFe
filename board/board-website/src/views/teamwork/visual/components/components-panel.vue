@@ -111,41 +111,22 @@
                                             show-icon
                                         />
                                     </div>
-                                    <el-popover
-                                        title="参数说明"
-                                        :offset="15"
-                                        :width="250"
-                                        placement="left-start"
-                                        popper-class="explain-popper"
-                                        v-model:visible="isExplainShow"
-                                        trigger="manual"
-                                        effect="dark"
+                                    <component
+                                        :is="`${key}-params`"
+                                        :ref="`${key}-params`"
+                                        :is-creator="isCreator"
+                                        :disabled="jobGraphShow || myRole !== 'promoter' || !isCreator"
+                                        :class="{ 'readonly-form': myRole !== 'promoter' || !isCreator }"
+                                        :current-obj="currentObj"
+                                        :project-id="projectId"
+                                        :flow-id="flowId"
+                                        :job-id="jobId"
+                                        :learning-type="learningType"
+                                        :ootModelFlowNodeId="ootModelFlowNodeId"
+                                        :ootJobId="ootJobId"
+                                        :project-type="projectType"
                                     >
-                                        <!-- <components-params-explain
-                                            :is="`${key}`"
-                                            :components-name="`${key}`"
-                                            @closeExplainPop="closeExplainPop"
-                                        /> -->
-
-                                        <template #reference>
-                                            <component
-                                                :is="`${key}-params`"
-                                                :ref="`${key}-params`"
-                                                :is-creator="isCreator"
-                                                :disabled="jobGraphShow || myRole !== 'promoter' || !isCreator"
-                                                :class="{ 'readonly-form': myRole !== 'promoter' || !isCreator }"
-                                                :current-obj="currentObj"
-                                                :project-id="projectId"
-                                                :flow-id="flowId"
-                                                :job-id="jobId"
-                                                :learning-type="learningType"
-                                                :ootModelFlowNodeId="ootModelFlowNodeId"
-                                                :ootJobId="ootJobId"
-                                                :project-type="projectType"
-                                            >
-                                            </component>
-                                        </template>
-                                    </el-popover>
+                                    </component>
 
                                     <div
                                         v-if="!jobGraphShow && isCreator && (isProjectAdmin === 'true' || isProjectAdmin === '1')"
@@ -203,7 +184,7 @@
 </template>
 
 <script>
-import {
+    import {
         componentsList,
         helpComponents,
         paramComponents,

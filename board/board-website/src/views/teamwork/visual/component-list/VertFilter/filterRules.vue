@@ -1,8 +1,13 @@
 <template>
-    <el-form :model="ruleForm" ref="ruleFormRef" size="small">
+    <el-form
+        v-if="!disabled"
+        :model="ruleForm"
+        ref="ruleFormRef"
+        size="small"
+    >
         <el-row gutter="10">
             <el-col :span="7" class="f12">特征</el-col>
-            <el-col :span="7" class="f12">操作符</el-col>
+            <el-col :span="5" class="f12">操作符</el-col>
             <el-col :span="7" class="f12">值</el-col>
         </el-row>
         <el-row gutter="10" class="mb5" v-for="(item, index) in ruleForm" :key="index">
@@ -42,7 +47,26 @@
             <el-col :span="7">
                 <el-form-item
                     :prop="`${index}.value`"
-                    :rules="[{required: true, message: '请输入', trigger: 'blur'}]"
+                    :rules="[
+                        {
+                            required: true,
+                            message: `${memberFeatureType[item.feature] == 'DateTime' ? '请输入yyyy-MM-dd或yyyy-MM-dd HH:mm:ss格式' : '请输入'}`,
+                            trigger: 'blur',
+                            validator: () => {
+                                if (!item.value) {
+                                    return false;
+                                } else {
+                                    if (memberFeatureType[item.feature] == 'DateTime') {
+                                        const reg = /^((?:19|20)[0-9][0-9]-(?:(?:0[1-9])|(?:1[0-2]))-(?:(?:[0-2][1-9])|(?:[1-3][0-1])) (?:(?:[0-2][0-3])|(?:[0-1][0-9])):[0-5][0-9]:[0-5][0-9])|(?:19|20)[0-9][0-9]-(?:(?:0[1-9])|(?:1[0-2]))-(?:(?:[0-2][1-9])|(?:[1-3][0-1]))$/;
+                                        if (!reg.test(item.value)) {
+                                            return false;
+                                        }
+                                    }
+                                }
+                                return true;
+                            }
+                        },
+                    ]"
                 >
                     <el-input v-model="item.value" />
                 </el-form-item>
@@ -71,10 +95,10 @@
     </el-form>
     <div class="rule-txt">
         <template v-for="(item, index) in ruleForm" :key="index">
-            <span class="color-danger">{{item.feature}}</span>
-            <span>{{item.operator}}</span>
+            <span class="color-feature">{{item.feature}}</span>
+            <span class="color-operator">{{item.operator}}</span>
             <span>{{item.value}}</span>
-            <span class="strong" v-if="(ruleForm.length > 0 && index != ruleForm.length - 1)">&</span>
+            <span class="color-and" v-if="(ruleForm.length > 0 && index != ruleForm.length - 1)">&</span>
         </template>
     </div>
 </template>
@@ -89,6 +113,10 @@
             memberData: {
                 type:    Array,
                 default: () => {},
+            },
+            disabled: {
+                type:    Boolean,
+                default: false,
             },
         },
         emits: ['update'],
@@ -193,5 +221,15 @@
 .rule-txt {
     width: 100%;
 }
-.strong{color:$--color-success;}
+.color-feature {
+    color: #800;
+}
+.color-operator {
+    color: #1f7199;
+    font-weight: bold;
+}
+.color-and{
+    color: #397300;
+    font-weight: bold;
+}
 </style>
