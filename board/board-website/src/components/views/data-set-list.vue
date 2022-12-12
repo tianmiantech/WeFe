@@ -221,7 +221,7 @@
                             </el-tooltip>
                             <el-switch
                                 v-model="scope.row.$checked"
-                                :disabled="scope.row.deleted || scope.row.$unchanged || scope.row.audit_status === 'disagree' || scope.row.audit_status === 'auditing'"
+                                :disabled="scope.row?.data_resource?.deleted || scope.row.$unchanged || scope.row.audit_status === 'disagree' || scope.row.audit_status === 'auditing'"
                                 active-color="#35c895"
                                 @change="isFlow ? selectDataSet(scope.row, scope.$index) : selectMemberSwitch(scope.row, scope.$index)"
                             />
