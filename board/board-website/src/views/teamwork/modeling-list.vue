@@ -246,7 +246,7 @@
                                         <el-descriptions-item label="顶层参数"> {{item.modeling_params.top_nn_define}} </el-descriptions-item>
                                     </div>
                                 </el-descriptions>
-                                <template v-if="item.modeling_params.grid_search_param.need_grid_search">
+                                <template v-if="item.modeling_params?.grid_search_param?.need_grid_search">
                                     <el-descriptions title="网格搜索参数" :column="2" border>
                                         <el-descriptions-item
                                             v-for="(value, keyName) in item.modeling_params.grid_search_param.params_list"
