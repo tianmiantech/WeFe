@@ -44,7 +44,7 @@ import com.welab.wefe.gateway.common.GrpcConstant;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
 import com.welab.wefe.gateway.entity.MemberEntity;
 import com.welab.wefe.gateway.interceptor.AntiTamperMetadataBuilder;
-import com.welab.wefe.gateway.interceptor.RemoteGrpcProxyCallCredentials;
+import com.welab.wefe.gateway.interceptor.ClientCallCredentials;
 import com.welab.wefe.gateway.interceptor.SignVerifyMetadataBuilder;
 import com.welab.wefe.gateway.interceptor.SystemTimestampMetadataBuilder;
 
@@ -202,7 +202,7 @@ public class GrpcUtil {
                 try {
                     originalChannel = channelCache.getNonNull(dstGatewayUri, tlsEnable, TlsUtil.getAllCertificates(tlsEnable));
                     NetworkDataTransferProxyServiceGrpc.NetworkDataTransferProxyServiceBlockingStub clientStub = NetworkDataTransferProxyServiceGrpc.newBlockingStub(originalChannel)
-                            .withCallCredentials(new RemoteGrpcProxyCallCredentials(transferMeta,
+                            .withCallCredentials(new ClientCallCredentials(transferMeta,
                                     new AntiTamperMetadataBuilder(transferMeta),
                                     new SignVerifyMetadataBuilder(transferMeta),
                                     new SystemTimestampMetadataBuilder(transferMeta)));
