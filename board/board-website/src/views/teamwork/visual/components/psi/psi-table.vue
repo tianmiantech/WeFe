@@ -141,8 +141,8 @@
                     return {
                         key:         `${feature}-${index}`,
                         bin:         tmp[index] ,
-                        test:        `${turnDemical((testRate[index] || 0) * 100, 2)}%`,
-                        train:       `${turnDemical((trainRate[index] || 0) * 100, 2)}%`,
+                        test:        `${turnDemical((testRate[index] || 0) * 100, 2)}`,
+                        train:       `${turnDemical((trainRate[index] || 0) * 100, 2)}`,
                         testSubBase: `${turnDemical((bin_sub_test_base_value[index] || 0) * 100, 2)}%`,
                         psi:         judge(bin_psi[index]) ? turnDemical((bin_psi[index] || 0), 4) : 0,
                         lntestbase:  turnDemical((bin_ln_test_base_value[index] || 0), 4),
