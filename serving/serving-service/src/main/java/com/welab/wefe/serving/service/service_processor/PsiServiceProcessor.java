@@ -54,7 +54,6 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
 
     private static final ConcurrentHashMap<String, EcdhPsiServer> ECDH_SERVER_MAP = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, DhPsiServer> DH_SERVER_MAP = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<String, Boolean> CLIENT_IDS_MAP = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, Integer> SERVER_DATASET_SIZE = new ConcurrentHashMap<>();
 
     protected final Config config = Launcher.getBean(Config.class);
@@ -80,14 +79,13 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
                 server = new DhPsiServer(p);
                 DH_SERVER_MAP.put(requestId, server);
             }
-            if (CLIENT_IDS_MAP.get(requestId) == null) {
-                List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
-                if (CollectionUtils.isEmpty(clientIds)) {
-                    clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
-                }
+            List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
+            if (CollectionUtils.isEmpty(clientIds)) {
+                clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
+            }
+            if (!CollectionUtils.isEmpty(clientIds)) {
                 // 对客户端数据进行加密
                 encryptClientIds = server.encryptClientDatasetMap(clientIds);
-                CLIENT_IDS_MAP.put(this.requestId, true);
             }
             List<String> batchData = getBatchData(model, currentBatch);
             // 对自己的数据集进行加密
@@ -108,23 +106,17 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
                 server = new EcdhPsiServer();
                 ECDH_SERVER_MAP.put(this.requestId, server);
             }
-            if (CLIENT_IDS_MAP.get(this.requestId) == null) {
-                List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
-                if (CollectionUtils.isEmpty(clientIds)) {
-                    clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
-                }
-                if (CollectionUtils.isEmpty(clientIds)) {
-                    QueryPrivateSetIntersectionResponse response = new QueryPrivateSetIntersectionResponse();
-                    response.setCode(-1);
-                    response.setMessage("client_ids is empty");
-                    return JObject.create(response);
-                }
+            List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
+            if (CollectionUtils.isEmpty(clientIds)) {
+                clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
+            }
+            if (!CollectionUtils.isEmpty(clientIds)) {
                 Map<Long, String> clientEncryptedDatasetMap = EcdhUtil.convert2Map(clientIds);
                 // 对客户端数据进行二次加密
                 doubleEncryptedClientDatasetMap = server.encryptDatasetMap(clientEncryptedDatasetMap);
-                CLIENT_IDS_MAP.put(this.requestId, true);
                 doubleEncryptedClientDataset = EcdhUtil.convert2List(doubleEncryptedClientDatasetMap);
             }
+
             List<String> batchData = getBatchData(model, currentBatch);
             // 服务端对自己的数据集进行加密
             List<String> serverEncryptedDataset = server.encryptDataset(batchData);
@@ -136,7 +128,6 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             response.setCurrentBatch(currentBatch);
             response.setHasNext(currentBatch < (this.numPartitions - 1));
             return JObject.create(response);
-
         }
     }
 

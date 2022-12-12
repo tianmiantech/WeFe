@@ -40,7 +40,7 @@ import cn.hutool.core.util.StrUtil;
 /**
  * @Author: winter
  **/
-public class EcdhPsi implements Psi{
+public class EcdhPsi implements Psi {
 
     private static final Logger logger = LoggerFactory.getLogger(EcdhPsi.class);
     private static final int DEFAULT_CURRENT_BATH = 0;
@@ -83,6 +83,7 @@ public class EcdhPsi implements Psi{
             throw new IllegalArgumentException("server config missing");
         }
         EcdhPsiClient client = new EcdhPsiClient();
+        long start = System.currentTimeMillis();
         // 加密我自己的数据
         Map<Long, String> clientEncryptedDatasetMap = client.encryptClientOriginalDataset(ids);
         QueryPrivateSetIntersectionRequest request = new QueryPrivateSetIntersectionRequest();
@@ -106,8 +107,9 @@ public class EcdhPsi implements Psi{
         Set<String> allResult = client.psi();
 
         logger.info("ecdh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
-                + allResult.size() + ", hasNext = " + hasNext);
+                + allResult.size() + ", hasNext = " + hasNext + ",duration = " + (System.currentTimeMillis() - start));
         while (hasNext) {
+            start = System.currentTimeMillis();
             // 发给服务端
             request.setClientIds(null);// 只需要第一次传给服务端
             request.setCurrentBatch(request.getCurrentBatch() + 1);
@@ -129,7 +131,8 @@ public class EcdhPsi implements Psi{
                 allResult.addAll(batchResult);
             }
             logger.info("ecdh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
-                    + allResult.size() + ", hasNext = " + hasNext);
+                    + allResult.size() + ", hasNext = " + hasNext + ",duration = "
+                    + (System.currentTimeMillis() - start));
         }
         return new ArrayList<>(allResult);
     }

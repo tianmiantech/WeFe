@@ -72,7 +72,7 @@ public class DhPsiClient {
         }
         // 对服务端ID进行加密
         this.serverIdWithClientKeys = new ArrayList<>(doubleEncryptServerIds);
-        LOG.info("client end ncryptServerDataset");
+        LOG.info("client end encryptServerDataset");
     }
 
     /**
