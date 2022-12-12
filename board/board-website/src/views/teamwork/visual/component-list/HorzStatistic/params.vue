@@ -116,7 +116,7 @@
                                     <span class="board-checkbox__inner"></span>
                                     <input :id="`label-${index * 5 + i - 1}`" class="board-checkbox__original" type="checkbox" />
                                 </span>
-                                <span class="el-checkbox__label">
+                                <span class="board-checkbox__label">
                                     {{ list[index * 5 + i - 1] }}
                                     <FeatureTagVue :name="list[index * 5 + i - 1]" :data_set_id="vData.check_data_set_id" />
                                 </span>
@@ -146,7 +146,7 @@
     import FeatureTagVue from '../common/featureTag.vue';
 
     export default {
-        name:  'HorzStatistic',
+        name:       'HorzStatistic',
         components: {
             FeatureTagVue,
         },
