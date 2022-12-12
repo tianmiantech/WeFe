@@ -91,7 +91,7 @@
                 >
                     <elicon-close />
                 </el-icon>
-                <p class="pb5"><strong class="f13">由于数据资源发生变更<br>以下节点需要重新保存参数: </strong></p>
+                <p class="pb5"><strong class="f13">由于特征列表发生变更<br>以下节点需要重新保存参数: </strong></p>
                 <span
                     class="f12"
                     style="color: #c0c4cc;"
