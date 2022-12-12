@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -156,12 +157,12 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         List<Queue<Map<String, String>>> partitionList = ServiceUtil.partitionList(result,
                 Math.max(this.batchSize / 100000, 1));
         result = null;
-        ExecutorService executorService1 = Executors.newFixedThreadPool(2);
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
         BlockingQueue<String> queue = new LinkedBlockingQueue<>();
         for (int i = 0; i < partitionList.size(); i++) {
             final int finalI = i;
             Queue<Map<String, String>> partition = partitionList.get(i);
-            executorService1.submit(() -> {
+            executorService.submit(() -> {
                 LOG.info("calcKey begin index = " + finalI + ", partition size = " + partition.size());
                 while (!partition.isEmpty()) {
                     queue.add(ServiceUtil.calcKey(keyCalcRules, partition.poll()));
@@ -169,13 +170,23 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
                 LOG.info("calcKey end index = " + finalI + ", queue size = " + queue.size());
             });
         }
+        executorService.shutdown();
+        try {
+            while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                // pass
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            executorService.shutdown();
+        }
         if (SERVER_DATASET_SIZE.get(this.requestId) == null) {
             int serverDatasetSize = (int) dataSourceService.count(dataSourceModel,
                     "select * from " + model.getIdsTableName());
             SERVER_DATASET_SIZE.put(this.requestId, serverDatasetSize);
         }
-        LOG.info("get doris data end, serverDatasetSize = " + SERVER_DATASET_SIZE.get(this.requestId) + ", numPartitions="
-                + numPartitions);
+        LOG.info("get doris data end, serverDatasetSize = " + SERVER_DATASET_SIZE.get(this.requestId)
+                + ", numPartitions=" + numPartitions + ", serverDataSet size = " + queue.size());
         return new ArrayList<>(queue);
     }
 
