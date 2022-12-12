@@ -1116,7 +1116,7 @@
                 title="设置求交主键:"
                 width="500px"
             >
-                <p class="mb10">示例: md5(mobile+name) + sha256(cnid)</p>
+                <p class="mb10">示例: md5(mobile+name) + sha256(cnid) </p>
                 <el-form>
                     <el-form-item
                         v-for="(row, index) in keyMaps.key_calc_rules"
@@ -1478,7 +1478,7 @@ export default {
             },
             keyMaps: {
                 visible:        false,
-                encrypts:       ['md5', 'sha256'],
+                encrypts:       ['md5', 'sha256', '-'],
                 key_calc_rules: [],
                 stringResult:   '',
             },
@@ -2221,6 +2221,9 @@ export default {
             }
         },
         tableChange() {
+            this.form = {
+                ... this.form,
+            };
             this.getTablesFields();
         },
         async getTablesFields() {

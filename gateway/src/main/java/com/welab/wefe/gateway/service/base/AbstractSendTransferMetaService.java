@@ -138,7 +138,11 @@ public abstract class AbstractSendTransferMetaService {
         MemberCache memberCache = MemberCache.getInstance();
         MemberEntity selfMemberEntity = memberCache.getSelfMember();
         if (!GrpcUtil.checkGatewayUriValid(selfMemberEntity.getGatewayInternalUri())) {
-            return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "请设置自己的网关内网地址,格式为 HOST:PORT", transferMeta.getSessionId());
+            //再次刷新下,防止缓存没来得及更新
+            memberCache.refreshSelfMemberCache();
+            if (!GrpcUtil.checkGatewayUriValid(memberCache.getSelfMember().getGatewayInternalUri())) {
+                return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "请设置自己的网关内网地址,格式为 HOST:PORT", transferMeta.getSessionId());
+            }
         }
 
         MemberEntity dstMemberEntity = memberCache.get(dstMember.getMemberId());
@@ -154,7 +158,7 @@ public abstract class AbstractSendTransferMetaService {
         if (StringUtil.isEmpty(dstEndpoint.getIp())) {
             if (!selfMemberEntity.getId().equals(dstMember.getMemberId())) {
                 PartnerConfigEntity partnerConfig = PartnerConfigCache.getInstance().get(dstMember.getMemberId());
-                if (null == partnerConfig || StringUtil.isEmpty(partnerConfig.getGatewayAddress())) {
+                if ((null == partnerConfig || StringUtil.isEmpty(partnerConfig.getGatewayAddress())) && StringUtil.isEmpty(dstMemberEntity.getGatewayExternalUri())) {
                     return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "成员[" + dstMemberEntity.getName() + "]未设置网关公网地址.", transferMeta.getSessionId());
                 }
             }

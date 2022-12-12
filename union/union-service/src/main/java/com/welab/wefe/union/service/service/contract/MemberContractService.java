@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.service;
+package com.welab.wefe.union.service.service.contract;
 
-import cn.hutool.core.bean.BeanUtil;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;

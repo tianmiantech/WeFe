@@ -166,6 +166,7 @@
         setup(props, context) {
             const store = useStore();
             const userInfo = computed(() => store.state.base.userInfo);
+            const systemInited = computed(() => store.state.base.systemInited);
             const { appContext } = getCurrentInstance();
             const { $bus, $http, $message } = appContext.config.globalProperties;
             const sysChat = ref();
@@ -227,6 +228,10 @@
             const getLastChatAccount = async (opt = {
                 requestFromRefresh: false,
             }) => {
+                if(!systemInited.value){
+                    /** 系统未初始化，不发这个请求 */
+                    return;
+                }
                 const { code, data } = await $http.get({
                     url:    '/chat/chat_last_account',
                     params: {
