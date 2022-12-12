@@ -39,15 +39,13 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
+import com.welab.wefe.mpc.psi.sdk.Psi;
 import com.welab.wefe.mpc.psi.sdk.dh.DhPsiServer;
 import com.welab.wefe.mpc.psi.sdk.ecdh.EcdhPsiServer;
 import com.welab.wefe.mpc.psi.sdk.util.EcdhUtil;
-import com.welab.wefe.mpc.psi.sdk.util.PartitionUtil;
 import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
 import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
-import com.welab.wefe.serving.service.utils.MD5Util;
-import com.welab.wefe.serving.service.utils.SHA256Utils;
 import com.welab.wefe.serving.service.utils.ServiceUtil;
 
 /**
@@ -59,10 +57,10 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
     private static final ConcurrentHashMap<String, DhPsiServer> DH_SERVER_MAP = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, Boolean> CLIENT_IDS_MAP = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, Integer> SERVER_DATASET_SIZE = new ConcurrentHashMap<>();
+
     protected final Config config = Launcher.getBean(Config.class);
     private static List<String> ECDH_SERVER_DATA_SET;
     private int batchSize;
-    private String type; // psi 算法类型 dh or ecdh
     private int numPartitions; // 服务端数据批次
     private String requestId;
 
@@ -79,20 +77,13 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
 
     @Override
     public JObject process(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {
-        JSONObject dataSource = JObject.parseObject(model.getDataSource());
-        DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
-        if (dataSourceModel == null) {
-            throw new StatusCodeWithException("datasource not found", StatusCode.DATA_NOT_FOUND);
-        }
-        String idsTableName = model.getIdsTableName();
         String rid = data.getString("requestId");
+        String type = data.getString("type");
         this.requestId = rid;
         this.batchSize = config.getPsiBatchSize();
         // 当前批次
         int currentBatch = data.getIntValue("currentBatch");
-        // id在mysql表中
-        if (dataSourceModel.getDatabaseType().name().equalsIgnoreCase(DatabaseType.MySql.name())) {
-            type = "DH";
+        if (Psi.DH_PSI.equalsIgnoreCase(type)) {
             String p = data.getString("p");
             // 当前批次
             DhPsiServer server = DH_SERVER_MAP.get(requestId);
@@ -121,8 +112,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             response.setCurrentBatch(currentBatch);
             response.setHasNext(currentBatch < (this.numPartitions - 1) - 1);
             return JObject.create(response);
-        } else {
-            type = "ECDH";
+        } else { // default ECDH
             Map<Long, String> doubleEncryptedClientDatasetMap = null;
             List<String> doubleEncryptedClientDataset = null;
             EcdhPsiServer server = ECDH_SERVER_MAP.get(requestId);
@@ -164,15 +154,9 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
     }
 
     // doris
-    private List<String> getECDHServerData(TableServiceMySqlModel model, int currentBatch)
-            throws StatusCodeWithException {
+    private List<String> getDorisData(TableServiceMySqlModel model, DataSourceMySqlModel dataSourceModel,
+            JSONObject dataSource, int currentBatch) throws StatusCodeWithException {
         String tableName = model.getIdsTableName();
-        JSONObject dataSource = JObject.parseObject(model.getDataSource());
-        DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
-        if (dataSourceModel == null) {
-            this.numPartitions = 1;
-            return new ArrayList<>();
-        }
         JSONArray keyCalcRules = dataSource.getJSONArray("key_calc_rules");
         List<String> needFields = new ArrayList<>();
         for (int i = 0; i < keyCalcRules.size(); i++) {
@@ -183,7 +167,8 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         String sql = "select " + StringUtils.join(needFields, ",") + " from " + tableName + " limit "
                 + currentBatch * this.batchSize + ", " + this.batchSize;
         List<Map<String, String>> result = dataSourceService.queryList(dataSourceModel, sql, needFields);
-        List<Queue<Map<String, String>>> partitionList = ServiceUtil.partitionList(result, Math.max(this.batchSize / 100000, 1));
+        List<Queue<Map<String, String>>> partitionList = ServiceUtil.partitionList(result,
+                Math.max(this.batchSize / 100000, 1));
         result = null;
         ExecutorService executorService1 = Executors.newFixedThreadPool(2);
         BlockingQueue<String> queue = new LinkedBlockingQueue<>();
@@ -204,22 +189,14 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             SERVER_DATASET_SIZE.put(this.requestId, serverDatasetSize);
         }
         return new ArrayList<>(queue);
-//        int serverDatasetSize = ECDH_SERVER_DATA_SET.size();
-//        SERVER_DATASET_SIZE.put(this.requestId, serverDatasetSize);
-//        this.numPartitions = Math.max(SERVER_DATASET_SIZE.get(this.requestId) / this.batchSize, 1);
-//        return ECDH_SERVER_DATA_SET;
     }
 
-    private List<String> getDHData(TableServiceMySqlModel model, int currentBatch) throws StatusCodeWithException {
-        List<String> serverDataSet = new ArrayList<>();
-        JSONObject dataSource = JObject.parseObject(model.getDataSource());
-        String sql = "select id from " + model.getIdsTableName() + " limit " + currentBatch * this.batchSize + ", "
-                + this.batchSize;
+    private List<String> getMysqlData(TableServiceMySqlModel model, DataSourceMySqlModel dataSourceModel,
+            JSONObject dataSource, int currentBatch) throws StatusCodeWithException {
         List<String> needFields = new ArrayList<>(Arrays.asList("id"));
-        DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
-        if (dataSourceModel == null) {
-            return new ArrayList<>();
-        }
+        List<String> serverDataSet = new ArrayList<>();
+        String sql = "select " + StringUtils.join(needFields, ",") + " from " + model.getIdsTableName() + " limit "
+                + currentBatch * this.batchSize + ", " + this.batchSize;
         List<Map<String, String>> result = dataSourceService.queryList(dataSourceModel, sql, needFields);
         for (Map<String, String> item : result) {
             serverDataSet.add(item.get("id"));
@@ -236,13 +213,17 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
     }
 
     private Set<String> getBatchData(TableServiceMySqlModel model, int currentBatch) throws StatusCodeWithException {
-        if ("DH".equalsIgnoreCase(this.type)) {
-            return new HashSet<>(getDHData(model, currentBatch));
-        } else { // ecdh
-            return new HashSet<>(getECDHServerData(model, currentBatch));
-//            List<Set<String>> partitions = PartitionUtil.partitionList(getECDHServerData(model, currentBatch),
-//                    this.numPartitions);
-//            return partitions.get(currentBatch);
+        JSONObject dataSource = JObject.parseObject(model.getDataSource());
+        DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
+        if (dataSourceModel == null) {
+            throw new StatusCodeWithException("datasource not found", StatusCode.DATA_NOT_FOUND);
         }
+        if (dataSourceModel.getDatabaseType() == DatabaseType.MySql) {
+            return new HashSet<>(getMysqlData(model, dataSourceModel, dataSource, currentBatch));
+        } else if (dataSourceModel.getDatabaseType() == DatabaseType.Doris) {
+            return new HashSet<>(getDorisData(model, dataSourceModel, dataSource, currentBatch));
+        }
+        throw new StatusCodeWithException("datasource type not support" + dataSourceModel.getDatabaseType(),
+                StatusCode.INVALID_DATASET);
     }
 }

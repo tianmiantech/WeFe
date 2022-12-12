@@ -40,7 +40,7 @@ import cn.hutool.core.util.StrUtil;
  * @Author: eval
  * @Date: 2021-12-23
  **/
-public class PrivateSetIntersection {
+public class PrivateSetIntersection implements Psi {
 
     private static final Logger logger = LoggerFactory.getLogger(PrivateSetIntersection.class);
     private static final int DEFAULT_CURRENT_BATH = 0;
@@ -66,11 +66,7 @@ public class PrivateSetIntersection {
     }
 
     public List<String> query(CommunicationConfig config, List<String> ids) throws Exception {
-        return query(config, ids, 1024);
-    }
-
-    public List<String> query(CommunicationConfig config, List<String> ids, int keySize) throws Exception {
-        return query(config, ids, keySize, new IntersectionOperator());
+        return query(config, ids, new IntersectionOperator());
     }
 
     /**
@@ -83,7 +79,7 @@ public class PrivateSetIntersection {
      * @return
      * @throws Exception
      */
-    public List<String> query(CommunicationConfig config, List<String> clientIds, int keySize, ListOperator operator)
+    public List<String> query(CommunicationConfig config, List<String> clientIds, ListOperator operator)
             throws Exception {
         if (CollectionUtil.isEmpty(clientIds)) {
             throw new IllegalArgumentException("local id is empty");
@@ -106,6 +102,7 @@ public class PrivateSetIntersection {
         request.setClientIds(encryptClientIds);
         request.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
         request.setCurrentBatch(DEFAULT_CURRENT_BATH);
+        request.setType(Psi.DH_PSI);
         PrivateSetIntersectionService privateSetIntersectionService = new PrivateSetIntersectionService();
         QueryPrivateSetIntersectionResponse response = privateSetIntersectionService.handle(config, request);
         if (response.getCode() != 0) {

@@ -40,7 +40,7 @@ import cn.hutool.core.util.StrUtil;
 /**
  * @Author: winter
  **/
-public class EcdhPsi {
+public class EcdhPsi implements Psi{
 
     private static final Logger logger = LoggerFactory.getLogger(EcdhPsi.class);
     private static final int DEFAULT_CURRENT_BATH = 0;
@@ -90,6 +90,7 @@ public class EcdhPsi {
         request.setClientIds(EcdhUtil.convert2List(clientEncryptedDatasetMap));
         request.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
         request.setCurrentBatch(DEFAULT_CURRENT_BATH);
+        request.setType(Psi.ECDH_PSI);
         PrivateSetIntersectionService privateSetIntersectionService = new PrivateSetIntersectionService();
         QueryPrivateSetIntersectionResponse response = privateSetIntersectionService.handle(config, request);
         if (response.getCode() != 0) {

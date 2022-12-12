@@ -37,6 +37,11 @@ public class QueryPrivateSetIntersectionRequest {
      */
     private int currentBatch;
 
+    /**
+     * psi 类型
+     */
+    private String type; // Psi
+
     public String getP() {
         return p;
     }
@@ -67,6 +72,14 @@ public class QueryPrivateSetIntersectionRequest {
 
     public void setCurrentBatch(int currentBatch) {
         this.currentBatch = currentBatch;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
 }
