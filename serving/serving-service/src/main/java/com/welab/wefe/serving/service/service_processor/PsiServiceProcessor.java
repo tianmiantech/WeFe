@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
@@ -78,6 +79,11 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
 
     @Override
     public JObject process(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {
+        JSONObject dataSource = JObject.parseObject(model.getDataSource());
+        DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
+        if (dataSourceModel == null) {
+            throw new StatusCodeWithException("datasource not found", StatusCode.DATA_NOT_FOUND);
+        }
         String idsTableName = model.getIdsTableName();
         String rid = data.getString("requestId");
         this.requestId = rid;
@@ -85,7 +91,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         // 当前批次
         int currentBatch = data.getIntValue("currentBatch");
         // id在mysql表中
-        if (!idsTableName.contains("#")) {
+        if (dataSourceModel.getDatabaseType().name().equalsIgnoreCase(DatabaseType.MySql.name())) {
             type = "DH";
             String p = data.getString("p");
             // 当前批次
