@@ -292,7 +292,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
                 .append("task_id", node.createTaskId(graph.getJob()))
                 .append("sub_component_name_list", subTaskNameList)
                 .append("sub_component_task_config_dick", subTaskConfigMap)
-                .append("psi_param", createPsiParam(params));
+                .append("psi_param", createPsiParam(params, false));
     }
 
     @Override
@@ -624,7 +624,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         JObject evaluationParam = JObject.create();
         evaluationParam.append("eval_type", ootParams.evalType)
                 .append("pos_label", ootParams.posLabel)
-                .append("psi_param", createPsiParam(ootParams))
+                .append("psi_param", createPsiParam(ootParams, true))
                 .append("score_param", createScoreParam(ootParams));
         taskConfig.setParams(evaluationParam);
         evaluationTaskMySqlModel.setTaskConf(JSON.toJSONString(taskConfig));
@@ -683,9 +683,9 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         return "";
     }
 
-    private JObject createPsiParam(Params params) {
+    private JObject createPsiParam(Params params, boolean isEvaluationParam) {
         return JObject.create()
-                .append("need_psi", false)
+                .append("need_psi", !isEvaluationParam && params.psiParam.getNeedPsi())
                 .append("bin_num", params.psiParam.getBinNum())
                 .append("bin_method", params.psiParam.getBinMethod())
                 .append("split_points", CollectionUtils.isEmpty(params.getPsiParam().getSplitPoints()) ? new ArrayList<>() : params.getPsiParam().getSplitPoints());
@@ -693,8 +693,8 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
 
     private JObject createScoreParam(Params params) {
         return JObject.create()
-                .append("bin_num", params.scoreParam.getBinNum())
-                .append("bin_method", params.scoreParam.getBinNum())
+                //.append("bin_num", params.scoreParam.getBinNum())
+                //.append("bin_method", params.scoreParam.getBinNum())
                 .append("prob_need_to_bin", false);
     }
 
