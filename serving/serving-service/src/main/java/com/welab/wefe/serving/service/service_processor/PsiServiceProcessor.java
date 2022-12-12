@@ -59,21 +59,9 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
     private static final ConcurrentHashMap<String, Integer> SERVER_DATASET_SIZE = new ConcurrentHashMap<>();
 
     protected final Config config = Launcher.getBean(Config.class);
-    private static List<String> ECDH_SERVER_DATA_SET;
     private int batchSize;
     private int numPartitions; // 服务端数据批次
     private String requestId;
-
-    static {
-        int total = 1000000;
-        ECDH_SERVER_DATA_SET = new ArrayList<>();
-        for (long i = 0; i < total; i++) {
-            ECDH_SERVER_DATA_SET.add("SERVER-ONLY-" + i);
-            if (i % (total / 100) == 0) {
-                ECDH_SERVER_DATA_SET.add("MATCHING-" + i);
-            }
-        }
-    }
 
     @Override
     public JObject process(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {
@@ -188,6 +176,8 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
                     "select * from " + model.getIdsTableName());
             SERVER_DATASET_SIZE.put(this.requestId, serverDatasetSize);
         }
+        LOG.info("get doris data end, serverDatasetSize = " + SERVER_DATASET_SIZE.get(this.requestId) + ", numPartitions="
+                + numPartitions);
         return new ArrayList<>(queue);
     }
 
@@ -207,8 +197,8 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             SERVER_DATASET_SIZE.put(this.requestId, serverDatasetSize);
         }
         this.numPartitions = Math.max(SERVER_DATASET_SIZE.get(this.requestId) / this.batchSize, 1);
-        LOG.info("get dh data end, serverDatasetSize = " + SERVER_DATASET_SIZE.get(this.requestId) + ", numPartitions="
-                + numPartitions);
+        LOG.info("get mysql data end, serverDatasetSize = " + SERVER_DATASET_SIZE.get(this.requestId)
+                + ", numPartitions=" + numPartitions);
         return serverDataSet;
     }
 
