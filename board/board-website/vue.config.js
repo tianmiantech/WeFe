@@ -38,8 +38,8 @@ const buildDate = '3.1.0';
 const port = 8082;
 
 module.exports = {
-    assetsDir:           './', 
-    indexPath:           './index.html', 
+    assetsDir:           './',
+    indexPath:           './index.html',
     productionSourceMap: false,
     outputDir:           `dist/${APP_CODE}`,
     publicPath:          `/${APP_CODE}/`,

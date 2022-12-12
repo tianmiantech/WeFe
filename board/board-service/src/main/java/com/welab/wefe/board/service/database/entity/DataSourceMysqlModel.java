@@ -17,8 +17,8 @@
 package com.welab.wefe.board.service.database.entity;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
+import com.welab.wefe.common.jdbc.base.DatabaseType;
 import com.welab.wefe.common.web.util.DatabaseEncryptConverter;
-import com.welab.wefe.common.wefe.enums.DatabaseType;
 
 import javax.persistence.Convert;
 import javax.persistence.Entity;

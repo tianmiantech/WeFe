@@ -603,6 +603,13 @@
                 componentPanelChangeSize(maxSize) {
                     vData.componentsHide = maxSize;
                 },
+
+                getFeatureType(flow_id){
+                    /** 获取特征type并存储到vuex */
+                    store.dispatch('getFeatureType', {
+                        flow_id,
+                    });
+                },
             };
 
             // mixin function
@@ -633,6 +640,7 @@
 
                 if(flow_id) {
                     methods.init();
+                    methods.getFeatureType(flow_id);
                 } else {
                     $message.error('缺少流程 id, 请重新创建流程!');
                 }

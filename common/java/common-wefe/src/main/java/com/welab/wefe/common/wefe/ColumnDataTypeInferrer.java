@@ -103,7 +103,6 @@ public class ColumnDataTypeInferrer implements Consumer<LinkedHashMap<String, Ob
         while (iterator.hasNext()) {
             String name = iterator.next();
 
-
             Object value = row.get(name);
             // 根据字段的值，推理出字段的类型
             ColumnDataType dataType = inferDataType(String.valueOf(value));
@@ -122,7 +121,7 @@ public class ColumnDataTypeInferrer implements Consumer<LinkedHashMap<String, Ob
             }
 
             columnInferredCount.increment();
-            // 已推理过100行，则认为该字段的类型已经确定，不再继续推理。
+            // 已推理过100个非空行，则认为该字段的类型已经确定，不再继续推理。
             if (columnInferredCount.sum() >= 100) {
                 iterator.remove();
             }
@@ -151,6 +150,8 @@ public class ColumnDataTypeInferrer implements Consumer<LinkedHashMap<String, Ob
                 result.put(name, ColumnDataType.String);
             } else if (types.contains(ColumnDataType.Enum)) {
                 result.put(name, ColumnDataType.Enum);
+            } else if (types.contains(ColumnDataType.DateTime)) {
+                result.put(name, ColumnDataType.DateTime);
             } else if (types.contains(ColumnDataType.Double)) {
                 result.put(name, ColumnDataType.Double);
             } else if (types.contains(ColumnDataType.Long)) {
@@ -177,6 +178,10 @@ public class ColumnDataTypeInferrer implements Consumer<LinkedHashMap<String, Ob
             return null;
         }
 
+        /**
+         * 这里的 if 判断要按数据类型装箱大小排序，大的在后面。
+         */
+
         if (Validator.isInteger(value)) {
             return ColumnDataType.Integer;
         }
@@ -191,6 +196,10 @@ public class ColumnDataTypeInferrer implements Consumer<LinkedHashMap<String, Ob
 
         if (Validator.isBoolean(value)) {
             return ColumnDataType.Boolean;
+        }
+
+        if (Validator.isDateTime(value)) {
+            return ColumnDataType.DateTime;
         }
 
         return ColumnDataType.String;

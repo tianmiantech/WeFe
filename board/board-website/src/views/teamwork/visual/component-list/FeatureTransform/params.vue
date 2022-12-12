@@ -18,6 +18,7 @@
                     stripe
                 >
                     <el-table-column label="特征名称" prop="name" width="100" />
+                    <el-table-column label="类型" prop="data_type" width="70" />
                     <el-table-column label="特征类型转换" min-width="200">
                         <template v-slot="scope">
                             <div
@@ -66,7 +67,9 @@
         reactive,
         nextTick,
         getCurrentInstance,
+        computed,
     } from 'vue';
+    import { useStore } from 'vuex';
 
     export default {
         name:  'FeatureTransform',
@@ -82,6 +85,9 @@
         setup(props, context) {
             const { appContext } = getCurrentInstance();
             const { $http } = appContext.config.globalProperties;
+            const store = useStore();
+
+            const featureType = computed(() => store.state.base.featureType);
 
             const vData = reactive({
                 members: [],
@@ -105,9 +111,11 @@
                         vData.loading = false;
                         if(code === 0) {
                             vData.members = data.members.map(member => {
+                                const { data_set_id } = member;
                                 const features = member.features.map(feature => {
                                     return {
                                         name:       feature.name,
+                                        data_type:  (featureType.value[data_set_id] || {})[feature.name],
                                         transforms: [],
                                     };
                                 });

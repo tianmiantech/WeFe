@@ -21,12 +21,10 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 
 import java.io.Closeable;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -35,13 +33,6 @@ import java.util.stream.Collectors;
  * @author jacky.jiang
  */
 public abstract class AbstractBloomFilterReader implements Closeable {
-
-    private final static List<String> NULL_VALUE_LIST = Arrays.asList("", "null", "NA", "nan", "None");
-
-    private final static Pattern MATCH_INTEGER_PATTERN = Pattern.compile("^([+\\-])?\\d{1,10}(\\.0+)?$");
-    private final static Pattern MATCH_LONG_PATTERN = Pattern.compile("^([+\\-])?\\d+(\\.0+)?$");
-    private final static Pattern MATCH_DOUBLE_PATTERN = Pattern.compile("^([+\\-])?\\d+(\\.\\d*)?$");
-    private final static Pattern MATCH_BOOLEAN_PATTERN = Pattern.compile("^true$|^false$|^0$|^1$", Pattern.CASE_INSENSITIVE);
 
     protected List<String> header;
     protected boolean containsY;
@@ -94,7 +85,7 @@ public abstract class AbstractBloomFilterReader implements Closeable {
      *
      * @param dataRowConsumer Data row consumption method
      */
-    public void readAll(Consumer<LinkedHashMap<String, Object>> dataRowConsumer) throws StatusCodeWithException {
+    public void readAll(Consumer<LinkedHashMap<String, Object>> dataRowConsumer) throws Exception {
         read(dataRowConsumer, -1, -1);
     }
 
@@ -105,14 +96,12 @@ public abstract class AbstractBloomFilterReader implements Closeable {
      * @param maxReadRows     Maximum number of read lines allowed
      * @param maxReadTimeInMs Maximum read time allowed
      */
-    public void read(Consumer<LinkedHashMap<String, Object>> dataRowConsumer, long maxReadRows, long maxReadTimeInMs) throws StatusCodeWithException {
+    public void read(Consumer<LinkedHashMap<String, Object>> dataRowConsumer, long maxReadRows, long maxReadTimeInMs) throws Exception {
 
         long start = System.currentTimeMillis();
 
         LinkedHashMap<String, Object> row;
         while ((row = readOneRow()) != null) {
-
-            checkValue(row);
 
             dataRowConsumer.accept(row);
 
@@ -128,60 +117,6 @@ public abstract class AbstractBloomFilterReader implements Closeable {
                 break;
             }
         }
-    }
-
-    public static boolean isEmptyValue(String value) {
-        return NULL_VALUE_LIST.stream().anyMatch(x -> x.equalsIgnoreCase(value));
-    }
-
-    /**
-     * Check whether the value of the feature matches the declared data type
-     */
-    private void checkValue(LinkedHashMap<String, Object> row) throws StatusCodeWithException {
-
-        if (this.metadataMap == null || this.metadataMap.isEmpty()) {
-            return;
-        }
-
-        for (Map.Entry<String, Object> entry : row.entrySet()) {
-
-            // skip null value
-            String value = String.valueOf(entry.getValue());
-            if (isEmptyValue(value)) {
-                return;
-            }
-
-            BloomFilterColumnInputModel column = this.metadataMap.get(entry.getKey());
-            Pattern pattern;
-            switch (column.getDataType()) {
-                case Long:
-                    pattern = MATCH_LONG_PATTERN;
-                    break;
-                case Double:
-                    pattern = MATCH_DOUBLE_PATTERN;
-                    break;
-                case Boolean:
-                    pattern = MATCH_BOOLEAN_PATTERN;
-                    break;
-                case Integer:
-                    pattern = MATCH_INTEGER_PATTERN;
-                    break;
-                case Enum:
-                case String:
-                default:
-                    return;
-            }
-
-            if (!pattern.matcher(value).find()) {
-                StatusCode.PARAMETER_VALUE_INVALID.throwException(
-                        "过滤器的特征 " + column.getName()
-                                + " 声明为 " + column.getDataType()
-                                + " 类型，但在 " + (readDataRows + 1)
-                                + " 行发现不满足类型的值：" + value
-                );
-            }
-        }
-
     }
 
     public boolean isContainsY() throws StatusCodeWithException {
@@ -207,5 +142,5 @@ public abstract class AbstractBloomFilterReader implements Closeable {
     /**
      * Read data row
      */
-    protected abstract LinkedHashMap<String, Object> readOneRow() throws StatusCodeWithException;
+    protected abstract LinkedHashMap<String, Object> readOneRow() throws StatusCodeWithException, Exception;
 }

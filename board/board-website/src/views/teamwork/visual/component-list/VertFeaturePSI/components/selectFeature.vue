@@ -56,7 +56,7 @@
             append-to-body
 
         >
-            <featureCheckbox :defaultSelected="featureData.selectedFeature" :allFeature="featureData.featureNames" ref="featureCheckboxRef"></featureCheckbox>
+            <featureCheckbox :defaultSelected="featureData.selectedFeature" :data_set_id="featureData.data_set_id" :allFeature="featureData.featureNames" ref="featureCheckboxRef"></featureCheckbox>
             <div class="text-r mt10">
                 <el-button @click="hide">
                     取消
@@ -94,6 +94,7 @@
                 featureNames:    [],
                 member_id:       '',
                 member_role:     '',
+                data_set_id:     '',
             }),
         },
     });
