@@ -16,22 +16,15 @@
 
 package com.welab.wefe.union.service.api.service;
 
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
-import com.welab.wefe.common.data.mongodb.dto.member.MemberServiceQueryOutput;
-import com.welab.wefe.common.data.mongodb.repo.MemberServiceMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.member.ApiMemberServiceQueryOutput;
-import com.welab.wefe.union.service.mapper.MemberServiceMapper;
-import org.mapstruct.factory.Mappers;
+import com.welab.wefe.union.service.service.MemberServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author yuxin.zhang
@@ -39,38 +32,11 @@ import java.util.stream.Collectors;
 @Api(path = "member/service/query", name = "member_service_query", allowAccessWithSign = true)
 public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiMemberServiceQueryOutput>> {
     @Autowired
-    private MemberServiceMongoReop memberServiceMongoReop;
-    private MemberServiceMapper mMapper = Mappers.getMapper(MemberServiceMapper.class);
+    private MemberServiceService memberServiceService;
 
     @Override
     protected ApiResult<PageOutput<ApiMemberServiceQueryOutput>> handle(Input input) throws StatusCodeWithException {
-        try {
-            PageOutput<MemberServiceQueryOutput> page = memberServiceMongoReop.find(
-                    input.pageIndex,
-                    input.pageSize,
-                    input.serviceId,
-                    input.memberId,
-                    input.memberName,
-                    input.serviceName,
-                    input.serviceType
-            );
-
-            List<ApiMemberServiceQueryOutput> list = page.getList().stream()
-                    .map(mMapper::transfer)
-                    .collect(Collectors.toList());
-
-            return success(new PageOutput<>(
-                    page.getPageIndex(),
-                    page.getTotal(),
-                    page.getPageSize(),
-                    page.getTotalPage(),
-                    list
-            ));
-        } catch (Exception e) {
-            LOG.error("Failed to query member information in pagination:", e);
-            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to query member information in pagination");
-        }
-
+        return success(memberServiceService.query(input));
     }
 
     public static class Input extends BaseInput {

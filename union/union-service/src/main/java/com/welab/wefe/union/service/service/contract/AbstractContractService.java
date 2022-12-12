@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.service;
+package com.welab.wefe.union.service.service.contract;
 
 import com.alibaba.fastjson.JSONArray;
 import com.welab.wefe.common.StatusCode;

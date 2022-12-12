@@ -22,8 +22,7 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.dataresource.dataset.table.DataSetOutput;
-import com.welab.wefe.union.service.service.DataSetContractService;
-import com.welab.wefe.union.service.service.DataSetMemberPermissionContractService;
+import com.welab.wefe.union.service.service.DataSetService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -32,15 +31,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Api(path = "data_set/delete", name = "data_set_delete", allowAccessWithSign = true)
 public class DeleteApi extends AbstractApi<DeleteApi.Input, DataSetOutput> {
     @Autowired
-    protected DataSetContractService datasetContractService;
-
-    @Autowired
-    private DataSetMemberPermissionContractService mDataSetMemberPermissionContractService;
+    private DataSetService dataSetService;
 
     @Override
     protected ApiResult<DataSetOutput> handle(DeleteApi.Input input) throws StatusCodeWithException {
-        datasetContractService.deleteById(input.getId());
-        mDataSetMemberPermissionContractService.deleteByDataSetId(input.getId());
+        dataSetService.delete(input);
         return success();
     }
 
