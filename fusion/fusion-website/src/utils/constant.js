@@ -33,9 +33,14 @@ export const appCode = () => getServiceName() || 'fusion';
 
 // 全局变量
 export function baseURL (){
+    const appCodes = appCode();
     const lastTwo = appCodes.substring(appCodes.length - 2);
     const second = /^\d+$/.test(lastTwo) ? lastTwo : '';
-    return isQianKun() ? `${getOrigin()}/${appCode()}-service` : `${process.env[`VUE_APP_${process.env.HOST_ENV}`]}-${second || '01'}`;
+    if(window._wefeApi){
+        /** 提供给客户快速修改请求地址，一般通过修改html head */
+        return window._wefeApi;
+    }
+    return isQianKun() ? `${getOrigin()}/${appCode()}-service` : `${process.env[`VUE_APP_${process.env.HOST_ENV}`]}${second ? `-${second}` : ''}`;
 }
 
 // localstorage name

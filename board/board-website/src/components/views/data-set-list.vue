@@ -158,6 +158,18 @@
                 </template>
             </el-table-column>
             <el-table-column
+                label="分类数"
+                width="100"
+                align="center"
+                v-if="needClassify"
+            >
+            <template v-slot="scope">
+                    <p>
+                        {{(scope.row?.data_resource?.label_species_count > 10000 ? '10000+' : scope.row?.data_resource?.label_species_count)}}
+                    </p>
+                </template>
+            </el-table-column>
+            <el-table-column
                 v-if="isFlow"
                 label="参与任务次数"
                 prop="usage_count_in_job"
@@ -287,6 +299,7 @@
             isShow:        Boolean,
             projectType:   String,
             memberId:      String,
+            needClassify:  Boolean,
         },
         emits: ['list-loaded', 'close-dialog', 'selectDataSet', 'batchDataSet'],
         data() {

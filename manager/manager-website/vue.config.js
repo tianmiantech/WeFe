@@ -23,11 +23,13 @@ const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer'); */
 // const options = program.opts();
 
 const { welab } = pkg;
-const { contextPath: APP_CODE } = welab || {};
+let { contextPath: APP_CODE } = welab || {};
 
 const resolve = dir => path.resolve(__dirname, dir);
 
-const { HOST_ENV } = argv;
+const { HOST_ENV,SERVICE_NAME } = argv;
+
+APP_CODE = SERVICE_NAME || APP_CODE;
 
 
 const buildDate = '3.1.0';

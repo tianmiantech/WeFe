@@ -25,7 +25,7 @@ import com.welab.wefe.common.util.SM2Util;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.union.service.cache.UnionNodeConfigCache;
 import com.welab.wefe.union.service.constant.UnionNodeConfigType;
-import com.welab.wefe.union.service.service.UnionNodeContractService;
+import com.welab.wefe.union.service.service.contract.UnionNodeContractService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

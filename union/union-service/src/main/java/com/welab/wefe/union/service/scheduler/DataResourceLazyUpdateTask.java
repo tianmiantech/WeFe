@@ -23,8 +23,8 @@ import com.welab.wefe.common.data.mongodb.repo.DataResourceLazyUpdateModelMongoR
 import com.welab.wefe.common.data.mongodb.repo.DataResourceMongoReop;
 import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
-import com.welab.wefe.union.service.service.DataResourceContractService;
-import com.welab.wefe.union.service.service.ImageDataSetContractService;
+import com.welab.wefe.union.service.service.contract.DataResourceContractService;
+import com.welab.wefe.union.service.service.contract.ImageDataSetContractService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
