@@ -28,6 +28,7 @@ from common.python.utils import conf_utils
 from common.python.utils.core_utils import current_datetime
 from common.python.utils.log_utils import LoggerFactory, schedule_logger
 from flow.service.job_scheduler.job_service import JobService
+from multiprocessing import cpu_count
 from flow.settings import MemberInfo
 from flow.utils import job_utils
 from kernel.task_executor import TaskExecutor
@@ -195,6 +196,12 @@ class RunTaskAction:
         executor_memory = default_executor_memory
         executor_cores = default_executor_cores
         total_executor_cores = default_total_executor_cores
+        local_cores = cpu_count // 2
+        max_local_cores = 24
+        if local_cores > max_local_cores:
+            local_cores = max_local_cores
+        elif local_cores < 1:
+            local_cores  = 1
 
         print(
             f'deploy_mode:{deploy_mode},queue:{queue},driver_memory:{driver_memory},num_executors:{num_executors},executor_memory:{executor_memory},executor_cores:{executor_cores}')
@@ -202,8 +209,10 @@ class RunTaskAction:
             raise ValueError(f"deploy mode {deploy_mode} not supported")
         spark_home = os.environ["SPARK_HOME"]
         spark_submit_cmd = os.path.join(spark_home, "bin/spark-submit")
+        
         return [
             spark_submit_cmd,
+            f'--master=local[{local_cores}]',
             f'--name={self.task.task_id}#{self.task.role}',
             f'--deploy-mode={deploy_mode}',
             f'--queue={queue}',
