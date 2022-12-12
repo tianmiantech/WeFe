@@ -221,7 +221,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         }
         if (SERVER_DATASET_SIZE.get(this.requestId) == null) {
             int serverDatasetSize = (int) dataSourceService.count(dataSourceModel,
-                    "select * from " + model.getIdsTableName());
+                    "select * from " + model.getIdsTableName().split("#")[1]);
             SERVER_DATASET_SIZE.put(this.requestId, serverDatasetSize);
         }
         this.numPartitions = Math.max(SERVER_DATASET_SIZE.get(this.requestId) / this.batchSize, 1);
