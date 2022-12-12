@@ -78,6 +78,8 @@ class ClickHouseStorage(Storage):
         try:
             client = self.get_conn()
             client.execute(sql)
+        except Exception as ex:
+            LOGGER.error(ex, exc_info=True, stack_info=True)
         finally:
             client.disconnect()
 
@@ -87,8 +89,8 @@ class ClickHouseStorage(Storage):
         try:
             client = self.get_conn()
             client.execute(sql)
-        except Exception as e:
-            print(e)
+        except Exception as ex:
+            LOGGER.error(ex, exc_info=True, stack_info=True)
         finally:
             client.disconnect()
 
