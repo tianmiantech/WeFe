@@ -200,6 +200,6 @@
         padding-top: 15px;
         border-top: 1px solid $border-color-base;
     }
-    .el-form-item{margin-bottom:0;}
+    .board-form-item{margin-bottom:0;}
     .strong{color:$--color-success;}
 </style>

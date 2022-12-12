@@ -147,9 +147,9 @@ public class FlowGraphNode extends ProjectFlowNodeMySqlModel {
     /**
      * Get form parameter object
      */
-    public AbstractCheckModel getParamsModel() {
+    public <T extends AbstractCheckModel> T getParamsModel() {
         if (paramsModel != null) {
-            return paramsModel;
+            return (T)paramsModel;
         }
 
         try {
@@ -157,7 +157,7 @@ public class FlowGraphNode extends ProjectFlowNodeMySqlModel {
         } catch (StatusCodeWithException e) {
             return null;
         }
-        return paramsModel;
+        return (T)paramsModel;
     }
 
     //region getter/setter

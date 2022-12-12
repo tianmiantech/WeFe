@@ -37,7 +37,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
@@ -120,7 +120,6 @@ public class ProjectFlowNodeService {
                 if (dataSetInfo != null) {
                     member.dataSetRows = dataSetInfo.getTotalDataCount();
                     member.dataSetFeatures = dataSetInfo.getFeatureCount();
-                    member.labelDistribution = dataSetInfo.getLabelDistribution();
                 }
                 dataSet.members.add(member);
             }
@@ -160,7 +159,7 @@ public class ProjectFlowNodeService {
     public List<ProjectFlowNodeOutputModel> updateFlowNode(UpdateApi.Input input) throws StatusCodeWithException {
 
         // 对于网格搜索任务参数自动回写等程序自动修改参数的场景，不需要将状态修改为 editing
-        if (CurrentAccount.get() != null || input.fromGateway()) {
+        if (CurrentAccountUtil.get() != null || input.fromGateway()) {
             // Update flow status
             projectFlowService.updateFlowStatus(input.getFlowId(), ProjectFlowStatus.editing);
         }
@@ -205,8 +204,26 @@ public class ProjectFlowNodeService {
             for (ProjectFlowNodeMySqlModel flowNode : nodes) {
                 if (Components.get(flowNode.getComponentType()).canSelectFeatures()) {
                     flowNode.setParams(null);
+                    flowNode.setParamsVersion(System.currentTimeMillis());
                     projectFlowNodeRepository.save(flowNode);
                     list.add(ModelMapper.map(flowNode, ProjectFlowNodeOutputModel.class));
+                }
+            }
+        }
+
+        // 特征筛选组件重新选择特征后，后续节点已选择的特征需要重新选择。
+        if (node.getComponentType() == ComponentType.FeatureSelection) {
+            FlowGraph graph = jobService.createFlowGraph(input.getFlowId());
+            for (FlowGraphNode step : graph.getAllJobSteps()) {
+                // 有特征列表选项，且是当前编辑节点的子节点
+                if (Components.get(step.getComponentType()).canSelectFeatures()
+                        && graph.isChild(step.getNodeId(), input.getNodeId())) {
+
+                    ProjectFlowNodeMySqlModel stepNode = findOne(input.getFlowId(), step.getNodeId());
+                    stepNode.setParams(null);
+                    stepNode.setParamsVersion(System.currentTimeMillis());
+                    projectFlowNodeRepository.save(stepNode);
+                    list.add(ModelMapper.map(stepNode, ProjectFlowNodeOutputModel.class));
                 }
             }
         }

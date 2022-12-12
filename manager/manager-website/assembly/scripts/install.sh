@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 ## -x: Debug mode
 ## -e: exit the script if any statement returns a non-true return value
 [ x"${DEBUG}" == x"true" ] && set -ex || set -e
@@ -17,11 +15,25 @@ workdir=$(pwd)/$(dirname $0)/../../ ; cd $workdir
 ## CI_ 打头的为和运维约定好的变量，CI_DEPLOY_ENV 代表编译环境
 [ -e $HOME/.nvm/nvm.sh ] && source $HOME/.nvm/nvm.sh
 
-rm -rf node_modules
-nvm use 16.13.0 || :
-npm install yarn
-yarn install
-npm run build -- $CI_DEPLOY_ENV=manager-website
+echo ">> 1.切换node, npm 版本"
+## 切换 node 版本
+
+version=v16.14.0 ; nvm use $version || { nvm install $version ; nvm use $version ; }
+echo ">> 2.开始部署: 环境【"$REGION"】, 分支【"$CI_COMMIT_REF_NAME"】"
+echo ">> 清理缓存"
+
+npm cache clean -f
+
+echo ">> 3.清理完毕"
+
+echo ">> 安装依赖"
+npm install --registry=http://nx-dev.welab-inc.com:8081/repository/welabnpmGroup/ --legacy-peer-deps --verbose
+
+echo ">> 安装依赖完成"
+
+echo ">> 编译"
+npm run build -- --HOST_ENV $CI_DEPLOY_ENV --SERVICE_NAME $CI_SERVICE_NAME
+echo ">> 编译完成"
 
 ## 生成 JSON 配置文件，此文件作用告知运维怎么拿到实际要部署的代码、配置文件（以目录形式存放）
 ## JSON 中的 key 值，事先和运维约定好

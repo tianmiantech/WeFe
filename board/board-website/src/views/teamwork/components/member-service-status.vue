@@ -132,7 +132,7 @@
     }
     .member-service-item{
         margin-top: 5px;
-        .el-tag{
+        .board-tag{
             width: 95px;
             text-align: center;
         }

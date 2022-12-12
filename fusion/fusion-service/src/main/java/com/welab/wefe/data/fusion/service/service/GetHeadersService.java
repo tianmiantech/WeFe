@@ -20,6 +20,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.jdbc.base.DatabaseType;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.data.fusion.service.api.dataset.GetHeadersApi;
 import com.welab.wefe.data.fusion.service.config.Config;
@@ -61,7 +62,7 @@ public class GetHeadersService {
         List<String> headers;
         DataSetMySqlModel model = ModelMapper.map(input, DataSetMySqlModel.class);
         model.setId(new DataSetMySqlModel().getId());
-        model.setCreatedBy(CurrentAccount.id());
+        model.setCreatedBy(CurrentAccountUtil.get().getId());
 
         if (DataResourceSource.Sql.equals(input.getDataResourceSource())) {
             headers = getHeadersFromDB(model, input.getSql());

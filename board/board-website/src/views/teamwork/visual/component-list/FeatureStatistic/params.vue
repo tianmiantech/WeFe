@@ -54,7 +54,7 @@
         </div>
 
         <div class="mt20">
-            <p class="el-form-item mt20">
+            <p class="board-form-item mt20">
                 运行模式:
                 <el-radio-group
                     v-model="vData.workMode"
@@ -149,10 +149,15 @@
                             vData.form = form;
                             members.forEach(member => {
                                 const item = vData.featureSelectTab.find(row => row.member_id === member.member_id && row.member_role === member.member_role);
-
+                                const chooseItem = [];
                                 if(item) {
-                                    item.$checkedColumnsArr.push(...member.features);
-                                    vData.feature_column_count += member.features.length;
+                                    item.$feature_list.forEach(feature => {
+                                        if (member.features.includes(feature.name)) {
+                                            chooseItem.push(feature.name);
+                                        }
+                                    });
+                                    item.$checkedColumnsArr = [...chooseItem];
+                                    vData.feature_column_count += chooseItem.length;
                                 }
                             });
                             vData.workMode = workMode;
@@ -203,7 +208,6 @@
                             features:    item.$checkedColumnsArr,
                         });
                     });
-                    console.log(vData.feature_column_count);
                 },
 
                 checkParams() {
@@ -250,18 +254,18 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-form-item{
-        .el-form-item__label{
+    .board-form-item{
+        .board-form-item__label{
             line-height: 28px !important;
         }
     }
-    .el-checkbox-group{
+    .board-checkbox-group{
         max-height: 500px;
         overflow: auto;
         font-size: 14px;
     }
-    .el-checkbox{user-select:auto;}
-    .el-tag-list{
+    .board-checkbox{user-select:auto;}
+    .board-tag-list{
         max-height: 140px;
         overflow: auto;
     }

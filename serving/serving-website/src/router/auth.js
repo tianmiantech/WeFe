@@ -3,7 +3,8 @@
  * 用户认证相关
  */
 
-const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `/${process.env.CONTEXT_ENV}/`;
+import { appCode } from '@src/utils/constant';
+const prefixPath = '/';
 
 export const setStorage = () => {
     return localStorage;
@@ -13,17 +14,15 @@ export const setStorage = () => {
  * 清空用户信息
  */
 export const clearUserInfo = () => {
-    const { baseUrl } = window.api;
-
-    setStorage().removeItem(`${baseUrl}_userInfo`);
+    setStorage().removeItem(`${appCode()}_userInfo`);
+    setStorage().removeItem(`${appCode()}_system_inited`);
 };
 
 /**
  * 检测登录状态
  */
 export const baseIsLogin = () => {
-    const { baseUrl } = window.api;
-    const userInfo = setStorage().getItem(`${baseUrl}_userInfo`);
+    const userInfo = setStorage().getItem(`${appCode()}_userInfo`);
 
     if (userInfo) {
         // 同步存储信息
@@ -59,10 +58,9 @@ export const syncLogin = async (userInfo = {}) => {
  */
 export const baseLogout = async () => {
 
-    const { baseUrl } = window.api;
     const { $router, $http } = window.$app;
     const { location: { href, pathname } } = window;
-    const userInfo = setStorage().getItem(`${baseUrl}_userInfo`);
+    const userInfo = setStorage().getItem(`${appCode()}_userInfo`);
 
     // 重置 store 和 localstorage
     if (userInfo) {
@@ -72,7 +70,7 @@ export const baseLogout = async () => {
         });
     }
     clearUserInfo();
-    setStorage().removeItem(`${baseUrl}_system_inited`);
+    setStorage().removeItem(`${appCode()}_system_inited`);
 
     let query = {};
 
@@ -92,12 +90,11 @@ export const baseLogout = async () => {
  * 同步多标签用户状态
  */
 export const syncTabsUserState = async () => {
-    const { baseUrl } = window.api;
 
     // 未登录
     window.addEventListener('storage', (e) => {
 
-        if (e.key === setStorage().getItem(`${baseUrl}_userInfo`)) {
+        if (e.key === setStorage().getItem(`${appCode()}_userInfo`)) {
 
             if (e.newValue) {
                 // 已登录

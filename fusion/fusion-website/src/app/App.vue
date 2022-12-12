@@ -1,5 +1,5 @@
 <template>
-    <div id="app">
+    <div id="fusion-app">
         <router-view />
     </div>
 </template>
@@ -11,8 +11,9 @@
 </script>
 
 <style lang="scss">
-  #app {
-    height: 100%;
+  #fusion-app {
+    // height: calc(100vh - var(--tm-header-height));
+    height: 100vh;
     background: $layout-main-background;
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;

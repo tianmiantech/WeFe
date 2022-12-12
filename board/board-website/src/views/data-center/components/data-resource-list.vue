@@ -122,6 +122,18 @@
             </template>
         </el-table-column>
         <el-table-column
+            label="分类数"
+            prop="label_species_count"
+            width="100"
+            align="center"
+        >
+        <template v-slot="scope">
+                <p>
+                    {{(scope.row.label_species_count > 10000 ? '10000+' : scope.row.label_species_count)}}
+                </p>
+            </template>
+        </el-table-column>
+        <el-table-column
             label="参与项目数"
             prop="usage_count_in_project"
             width="100"
@@ -158,7 +170,7 @@
                         content="编辑"
                         placement="top"
                     >
-                        <el-icon class="el-icon-edit-outline" style="font-size:16px;">
+                        <el-icon class="board-icon-edit-outline" style="font-size:16px;">
                             <elicon-edit />
                         </el-icon>
                     </el-tooltip>
@@ -169,7 +181,7 @@
                     content="删除"
                     placement="top"
                 >
-                    <el-icon class="el-icon-delete ml10 mr10" style="color: red;cursor:pointer;font-size:16px;" @click="deleteData(scope.row)">
+                    <el-icon class="board-icon-delete ml10 mr10" style="color: red;cursor:pointer;font-size:16px;" @click="deleteData(scope.row)">
                         <elicon-delete />
                     </el-icon>
                 </el-tooltip>

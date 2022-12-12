@@ -96,7 +96,7 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
         JObject transformParam = JObject.create()
                 .append("transform_cols", -1)
                 .append("transform_names", new ArrayList<>())
-                .append("transform_type", "bin_num");
+                .append("transform_type", "woe");
 
         JObject optimalBinningParam = JObject.create()
                 .append("metric_method", "chi_square")

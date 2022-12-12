@@ -14,7 +14,7 @@
         >
             <el-icon
                 title="切换全屏"
-                class="el-icon-full-screen f16"
+                class="board-icon-full-screen f16"
                 @click="switchFullscreen"
             >
                 <elicon-full-screen />
@@ -171,7 +171,7 @@
 </style>
 
 <style lang="scss" scoped>
-    .el-icon-full-screen{
+    .board-icon-full-screen{
         position: absolute;
         top: 70px;
         right: 20px;
@@ -182,7 +182,7 @@
     .node-history-ul{
         max-height: calc(100vh - 140px);
         overflow-y: auto;
-        :deep(.el-checkbox__label) {vertical-align: top;}
+        :deep(.board-checkbox__label) {vertical-align: top;}
     }
     .job-id{
         font-size: 12px;

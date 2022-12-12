@@ -20,7 +20,7 @@
             </el-space>
             <div
                 v-if="featureData.selectedFeature"
-                class="el-tag-list mb10"
+                class="board-tag-list mb10"
             >
                 <template
                     v-for="(item, index) in featureData.selectedFeature"

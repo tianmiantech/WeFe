@@ -8,7 +8,6 @@
     >
         <el-form-item
             label="是否联合计算相关性系数："
-            label-width="130px"
         >
             <el-radio-group v-model="vData.cross_parties">
                 <el-radio :label="true">

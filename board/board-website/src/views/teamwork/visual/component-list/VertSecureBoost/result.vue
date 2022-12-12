@@ -1,5 +1,5 @@
 <template>
-    <div v-loading="vData.loading" class="el-form">
+    <div v-loading="vData.loading" class="board-form">
         <template v-if="vData.commonResultData.task">
             <el-collapse v-model="activeName" @change="methods.collapseChanged">
                 <el-collapse-item title="基础信息" name="1">
@@ -23,7 +23,7 @@
                         </el-row>
                     </template>
                 </el-collapse-item>
-                <el-collapse-item title="特征重要性" name="2" v-if="vData.featureImportances">
+                <el-collapse-item title="特征重要性" name="2" v-if="(vData.featureImportances && vData.role!=='provider')">
                     <el-tabs v-model="tabPostion" @tab-change="TabChangeHandle">
                         <el-tab-pane
                             v-for="(value, key, index) in vData.featureImportances"
@@ -129,6 +129,7 @@
                     isConverged: null,
                 },
                 pollingOnJobRunning: true,
+                role: ''
             });
 
             let methods = {
@@ -144,7 +145,7 @@
                         const { isConverged, featureImportances } = data[0].result.model_param;
                         const { train_best_parameters, train_params_list } =
                             data[0].result;
-
+                        vData.role = data[0].role;
                         vData.loss.isConverged = isConverged;
                         vData.loss.loading = false;
                         vData.featureImportances = featureImportances.map((each) => ({

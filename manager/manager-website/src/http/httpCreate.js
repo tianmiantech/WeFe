@@ -6,18 +6,9 @@
 import axios from 'axios';
 import { baseLogout } from '@src/router/auth';
 import { deepMerge } from '@src/utils/types';
-
-function setStorage () {
-    /* const { baseUrl } = window.api;
-    const KEEPALIVE = `${baseUrl}_keepAlive`;
-
-    let keepAlive = localStorage.getItem(KEEPALIVE);
-
-    keepAlive = keepAlive ? JSON.parse(keepAlive) : false;
-
-    return keepAlive ? localStorage : sessionStorage; */
-    return window.localStorage;
-}
+import { getHeader, removeToken,isQianKun} from './utils';
+import { clearUserInfo } from '@src/router/auth';
+import { baseURL } from '@src/utils/constant';
 
 const cancelTokenQueue = {}; // cancel token queue
 // create axios instance
@@ -25,26 +16,20 @@ const httpInstance = axios.create({
     baseURL: '',
     headers: {}, // global request headers
     timeout: 1000 * 20,
-    // withCredentials: true,
-    // responseType: 'json', // default
-    // responseEncoding: 'utf8', // default
-    // xsrfCookieName: 'XSRF-TOKEN', // default
-    // xsrfHeaderName: 'X-XSRF-TOKEN', // default
 });
 
 // request interceptors
 httpInstance.interceptors.request.use(
     config => {
-        config.baseURL = window.api.baseUrl;
+
         // must logged in before sending request
         if (config.isLogin) {
             // cancel all requests first
             for (const key in cancelTokenQueue) {
                 cancelTokenQueue[key].cancel();
             }
-            // to login
-            baseLogout();
         }
+        config.baseURL = baseURL();
         return config;
     },
     error => {
@@ -59,7 +44,7 @@ httpInstance.interceptors.request.use(
 );
 
 // time stamp for last message dialog
-let lastErrorMessageTime = 0;
+const lastErrorMessageTime = 0;
 
 // respones interceptors
 httpInstance.interceptors.response.use(
@@ -69,22 +54,10 @@ httpInstance.interceptors.response.use(
         // global error for request
         if (config.systemError !== false) {
             if (config.responseType !== 'blob' && data && data.code !== 0) {
-
-                // login dialog
-                if (data.code === 10006) {
-                    window.$app.config.globalProperties.$bus.$emit('show-login-dialog');
-
-                    if (new Date().valueOf() - lastErrorMessageTime > 2000) {
-                        lastErrorMessageTime = new Date().valueOf();
-                        window.$app.config.globalProperties.$message.error({
-                            message:  data.message,
-                            grouping: true,
-                        });
-                    }
-
-                } else if (data.code === 10000) {
-                    // system is not inited, logout
-                    baseLogout();
+                if (data.code === 'WG0001' && isQianKun()) {
+                    removeToken();
+                    clearUserInfo();
+                    window.location.href = `/portal/login?tenantid=${localStorage.getItem('tenantId')}`;
                 } else if(data.code === 10017) {
                     window.$app.config.globalProperties.$message.error(data.message);
                 } else if (data.code === 10050) {
@@ -286,7 +259,7 @@ const createTimeoutLayer = () => {
             loadingLayer.id = now;
             loadingLayer.className = 'el-loading-mask is-fullscreen';
             loadingLayer.style.zIndex = 20000000;
-            loadingLayer.innerHTML = `<div class="el-loading-spinner">
+            loadingLayer.innerHTML = `<div class="manager-loading-spinner">
                 <svg viewBox="25 25 50 50" class="circular">
                     <circle cx="50" cy="50" r="20" fill="none" class="path"></circle>
                 </svg>
@@ -335,15 +308,17 @@ const baseService = (config = {}) => {
 
     // set default headers
     const { headers } = options;
+    const commonHeaders = getHeader();
 
     if (headers !== false) {
-        const { baseUrl } = window.api;
-        const userInfo = setStorage().getItem(`${baseUrl}_userInfo`);
-
-        if (userInfo && userInfo !== 'undefined') {
+        if (isQianKun()) {
             options.headers = {
                 ...headers,
-                token: JSON.parse(userInfo).token,
+                ... commonHeaders,
+            };
+        } else {
+            options.headers = {
+                ...headers,
             };
         }
     }

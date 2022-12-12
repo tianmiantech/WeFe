@@ -28,6 +28,7 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.jdbc.JdbcClient;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -51,7 +52,7 @@ public class DataSourceService extends AbstractService {
         testdbconnect(input);
 
         DataSourceMysqlModel model = ModelMapper.map(input, DataSourceMysqlModel.class);
-        model.setCreatedBy(CurrentAccount.id());
+        model.setCreatedBy(CurrentAccountUtil.get().getId());
 //        model.setPassword(Md5.of(model.getPassword()));
         dataSourceRepo.save(model);
 
@@ -99,6 +100,7 @@ public class DataSourceService extends AbstractService {
         if (message != null) {
             StatusCode.PARAMETER_VALUE_INVALID.throwException("测试连接数据库失败：" + message);
         }
+
         TestDBConnectApi.Output output = new TestDBConnectApi.Output();
         output.setResult(true);
         return output;

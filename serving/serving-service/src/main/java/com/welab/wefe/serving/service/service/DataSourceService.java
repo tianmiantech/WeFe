@@ -21,7 +21,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.jdbc.base.DatabaseType;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.service.api.datasource.*;
 import com.welab.wefe.serving.service.api.datasource.QueryTableFieldsApi.FieldOutput;
@@ -65,8 +65,8 @@ public class DataSourceService {
                 input.getPassword(), input.getDatabaseName());
         DataSourceMySqlModel model = ModelMapper.map(input, DataSourceMySqlModel.class);
         model.setId(UUID.randomUUID().toString().replaceAll("-", ""));
-        model.setCreatedBy(CurrentAccount.id());
-        model.setUpdatedBy(CurrentAccount.id());
+        model.setCreatedBy(CurrentAccountUtil.get().getId());
+        model.setUpdatedBy(CurrentAccountUtil.get().getId());
         model.setCreatedTime(new Date());
         model.setUpdatedTime(new Date());
         dataSourceRepo.save(model);
@@ -98,7 +98,7 @@ public class DataSourceService {
         params.put("password",
                 input.getPassword().equalsIgnoreCase(DataSourceMySqlModel.PASSWORD_MASK) ? model.getPassword()
                         : input.getPassword());
-        params.put("updatedBy", CurrentAccount.id());
+        params.put("updatedBy", CurrentAccountUtil.get().getId());
         params.put("updatedTime", new Date());
         dataSourceRepo.updateById(input.getId(), params, DataSourceMySqlModel.class);
 

@@ -6,21 +6,11 @@
 import axios from 'axios';
 import {
     baseLogout,
-    clearUserInfo,
 } from '@src/router/auth';
 import { deepMerge } from '@src/utils/types';
-
-function setStorage () {
-    /* const { baseUrl } = window.api;
-    const KEEPALIVE = `${baseUrl}_keepAlive`;
-
-    let keepAlive = localStorage.getItem(KEEPALIVE);
-
-    keepAlive = keepAlive ? JSON.parse(keepAlive) : false;
-
-    return keepAlive ? localStorage : sessionStorage; */
-    return window.localStorage;
-}
+import { getHeader, removeToken,isQianKun } from './utils';
+import { clearUserInfo, clearSystenCache } from '@src/router/auth';
+import { baseURL } from '../utils/constant';
 
 const cancelTokenQueue = {}; // cancel token queue
 // create axios instance
@@ -38,16 +28,14 @@ const httpInstance = axios.create({
 // request interceptors
 httpInstance.interceptors.request.use(
     config => {
-        config.baseURL = window.api.baseUrl;
         // must logged in before sending request
         if (config.isLogin) {
             // cancel all requests first
             for (const key in cancelTokenQueue) {
                 cancelTokenQueue[key].cancel();
             }
-            // to login
-            baseLogout();
         }
+        config.baseURL = baseURL();
         return config;
     },
     error => {
@@ -62,7 +50,7 @@ httpInstance.interceptors.request.use(
 );
 
 // time stamp for last message dialog
-let lastErrorMessageTime = 0;
+const lastErrorMessageTime = 0;
 
 // respones interceptors
 httpInstance.interceptors.response.use(
@@ -72,36 +60,25 @@ httpInstance.interceptors.response.use(
         // global error for request
         if (config.systemError !== false) {
             if (config.responseType !== 'blob' && data && data.code !== 0) {
+                const { config : vueConfig } = window.$app || {};
 
-                // login dialog
-                if (data.code === 10006) {
+                if (data.code === 'WG0001' && isQianKun()) {
+                    removeToken();
                     clearUserInfo();
-                    window.$app.config.globalProperties.$bus.$emit('show-login-dialog');
-
-                    if (new Date().valueOf() - lastErrorMessageTime > 2000) {
-                        lastErrorMessageTime = new Date().valueOf();
-                        window.$app.config.globalProperties.$message.error({
-                            message:  data.message,
-                            grouping: true,
-                        });
-                    }
-
-                } else if (data.code === 10000) {
-                    // system is not inited, logout
-                    baseLogout();
-                } else if(data.code === 30001) {
-                    // graph node has exception occurred
-                    window.$app.config.globalProperties.$bus.$emit('node-error', {
+                    clearSystenCache();
+                    window.location.href = `/portal/login?tenantid=${localStorage.getItem('tenantId')}`;
+                } else if (data.code === 30001) {
+                    vueConfig && vueConfig.globalProperties.$bus.$emit('node-error', {
                         ...data.data,
                         message: data.message,
                     });
-                    window.$app.config.globalProperties.$message.error(data.message);
+                    vueConfig && vueConfig.globalProperties.$message.error(data.message);
                 } else if(data.code === 10017) {
-                    window.$app.config.globalProperties.$message.error(data.message);
+                    vueConfig && vueConfig.globalProperties.$message.error(data.message);
                 } else if (data.code === -1 || data.code === 10003) {
-                    window.$app.config.globalProperties.$message.error(data.message);
+                    vueConfig && vueConfig.globalProperties.$message.error(data.message);
                 } else {
-                    window.$app.config.globalProperties.$message.error({
+                    vueConfig && vueConfig.globalProperties.$message.error({
                         message:  data.message || '未知错误!',
                         grouping: true,
                     });
@@ -124,7 +101,8 @@ httpInstance.interceptors.response.use(
         return data;
     },
     result => {
-        const { $message } = window.$app.config.globalProperties;
+        const { config: vueConfig = {} } = window.$app || {};
+        const { $message } = vueConfig.globalProperties || {};
         const { code, response, isCancel, systemError, message } = result;
 
         if (systemError !== false) {
@@ -132,7 +110,7 @@ httpInstance.interceptors.response.use(
                 // Actively cancel pop-up prompt
                 const msg = isCancel.msg ? `请求已取消: ${isCancel.msg}` : '请求已取消';
 
-                $message.error({
+                $message && $message.error({
                     message:  msg,
                     grouping: true,
                 });
@@ -144,7 +122,7 @@ httpInstance.interceptors.response.use(
                 // Capture error
                 const msg = '请求超时 !';
 
-                $message.error({
+                $message && $message.error({
                     message:  msg,
                     grouping: true,
                 });
@@ -159,7 +137,7 @@ httpInstance.interceptors.response.use(
                 switch (status) {
                     case 401:
                         // to login
-                        $message.error({
+                        $message && $message.error({
                             message:  '登录已过期, 请重新登录',
                             grouping: true,
                         });
@@ -172,7 +150,7 @@ httpInstance.interceptors.response.use(
                         });
                         break; */
                     default:
-                        $message.error({
+                        $message && $message.error({
                             message:  msg,
                             grouping: true,
                         });
@@ -183,7 +161,7 @@ httpInstance.interceptors.response.use(
                 };
             } else if (message) {
                 // Cross domain / network error...
-                $message.error({
+                $message && $message.error({
                     message,
                     grouping: true,
                 });
@@ -213,7 +191,10 @@ const policy = {
             if (cancelToken) {
                 cancelToken.cancel();
                 if (msg) {
-                    window.$app.config.globalProperties.$message.error({
+                    const { config: vueConfig = {} } = window.$app || {};
+                    const { $message } = vueConfig.globalProperties || {};
+
+                    $message && $message.error({
                         message:  msg,
                         grouping: true,
                     });
@@ -257,7 +238,7 @@ const policy = {
                 // insert loading element
                 const icon = document.createElement('i');
 
-                icon.classList.add('el-loading-spinner');
+                icon.classList.add('board-loading-spinner');
                 icon.innerHTML = `<svg viewBox="25 25 50 50" class="circular">
                     <circle cx="50" cy="50" r="20" fill="none" class="path"></circle>
                 </svg>`;
@@ -276,8 +257,11 @@ const policy = {
         let loadingInstance = null;
 
         if (options.loading && loadingCount === 0) {
+            const { config: vueConfig = {} } = window.$app || {};
+            const { $loading } = vueConfig.globalProperties || {};
+
             delete options.loading;
-            loadingInstance = window.$app.config.globalProperties.$loading({ fullscreen: true });
+            loadingInstance = $loading && $loading({ fullscreen: true });
             loadingCount++;
         }
         return loadingInstance;
@@ -287,13 +271,13 @@ const createTimeoutLayer = () => {
     const now = Date.now();
     const timer = setTimeout(_ => {
         // check the global loading
-        if (!document.body.classList.contains('el-loading-parent--relative')) {
+        if (!document.body.classList.contains('board-loading-parent--relative')) {
             const loadingLayer = document.createElement('div');
 
             loadingLayer.id = now;
-            loadingLayer.className = 'el-loading-mask is-fullscreen';
+            loadingLayer.className = 'board-loading-mask is-fullscreen';
             loadingLayer.style.zIndex = 20000000;
-            loadingLayer.innerHTML = `<div class="el-loading-spinner">
+            loadingLayer.innerHTML = `<div class="board-loading-spinner">
                 <svg viewBox="25 25 50 50" class="circular">
                     <circle cx="50" cy="50" r="20" fill="none" class="path"></circle>
                 </svg>
@@ -342,15 +326,17 @@ const baseService = (config = {}) => {
 
     // set default headers
     const { headers } = options;
+    const commonHeaders = getHeader();
 
     if (headers !== false) {
-        const { baseUrl } = window.api;
-        const userInfo = setStorage().getItem(`${baseUrl}_userInfo`);
-
-        if (userInfo && userInfo !== 'undefined') {
+        if (!isQianKun()) {
             options.headers = {
                 ...headers,
-                token: JSON.parse(userInfo).token,
+            };
+        } else {
+            options.headers = {
+                ...headers,
+                ... commonHeaders,
             };
         }
     }

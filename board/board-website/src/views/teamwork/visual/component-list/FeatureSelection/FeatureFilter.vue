@@ -102,6 +102,12 @@
                     :closable="false"
                     v-if="!frontStatus.has_c_v"
                 />
+                <el-space>
+                    <el-tag v-for="({ total, selected }, memeberName) in membersInfo"
+                        :type="selected ? 'success' : 'danger'" round>
+                        {{ memeberName }}：{{ selected }}/{{ total }}
+                    </el-tag>
+                </el-space>
                 <h4 class="title">条件筛选</h4>
                 <el-space wrap>
                     <template
@@ -138,7 +144,7 @@
                         @click="openDialogHandle"
                     />
                 </el-space>
-                <h4 class="title">手动选择</h4>
+                <h4 class="title">手动筛选</h4>
                 <el-space wrap v-if="manulSelectData.length">
                     <el-tag
                         style="color: white"
@@ -153,7 +159,7 @@
                     </el-tag>
                 </el-space>
                 <div class="empty" v-else>在左侧列表中选择需要的特征</div>
-                <h4 class="title">选择结果</h4>
+                <h4 class="title">筛选结果</h4>
                 <el-space wrap v-if="allSelectData.length">
                     <el-tag
                         style="color: white"
@@ -168,15 +174,6 @@
             </div>
         </div>
         <template #footer>
-            <el-space>
-                <el-tag
-                    v-for="({ total, selected }, memeberName) in membersInfo"
-                    :type="selected ? 'success' : 'danger'"
-                    round
-                >
-                    {{ memeberName }}：{{ selected }}/{{ total }}
-                </el-tag>
-            </el-space>
             <el-button type="primary" @click="saveResult"> 保存 </el-button>
             <el-button @click="open = false"> 取消 </el-button>
         </template>

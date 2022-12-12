@@ -10,8 +10,8 @@
             :key="`${member.member_id}-${member.member_role}`"
         >
             <h4 class="f14 mb5">{{member.member_role === 'promoter' ? '发起方' : '协作方'}}:</h4>
-            <div class="el-form-item">
-                <div class="el-form-item__label">
+            <div class="board-form-item">
+                <div class="board-form-item__label">
                     <span class="mr10">{{ member.member_name }}</span>
                     <el-button
                         size="small"
@@ -22,7 +22,7 @@
                 </div>
                 <div
                     v-if="member.features.length"
-                    class="el-tag-list mb10"
+                    class="board-tag-list mb10"
                 >
                     <template
                         v-for="(item, index) in member.features"
@@ -109,12 +109,12 @@
                             <label
                                 v-if="list[index * 5 + i - 1]"
                                 :for="`label-${index * 5 + i - 1}`"
-                                class="el-checkbox"
+                                class="board-checkbox"
                                 @click.prevent.stop="methods.checkboxChange($event, list[index * 5 + i - 1])"
                             >
-                                <span :class="['el-checkbox__input', { 'is-checked': vData.checkedColumnsArr.includes(list[index * 5 + i - 1]) }]">
-                                    <span class="el-checkbox__inner"></span>
-                                    <input :id="`label-${index * 5 + i - 1}`" class="el-checkbox__original" type="checkbox" />
+                                <span :class="['board-checkbox__input', { 'is-checked': vData.checkedColumnsArr.includes(list[index * 5 + i - 1]) }]">
+                                    <span class="board-checkbox__inner"></span>
+                                    <input :id="`label-${index * 5 + i - 1}`" class="board-checkbox__original" type="checkbox" />
                                 </span>
                                 <span class="el-checkbox__label">
                                     {{ list[index * 5 + i - 1] }}
@@ -428,18 +428,18 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-form-item{
-        .el-form-item__label{
+    .board-form-item{
+        .board-form-item__label{
             line-height: 28px !important;
         }
     }
-    .el-checkbox-group{
+    .board-checkbox-group{
         max-height: 500px;
         overflow: auto;
         font-size: 14px;
     }
-    .el-checkbox{user-select:auto;}
-    .el-tag-list{
+    .board-checkbox{user-select:auto;}
+    .board-tag-list{
         max-height: 140px;
         overflow: auto;
     }

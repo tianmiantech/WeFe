@@ -86,13 +86,13 @@
             >
                 <template v-slot="scope">
                     <p v-if="scope.row.data_resource_type === 'TableDataSet'">
-                        <el-icon v-if="scope.row.data_resource && scope.row.data_resource.contains_y" class="el-icon-check" style="color: #67C23A">
+                        <el-icon v-if="scope.row.data_resource && scope.row.data_resource.contains_y" class="board-icon-check" style="color: #67C23A">
                             <elicon-check />
                         </el-icon>
-                        <el-icon v-else-if="scope.row.contains_y" class="el-icon-check" style="color: #67C23A">
+                        <el-icon v-else-if="scope.row.contains_y" class="board-icon-check" style="color: #67C23A">
                             <elicon-check />
                         </el-icon>
-                        <el-icon v-else class="el-icon-close">
+                        <el-icon v-else class="board-icon-close">
                             <elicon-close />
                         </el-icon>
                     </p>
@@ -154,6 +154,18 @@
                             <el-tag v-else-if="scope.row.contains_y" type="success" class="mr5">包含Y</el-tag>
                             <el-tag v-else type="danger" class="mr5">不包含Y</el-tag>
                         </template>
+                    </p>
+                </template>
+            </el-table-column>
+            <el-table-column
+                label="分类数"
+                width="100"
+                align="center"
+                v-if="needClassify"
+            >
+            <template v-slot="scope">
+                    <p>
+                        {{(scope.row?.data_resource?.label_species_count > 10000 ? '10000+' : scope.row?.data_resource?.label_species_count)}}
                     </p>
                 </template>
             </el-table-column>
@@ -287,6 +299,7 @@
             isShow:        Boolean,
             projectType:   String,
             memberId:      String,
+            needClassify:  Boolean,
         },
         emits: ['list-loaded', 'close-dialog', 'selectDataSet', 'batchDataSet'],
         data() {
@@ -497,7 +510,7 @@
         width:200px;
         text-align:right;
     }
-    .el-alert{
+    .board-alert{
         width: auto;
         height: 30px;
         min-width: 300px;
@@ -506,7 +519,7 @@
         display: flex;
         margin-top: 20px;
     }
-    .el-pagination{
+    .board-pagination{
         max-width: 90%;
         overflow: auto;
     }

@@ -17,7 +17,7 @@
                 </router-link>
                 <!-- <div class="guide" @click="showGuideVideo">
                     新手指引
-                    <i class="ml10 el-icon-video-play" />
+                    <i class="ml10 board-icon-video-play" />
                 </div> -->
             </div>
             <template v-if="list.length">
@@ -43,7 +43,7 @@
                             placement="top"
                             effect="light"
                         >
-                            <el-icon class="el-icon-info desc-icon">
+                            <el-icon class="board-icon-info desc-icon">
                                 <elicon-info-filled />
                             </el-icon>
                         </el-tooltip>
@@ -248,7 +248,7 @@
         box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
         &:hover{
             box-shadow: 0 6px 10px -6px rgba(0, 0, 0, 0.1);
-            .el-icon-delete{display: block;}
+            .board-icon-delete{display: block;}
         }
         .project_type {
             position: absolute;
@@ -288,8 +288,8 @@
         }
     }
     .create-button{
-        padding:0;
         cursor: default;
+        background: #f5f7fa;
         .guide{
             height: 62px;
             line-height: 62px;
@@ -297,7 +297,7 @@
             display: inline-block;
             cursor: pointer;
         }
-        .el-icon-video-play{
+        .board-icon-video-play{
             color: $color-link-base;
             cursor: pointer;
         }
@@ -422,7 +422,7 @@
         font-size: 12px;
         line-height: 25px;
     }
-    .el-icon-delete{
+    .board-icon-delete{
         display: none;
         position: absolute;
         right: 20px;

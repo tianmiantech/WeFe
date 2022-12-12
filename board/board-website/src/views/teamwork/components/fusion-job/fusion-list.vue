@@ -9,7 +9,7 @@
         style="background: white"
     >
         <template #header>
-            <div class="clearfix mb10 flex-row">
+            <div class="mb10 flex-row">
                 <div style="display: flex; align-items: center;">
                     <h3 class="card-title f19" style="position: relative; right: 10px; top: -10px;">
                         <el-icon :class="['el-icon-connection', 'mr10', 'ml10']" style="font-size: xx-large; top:8px; right: -3px; color: dodgerblue"><elicon-connection />
@@ -17,14 +17,14 @@
                                 数据融合
                     </h3>
                     <template v-if="form.isPromoter">
-                        <router-link v-if="form.is_project_admin" class="el-link" :to="{ name: 'fusion-edit', query: { project_id: form.project_id, is_project_admin: form.is_project_admin } }">
+                        <router-link v-if="form.is_project_admin" class="board-link" :to="{ name: 'fusion-edit', query: { project_id: form.project_id, is_project_admin: form.is_project_admin } }">
                             <el-button
                                 
                                 v-if="!form.closed && !form.is_exited"
                                 type="primary"
                                 class="ml10"
                                 size="small"
-                                style="position: relative; top:-4px; left: -15px; background: lightgreen; border: none;"
+                                style="position: relative; top:-4px; left: -15px; background: #007ad1; border: none;"
                             >
                             发起数据融合
                             </el-button>
@@ -33,10 +33,10 @@
                     <span v-else class="ml10 f12">(协作方无法创建任务)</span>
                 </div>
                 <div v-if="form.is_project_admin" class="right-sort-area">
-                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp" title="向上" style="color: lightgray"><elicon-top /></el-icon>
-                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-bottom', 'mr10', 'ml10']" @click="moveDown" title="向下" style="color: lightgray"><elicon-bottom /></el-icon>
-                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-caret-top', {'mr10': maxIndex === sortIndex}]" @click="toTop" title="置顶" style="color: lightgray"><elicon-caret-top /></el-icon>
-                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-caret-bottom', 'mr10', 'ml10']" @click="toBottom" title="置底" style="color: lightgray"><elicon-caret-bottom /></el-icon>
+                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['board-icon-top f14', {'mr10': maxIndex === sortIndex}]" @click="moveUp"><elicon-top /></el-icon>
+                    <el-icon v-if="maxIndex !== sortIndex" :class="['board-icon-bottom f14', 'ml10', 'mr10']" @click="moveDown"><elicon-bottom /></el-icon>
+                    <span v-if="sortIndex !== 0 && sortIndex !== 1" :class="['f12', {'mr10': sortIndex === 2}]" @click="toTop">置顶</span>
+                    <span v-if="sortIndex !== maxIndex && sortIndex !== maxIndex -1" class="f12" @click="toBottom">置底</span>
                 </div>
             </div>
         </template>
@@ -275,7 +275,7 @@
                     query: {
                         id,
                         project_id:       this.project_id,
-                        is_project_admin: this.form.is_project_admin,
+                        is_project_admin: this.form.is_project_admin || 'true',
                     },
                 });
             },
@@ -300,11 +300,11 @@
 </style>
 
 <style lang="scss" scoped>
-    .el-alert__description{
+    .board-alert__description{
         color: $--color-danger;
     }
     h3{margin: 10px;}
-    .el-link{text-decoration: none;}
+    .board-link{text-decoration: none;}
     .model-list{
         display: flex;
         justify-content: center;
@@ -321,7 +321,7 @@
     }
     .empty-flow{
         .model-img{background: #F5F7FA;}
-        .el-icon-plus{
+        .board-icon-plus{
             font-size: 50px;
             color:#DCDFE6;
         }
@@ -336,8 +336,8 @@
     }
     .link{text-decoration: none;}
     .btn-danger{color: #F85564;}
-    .el-switch{
-        :deep(.el-switch__label){
+    .board-switch{
+        :deep(.board-switch__label){
             color: #999;
             &.is-active{color: $--color-primary;}
         }

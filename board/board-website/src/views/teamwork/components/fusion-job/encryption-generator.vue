@@ -44,7 +44,7 @@
                     可选回溯字段便于对融合进行追溯。
                     <p class="color-danger">注意：回溯字段必须为date类型</p>
                 </template>
-                <el-icon class="el-icon-warning color-danger">
+                <el-icon class="board-icon-warning color-danger">
                     <elicon-warning />
                 </el-icon>
             </el-tooltip>
@@ -145,13 +145,13 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-select{
+    .board-select{
         .error{
-            :deep(.el-input__inner){
+            :deep(.board-input__inner){
                 border: 1px solid $--color-danger;
             }
         }
-        :deep(.el-tag__close){
+        :deep(.board-tag__close){
             background: #ddd;
             &:hover{background:#bbb;}
         }
@@ -170,8 +170,8 @@
             color:$color-text-disabled;
         }
     }
-    .el-switch{top:-2px;}
-    .el-icon-warning{
+    .board-switch{top:-2px;}
+    .board-icon-warning{
         cursor:pointer;
         top:2px;
     }

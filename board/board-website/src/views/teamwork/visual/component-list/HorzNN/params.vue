@@ -63,7 +63,7 @@
                 </el-form-item>
                 <el-form-item label="每层参数：">
                     <p v-if="!disabled" class="add-one-group">
-                        <el-icon class="el-icon-plus" @click="methods.addOneGroup">
+                        <el-icon class="board-icon-plus" @click="methods.addOneGroup">
                             <elicon-plus />
                         </el-icon>
                     </p>
@@ -117,7 +117,7 @@
                             </div>
                             <el-icon
                                 v-if="!disabled && idx !== 0"
-                                class="el-icon-delete"
+                                class="board-icon-delete"
                                 @click="methods.deleteOneGroup(idx)"
                             >
                                 <elicon-delete />
@@ -296,31 +296,31 @@
 </script>
 
 <style lang="scss" scoped>
-.el-form {
+.board-form {
     margin-top: 25px;
 }
-.el-form-item{
+.board-form-item{
     margin-bottom: 10px;
-    :deep(.el-form-item__label){
+    :deep(.board-form-item__label){
         flex:1;
     }
-    :deep(.el-form-item__content){
+    :deep(.board-form-item__content){
         flex:2;
     }
 }
-.el-collapse-item {
-    :deep(.el-collapse-item__header) {
+.board-collapse-item {
+    :deep(.board-collapse-item__header) {
         color: #438bff;
         font-size: 16px;
         padding-left: 5px;
-        .el-collapse-item__arrow {
+        .board-collapse-item__arrow {
             color: #999;
         }
     }
-    :deep(.el-collapse-item__wrap) {
+    :deep(.board-collapse-item__wrap) {
         padding: 0 10px;
     }
-    :deep(.el-collapse-item__content) {
+    :deep(.board-collapse-item__content) {
         padding-bottom: 0;
     }
 }
@@ -331,10 +331,10 @@
 .readonly-form:before {
     position: unset !important;
 }
-.el-input{max-width:190px;}
+.board-input{max-width:190px;}
 .add-one-group {
     margin-right: 10px;
-    .el-icon-plus {
+    .board-icon-plus {
         font-size: 16px;
         color: #438bff;
         cursor: pointer;
@@ -357,7 +357,7 @@
             width: 100px;
         }
     }
-    .el-icon-delete {
+    .board-icon-delete {
         color: #ff4949;
         cursor: pointer;
         padding-left: 5px;

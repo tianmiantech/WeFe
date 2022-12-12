@@ -96,7 +96,7 @@ public class ApiExecutor {
         try {
 
             // Checking login Status
-            checkSessionToken(api, annotation);
+            //checkSessionToken(api, annotation);
             // Check the permissions
             checkApiPermission(httpServletRequest, annotation, params);
 
@@ -204,10 +204,10 @@ public class ApiExecutor {
         }
 
         // Checking token Validity
-        String token = CurrentAccount.token();
+       /* String token = CurrentAccount.token();
         if (!Launcher.CHECK_SESSION_TOKEN_FUNCTION.check(api, annotation, token)) {
             throw new StatusCodeWithException("请登录后访问", StatusCode.LOGIN_REQUIRED);
-        }
+        }*/
     }
 
     /**

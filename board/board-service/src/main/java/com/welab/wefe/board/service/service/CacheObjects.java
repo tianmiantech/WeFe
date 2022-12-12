@@ -322,4 +322,12 @@ public class CacheObjects {
         return null == SECRET_KEY_TYPE ? SecretKeyType.rsa : SECRET_KEY_TYPE;
     }
 
+    public static synchronized void putAccount(AccountMysqlModel account) {
+        if(null == account) {
+            return;
+        }
+        ACCOUNT_MAP.put(account.getId(), account.getNickname());
+        ACCOUNT_ID_LIST.add(account.getId());
+    }
+
 }

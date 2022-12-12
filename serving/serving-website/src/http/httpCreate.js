@@ -11,10 +11,8 @@ import axios from 'axios';
 // import store from '@js/store/store';
 import { baseLogout, clearUserInfo } from '@src/router/auth';
 import { deepMerge } from '@src/utils/types';
-
-function setStorage () {
-    return localStorage;
-}
+import { getHeader, removeToken,isQianKun } from './utils';
+import { baseURL } from '@src/utils/constant';
 
 const cancelTokenQueue = {}; // 取消请求 token 队列
 // 创建 axios 实例
@@ -35,16 +33,18 @@ httpInstance.interceptors.request.use(
         // console.log('config:', config);
         // 在这里处理默认请求头等配置
         // 如: config.timeout = 1000;
-        config.baseURL = window.api.baseUrl;
+        // config.baseURL = baseURL;
         // 发送请求前判断是否登录
-        if (config.isLogin) {
-            // 先取消所有请求
-            for (const key in cancelTokenQueue) {
-                cancelTokenQueue[key].cancel();
-            }
-            // 跳转到登录页
-            baseLogout();
-        }
+        // if (config.isLogin) {
+        //     // 先取消所有请求
+        //     for (const key in cancelTokenQueue) {
+        //         cancelTokenQueue[key].cancel();
+        //     }
+        //     // 跳转到登录页
+        //     baseLogout();
+        // }
+        config.baseURL = baseURL();
+        console.log('config', config);
         return config;
     },
     error => {
@@ -68,14 +68,14 @@ httpInstance.interceptors.response.use(
         } */
         // 全局错误处理
         if (config.systemError !== false) {
-            if (data && data.code !== 0) {
+            if (config.responseType !== 'blob' && data && data.code !== 0) {
                 window.$app.$message.error(data.message || '未知错误!');
-
-                // 弹出登陆面板
-                if (data.code === 10006) {
+                if (data.code === 'WG0001') {
+                    removeToken();
                     clearUserInfo();
-                    window.$app.$bus.$emit('show-login-dialog');
-                }
+                    if(isQianKun()){
+                        window.location.href = `/portal/login?tenantid=${localStorage.getItem('tenantId')}`;
+                    }                }
             }
         }
 
@@ -85,6 +85,7 @@ httpInstance.interceptors.response.use(
             return {
                 code: 0,
                 data,
+                response,
             };
         }
         return data;
@@ -262,17 +263,14 @@ const baseService = (config = {}) => {
 
     // 默认设置 headers
     const { headers } = options;
+    const commonHeaders = getHeader();
 
     if (headers !== false) {
-        const { baseUrl } = window.api;
-        const userInfo = setStorage().getItem(`${baseUrl}_userInfo`);
-
-        if (userInfo) {
-            options.headers = {
-                ...headers,
-                token: JSON.parse(userInfo).token,
-            };
-        }
+        options.headers = {
+            ...headers,
+            // token: JSON.parse(userInfo).token,
+            ...commonHeaders,
+        };
     }
 
     // 添加全局 loading

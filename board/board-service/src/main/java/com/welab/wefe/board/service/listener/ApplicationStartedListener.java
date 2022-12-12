@@ -23,7 +23,9 @@ import com.welab.wefe.board.service.database.entity.chat.MessageQueueMySqlModel;
 import com.welab.wefe.board.service.database.repository.ChatUnreadMessageRepository;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.MemberChatService;
+import com.welab.wefe.board.service.service.PrivacyDatabaseEncryptService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
+import com.welab.wefe.common.wefe.dto.global_config.PrivacyConfigModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,11 +57,15 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
     private GlobalConfigService globalConfigService;
     @Autowired
     private DataSetStorageService dataSetStorageService;
+    @Autowired
+    private PrivacyDatabaseEncryptService privacyDatabaseEncryptService;
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
         try {
             globalConfigService.init();
+
+            privacyDatabaseEncrypt();
 
             dataSetStorageService.initStorage();
         } catch (Exception e) {
@@ -95,5 +101,30 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
         LOG.info("Start refresh certificate cache..............");
         CaCertificateCache.getInstance().refreshCache();
         LOG.info("End refresh certificate cache.");
+    }
+
+    private void privacyDatabaseEncrypt() {
+        try {
+            PrivacyConfigModel configModel = globalConfigService.getModel(PrivacyConfigModel.class);
+            configModel = (null == configModel ? new PrivacyConfigModel() : configModel);
+            if (configModel.databaseEncryptCompleted && !config.isDatabaseEncryptEnable()) {
+                LOG.error("The data has been encrypted. Please change the value of the configuration item [privacy.database.encrypt.enable] to true to start the system in an encrypted way!!!");
+                System.exit(0);
+                return;
+            }
+            if (!config.isDatabaseEncryptEnable() || configModel.databaseEncryptCompleted) {
+                return;
+            }
+            LOG.info("Start auto encrypt privacy database........");
+            privacyDatabaseEncryptService.encrypt();
+            configModel.databaseEncryptCompleted = true;
+            globalConfigService.put(configModel);
+
+            LOG.info("End auto encrypt privacy database!!!");
+        } catch (Exception e) {
+            LOG.error("Auto encrypt privacy database exception: ", e);
+            System.exit(-1);
+        }
+
     }
 }
