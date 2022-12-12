@@ -196,7 +196,7 @@ class RunTaskAction:
         executor_memory = default_executor_memory
         executor_cores = default_executor_cores
         total_executor_cores = default_total_executor_cores
-        local_cores = cpu_count // 2
+        local_cores = cpu_count() // 2
         max_local_cores = 24
         if local_cores > max_local_cores:
             local_cores = max_local_cores
