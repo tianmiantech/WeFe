@@ -80,14 +80,14 @@ public abstract class AbstractHttpTransferVariable {
 //            }
 //        }
         if (response == null || response.getStatus() != HttpStatus.HTTP_OK) {
-            String errorMessage = "request errror" + ",customer_id=" + mConfig.getCommercialId() + ",url=" + url;
+            logger.info("response:" + response);
+            String errorMessage = "request error" + ",customer_id=" + mConfig.getCommercialId() + ",url=" + url;
             JSONObject res = new JSONObject();
             res.put("code", -1);
             res.put("message", errorMessage);
             return res.toJSONString();
         }
         logger.info("request url=" + url + ", response status:" + response.getStatus());
-//        logger.info("response:" + response);
         String responseString = response.body();
         JSONObject res = JSONObject.parseObject(responseString);
         if (res.getIntValue("code") != 0) {
