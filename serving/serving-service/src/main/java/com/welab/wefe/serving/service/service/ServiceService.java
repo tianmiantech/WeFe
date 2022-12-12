@@ -22,13 +22,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -116,8 +114,6 @@ import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.service_processor.AbstractServiceProcessor;
 import com.welab.wefe.serving.service.service_processor.ServiceProcessorUtils;
-import com.welab.wefe.serving.service.utils.MD5Util;
-import com.welab.wefe.serving.service.utils.SHA256Utils;
 import com.welab.wefe.serving.service.utils.ServiceUtil;
 import com.welab.wefe.serving.service.utils.SignUtils;
 import com.welab.wefe.serving.service.utils.ZipUtils;
@@ -409,7 +405,7 @@ public class ServiceService {
             }
             keysTableName = generateMySqlIdsTable(dataSourceModel, dataSource);
         } else { // 如果不是mysql的，则直接使用原数据源
-            keysTableName = dataSourceModel.getDatabaseType().name() + "#" + dataSourceModel.getHost();
+            keysTableName = dataSourceModel.getDatabaseType().name() + "#" + dataSource.getString("table");
         }
         return keysTableName;
     }
@@ -451,14 +447,11 @@ public class ServiceService {
                         return;
                     }
                     int partitionSize = 500000;
-                    int taskNum = result.size() / partitionSize;
-                    if (taskNum <= 0) {
-                        taskNum = 1;
-                    }
+                    int taskNum = Math.max(result.size() / partitionSize, 1);
                     LOG.info(newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table")
                             + " count = " + result.size() + ", taskNum = " + taskNum + ", threads size = "
                             + this.threads);
-                    List<Queue<Map<String, String>>> partitionList = partitionList(result, taskNum);
+                    List<Queue<Map<String, String>>> partitionList = ServiceUtil.partitionList(result, taskNum);
                     result = null;
                     ExecutorService executorService1 = Executors.newFixedThreadPool(this.threads);
                     Map<String, BlockingQueue<String>> queues = new ConcurrentHashMap<>();
@@ -471,7 +464,7 @@ public class ServiceService {
                             queues.put(finalI + "", queue);
                             String insertSql = String.format("insert into %s values (?)", keysTableNameTmp);
                             while (!partition.isEmpty()) {
-                                String id = calcKey(keyCalcRules, partition.poll());
+                                String id = ServiceUtil.calcKey(keyCalcRules, partition.poll());
                                 queue.add(id);
                                 if (queue.size() > 250000) {
                                     try {
@@ -525,59 +518,6 @@ public class ServiceService {
             e.printStackTrace();
         }
         return keysTableName;
-    }
-
-    /**
-     * 分片
-     */
-    public static <T> List<Queue<T>> partitionList(List<T> list, int numPartitions) {
-        if (list == null) {
-            throw new NullPointerException("The set must not be null");
-        }
-
-        List<Queue<T>> partitions = new ArrayList<>(numPartitions);
-        for (int i = 0; i < numPartitions; i++)
-            partitions.add(i, new ArrayDeque<>());
-
-        int size = list.size();
-        int partitionSize = (int) Math.ceil((double) size / numPartitions);
-        if (numPartitions <= 0)
-            throw new IllegalArgumentException("'numPartitions' must be greater than 0");
-
-        Iterator<T> iterator = list.iterator();
-        int partitionToWrite = 0;
-        int cont = 0;
-        while (iterator.hasNext()) {
-            partitions.get(partitionToWrite).add(iterator.next());
-            cont++;
-            if (cont >= partitionSize) {
-                partitionToWrite++;
-                cont = 0;
-            }
-        }
-        return partitions;
-    }
-    
-    private String calcKey(JSONArray keyCalcRules, Map<String, String> data) {
-        int size = keyCalcRules.size();
-        StringBuilder encodeValue = new StringBuilder("");
-        for (int i = 0; i < size; i++) {
-            JSONObject item = keyCalcRules.getJSONObject(i);
-            String operator = item.getString("operator");
-            String[] fields = item.getString("field").split(",");
-            StringBuffer value = new StringBuffer();
-
-            for (String field : fields) {
-                value.append(data.get(field));
-            }
-            if ("md5".equalsIgnoreCase(operator)) {
-                encodeValue.append(MD5Util.getMD5String(value.toString()));
-            } else if ("sha256".equalsIgnoreCase(operator)) {
-                encodeValue.append(SHA256Utils.getSHA256(value.toString()));
-            }
-        }
-        return encodeValue.toString();
-
     }
 
     /**

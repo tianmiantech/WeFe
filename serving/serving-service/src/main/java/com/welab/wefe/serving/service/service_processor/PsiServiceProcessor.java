@@ -16,18 +16,27 @@
 package com.welab.wefe.serving.service.service_processor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
 import com.welab.wefe.mpc.psi.sdk.dh.DhPsiServer;
 import com.welab.wefe.mpc.psi.sdk.ecdh.EcdhPsiServer;
@@ -36,6 +45,9 @@ import com.welab.wefe.mpc.psi.sdk.util.PartitionUtil;
 import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
 import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
+import com.welab.wefe.serving.service.utils.MD5Util;
+import com.welab.wefe.serving.service.utils.SHA256Utils;
+import com.welab.wefe.serving.service.utils.ServiceUtil;
 
 /**
  * @author hunter.zhao
@@ -72,7 +84,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         this.batchSize = config.getPsiBatchSize();
         // 当前批次
         int currentBatch = data.getIntValue("currentBatch");
-        // ID在mysql表中
+        // id在mysql表中
         if (!idsTableName.contains("#")) {
             type = "DH";
             String p = data.getString("p");
@@ -105,9 +117,6 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             return JObject.create(response);
         } else {
             type = "ECDH";
-            String databaseType = idsTableName.split("#")[0];
-            String dbConnUrl = idsTableName.split("#")[1];
-            String callbackUrl = data.getString("callback_url");
             Map<Long, String> doubleEncryptedClientDatasetMap = null;
             List<String> doubleEncryptedClientDataset = null;
             EcdhPsiServer server = ECDH_SERVER_MAP.get(requestId);
@@ -148,11 +157,52 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         }
     }
 
-    private List<String> getECDHServerData() {
-        int serverDatasetSize = ECDH_SERVER_DATA_SET.size();
-        SERVER_DATASET_SIZE.put(this.requestId, serverDatasetSize);
-        this.numPartitions = Math.max(SERVER_DATASET_SIZE.get(this.requestId) / this.batchSize, 1);
-        return ECDH_SERVER_DATA_SET;
+    // doris
+    private List<String> getECDHServerData(TableServiceMySqlModel model, int currentBatch)
+            throws StatusCodeWithException {
+        String databaseType = model.getIdsTableName().split("#")[0]; // 必须是Doris
+        String tableName = model.getIdsTableName().split("#")[1];
+        JSONObject dataSource = JObject.parseObject(model.getDataSource());
+        DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
+        if (dataSourceModel == null) {
+            this.numPartitions = 1;
+            return new ArrayList<>();
+        }
+        JSONArray keyCalcRules = dataSource.getJSONArray("key_calc_rules");
+        List<String> needFields = new ArrayList<>();
+        for (int i = 0; i < keyCalcRules.size(); i++) {
+            JSONObject item = keyCalcRules.getJSONObject(i);
+            String[] fields = item.getString("field").split(",");
+            needFields.addAll(Arrays.asList(fields));
+        }
+        String sql = "select " + StringUtils.join(needFields, ",") + " from " + tableName + " limit "
+                + currentBatch * this.batchSize + ", " + this.batchSize;
+        List<Map<String, String>> result = dataSourceService.queryList(dataSourceModel, sql, needFields);
+        List<Queue<Map<String, String>>> partitionList = ServiceUtil.partitionList(result, Math.max(this.batchSize / 100000, 1));
+        result = null;
+        ExecutorService executorService1 = Executors.newFixedThreadPool(2);
+        BlockingQueue<String> queue = new LinkedBlockingQueue<>();
+        for (int i = 0; i < partitionList.size(); i++) {
+            final int finalI = i;
+            Queue<Map<String, String>> partition = partitionList.get(i);
+            executorService1.submit(() -> {
+                LOG.info("calcKey begin index = " + finalI + ", partition size = " + partition.size());
+                while (!partition.isEmpty()) {
+                    queue.add(ServiceUtil.calcKey(keyCalcRules, partition.poll()));
+                }
+                LOG.info("calcKey end index = " + finalI + ", queue size = " + queue.size());
+            });
+        }
+        if (SERVER_DATASET_SIZE.get(this.requestId) == null) {
+            int serverDatasetSize = (int) dataSourceService.count(dataSourceModel,
+                    "select * from " + model.getIdsTableName());
+            SERVER_DATASET_SIZE.put(this.requestId, serverDatasetSize);
+        }
+        return new ArrayList<>(queue);
+//        int serverDatasetSize = ECDH_SERVER_DATA_SET.size();
+//        SERVER_DATASET_SIZE.put(this.requestId, serverDatasetSize);
+//        this.numPartitions = Math.max(SERVER_DATASET_SIZE.get(this.requestId) / this.batchSize, 1);
+//        return ECDH_SERVER_DATA_SET;
     }
 
     private List<String> getDHData(TableServiceMySqlModel model, int currentBatch) throws StatusCodeWithException {
@@ -160,8 +210,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         JSONObject dataSource = JObject.parseObject(model.getDataSource());
         String sql = "select id from " + model.getIdsTableName() + " limit " + currentBatch * this.batchSize + ", "
                 + this.batchSize;
-        List<String> needFields = new ArrayList<>();
-        needFields.add("id");
+        List<String> needFields = new ArrayList<>(Arrays.asList("id"));
         DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
         if (dataSourceModel == null) {
             return new ArrayList<>();
@@ -185,8 +234,10 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         if ("DH".equalsIgnoreCase(this.type)) {
             return new HashSet<>(getDHData(model, currentBatch));
         } else { // ecdh
-            List<Set<String>> partitions = PartitionUtil.partitionList(getECDHServerData(), this.numPartitions);
-            return partitions.get(currentBatch);
+            return new HashSet<>(getECDHServerData(model, currentBatch));
+//            List<Set<String>> partitions = PartitionUtil.partitionList(getECDHServerData(model, currentBatch),
+//                    this.numPartitions);
+//            return partitions.get(currentBatch);
         }
     }
 }

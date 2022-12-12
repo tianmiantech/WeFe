@@ -68,6 +68,7 @@ public class JdbcManager {
             case Hive:
                 url = String.format("jdbc:hive2://%s:%d/%s", host, port, dbName);
                 break;
+            case Doris:
             case MySql:
                 url = String.format(
                         "jdbc:mysql://%s:%d/%s?characterEncoding=utf8&useSSL=false&rewriteBatchedStatements=true", host,
@@ -109,6 +110,7 @@ public class JdbcManager {
                 Class.forName("org.apache.hive.jdbc.HiveDriver");
 
                 break;
+            case Doris:
             case MySql:
                 Class.forName("com.mysql.jdbc.Driver");
 
