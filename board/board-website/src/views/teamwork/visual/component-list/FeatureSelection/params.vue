@@ -200,7 +200,7 @@ export default {
             const tipsArray = [];
 
             selectedFeature.value.forEach(item => {
-                const isNumerical = ['Integer', 'Long']; 
+                const isNumerical = ['Integer', 'Long', 'Double']; 
                 if(item.data_type && !isNumerical.includes(item.data_type)){
                     tipsArray.push({
                         name:      item.name,
