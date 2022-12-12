@@ -145,10 +145,6 @@
                 DatabaseTypeList: [{
                     name:  'MySql',
                     value: 'MySql',
-                },
-                {
-                    name:  'Doris',
-                    value: 'Doris',
                 }],
             };
         },
