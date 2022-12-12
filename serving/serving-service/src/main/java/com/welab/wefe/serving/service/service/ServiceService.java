@@ -405,7 +405,7 @@ public class ServiceService {
             }
             keysTableName = generateMySqlIdsTable(dataSourceModel, dataSource);
         } else { // 如果不是mysql的，则直接使用原数据源
-            keysTableName = dataSourceModel.getDatabaseType().name() + "#" + dataSource.getString("table");
+            keysTableName = dataSource.getString("table");
         }
         return keysTableName;
     }

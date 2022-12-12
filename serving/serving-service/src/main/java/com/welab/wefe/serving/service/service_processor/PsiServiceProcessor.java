@@ -160,8 +160,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
     // doris
     private List<String> getECDHServerData(TableServiceMySqlModel model, int currentBatch)
             throws StatusCodeWithException {
-        String databaseType = model.getIdsTableName().split("#")[0]; // 必须是Doris
-        String tableName = model.getIdsTableName().split("#")[1];
+        String tableName = model.getIdsTableName();
         JSONObject dataSource = JObject.parseObject(model.getDataSource());
         DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
         if (dataSourceModel == null) {
@@ -221,7 +220,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         }
         if (SERVER_DATASET_SIZE.get(this.requestId) == null) {
             int serverDatasetSize = (int) dataSourceService.count(dataSourceModel,
-                    "select * from " + model.getIdsTableName().split("#")[1]);
+                    "select * from " + model.getIdsTableName());
             SERVER_DATASET_SIZE.put(this.requestId, serverDatasetSize);
         }
         this.numPartitions = Math.max(SERVER_DATASET_SIZE.get(this.requestId) / this.batchSize, 1);
