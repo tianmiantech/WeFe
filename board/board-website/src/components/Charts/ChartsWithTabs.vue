@@ -564,3 +564,9 @@
         },
     };
 </script>
+
+<style>
+.charts-group{
+    width: 100%;
+}
+</style>
