@@ -18,11 +18,12 @@ from requests import Response
 
 from common.python.db.db_models import GlobalSetting
 from common.python.db.global_config_dao import GlobalConfigDao
+from common.python.utils import sm2_utils
 from common.python.utils.core_utils import current_timestamp
 from common.python.utils.log_utils import LoggerFactory
 from flow.service.board.board_output import JobProgressOutput
 from flow.utils.bean_util import BeanUtil
-from flow.web.utils.const import JsonField
+from flow.web.utils.const import JsonField, SecretKeyType
 import base64
 import json
 from Crypto.Hash import SHA1
@@ -93,7 +94,12 @@ class BoardService:
         """
         url = BOARD_BASE_URL + api
         # send request
-        sign = BoardService.gen_sign(json.dumps(data, separators=(',', ':')), GlobalSetting.get_rsa_private_key())
+        sign = BoardService.gen_sign(
+            json.dumps(data, separators=(',', ':')), 
+            GlobalSetting.get_secret_key_type(),
+            GlobalSetting.get_private_key(),
+            GlobalSetting.get_public_key()
+        )
         req = {
             "data": data,
             "sign": sign
@@ -150,9 +156,17 @@ class BoardService:
             }
 
     @staticmethod
-    def gen_sign(data_str, rsa_key_pri):
-        private_key_obj = RSA.importKey(base64.b64decode(rsa_key_pri))
-        msg_hash = SHA1.new(data_str.encode())
-        signature = PKCS1_v1_5_sign.new(private_key_obj).sign(msg_hash)
-        sign = base64.b64encode(signature).decode()
+    def gen_sign(data_str, secret_key_type, key_pri, key_public):
+        if SecretKeyType.RSA == secret_key_type:
+            private_key_obj = RSA.importKey(base64.b64decode(key_pri))
+            msg_hash = SHA1.new(data_str.encode())
+            signature = PKCS1_v1_5_sign.new(private_key_obj).sign(msg_hash)
+            sign = base64.b64encode(signature).decode()
+        else:
+            sign_hex = sm2_utils.sign_with_sm3(data_str, key_pri, key_public)
+            sign = base64.b64encode(bytes.fromhex(sign_hex)).decode()
         return sign
+
+
+if __name__ == '__main__':
+    pass
