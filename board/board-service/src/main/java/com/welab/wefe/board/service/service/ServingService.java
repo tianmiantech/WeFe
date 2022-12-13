@@ -30,6 +30,7 @@ import com.welab.wefe.board.service.dto.entity.job.JobMemberOutputModel;
 import com.welab.wefe.board.service.dto.serving.ProviderModelPushResult;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
@@ -86,6 +87,7 @@ public class ServingService extends AbstractService {
         params.put("member_name", model.getMemberName());
         params.put("rsa_private_key", model.getRsaPrivateKey());
         params.put("rsa_public_key", model.getRsaPublicKey());
+        params.put("secret_key_type", null != model.getSecretKeyType() ? model.getSecretKeyType().name() : SecretKeyType.rsa);
         params.put("union_base_url", unionBaseUrl);
 
         request("global_config/initialize/union", params, false);

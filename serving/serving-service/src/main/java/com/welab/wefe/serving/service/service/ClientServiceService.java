@@ -18,6 +18,7 @@ package com.welab.wefe.serving.service.service;
 
 import cn.hutool.core.lang.UUID;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -117,9 +118,11 @@ public class ClientServiceService {
                         && input.getPublicKey().equalsIgnoreCase(CacheObjects.getRsaPublicKey())) {
                     model.setPrivateKey(CacheObjects.getRsaPrivateKey());
                     model.setPublicKey(CacheObjects.getRsaPublicKey());
+                    model.setSecretKeyType(CacheObjects.getSecretKeyType());
                 } else if (StringUtils.isBlank(input.getPublicKey())) {
                     model.setPrivateKey(input.getPrivateKey());
                     model.setPublicKey(input.getPublicKey());
+                    model.setSecretKeyType(SecretKeyType.rsa);
                 }
                 if (StringUtils.isNotBlank(input.getUrl()) && input.getUrl().endsWith("/")) {
                     input.setUrl(input.getUrl().substring(0, input.getUrl().length() - 1));

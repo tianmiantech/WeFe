@@ -16,6 +16,7 @@
 
 package com.welab.wefe.serving.service.api.system;
 
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
@@ -78,6 +79,9 @@ public class InitializeUnionModeApi extends AbstractNoneOutputApi<InitializeUnio
         @Check(name = "union地址", require = true)
         private String unionBaseUrl;
 
+        @Check(name = "密钥类型")
+        private SecretKeyType secretKeyType = SecretKeyType.rsa;
+
 
         public IdentityInfoModel convertToIdentityInfoModel() {
             IdentityInfoModel model = new IdentityInfoModel();
@@ -85,6 +89,7 @@ public class InitializeUnionModeApi extends AbstractNoneOutputApi<InitializeUnio
             model.setMemberName(memberName);
             model.setRsaPrivateKey(rsaPrivateKey);
             model.setRsaPublicKey(rsaPublicKey);
+            model.setSecretKeyType(null != secretKeyType ? secretKeyType : SecretKeyType.rsa);
             model.setMode(ServingModeEnum.union.name());
             return model;
         }
@@ -135,6 +140,14 @@ public class InitializeUnionModeApi extends AbstractNoneOutputApi<InitializeUnio
 
         public void setUnionBaseUrl(String unionBaseUrl) {
             this.unionBaseUrl = unionBaseUrl;
+        }
+
+        public SecretKeyType getSecretKeyType() {
+            return secretKeyType;
+        }
+
+        public void setSecretKeyType(SecretKeyType secretKeyType) {
+            this.secretKeyType = secretKeyType;
         }
 
         //endregion

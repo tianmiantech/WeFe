@@ -248,11 +248,11 @@ CREATE TABLE `client_service`
     `service_type` tinyint(4) DEFAULT NULL COMMENT '服务类型',
     `ip_add`       varchar(100)          DEFAULT NULL COMMENT 'IP 白名单',
     `pay_type`     tinyint(4) DEFAULT NULL COMMENT '付费类型',
-    `unit_price`   double(20, 4
-) DEFAULT NULL COMMENT '单价',
-  `url` varchar(128) DEFAULT '' COMMENT '服务地址',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `service_client_index` (`id`,`service_id`,`client_id`)
+    `unit_price`   double(20, 4) DEFAULT NULL COMMENT '单价',
+    `url` varchar(128) DEFAULT '' COMMENT '服务地址',
+    `secret_key_type`   varchar(10)           DEFAULT NULL COMMENT '公私钥类型',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `service_client_index` (`id`,`service_id`,`client_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='客户服务表';
 
 -- 计费规则配置表
