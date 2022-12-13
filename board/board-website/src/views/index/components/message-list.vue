@@ -4,7 +4,10 @@
         class="box-card"
     >
         <el-tabs v-model="activeName" class="msg-tabs" type="border-card" @tab-click="tabChange">
-            <el-tab-pane label="待办事项" name="todoList">
+            <el-tab-pane name="todoList">
+                <template #label>
+                    <el-badge :is-dot="msgDots.todo" class="msg-badge">待办事项</el-badge>
+                </template>
                 <div class="search_box">
                     <span>状态：</span>
                     <el-radio-group v-model="message_search.todoComplete" size="small" @change="todoListChange">
@@ -68,7 +71,10 @@
                     <p class="p2">您已处理完了所有待办事项</p>
                 </div>
             </el-tab-pane>
-            <el-tab-pane label="合作通知" name="cooperateNotice">
+            <el-tab-pane name="cooperateNotice">
+                <template #label>
+                    <el-badge :is-dot="msgDots.notice" class="msg-badge">合作通知</el-badge>
+                </template>
                 <div class="search_box">
                     <span>状态：</span>
                     <el-radio-group v-model="message_search.unread" size="small" @change="systemMsgChange">
@@ -136,7 +142,10 @@
                     </p> -->
                 </div>
             </el-tab-pane>
-            <el-tab-pane label="系统消息" name="systemMsg">
+            <el-tab-pane name="systemMsg">
+                <template #label>
+                    <el-badge :is-dot="msgDots.msg" class="msg-badge">系统消息</el-badge>
+                </template>
                 <div class="search_box">
                     <span>状态：</span>
                     <el-radio-group v-model="message_search.unread" size="small" @change="systemMsgChange">
@@ -188,7 +197,6 @@
                 </div>
             </el-tab-pane>
         </el-tabs>
-
     </el-card>
 </template>
 
@@ -219,7 +227,7 @@
                     page_size:    15,
                     noMore:       false,
                     todo:         true,
-                    todoComplete: '',
+                    todoComplete: false,
                     eventList:    ['ApplyJoinProject', 'ApplyDataResource'],
                 },
 
@@ -254,6 +262,11 @@
                     },
                 ],
                 windowWidth: document.documentElement.clientWidth,
+                msgDots:     {
+                    todo:   false,
+                    notice: false,
+                    msg:    false,
+                },
             };
         },
         created() {
@@ -261,6 +274,20 @@
             window.onresize = () => {
                 this.windowWidth = document.documentElement.clientWidth;
             };
+            // 获取未读
+            this.loadMsgUndo({
+                eventList:    ['ApplyJoinProject', 'ApplyDataResource', 'AgreeJoinProject'],
+                todo:         true,
+                todoComplete: false,
+            }, 'todo');
+            this.loadMsgUndo({
+                eventList: ['AgreeJoinProject', 'DisagreeJoinProject', 'AgreeApplyDataResource', 'DisagreeApplyDataResource'],
+                unread:    true,
+            }, 'notice');
+            this.loadMsgUndo({
+                eventList: ['OnGatewayError', 'OnEmailSendFail'],
+                unread:    true,
+            }, 'msg');
         },
         methods: {
             tabChange(val) {
@@ -269,20 +296,22 @@
                 case 'todoList':
                     this.message_search.todo = true;
                     this.message_search.eventList = ['ApplyJoinProject', 'ApplyDataResource', 'AgreeJoinProject'];
+                    this.message_search.todoComplete = false;
                     break;
                 case 'cooperateNotice':
                     this.message_search.eventList = ['AgreeJoinProject', 'DisagreeJoinProject', 'AgreeApplyDataResource', 'DisagreeApplyDataResource'];
                     this.message_search.todo = false;
+                    this.message_search.todoComplete = '';
                     break;
                 case 'systemMsg':
                     this.message_search.eventList = ['OnGatewayError', 'OnEmailSendFail'];
+                    this.message_search.todoComplete = '';
                     if (this.message_search.todo !== '') delete this.message_search.todo;
                     break;
                 }
                 this.message_search.page_index = 0;
-                this.message_search.todoComplete = '';
                 this.noMore = false;
-                this.message_search.unread = null;
+                this.message_search.unread = true;
                 this.loadMessageList();
             },
             todoListChange(val) {
@@ -370,6 +399,20 @@
                     this.message_search.unread = null;
                 }
                 this.loadMessageList();
+            },
+            async loadMsgUndo(params, type) {
+                const { code, data } = await this.$http.post({
+                    url:  '/message/query',
+                    data: {
+                        page_index: 0,
+                        page_size:  15,
+                        noMore:     false,
+                        ...params,
+                    },
+                });
+                if (code === 0) {
+                    this.msgDots[type] = data.list.length;
+                }
             },
         },
     };
@@ -495,5 +538,11 @@
     }
     .info{
         color: #28c2d7;
+    }
+</style>
+<style scoped lang="scss">
+    :deep(.msg-badge .board-badge__content.is-fixed.is-dot) {
+        top: 11px;
+        right: 0;
     }
 </style>
