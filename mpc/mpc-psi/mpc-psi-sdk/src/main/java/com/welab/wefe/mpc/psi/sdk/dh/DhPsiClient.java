@@ -22,7 +22,7 @@ import cn.hutool.core.collection.CollectionUtil;
 public class DhPsiClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhPsiClient.class);
-    private static int threads = Runtime.getRuntime().availableProcessors();
+    private static int threads = Math.max(Runtime.getRuntime().availableProcessors(), 4);
     private static int keySize = 1024;
     private BigInteger clientPrivateD; // 客户端私钥
     private BigInteger p;
@@ -61,7 +61,7 @@ public class DhPsiClient {
      * step 2 加密服务端ID
      */
     public void encryptServerDataset(List<String> encryptServerIds) {
-        LOG.info("client begin encryptServerDataset");
+        LOG.info("client begin encryptServerDataset, threads = " + threads);
         List<String> doubleEncryptServerIds = new CopyOnWriteArrayList<>();
         List<Set<String>> partitionList = PartitionUtil.partitionList(encryptServerIds, threads);
         ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
@@ -93,7 +93,7 @@ public class DhPsiClient {
      * step 1 加密客户端ID
      */
     public List<String> encryptClientOriginalDataset() {
-        LOG.info("client begin encryptClientOriginalDataset");
+        LOG.info("client begin encryptClientOriginalDataset, threads = " + threads);
         List<String> encryptClientIds = new CopyOnWriteArrayList<>();
         List<Set<String>> partitionList = PartitionUtil.partitionList(this.originalClientIds, threads);
         ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());

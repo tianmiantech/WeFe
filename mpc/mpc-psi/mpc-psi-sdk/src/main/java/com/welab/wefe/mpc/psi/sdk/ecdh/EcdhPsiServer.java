@@ -50,7 +50,7 @@ public class EcdhPsiServer {
     private static final Logger LOG = LoggerFactory.getLogger(EcdhPsiServer.class);
 
     private BigInteger serverPrivateD;
-    private int threads = Runtime.getRuntime().availableProcessors();
+    private int threads = Math.max(Runtime.getRuntime().availableProcessors(), 4);
     private static final String CURVE_NAME = "prime256v1";
 
     public EcdhPsiServer() {
@@ -61,7 +61,7 @@ public class EcdhPsiServer {
      * step 1 对自己的数据集进行加密
      */
     public List<String> encryptDataset(List<String> inputSet) {
-        LOG.info("server begin encryptDataset");
+        LOG.info("server begin encryptDataset, threads = " + threads);
         // 初始化椭圆曲线
         ECParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec(CURVE_NAME);
         EllipticCurve ellipticCurve = new EllipticCurve(ecSpec);
@@ -97,7 +97,7 @@ public class EcdhPsiServer {
      * step 2 对输入（客户端）的数据进行加密操作
      */
     public Map<Long, String> encryptDatasetMap(Map<Long, String> inputMap) {
-        LOG.info("server begin encryptDatasetMap");
+        LOG.info("server begin encryptDatasetMap, threads = " + threads);
         // 初始化椭圆曲线
         ECParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec(CURVE_NAME);
         EllipticCurve ellipticCurve = new EllipticCurve(ecSpec);

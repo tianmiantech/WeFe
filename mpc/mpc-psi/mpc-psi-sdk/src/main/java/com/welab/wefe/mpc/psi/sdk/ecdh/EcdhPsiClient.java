@@ -58,7 +58,7 @@ public class EcdhPsiClient {
     private Set<ECPoint> serverDoubleEncryptedDataset; // 保存经过自己二次加密后的服务端的数据
 
     private AtomicLong idAtomicCounter; // id 计数器
-    private int threads = Runtime.getRuntime().availableProcessors();
+    private int threads = Math.max(Runtime.getRuntime().availableProcessors(), 4);
     private static final String CURVE_NAME = "prime256v1";
 
     public EcdhPsiClient() {
@@ -77,7 +77,7 @@ public class EcdhPsiClient {
      * step 5 求交
      */
     public Set<String> psi() {
-        LOG.info("client begin psi");
+        LOG.info("client begin psi, threads = " + threads);
         Set<String> psi = ConcurrentHashMap.newKeySet();
         // 对客户端的数据进行分片
         List<Map<Long, ECPoint>> reversedMapPartition = PartitionUtil.partitionMap(this.clientDoubleEncryptedDatasetMap,
@@ -125,7 +125,7 @@ public class EcdhPsiClient {
      * step 3 客户端使用私钥多线程加密服务端的数据集
      */
     public void encryptServerDataset(List<String> serverEncryptedDataset) {
-        LOG.info("client begin encryptServerDataset");
+        LOG.info("client begin encryptServerDataset, threads = " + threads);
         List<Set<String>> partitionList = PartitionUtil.partitionList(serverEncryptedDataset, this.threads);
 
         ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
@@ -157,7 +157,7 @@ public class EcdhPsiClient {
      * step 2 客户端使用私钥多线程加密自己的数据集
      */
     public Map<Long, String> encryptClientOriginalDataset(List<String> originalDataset) {
-        LOG.info("client begin encryptOriginalDataset");
+        LOG.info("client begin encryptOriginalDataset, threads = " + threads);
         List<Set<String>> clientDatasetPartitions = PartitionUtil.partitionList(originalDataset, threads);
         Map<Long, String> clientEncryptedDatasetMap = new ConcurrentHashMap<>();
         ExecutorService executorService = Executors.newFixedThreadPool(clientDatasetPartitions.size());

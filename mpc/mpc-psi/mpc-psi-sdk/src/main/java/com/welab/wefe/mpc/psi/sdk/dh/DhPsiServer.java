@@ -18,7 +18,7 @@ import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 public class DhPsiServer {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhPsiServer.class);
-    private static int threads = Runtime.getRuntime().availableProcessors();
+    private int threads = Math.max(Runtime.getRuntime().availableProcessors(), 4);
 
     private BigInteger serverPrivateD;
     private BigInteger p;
@@ -33,7 +33,7 @@ public class DhPsiServer {
      * step 1 对自己的数据集进行加密
      */
     public List<String> encryptDataset(List<String> serverIds) {
-        LOG.info("server begin encryptDataset");
+        LOG.info("server begin encryptDataset, threads = " + threads);
         List<String> encryptedSet = new CopyOnWriteArrayList<>();
         List<Set<String>> partitionList = PartitionUtil.partitionList(serverIds, threads);
         ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
@@ -61,7 +61,7 @@ public class DhPsiServer {
      * step 2 对输入（客户端）的数据进行加密操作
      */
     public List<String> encryptClientDatasetMap(List<String> clientIds) {
-        LOG.info("server begin encryptClientDatasetMap");
+        LOG.info("server begin encryptClientDatasetMap, threads = " + threads);
         List<String> encryptClientIds = new CopyOnWriteArrayList<>();
         List<Set<String>> partitionList = PartitionUtil.partitionList(clientIds, threads);
         ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
