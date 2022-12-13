@@ -246,7 +246,7 @@
             },
 
             changeSize() {
-                console.log('this.$refs',this.$refs['component-panel-box'],this.$refs['component-panel-box'].vData)
+                // console.log('this.$refs',this.$refs['component-panel-box'],this.$refs['component-panel-box'].vData);
                 if(this.maxSize) {
                     if(this.$refs['component-panel-box']){
                         this.$refs['component-panel-box'].vData.rect.width = 350;
@@ -264,7 +264,7 @@
 
                 if(paneName === 'result') {
                     child.methods.readData(this.nodeModel);
-                } else if(paneName === 'params' && (child.vData.inited === false || this.jobGraphShow)) {
+                } else if(paneName === 'params' && (child?.vData?.inited === false || this.jobGraphShow)) {
                     // never inited
                     child.methods.readData && child.methods.readData(this.nodeModel);
                 }
