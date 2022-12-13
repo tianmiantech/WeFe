@@ -430,6 +430,7 @@ public class ClickhouseStorage extends PersistentStorage {
             statement.setFetchSize(Integer.MAX_VALUE);
             rs = statement.executeQuery();
             List<DataItemModel<byte[], byte[]>> resultList = new ArrayList<>();
+            long totalCount = 0;
             while (rs.next()) {
                 DataItemModel<byte[], byte[]> model = new DataItemModel<>();
                 Date eventDate = rs.getDate(1);
@@ -437,12 +438,13 @@ public class ClickhouseStorage extends PersistentStorage {
                 model.setK(rs.getBytes(2));
                 model.setV(rs.getBytes(3));
                 resultList.add(model);
-
+                totalCount++;
                 if ((pageSize > 0 && resultList.size() >= pageSize) || rs.isLast()) {
                     handler.handler(new ArrayList<>(resultList));
                     resultList.clear();
                 }
             }
+            handler.finish(totalCount);
         } finally {
             close(rs, statement, conn);
         }

@@ -148,6 +148,13 @@ public class TransferMetaDataSourceStream extends AbstractTransferMetaDataSource
                 }
             }
         }
+
+        @Override
+        public void finish(long totalCount) {
+            String dbName = TransferMetaUtil.getDbName(transferMeta);
+            String tableName = TransferMetaUtil.getTableName(transferMeta);
+            LOG.info("发送CK数据完成成功,库名：{}, 表名：{}, 总数量：{}.", dbName, tableName, totalCount);
+        }
     }
 
 

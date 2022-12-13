@@ -33,6 +33,11 @@ public class ClickHouseTest {
             System.out.println("data size=" + itemModelList.size());
             ThreadUtil.sleep(500);
         }
+
+        @Override
+        public void finish(long totalCount) {
+
+        }
     }
 
 }

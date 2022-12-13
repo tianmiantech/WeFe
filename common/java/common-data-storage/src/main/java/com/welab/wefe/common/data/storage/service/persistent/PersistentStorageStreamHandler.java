@@ -7,4 +7,6 @@ import java.util.List;
 public interface PersistentStorageStreamHandler {
 
     void handler(List<DataItemModel<byte[], byte[]>> itemModelList) throws Exception;
+
+    void finish(long totalCount);
 }
