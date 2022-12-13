@@ -31,6 +31,7 @@ import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
 import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
 import com.welab.wefe.serving.service.database.repository.TableModelRepository;
 import com.welab.wefe.serving.service.database.repository.TableServiceRepository;
+import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ClientServiceService;
 import com.welab.wefe.serving.service.service.PartnerService;
 
@@ -73,6 +74,7 @@ public class PartnerVerifySignFunction extends AbstractVerifySignFunction {
     private void verify(SignedApiInput signedApiInput, String partnerRsaKey) throws Exception {
         boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(),
                 RSAUtil.getPublicKey(partnerRsaKey), signedApiInput.getSign());
+        //boolean verified = com.welab.wefe.common.util.SignUtil.verify(signedApiInput.getData().getBytes(), CacheObjects.getRsaPublicKey(), signedApiInput.getSign(), CacheObjects.getSecretKeyType());
         if (!verified) {
             throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
         }

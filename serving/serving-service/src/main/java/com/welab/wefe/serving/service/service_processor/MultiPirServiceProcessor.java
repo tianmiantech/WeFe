@@ -70,6 +70,7 @@ public class MultiPirServiceProcessor extends AbstractServiceProcessor<TableServ
             communicationConfig.setNeedSign(true);
             communicationConfig.setCommercialId(activateModel.getCode());
             communicationConfig.setSignPrivateKey(activateModel.getPrivateKey());
+            communicationConfig.setSecretKeyType(activateModel.getSecretKeyType());
             communicationConfig.setServerUrl(baseUrl);
 
             PrivateInformationRetrievalConfig config = new PrivateInformationRetrievalConfig((List) ids, 0, 10, null);

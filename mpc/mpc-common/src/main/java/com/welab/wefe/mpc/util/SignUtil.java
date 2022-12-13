@@ -17,6 +17,7 @@
 
 package com.welab.wefe.mpc.util;
 
+import com.welab.wefe.common.constant.SecretKeyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,10 +28,11 @@ import org.slf4j.LoggerFactory;
 public class SignUtil {
     private static final Logger logger = LoggerFactory.getLogger(SignUtil.class);
 
-    public static String sign(String data, String signPrivateKey) {
+    public static String sign(String data, String signPrivateKey, SecretKeyType secretKeyType) {
         String signStr = null;
         try {
-            signStr = RSAUtil.sign(data, signPrivateKey, "UTF-8");
+            //signStr = RSAUtil.sign(data, signPrivateKey, "UTF-8");
+            signStr = com.welab.wefe.common.util.SignUtil.sign(data, signPrivateKey, secretKeyType);
         } catch (Exception e) {
             logger.error("sign error: " + e.getMessage(), e);
         }

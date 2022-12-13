@@ -17,6 +17,7 @@
 package com.welab.wefe.serving.service.api.clientservice;
 
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
@@ -90,6 +91,9 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
 
         @Check(name = "created by")
         private String createdBy;
+
+        @Check(name = "公私类型")
+        private SecretKeyType secretKeyType;
 
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {
@@ -225,6 +229,14 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
 
         public void setServiceType(int serviceType) {
             this.serviceType = serviceType;
+        }
+
+        public SecretKeyType getSecretKeyType() {
+            return secretKeyType;
+        }
+
+        public void setSecretKeyType(SecretKeyType secretKeyType) {
+            this.secretKeyType = secretKeyType;
         }
     }
 

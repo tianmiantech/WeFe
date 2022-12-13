@@ -122,7 +122,7 @@ public class ClientServiceService {
                 } else if (StringUtils.isBlank(input.getPublicKey())) {
                     model.setPrivateKey(input.getPrivateKey());
                     model.setPublicKey(input.getPublicKey());
-                    model.setSecretKeyType(SecretKeyType.rsa);
+                    model.setSecretKeyType(null != input.getSecretKeyType() ? input.getSecretKeyType() : SecretKeyType.rsa);
                 }
                 if (StringUtils.isNotBlank(input.getUrl()) && input.getUrl().endsWith("/")) {
                     input.setUrl(input.getUrl().substring(0, input.getUrl().length() - 1));
