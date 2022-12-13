@@ -8,21 +8,22 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.welab.wefe.mpc.key.DiffieHellmanKey;
-import com.welab.wefe.mpc.psi.sdk.operation.ListOperator;
 import com.welab.wefe.mpc.psi.sdk.util.PartitionUtil;
 import com.welab.wefe.mpc.util.DiffieHellmanUtil;
+
+import cn.hutool.core.collection.CollectionUtil;
 
 public class DhPsiClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhPsiClient.class);
     private static int threads = Runtime.getRuntime().availableProcessors();
     private static int keySize = 1024;
-    private ListOperator operator;
     private BigInteger clientPrivateD; // 客户端私钥
     private BigInteger p;
 
@@ -38,9 +39,22 @@ public class DhPsiClient {
 
     /**
      * step 3 psi
+     * 
+     * 返回两个列表的计算结果
+     *
+     * @param originIds        原始id列表
+     * @param encryptOriginIds 加密原始id列表，大小与原始id列表相同
+     * @param encryptServerIds 加密服务器id列表
+     * @return
      */
     public List<String> psi() {
-        return operator.operator(this.originalClientIds, clientIdByServerKeys, serverIdWithClientKeys);
+        if (CollectionUtil.isEmpty(originalClientIds) || CollectionUtil.isEmpty(clientIdByServerKeys)
+                || CollectionUtil.isEmpty(serverIdWithClientKeys)) {
+            return new ArrayList<>();
+        }
+        List<String> result = clientIdByServerKeys.stream().filter(item -> serverIdWithClientKeys.contains(item))
+                .map(item -> originalClientIds.get(clientIdByServerKeys.indexOf(item))).collect(Collectors.toList());
+        return result;
     }
 
     /**
@@ -109,14 +123,6 @@ public class DhPsiClient {
      */
     private BigInteger generaterPrivateKey() {
         return DiffieHellmanUtil.generateRandomKey(this.keySize);
-    }
-
-    public ListOperator getOperator() {
-        return operator;
-    }
-
-    public void setOperator(ListOperator operator) {
-        this.operator = operator;
     }
 
     public BigInteger getClientPrivateD() {

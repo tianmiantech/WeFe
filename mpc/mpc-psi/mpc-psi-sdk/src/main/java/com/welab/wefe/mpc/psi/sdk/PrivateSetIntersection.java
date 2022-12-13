@@ -29,8 +29,6 @@ import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
 import com.welab.wefe.mpc.psi.sdk.dh.DhPsiClient;
-import com.welab.wefe.mpc.psi.sdk.operation.ListOperator;
-import com.welab.wefe.mpc.psi.sdk.operation.impl.IntersectionOperator;
 import com.welab.wefe.mpc.psi.sdk.service.PrivateSetIntersectionService;
 
 import cn.hutool.core.collection.CollectionUtil;
@@ -65,10 +63,6 @@ public class PrivateSetIntersection implements Psi {
         return result;
     }
 
-    public List<String> query(CommunicationConfig config, List<String> ids) throws Exception {
-        return query(config, ids, new IntersectionOperator());
-    }
-
     /**
      * 查询本文id集与服务器id集的集合操作
      *
@@ -79,7 +73,7 @@ public class PrivateSetIntersection implements Psi {
      * @return
      * @throws Exception
      */
-    public List<String> query(CommunicationConfig config, List<String> clientIds, ListOperator operator)
+    public List<String> query(CommunicationConfig config, List<String> clientIds)
             throws Exception {
         if (CollectionUtil.isEmpty(clientIds)) {
             throw new IllegalArgumentException("local id is empty");
@@ -89,11 +83,6 @@ public class PrivateSetIntersection implements Psi {
         }
         long start = System.currentTimeMillis();
         DhPsiClient client = new DhPsiClient();
-        if (operator == null) {
-            client.setOperator(new IntersectionOperator());
-        } else {
-            client.setOperator(operator);
-        }
         client.setOriginalClientIds(clientIds);
         // 加密我自己的数据
         List<String> encryptClientIds = client.encryptClientOriginalDataset();

@@ -95,7 +95,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             response.setServerEncryptIds(encryptServerIds);
             response.setRequestId(this.requestId);
             response.setCurrentBatch(currentBatch);
-            response.setHasNext(currentBatch < (this.numPartitions - 1) - 1);
+            response.setHasNext(currentBatch < (this.numPartitions - 1));
             return JObject.create(response);
         } else { // default ECDH
             Map<Long, String> doubleEncryptedClientDatasetMap = null;
