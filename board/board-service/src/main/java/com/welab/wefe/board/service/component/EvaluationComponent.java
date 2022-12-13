@@ -180,7 +180,7 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
                 topn.putAll(parserTopN(trainObj, normalName, "train"));
                 topn.putAll(parserTopN(validateObj, normalName, "validate"));
                 return topn;
-            case "scored":
+            case "scores_distribution":
                 return JObject.create()
                         .append("scored", JObject.create(scoreAndSpiObj.getJObjectByPath("train_validate_" + normalName + "_scored.data")));
             case "psi":
