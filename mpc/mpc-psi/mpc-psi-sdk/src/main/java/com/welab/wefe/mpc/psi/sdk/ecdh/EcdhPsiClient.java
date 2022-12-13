@@ -58,7 +58,7 @@ public class EcdhPsiClient {
     private Set<ECPoint> serverDoubleEncryptedDataset; // 保存经过自己二次加密后的服务端的数据
 
     private AtomicLong idAtomicCounter; // id 计数器
-    private int threads = Math.max(Runtime.getRuntime().availableProcessors(), 4);
+    private int threads = Math.max(Runtime.getRuntime().availableProcessors(), 8);
     private static final String CURVE_NAME = "prime256v1";
 
     public EcdhPsiClient() {

@@ -50,7 +50,7 @@ public class EcdhPsiServer {
     private static final Logger LOG = LoggerFactory.getLogger(EcdhPsiServer.class);
 
     private BigInteger serverPrivateD;
-    private int threads = Math.max(Runtime.getRuntime().availableProcessors(), 4);
+    private int threads = Math.max(Runtime.getRuntime().availableProcessors(), 8);
     private static final String CURVE_NAME = "prime256v1";
 
     public EcdhPsiServer() {

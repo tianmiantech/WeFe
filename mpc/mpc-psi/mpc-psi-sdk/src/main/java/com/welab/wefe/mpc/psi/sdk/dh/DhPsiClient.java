@@ -22,7 +22,7 @@ import cn.hutool.core.collection.CollectionUtil;
 public class DhPsiClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhPsiClient.class);
-    private static int threads = Math.max(Runtime.getRuntime().availableProcessors(), 4);
+    private static int threads = Math.max(Runtime.getRuntime().availableProcessors(), 8);
     private static int keySize = 1024;
     private BigInteger clientPrivateD; // 客户端私钥
     private BigInteger p;

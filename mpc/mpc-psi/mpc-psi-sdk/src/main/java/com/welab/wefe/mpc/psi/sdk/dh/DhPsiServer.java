@@ -18,7 +18,7 @@ import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 public class DhPsiServer {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhPsiServer.class);
-    private int threads = Math.max(Runtime.getRuntime().availableProcessors(), 4);
+    private int threads = Math.max(Runtime.getRuntime().availableProcessors(), 8);
 
     private BigInteger serverPrivateD;
     private BigInteger p;
