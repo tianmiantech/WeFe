@@ -23,13 +23,15 @@
                     <el-option label="否" value="false" />
                 </el-select>
             </el-form-item>
-            <el-button
-                type="primary"
-                native-type="submit"
-                @click="getList({ to: true, resetPagination: true })"
-            >
-                搜索
-            </el-button>
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    native-type="submit"
+                    @click="getList({ to: true, resetPagination: true })"
+                >
+                    搜索
+                </el-button>
+            </el-form-item>
         </el-form>
 
         <el-table
@@ -150,7 +152,7 @@
                         {{ member.description }}
                     </el-form-item>
                     <el-form-item>
-                        <label class="el-form-item__label">附件:</label>
+                        <label class="manager-form-item__label">附件:</label>
                         <ul>
                             <li
                                 v-for="file in fileList"
@@ -194,6 +196,7 @@
 <script>
     import { mapGetters } from 'vuex';
     import table from '@src/mixins/table';
+    import { downLoadFileTool } from '@src/utils/tools';
 
     export default {
         inject: ['refresh'],
@@ -379,21 +382,10 @@
                 }
             },
             downloadFile(event, file) {
-                if(this.loading) return;
-                this.loading = true;
 
-                const api = `${window.api.baseUrl}/download/file?fileId=${file.fileId}&token=${this.userInfo.token}`;
-                const link = document.createElement('a');
-
-                link.href = api;
-                link.target = '_blank';
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
-
-                setTimeout(() => {
-                    this.loading = false;
-                }, 300);
+                downLoadFileTool('/download/file', {
+                    fileId: file.fileId,
+                });
             },
         },
     };
@@ -421,7 +413,7 @@
         right:0;
     }
     .link{color: #eee;}
-    .el-icon-s-promotion{
+    .manager-icon-s-promotion{
         cursor: pointer;
         &:hover{color: $color-link-base;}
     }

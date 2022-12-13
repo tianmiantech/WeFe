@@ -42,15 +42,17 @@
                 </div>
             </el-form-item>
 
-            <el-button class="ml10"
-                       type="primary"
-                       @click="getList({ to: true})"
+            <el-button
+                class="ml10"
+                type="primary"
+                @click="getList({ to: true})"
             >
                 查询
             </el-button>
 
-            <el-button class="ml10"
-                       @click="downloadStatistics"
+            <el-button
+                class="ml10"
+                @click="downloadStatistics"
             >
                 下载
             </el-button>
@@ -63,14 +65,14 @@
             border
         >
             <div slot="empty">
-                <TableEmptyData/>
+                <TableEmptyData />
             </div>
 
             <el-table-column
                 label="序号"
                 width="50"
                 type="index"
-            ></el-table-column>
+            />
 
             <el-table-column
                 label="订单号"
@@ -88,7 +90,6 @@
                 <template slot-scope="scope">
                     <p>{{ scope.row.service_name }}</p>
                     <p class="id">{{ scope.row.service_id }}</p>
-
                 </template>
             </el-table-column>
             <el-table-column
@@ -98,7 +99,6 @@
                 <template slot-scope="scope">
                     <p>{{ scope.row.request_partner_name }}</p>
                     <p class="id">{{ scope.row.request_partner_id }}</p>
-
                 </template>
             </el-table-column>
 
@@ -110,7 +110,6 @@
                 <template slot-scope="scope">
                     <p>{{ scope.row.response_partner_name }}</p>
                     <p class="id">{{ scope.row.response_partner_id }}</p>
-
                 </template>
             </el-table-column>
 
@@ -165,12 +164,11 @@
             width="70%"
         >
             <el-table :data="apiCallDetails">
-
                 <el-table-column
                     label="序号"
                     min-width="40"
                     type="index"
-                ></el-table-column>
+                />
 
                 <el-table-column
                     label="请求Id"
@@ -184,11 +182,13 @@
                     label="请求数据"
                     min-width="200"
                 >
-                    <template v-slot="scope">
+                    <template #default="scope">
                         <template v-if="scope.row.request_data">
-                            <p>{{
+                            <p>
+                                {{
                                     scope.row.request_data.length > 100 ? scope.row.request_data.substring(0, 101) + '...' : scope.row.request_data
-                                }}</p>
+                                }}
+                            </p>
                             <el-button
                                 v-if="scope.row.request_data.length > 100"
                                 type="text"
@@ -215,11 +215,13 @@
                     label="响应数据"
                     min-width="200"
                 >
-                    <template v-slot="scope">
+                    <template #default="scope">
                         <template v-if="scope.row.response_data">
-                            <p>{{
+                            <p>
+                                {{
                                     scope.row.response_data.length > 100 ? scope.row.response_data.substring(0, 101) + '...' : scope.row.response_data
-                                }}</p>
+                                }}
+                            </p>
                             <el-button
                                 v-if="scope.row.response_data.length > 100"
                                 type="text"
@@ -251,7 +253,6 @@
                         <p>{{ scope.row.created_time | dateFormat }}</p>
                     </template>
                 </el-table-column>
-
             </el-table>
 
             <div
@@ -301,37 +302,38 @@
 
 <script>
 import table from '@src/mixins/table';
-import {mapGetters} from 'vuex';
+import { mapGetters } from 'vuex';
+import { downLoadFileTool } from '@src/utils/tools';
 
 export default {
-    name: 'RequestStatistics',
+    name:   'RequestStatistics',
     mixins: [table],
     data() {
         return {
             requestDataDialog: false,
-            jsonData: '',
-            title: '',
-            services: [],
-            clients: [],
-            search: {
-                serviceName: '',
-                requestPartnerName: '',
+            jsonData:          '',
+            title:             '',
+            services:          [],
+            clients:           [],
+            search:            {
+                serviceName:         '',
+                requestPartnerName:  '',
                 responsePartnerName: '',
-                orderType: 0,
-                startTime: '',
-                endTime: '',
+                orderType:           0,
+                startTime:           '',
+                endTime:             '',
             },
-            defaultTime: [],
+            defaultTime:      [],
             dialogPagination: {
-                total: '',
-                page_size: 10,
-                page_index: 1,
-                serviceId: '',
-                id: '',  // orderId
-                clientId: '',
+                total:       '',
+                page_size:   10,
+                page_index:  1,
+                serviceId:   '',
+                id:          '',  // orderId
+                clientId:    '',
                 change_flag: false,
             },
-            getListApi: '/serviceorder/query-list',
+            getListApi:     '/serviceorder/query-list',
             serviceTypeMap: {
                 1: '两方匿踪查询',
                 2: '两方交集查询',
@@ -343,7 +345,7 @@ export default {
             },
             callByMeMap: {
                 1: '是',
-                0: '否'
+                0: '否',
             },
             requestResult: {
                 1: '成功',
@@ -399,40 +401,40 @@ export default {
         },
 
         dialogCurrentPageChange(val) {
-            this.dialogPagination.change_flag = true
-            this.dialogPagination.page_index = val
-            this.getDetails(this.dialogPagination.id, this.dialogPagination.change_flag)
+            this.dialogPagination.change_flag = true;
+            this.dialogPagination.page_index = val;
+            this.getDetails(this.dialogPagination.id, this.dialogPagination.change_flag);
         },
 
         dialogCurrentPageSizeChange(val) {
-            this.dialogPagination.change_flag = true
-            this.dialogPagination.page_size = val
-            this.dialogPagination.page_index = 1
-            this.getDetails(this.dialogPagination.id, this.dialogPagination.change_flag)
+            this.dialogPagination.change_flag = true;
+            this.dialogPagination.page_size = val;
+            this.dialogPagination.page_index = 1;
+            this.getDetails(this.dialogPagination.id, this.dialogPagination.change_flag);
         },
 
 
         downloadStatistics() {
-
-            const api = `${window.api.baseUrl}/serviceorder/download?serviceName=${this.search.serviceName}&requestPartnerName=${this.search.requestPartnerName}&responsePartnerName=${this.search.responsePartnerName}&orderType=${this.search.orderType}&startTime=${this.search.startTime}&endTime=${this.search.endTime}&token=${this.userInfo.token}&version=${Math.random()}`;
-            const link = document.createElement('a');
-
-            link.href = api;
-            link.target = '_blank';
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
+            downLoadFileTool('/serviceorder/download', {
+                serviceName:         this.search.serviceName,
+                requestPartnerName:  this.search.requestPartnerName,
+                responsePartnerName: this.search.responsePartnerName,
+                orderType:           this.search.orderType,
+                startTime:           this.search.startTime,
+                endTime:             this.search.endTime,
+                version:             Math.random(),
+            });
 
         },
 
 
         timeChange() {
             if (!this.defaultTime) {
-                this.search.startTime = ''
-                this.search.endTime = ''
+                this.search.startTime = '';
+                this.search.endTime = '';
             } else {
-                this.search.startTime = this.defaultTime[0]
-                this.search.endTime = this.defaultTime[1]
+                this.search.startTime = this.defaultTime[0];
+                this.search.endTime = this.defaultTime[1];
             }
         },
 
@@ -455,11 +457,11 @@ export default {
         },
 
         async getServices() {
-            const {code, data} = await this.$http.post({
-                url: '/service/query',
+            const { code, data } = await this.$http.post({
+                url:  '/service/query',
                 data: {
                     status: 1,
-                }
+                },
             });
 
             if (code === 0) {
@@ -468,7 +470,7 @@ export default {
         },
 
         async getClients() {
-            const {code, data} = await this.$http.post({
+            const { code, data } = await this.$http.post({
                 url: '/client/query-list',
             });
 
@@ -482,25 +484,25 @@ export default {
 
             // this.dialogPagination.serviceId = serviceId
             // this.dialogPagination.clientId = clientId
-            this.dialogPagination.id = id
+            this.dialogPagination.id = id;
 
-            this.apiCallDetails = []
-            const {code, data} = await this.$http.post({
-                url: '/servicecalllog/query-list',
+            this.apiCallDetails = [];
+            const { code, data } = await this.$http.post({
+                url:  '/servicecalllog/query-list',
                 data: {
-                    serviceId: this.dialogPagination.serviceId,
-                    orderId: this.dialogPagination.id,
+                    serviceId:  this.dialogPagination.serviceId,
+                    orderId:    this.dialogPagination.id,
                     page_index: change_flag ? this.dialogPagination.page_index - 1 : 0,
-                    page_size: change_flag ? this.dialogPagination.page_size : 10,
+                    page_size:  change_flag ? this.dialogPagination.page_size : 10,
                     // startTime: this.search.startTime,
                     // endTime: this.search.endTime
                 },
             });
 
             if (code === 0) {
-                this.apiCallDetails = data.list
-                this.dialogTableVisible = true
-                this.dialogPagination.total = data.total
+                this.apiCallDetails = data.list;
+                this.dialogTableVisible = true;
+                this.dialogPagination.total = data.total;
 
             }
         },

@@ -152,13 +152,13 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-checkbox-group{
+    .board-checkbox-group{
         max-height: 500px;
         overflow: auto;
         font-size: 14px;
     }
-    .el-checkbox{user-select:auto;}
-    .el-tag-list{
+    .board-checkbox{user-select:auto;}
+    .board-tag-list{
         max-height: 140px;
         overflow: auto;
     }

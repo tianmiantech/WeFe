@@ -88,10 +88,10 @@
             width="100"
         >
             <template v-slot="scope">
-                <el-icon v-if="scope.row.contains_y" class="el-icon-check">
+                <el-icon v-if="scope.row.contains_y" class="board-icon-check">
                     <elicon-check />
                 </el-icon>
-                <el-icon v-else class="el-icon-close">
+                <el-icon v-else class="board-icon-close">
                     <elicon-close />
                 </el-icon>
             </template>

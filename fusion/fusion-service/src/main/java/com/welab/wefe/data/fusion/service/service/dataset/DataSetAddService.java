@@ -21,8 +21,8 @@ import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.data.fusion.service.api.dataset.AddApi;
 import com.welab.wefe.data.fusion.service.database.entity.DataSetMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.DataSourceMySqlModel;
@@ -71,8 +71,8 @@ public class DataSetAddService extends AbstractService {
 
         DataSetMySqlModel model = new DataSetMySqlModel();
 
-        model.setUpdatedBy(CurrentAccount.id());
-        model.setCreatedBy(CurrentAccount.id());
+        model.setUpdatedBy(CurrentAccountUtil.get().getId());
+        model.setCreatedBy(CurrentAccountUtil.get().getId());
         model.setDescription(input.getDescription());
         model.setDataResourceSource(input.getDataResourceSource());
         model.setName(input.getName());

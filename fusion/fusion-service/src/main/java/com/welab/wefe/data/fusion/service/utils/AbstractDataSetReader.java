@@ -16,10 +16,6 @@
 
 package com.welab.wefe.data.fusion.service.utils;
 
-import com.welab.wefe.common.CommonThreadPool;
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.exception.StatusCodeWithException;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,6 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import com.welab.wefe.common.CommonThreadPool;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 
 /**
  * @author zane.luo
@@ -130,8 +130,8 @@ public abstract class AbstractDataSetReader implements Closeable {
      *
      * @param dataRowConsumer Data row consumption method
      */
-    public void readAllWithSelectRow(Consumer<Map<String, Object>> dataRowConsumer, List<String> rows, int processCount) throws IOException, StatusCodeWithException {
-        readWithSelectRow(dataRowConsumer, -1, -1, rows, processCount);
+    public void readAllWithSelectRow(Consumer<Map<String, Object>> dataRowConsumer, List<String> idFeatureFields, int processCount) throws IOException, StatusCodeWithException {
+        readWithSelectRow(dataRowConsumer, -1, -1, idFeatureFields, processCount);
     }
 
     /**
@@ -141,7 +141,7 @@ public abstract class AbstractDataSetReader implements Closeable {
      * @param maxReadRows     Maximum number of rows that can be read
      * @param maxReadTimeInMs Maximum read time allowed
      */
-    public void readWithSelectRow(Consumer<Map<String, Object>> dataRowConsumer, long maxReadRows, long maxReadTimeInMs, List<String> rows, int processCount) throws StatusCodeWithException {
+    public void readWithSelectRow(Consumer<Map<String, Object>> dataRowConsumer, long maxReadRows, long maxReadTimeInMs, List<String> idFeatureFields, int processCount) throws StatusCodeWithException {
 
         long start = System.currentTimeMillis();
 
@@ -158,7 +158,7 @@ public abstract class AbstractDataSetReader implements Closeable {
             List<Object> values = new ArrayList<>(line.values());
             LinkedHashMap<String, Object> newLine = new LinkedHashMap<>();
             for (int i = 0; i < line.size(); i++) {
-                if (rows.contains(fields.get(i))) {
+                if (idFeatureFields.contains(fields.get(i))) {
                     newLine.put((String) fields.get(i), values.get(i));
                 }
             }
@@ -191,8 +191,6 @@ public abstract class AbstractDataSetReader implements Closeable {
 
         LinkedHashMap<String, Object> line;
         while ((line = readOneRow()) != null) {
-
-
             List<Object> fields = new ArrayList<>(line.keySet());
             List<Object> values = new ArrayList<>(line.values());
             LinkedHashMap<String, Object> newLine = new LinkedHashMap<>();

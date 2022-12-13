@@ -54,26 +54,26 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
-import table from '@src/mixins/table';
+    import { mapGetters } from 'vuex';
+    import table from '@src/mixins/table';
 
-export default {
-    inject: ['refresh'],
-    mixins: [table],
-    data() {
-        return {
-            watchRoute:    true,
-            defaultSearch: true,
-            requestMethod: 'post',
-            getListApi:    'cert_key/query',
-        };
-    },
-    computed: {
-        ...mapGetters(['userInfo']),
-    },
-    methods: {
-    },
-};
+    export default {
+        inject: ['refresh'],
+        mixins: [table],
+        data() {
+            return {
+                watchRoute:    true,
+                defaultSearch: true,
+                requestMethod: 'post',
+                getListApi:    'cert_key/query',
+            };
+        },
+        computed: {
+            ...mapGetters(['userInfo']),
+        },
+        methods: {
+        },
+    };
 </script>
 
 <style lang="scss" scoped>
@@ -98,7 +98,7 @@ export default {
     right:0;
 }
 .link{color: #eee;}
-.el-icon-s-promotion{
+.manager-icon-s-promotion{
     cursor: pointer;
     &:hover{color: $color-link-base;}
 }

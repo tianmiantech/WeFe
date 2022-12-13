@@ -16,6 +16,26 @@
 
 package com.welab.wefe.data.fusion.service.service.bloomfilter;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+
+import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
+import org.bouncycastle.crypto.params.RSAKeyParameters;
+import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.welab.wefe.common.BatchConsumer;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
@@ -28,22 +48,6 @@ import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
 import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
-import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
-import org.bouncycastle.crypto.params.RSAKeyParameters;
-import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.LongAdder;
-import java.util.function.Consumer;
 
 /**
  * @author jacky.jiang
@@ -58,9 +62,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
 
     private AsymmetricCipherKeyPair keyPair;
 
-    private BloomFilters bf;
-
-    private BloomFilters bf1;
+    private BloomFilters<BigInteger> bf;
 
     private RSAKeyParameters pk;
 
@@ -76,11 +78,11 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
 
     private Integer processCount = 0;
 
-    private Integer checkCount = 0;
+    private AtomicInteger checkCount = new AtomicInteger(0);
 
     private Progress process;
 
-    private List<Object> CheckData = new ArrayList<>();
+    private List<Object> CheckData = new CopyOnWriteArrayList<>();
 
     private BloomFilterMySqlModel model;
 
@@ -90,15 +92,11 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
     private BatchConsumer<Map<String, Object>> batchConsumer;
 
 
-    public BloomFilters getBf() {
+    public BloomFilters<BigInteger> getBf() {
         return bf;
     }
 
-    public BloomFilters getBf1() {
-        return bf1;
-    }
-
-    public void setBf(BloomFilters bf) {
+    public void setBf(BloomFilters<BigInteger> bf) {
         this.bf = bf;
     }
 
@@ -150,15 +148,6 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
         return model;
     }
 
-    /**
-     * The amount of duplicate data
-     */
-    private LongAdder repeatDataCount = new LongAdder();
-
-    /**
-     * If the data comes from reading data from a table in the database, this field represents the total number of rows derived from the query statement
-     */
-    private long rowCount = 0;
 
     public BloomFilterAddServiceDataRowConsumer(BloomFilterMySqlModel model, File file) {
         if (model.getProcessCount() != 0) {
@@ -166,9 +155,8 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
         }
         this.process = Progress.Ready;
         this.src = model.getSrc();
-        this.rowCount = model.getRowCount();
         this.keyPair = CryptoUtils.generateKeys(1024);
-        this.bf = new BloomFilters(0.0001, model.getRowCount());
+        this.bf = new BloomFilters<BigInteger>(0.00001, model.getRowCount());
         this.pk = (RSAKeyParameters) keyPair.getPublic();
         this.e = pk.getExponent();
         this.N = pk.getModulus();
@@ -176,7 +164,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
         this.d = sk.getExponent();
         FieldInfoService service = Launcher.CONTEXT.getBean(FieldInfoService.class);
         this.fieldInfoList = service.fieldInfoList(model.getId());
-        this.checkCount = 0;
+        this.checkCount = new AtomicInteger(0);;
         this.CheckData.clear();
 
         model.setD(getD().toString());
@@ -187,7 +175,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
         this.bloomFilterRepository = Launcher.CONTEXT.getBean(BloomFilterRepository.class);
         this.bloomFilterRepository.save(model);
 
-        batchConsumer = new BatchConsumer<>(1024, 1_000, rows -> {
+        batchConsumer = new BatchConsumer<>(5000000, 10_000, rows -> {
             this.process = Progress.Running;
             bloomFilterRepository.updateById(model.getId(), "process", this.process, BloomFilterMySqlModel.class);
             try {
@@ -201,38 +189,95 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
 
     @Override
     public void accept(Map<String, Object> data) {
-        batchConsumer.setMaxBatchSize(1000);
         batchConsumer.add(data);
+    }
+    
+    /**
+     * Generating filter
+     */
+    public void generateFilter(BloomFilterMySqlModel model, List<Map<String, Object>> rows) throws IOException {
+        long start = System.currentTimeMillis();
+        LOG.info("generateFilter begin , size = " + rows.size() + ", id = " + model.getId());
+        // 创建定长线程池
+        int poolSize = 120;
+        ExecutorService newFixedThreadPool = Executors.newFixedThreadPool(poolSize);
+        final BloomFilterAddServiceDataRowConsumer consumer = this;
+        for (Map<String, Object> data : rows) {
+            try {
+                // 创建任务
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        String key = PrimaryKeyUtils.create(JObject.create(data), fieldInfoList);
+                        BigInteger h = PSIUtils.stringToBigInteger(key);
+                        BigInteger z = h.modPow(d, N);
+                        consumer.addToBf(z);
+                        if (consumer.getCheckCount().get() <= 10) {
+                            consumer.getCheckData().add(data);
+                            consumer.getCheckCount().incrementAndGet();
+                        }
+                    }
+                };
+                // 将任务交给线程池管理
+                newFixedThreadPool.execute(runnable);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        newFixedThreadPool.shutdown();
+        try {
+            while (!newFixedThreadPool.awaitTermination(1, TimeUnit.SECONDS)) {
+                // pass
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        newFixedThreadPool = null;
+        long duration = System.currentTimeMillis() - start;
+        LOG.info("generateFilter duration = " + duration + ", size = " + rows.size() + ", id = " + model.getId());
+        this.processCount = this.processCount + rows.size();
+        LOG.info("processCount = " + this.processCount + ", rowCount = " + model.getRowCount());
+        bloomFilterRepository.updateById(model.getId(), "processCount", this.processCount, BloomFilterMySqlModel.class);
+        if (processCount >= model.getRowCount()) {
+            bloomFilterRepository.updateById(model.getId(), "processCount", this.processCount,
+                    BloomFilterMySqlModel.class);
+            bloomFilterRepository.updateById(model.getId(), "process", Progress.Success, BloomFilterMySqlModel.class);
+            LOG.info("save bloomfilter in file, this.src = " + this.src);
+            FileOutputStream outputStream = new FileOutputStream(this.src);
+            this.bf.writeTo(outputStream);
+            outputStream.close();
+        }
+        long duration2 = System.currentTimeMillis() - start;
+        LOG.info("generateFilter end duration = " + duration2 + ", id = " + model.getId());
     }
 
 
     /**
      * Generating filter
      */
-    public void generateFilter(BloomFilterMySqlModel model, List<Map<String, Object>> rows) throws IOException {
-
+    public void generateFilterSlown(BloomFilterMySqlModel model, List<Map<String, Object>> rows) throws IOException {
+        long start = System.currentTimeMillis();
+        LOG.info("generateFilter begin , size = " + rows.size());
         for (Map<String, Object> data : rows) {
             try {
                 String key = PrimaryKeyUtils.create(JObject.create(data), fieldInfoList);
                 BigInteger h = PSIUtils.stringToBigInteger(key);
                 BigInteger z = h.modPow(d, N);
                 this.bf.add(z);
-
-                if (this.checkCount <= 10) {
-                    this.CheckData.add(data);
-                    this.checkCount++;
+                if (this.getCheckCount().get() <= 10) {
+                    this.getCheckData().add(data);
+                    this.getCheckCount().incrementAndGet();
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         }
-
+        long duration1 = System.currentTimeMillis() - start;
+        LOG.info("generateFilter duration1 = " + duration1); // generateFilter duration1 = 165382ms 3min
         this.processCount = this.processCount + rows.size();
 
         BloomFilterMySqlModel bloomFilterMySqlModel = bloomFilterRepository.findOne("id", model.getId(), BloomFilterMySqlModel.class);
-        int count = bloomFilterMySqlModel.getProcessCount();
+        int count = bloomFilterMySqlModel.getProcessCount(); //当前consumer处理量
         if (processCount >= count) {
             bloomFilterRepository.updateById(model.getId(), "processCount", this.processCount, BloomFilterMySqlModel.class);
             bloomFilterRepository.updateById(model.getId(), "process", Progress.Success, BloomFilterMySqlModel.class);
@@ -249,6 +294,22 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
      */
     public void waitForFinishAndClose() {
         batchConsumer.waitForFinishAndClose();
+    }
+    
+    public AtomicInteger getCheckCount() {
+        return checkCount;
+    }
+
+    public void setCheckCount(AtomicInteger checkCount) {
+        this.checkCount = checkCount;
+    }
+
+    public void setCheckData(List<Object> checkData) {
+        CheckData = checkData;
+    }
+    
+    public synchronized void addToBf(BigInteger z) {
+        this.bf.add(z);
     }
 
 }

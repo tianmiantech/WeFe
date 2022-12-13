@@ -73,7 +73,9 @@
                                 />
                             </el-form-item>
                         </fieldset>
+                    </el-col>
 
+                    <el-col :span="12">
                         <fieldset>
                             <legend>服务缓存配置</legend>
 
@@ -121,18 +123,14 @@
                                     v-model="form.service_cache_config.redis_password"
                                     type="password"
                                     autocomplete="new-password"
-                                    @contextmenu.prevent
-                                    @change="redisPwdChange"
                                     clearable
                                     :disabled="form.service_cache_config.type=='mem'"
+                                    @contextmenu.prevent
+                                    @change="redisPwdChange"
                                 />
-                                
                             </el-form-item>
                         </fieldset>
-                    </el-col>
-
-                    <el-col :span="12">
-                        <fieldset>
+                        <!-- <fieldset>
                             <legend>提醒</legend>
                             <el-form-item label="找回密码验证码通道：">
                                 <el-radio
@@ -185,13 +183,13 @@
                             <el-form-item
                                 label="邮件密码："
                             >
-                                  <el-input
+                                <el-input
                                     v-model="form.mail_server.password"
                                     type="password"
                                     autocomplete="new-password"
+                                    clearable
                                     @contextmenu.prevent
                                     @change="mailPwdChange"
-                                    clearable
                                 />
                             </el-form-item>
                         </fieldset>
@@ -203,17 +201,17 @@
                                     v-model="form.sms_config.access_key_id"
                                 />
                             </el-form-item>
-                            <el-form-item label="AccessKeySecret：">
-                                <!-- <el-input
+                            <el-form-item label="AccessKeySecret："> -->
+                        <!-- <el-input
                                     v-model="form.sms_config.access_key_secret"
                                 /> -->
-                                <el-input
+                        <!-- <el-input
                                     v-model="form.sms_config.access_key_secret"
                                     type="password"
                                     autocomplete="new-password"
+                                    clearable
                                     @contextmenu.prevent
                                     @change="accessKeySecretChange"
-                                    clearable
                                 />
                             </el-form-item>
                             <el-form-item label="找回密码短信模板码：">
@@ -226,7 +224,7 @@
                                     v-model="form.sms_config.sign_name"
                                 />
                             </el-form-item>
-                        </fieldset>
+                        </fieldset> -->
                     </el-col>
                 </el-row>
 
@@ -313,8 +311,8 @@ export default {
                     redis_password: '',
                 },
 
-                isChangeRedisPwd: false,
-                isChangeMailPwd: false,
+                isChangeRedisPwd:           false,
+                isChangeMailPwd:            false,
                 isChangeAccessKeySecretPwd: false,
             },
 
@@ -334,7 +332,7 @@ export default {
                 this.form.identity_info.mode = 'standalone';
             }
         },
-    
+
         redisPwdChange() {
             this.isChangeRedisPwd = true;
         },
@@ -379,7 +377,7 @@ export default {
                     this.mode = 0;
                 }
             }
-            
+
              this.loading = false;
         },
         async update() {

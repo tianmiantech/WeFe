@@ -328,8 +328,8 @@
     .dataset-dialog {
         min-width: 800px;
     }
-    .el-form{
-        .el-form-item{
+    .board-form{
+        .board-form-item{
             margin-bottom: 10px;
         }
     }

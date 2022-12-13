@@ -15,6 +15,9 @@
  */
 package com.welab.wefe.board.service.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.welab.wefe.board.service.api.partner_config.AddApi;
 import com.welab.wefe.board.service.api.partner_config.QueryApi;
 import com.welab.wefe.board.service.database.entity.PartnerConfigMysqlModel;
@@ -24,9 +27,6 @@ import com.welab.wefe.board.service.dto.entity.PartnerConfigOutputModel;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.CurrentAccount;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /**
  * @author zane.luo
@@ -40,10 +40,6 @@ public class PartnerConfigService extends AbstractService {
     public GatewayService gatewayService;
 
     public String add(AddApi.Input input) throws StatusCodeWithException {
-        if (!CurrentAccount.isAdmin()) {
-            StatusCode.PERMISSION_DENIED.throwException("仅管理员可操作");
-        }
-
         PartnerConfigMysqlModel byMemberId = partnerConfigRepository.findByMemberId(input.memberId);
         if (byMemberId != null) {
             StatusCode.DATA_EXISTED.throwException("该成员的配置项已存在，不能重复添加。");
@@ -63,9 +59,6 @@ public class PartnerConfigService extends AbstractService {
     }
 
     public void delete(String id) throws StatusCodeWithException {
-        if (!CurrentAccount.isAdmin()) {
-            StatusCode.PERMISSION_DENIED.throwException("仅管理员可操作");
-        }
 
         partnerConfigRepository.deleteById(id);
 

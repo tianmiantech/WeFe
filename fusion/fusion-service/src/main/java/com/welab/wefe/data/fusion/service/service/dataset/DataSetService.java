@@ -220,22 +220,14 @@ public class DataSetService extends AbstractService {
      * Paging query data sets
      */
     public int count(String dataSetId) throws StatusCodeWithException {
-
         String sql = "select count(1)  from " + TABLE_HEADER + dataSetId;
-
-
-        List<JObject> result = new ArrayList<>();
-        JdbcManager jdbcManager = new JdbcManager();
         Connection conn = null;
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
-
-            conn = jdbcManager.getConnection(DatabaseType.MySql, mySqlUrl, mySqlUsername, mySqlPassword);
-
+            conn = JdbcManager.getConnection(DatabaseType.MySql, mySqlUrl, mySqlUsername, mySqlPassword);
             statement = conn.prepareStatement(sql);
             resultSet = statement.executeQuery();
-
             while (resultSet.next()) {
                 return resultSet.getInt(1);
             }
@@ -243,9 +235,8 @@ public class DataSetService extends AbstractService {
             e.printStackTrace();
             throw new StatusCodeWithException(e.getMessage(), StatusCode.PARAMETER_VALUE_INVALID);
         } finally {
-            jdbcManager.close(conn, statement, resultSet);
+            JdbcManager.close(conn, statement, resultSet);
         }
-
         return 0;
     }
 

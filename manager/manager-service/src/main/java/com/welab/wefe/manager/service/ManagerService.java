@@ -16,6 +16,11 @@
 
 package com.welab.wefe.manager.service;
 
+import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure;
+import com.webank.cert.mgr.CertApp;
+import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
+import com.welab.wefe.manager.service.operation.ManagerApiLogger;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
@@ -26,15 +31,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure;
-import com.webank.cert.mgr.CertApp;
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
-import com.welab.wefe.manager.service.operation.ManagerApiLogger;
 
 /**
  * @author yuxin.zhang
@@ -69,7 +65,7 @@ public class ManagerService implements ApplicationContextAware {
         Launcher.instance()
                 .apiLogger(new ManagerApiLogger())
                 .apiPackageClass(ManagerService.class)
-                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
+                /*.checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
                 .apiPermissionPolicy((api, annotation, params) -> {
                     if(CurrentAccount.get() != null && CurrentAccount.get().isNeedUpdatePassword()){
                         if(!annotation.path().equals("account/update_password")) {
@@ -77,7 +73,7 @@ public class ManagerService implements ApplicationContextAware {
                         }
                     }
 
-                })
+                })*/
                 .launch(ManagerService.class, args);
 
     }

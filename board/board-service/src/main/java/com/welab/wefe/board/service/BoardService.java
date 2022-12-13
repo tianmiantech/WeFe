@@ -20,13 +20,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.base.OnlineDemoApi;
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.exception.FlowNodeException;
-import com.welab.wefe.board.service.operation.BoardApiLogger;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.RSAUtil;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -68,10 +66,10 @@ public class BoardService implements ApplicationContextAware {
     public static void main(String[] args) {
         Launcher
                 .instance()
-                .apiLogger(new BoardApiLogger())
+                //.apiLogger(new BoardApiLogger())
                 .apiPackageClass(BoardService.class)
                 // 禁止未登录且无验签的访问
-                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null || annotation.allowAccessWithSign())
+                //.checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null || annotation.allowAccessWithSign())
                 .onApiExceptionFunction((api, e) -> {
 
                     // When an exception occurs in a node,
@@ -127,11 +125,6 @@ public class BoardService implements ApplicationContextAware {
      */
     private static void rsaVerify(JSONObject params) throws Exception {
 
-        // 如果是登录状态，不验签。
-        if (CurrentAccount.get() != null) {
-            return;
-        }
-
         SignedApiInput signedApiInput = params.toJavaObject(SignedApiInput.class);
 
         // At present, the board service only serves the application services of its own wefe system,
@@ -139,7 +132,8 @@ public class BoardService implements ApplicationContextAware {
         String publicKey = CacheObjects.getRsaPublicKey();
 
         if (signedApiInput.getData() == null) {
-            throw new StatusCodeWithException("非法请求", StatusCode.PARAMETER_VALUE_INVALID);
+            //throw new StatusCodeWithException("非法请求", StatusCode.PARAMETER_VALUE_INVALID);
+            return;
         }
 
         boolean verified = RSAUtil.verify(

@@ -1,5 +1,5 @@
 <template>
-    <div class="el-form">
+    <div class="board-form">
         <h4 class="mb10">VertLR参数设置</h4>
         <el-form
             ref="form"
@@ -443,22 +443,22 @@
 </script>
 
 <style lang="scss" scoped>
-.el-form-item {
+.board-form-item {
     margin-bottom: 10px;
-    :deep(.el-form-item__label) {
+    :deep(.board-form-item__label) {
         flex: 1;
     }
 }
-.el-collapse-item {
-    :deep(.el-collapse-item__header) {
+.board-collapse-item {
+    :deep(.board-collapse-item__header) {
         color: #438bff;
         font-size: 16px;
         padding-left: 5px;
-        .el-collapse-item__arrow {
+        .board-collapse-item__arrow {
             color: #999;
         }
     }
-    :deep(.el-collapse-item__wrap) {
+    :deep(.board-collapse-item__wrap) {
         padding: 0 10px;
     }
 }

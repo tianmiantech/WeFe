@@ -246,3 +246,6 @@ CREATE TABLE `model_predict_score_record`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='预测记录表';
 
 alter table `partner`  add column `is_me` tinyint(1) NOT NULL COMMENT '是否是我自己';
+
+-- 删除手机号唯一索引
+ALTER TABLE `account` DROP INDEX `index_unique_phonenumber`;

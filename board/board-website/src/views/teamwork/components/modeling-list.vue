@@ -8,16 +8,15 @@
         style="background: white"
     >
         <template #header>
-            <div class="clearfix mb10 flex-row">
-                <h3 class="card-title f19"><el-icon :class="['el-icon-cpu', 'mr10', 'ml10']" style="font-size: xx-large; top:8px; right: -3px; color: dodgerblue"><elicon-cpu />
-                    </el-icon>
-                        模型列表
-                </h3>
+            <div class="mb10 flex-row">
+                <h3 class="mb10 f19">
+                    <el-icon :class="['board-icon-cpu', 'mr10', 'ml10']" style="font-size: xx-large; top:9px; right: -3px; color: dodgerblue"><elicon-cpu /></el-icon>
+                        模型列表</h3>
                 <div v-if="form.is_project_admin" class="right-sort-area">
-                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp" title="向上" style="color: lightgray"><elicon-top /></el-icon>
-                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-bottom', 'mr10', 'ml10']" @click="moveDown" title="向下" style="color: lightgray"><elicon-bottom /></el-icon>
-                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-caret-top', {'mr10': maxIndex === sortIndex}]" @click="toTop" title="置顶" style="color: lightgray"><elicon-caret-top /></el-icon>
-                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-caret-bottom', 'mr10', 'ml10']" @click="toBottom" title="置底" style="color: lightgray"><elicon-caret-bottom /></el-icon>
+                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['board-icon-top f14', {'mr10': maxIndex === sortIndex}]" @click="moveUp"><elicon-top /></el-icon>
+                    <el-icon v-if="maxIndex !== sortIndex" :class="['board-icon-bottom f14', 'ml10', 'mr10']" @click="moveDown"><elicon-bottom /></el-icon>
+                    <span v-if="sortIndex !== 0 && sortIndex !== 1" :class="['f12', {'mr10': sortIndex === 2}]" @click="toTop">置顶</span>
+                    <span v-if="sortIndex !== maxIndex && sortIndex !== maxIndex -1" class="f12" @click="toBottom">置底</span>
                 </div>
             </div>
         </template>
@@ -61,7 +60,7 @@
                     模型对比
                 </el-button>
                 <el-tooltip v-if="form.promoterList.length" effect="dark" content="混合项目暂不支持该功能！" placement="right">
-                    <el-icon class="el-icon-warning ml5" style="color: #FFB403;">
+                    <el-icon class="board-icon-warning ml5" style="color: #FFB403;">
                         <elicon-warning />
                     </el-icon>
                 </el-tooltip>
@@ -74,7 +73,7 @@
                 class="result-panel"
             >
                 <el-icon
-                    class="el-icon-close close-result-panel-icon"
+                    class="board-icon-close close-result-panel-icon"
                     @click="hiddenResultPanel"
                 >
                     <elicon-close />
@@ -115,7 +114,7 @@
                                     {{ scope.row.role }}: {{ scope.row.flow_name }} - {{ scope.row.name }}
                                 </span>
                             </span>
-                            <el-icon class="el-icon-copy-btn" @click="copyModelId(scope.row.model_id)"><elicon-document-copy /></el-icon>
+                            <el-icon class="board-icon-copy-btn" @click="copyModelId(scope.row.model_id)"><elicon-document-copy /></el-icon>
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -272,6 +271,7 @@
     import { mapGetters } from 'vuex';
     import table from '@src/mixins/table';
     import RoleTag from '@src/components/views/role-tag';
+    import { downLoadFileTool } from '@src/utils/tools';
 
     export default {
         components: {
@@ -437,32 +437,26 @@
                         name:  'project-flow',
                         query: {
                             flow_id:          data.flow_id,
-                            is_project_admin: this.form.is_project_admin,
+                            is_project_admin: this.form.is_project_admin || 'true',
                         },
                     });
                 }
             },
 
             async modelExport(event, language) {
-                const href = `${window.api.baseUrl}/data_output_info/model_export?jobId=${this.selectedRow.job_id}&modelFlowNodeId=${this.selectedRow.flow_node_id}&role=${this.selectedRow.role}&language=${language}&token=${this.userInfo.token}`;
-                const link = document.createElement('a');
-
-                link.href = href;
-                link.target = '_blank';
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
+                downLoadFileTool('/data_output_info/model_export', {
+                    jobId:           this.selectedRow.job_id,
+                    modelFlowNodeId: this.selectedRow.flow_node_id,
+                    role:            this.selectedRow.role,
+                    language,
+                });
             },
 
-            downloadModel(e) {
-                const href = `${window.api.baseUrl}/data_output_info/model_export_to_file?taskId=${this.selectedRow.task_id}&role=${this.selectedRow.role}&token=${this.userInfo.token}`;
-                const link = document.createElement('a');
-
-                link.href = href;
-                link.target = '_blank';
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
+            async downloadModel(e) {
+                downLoadFileTool('/data_output_info/model_export_to_file', {
+                    taskId: this.selectedRow.task_id,
+                    role:   this.selectedRow.role,
+                });
             },
 
             modelCompare() {
@@ -512,7 +506,7 @@
         overflow-y: auto;
         min-width: 300px;
         width: 100%;
-        .el-button {margin-left:0;}
+        .board-button {margin-left:0;}
     }
     .result-panel {
         transition-duration: 0.2s;
@@ -542,14 +536,14 @@
     }
     .current-panel{color: $color-link-base-hover;}
     .select-lang{
-        .el-tag{
+        .board-tag{
             margin-left:15px;
             margin-top: 15px;
             cursor: pointer;
             &:hover{background:#dfefff;}
         }
     }
-    .el-icon-copy-btn {
+    .board-icon-copy-btn {
         cursor: pointer;
         font-size: 16px;
         padding-left: 4px;

@@ -6,7 +6,11 @@ token:{{token}}
 
 {
   "groups": [
+    "function_compute_config",
+    "deep_learning_config",
+    "calculation_engine_config",
+    "spark_standalone_config",
     "aliyun_function_compute_config",
-    "clickhouse_storage_config"
+    "tencent_serverless_cloud_function_config"
   ]
 }

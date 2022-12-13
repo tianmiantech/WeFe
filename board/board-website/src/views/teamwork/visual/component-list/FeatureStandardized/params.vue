@@ -81,10 +81,10 @@
                 feature_column_count: 0,
                 total_column_count:   0,
                 methodList:           [
-                    { value: 'z-core', label: 'z-core' },
+                    { value: 'z-score', label: 'z-score' },
                     { value: 'min-max', label: 'min-max' },
                 ],
-                columnListType:   'z-core',
+                columnListType:   'z-score',
                 featureSelectTab: [],
                 lastSelection:    [],
             });

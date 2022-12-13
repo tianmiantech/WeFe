@@ -25,7 +25,7 @@
                 <span class="name f14">
                     <el-icon
                         v-if="member.audit_status !== 'agree'"
-                        class="el-icon-warning-outline color-danger"
+                        class="board-icon-warning-outline color-danger"
                     >
                         <elicon-warning />
                     </el-icon>
@@ -68,7 +68,7 @@
                             <el-icon
                                 v-if="!disabled"
                                 title="移除"
-                                class="el-icon-circle-close f20"
+                                class="board-icon-circle-close f20"
                                 @click="methods.removeDataSet(index)"
                             >
                                 <elicon-circle-close />
@@ -80,6 +80,9 @@
                     </el-form-item>
                     <el-form-item label="数据量/特征量：">
                         {{ row.total_data_count ? row.total_data_count : row.row_count }} / {{ row.feature_count }}
+                    </el-form-item>
+                    <el-form-item label="分类数：" v-if="(row.contains_y && row.label_species_count)">
+                        {{ row.label_species_count > 10000 ? '10000+':row.label_species_count }}
                     </el-form-item>
                     <template v-if="row.contains_y">
                         <el-form-item v-if="row.y_positive_sample_count" label="正例样本数量：">
@@ -180,14 +183,14 @@
                             <label
                                 v-if="list[index * 5 + i - 1]"
                                 :for="`label-${index * 5 + i - 1}`"
-                                class="el-checkbox"
+                                class="board-checkbox"
                                 @click.prevent.stop="methods.checkboxChange($event, list[index * 5 + i - 1])"
                             >
-                                <span :class="['el-checkbox__input', { 'is-checked': vData.checkedColumnsArr.includes(list[index * 5 + i - 1]) }]">
-                                    <span class="el-checkbox__inner"></span>
-                                    <input :id="`label-${index * 5 + i - 1}`" class="el-checkbox__original" type="checkbox" />
+                                <span :class="['board-checkbox__input', { 'is-checked': vData.checkedColumnsArr.includes(list[index * 5 + i - 1]) }]">
+                                    <span class="board-checkbox__inner"></span>
+                                    <input :id="`label-${index * 5 + i - 1}`" class="board-checkbox__original" type="checkbox" />
                                 </span>
-                                <span class="el-checkbox__label">{{ list[index * 5 + i - 1] }}</span>
+                                <span class="board-checkbox__label">{{ list[index * 5 + i - 1] }}</span>
                             </label>
                         </template>
                     </template>
@@ -271,6 +274,7 @@
                         :search-field="vData.rawSearch"
                         :paramsExclude="['allList', 'list']"
                         :member-id="vData.memberId"
+                        :needClassify="true"
                         @list-loaded="methods.listLoaded"
                         @selectDataSet="methods.selectDataSet"
                         @close-dialog="vData.showSelectDataSet=false;"
@@ -597,16 +601,20 @@
                         item.members.forEach(member => {
                             if(member.job_role === 'promoter' || member.job_role === 'provider') {
                                 const features = member.feature_name_list ? member.feature_name_list.split(',') : [];
+                                const { data_resource,data_set_id } = item || {};
+                                const { label_species_count,derived_from,name } = data_resource || {};
 
                                 memberIds[member.member_id] = {
                                     member_role:       member.job_role,
                                     member_id:         member.member_id,
                                     member_name:       member.member_name,
                                     feature_count:     member.feature_count,
-                                    data_set_id:       item.data_set_id,
-                                    derived_from:      item.data_resource.derived_from,
+                                    data_set_id,
+                                    derived_from,
                                     row_count:         item.row_count ? item.row_count : item.data_resource.total_data_count,
-                                    name:              item.data_resource.name,
+                                    name,
+                                    /** 分类数,用于区分二分类 */
+                                    label_species_count, 
                                     column_name_list:  features,
                                     $column_name_list: features,
                                 };
@@ -804,6 +812,7 @@
                                 derived_from:      row[0].derived_from,
                                 row_count:         row[0].row_count || row[0].total_data_count,
                                 name:              row[0].name,
+                                label_species_count: row[0].label_species_count,
                             });
                         }
                     });
@@ -849,7 +858,7 @@
         top: -4px;
     }
     .dialog-min-width{min-width: 800px;}
-    .el-icon-circle-close{
+    .board-icon-circle-close{
         cursor: pointer;
         color:$--color-danger;
         position: absolute;
@@ -858,21 +867,21 @@
     }
     .data-set{
         border-top: 1px solid $border-color-base;
-        .el-form{
+        .board-form{
             padding: 5px 10px;
             border: 1px solid $border-color-base;
             border-top: 0;
         }
-        :deep(.el-form-item){
+        :deep(.board-form-item){
             display:flex;
             margin-bottom:0;
             flex-wrap: wrap;
-            .el-form-item__label{
+            .board-form-item__label{
                 font-size: 12px;
                 text-align: left;
                 line-height: 24px;
             }
-            .el-form-item__content{
+            .board-form-item__content{
                 font-size: 12px;
                 line-height: 22px;
                 word-break:break-all;

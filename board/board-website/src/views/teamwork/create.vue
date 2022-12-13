@@ -206,7 +206,7 @@
                             <div>{{member.member_id}}</div>
                             <MemberServiceStatus :status="member.$serviceStatus" />
                             <el-icon
-                                class="el-icon-remove-outline"
+                                class="board-icon-remove-outline"
                                 @click="removeMember(memberIndex, 'promoter')"
                             >
                                 <elicon-remove />
@@ -296,7 +296,7 @@
                             <div>{{member.member_id}}</div>
                             <MemberServiceStatus :status="member.$serviceStatus" />
                             <el-icon
-                                class="el-icon-remove-outline"
+                                class="board-icon-remove-outline"
                                 @click="removeMember(memberIndex, 'provider')"
                             >
                                 <elicon-remove />
@@ -403,7 +403,7 @@
                 <el-icon>
                     <elicon-info-filled />
                 </el-icon>
-                只有己方成员时可进行本地建模
+                本地建模：“只支持自方成员间进行本地建模”
             </p>
         </div>
 
@@ -824,8 +824,8 @@
             &:before{display:none;}
         }
     }
-    .el-form{
-        :deep(.el-form-item__label){font-weight: bold;}
+    .board-form{
+        :deep(.board-form-item__label){font-weight: bold;}
     }
     .member-name{
         :deep(.iconfont),
@@ -836,7 +836,7 @@
         color: $--color-danger;
         cursor: pointer;
     }
-    .el-icon-remove-outline{
+    .board-icon-remove-outline{
         color: $--color-danger;
         margin-left: 10px;
         font-size:14px;

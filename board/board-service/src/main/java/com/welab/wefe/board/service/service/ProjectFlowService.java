@@ -42,8 +42,7 @@ import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.*;
 import org.apache.commons.collections4.CollectionUtils;
@@ -108,7 +107,7 @@ public class ProjectFlowService extends AbstractService {
 
         ProjectMySqlModel project = projectService.findByProjectId(flow.getProjectId());
 
-        if (!input.fromGateway() && !flow.getCreatedBy().equals(CurrentAccount.id()) && !CurrentAccount.isAdmin()) {
+        if (!input.fromGateway() && !flow.getCreatedBy().equals(CurrentAccountUtil.get().getId())) {
             throw new StatusCodeWithException("只能删除自己创建的流程。", StatusCode.UNSUPPORTED_HANDLE);
         }
 
@@ -340,9 +339,9 @@ public class ProjectFlowService extends AbstractService {
         // is new
         if (node == null) {
             node = new ProjectFlowNodeMySqlModel();
-            node.setCreatedBy(CurrentAccount.id());
+            node.setCreatedBy(CurrentAccountUtil.get().getId());
         } else {
-            node.setUpdatedBy(CurrentAccount.id());
+            node.setUpdatedBy(CurrentAccountUtil.get().getId());
         }
 
         node.setComponentType(ComponentType.valueOf(data.getString("componentType")));
@@ -606,7 +605,7 @@ public class ProjectFlowService extends AbstractService {
 
         flow.setFlowStatus(projectFlowStatus);
         flow.setStatusUpdatedTime(new Date());
-        flow.setUpdatedBy(CurrentAccount.id());
+        flow.setUpdatedBy(CurrentAccountUtil.get().getId());
         projectFlowRepo.save(flow);
 
         projectService.updateFlowStatusStatistics(flow.getProjectId());

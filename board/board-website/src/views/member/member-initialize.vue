@@ -173,25 +173,27 @@
                 if(this.loading) return;
                 this.loading = true;
 
-                const { code, data } = await this.$http.get({
+                let { code, data } = await this.$http.get({
                     url: '/member/is_initialized',
                 });
+
+                data = data || {};
 
                 this.loading = false;
                 if(code === 0) {
                     if(data.initialized) {
-                        if(this.userInfo.member_id) {
+                        // if(this.userInfo.member_id) {
                             this.$store.commit('SYSTEM_INITED', true); // system inited
                             this.$router.replace({
-                                name: 'index',
+                                name: 'home',
                             });
-                        } else {
-                            this.$message.success('请重新登录');
-                            baseLogout();
-                        }
+                //         } else {
+                //             this.$message.success('请重新登录');
+                //             baseLogout();
+                //         }
                     }
-                } else if (code === 10006) {
-                    baseLogout();
+                // } else if (code === 10006) {
+                //     baseLogout();
                 }
             },
 
@@ -247,7 +249,7 @@
             initMemberCard() {
 
                 this.$router.replace({
-                    name: 'index',
+                    name: 'home',
                 });
             },
         },
@@ -270,7 +272,7 @@
     border-radius: 3px;
     padding: 20px;
 }
-.el-dialog__wrapper :deep(.member-card-wrap){
+.board-dialog__wrapper :deep(.member-card-wrap){
     animation: cardRotate 2s ease-in-out;
     .member-card{margin: 0 auto;}
 }

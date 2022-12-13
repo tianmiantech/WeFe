@@ -45,7 +45,6 @@ CREATE TABLE `account`
     `history_password_list` text NULL COMMENT '历史曾用密码',
     `ui_config`             text NULL COMMENT 'UI 相关配置信息',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `index_unique_phonenumber` (`phone_number`),
     KEY                     `idx_create_time` (`created_time`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='账号';

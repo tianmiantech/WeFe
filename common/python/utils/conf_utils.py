@@ -32,6 +32,8 @@ from cachetools import cached, LRUCache
 from common.python.common import consts
 from common.python.utils import file_utils, log_utils
 from common.python.utils.sm4_utils import SM4CBC
+from pathlib import Path
+
 LOGGER = log_utils.get_logger()
 
 
@@ -71,7 +73,13 @@ def get_value_by_enable(value):
     if "true" == enable:
         sm4_cipher = SM4CBC()
         try:
-            return sm4_cipher.decrypt(sm4_key, value)
+            de_result = sm4_cipher.decrypt(sm4_key, value)
+
+            # 解密成功，但结果为空的情况，也认作解密失败
+            if value != de_result and de_result == '':
+                return value
+
+            return de_result
         except Exception as e:
             return value
     else:
@@ -118,11 +126,14 @@ def get_fc_local_config(key):
 
 
 def get_local_config(key, config_type):
+    conf_dir = file_utils.get_project_base_directory()
+    if Path(conf_dir + '/config').exists():
+        conf_dir = conf_dir + '/config'
     if config_type == consts.COMMON:
-        comm_file_path = os.path.join(file_utils.get_project_base_directory(),
+        comm_file_path = os.path.join(conf_dir,
                                       get_env_config(consts.ENV_CONF_KEY_CONFIG) or "common.properties")
     elif config_type == consts.MEMBER_BASE:
-        comm_file_path = os.path.join(file_utils.get_project_base_directory(),
+        comm_file_path = os.path.join(conf_dir,
                                       get_env_config(consts.ENV_CONF_KEY_CONFIG) or "member-base.properties")
     else:
         raise AttributeError(f'未知配置类型：{config_type}')

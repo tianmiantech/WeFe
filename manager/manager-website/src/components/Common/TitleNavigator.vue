@@ -13,7 +13,7 @@
     </ul>
     <div v-if="vData.show" class="navigator">
         <i
-            class="backToTop el-icon-arrow-up"
+            class="backToTop manager-icon-arrow-up"
             @click="toBack"
         />
     </div>
@@ -209,12 +209,12 @@
         background:#fff;
         &.show{transform: translateX(-10px);}
     }
-    .el-link{
+    .manager-link{
         font-size: 12px;
         margin-top:5px;
         &:first-child{margin-top: 0;}
     }
-    .el-icon-arrow-up{
+    .manager-icon-arrow-up{
         width: 42px;
         height: 42px;
         line-height: 40px;

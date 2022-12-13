@@ -73,6 +73,7 @@
     import md5 from 'js-md5';
     import { mapGetters } from 'vuex';
     import { clearUserInfo } from '../router/auth';
+    import {appCode} from '@src/utils/constant';
 
     export default {
         inject: ['refresh'],
@@ -96,7 +97,7 @@
             this.$bus.$on('show-login-dialog', () => {
                 if(!this.show) {
                     // hide the chat room
-                    window.localStorage.setItem(`${window.api.baseUrl}_chat`, 'disconnect');
+                    window.localStorage.setItem(`${appCode()}_chat`, 'disconnect');
                     this.$store.commit('SYSTEM_INITED', false);
                     this.$store.commit('UPDATE_USERINFO', {});
                     this.form.code = '';
@@ -211,14 +212,14 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-dialog__wrapper{
-        :deep(.el-dialog){
+    .board-dialog__wrapper{
+        :deep(.board-dialog){
             min-width: 360px;
             max-width: 460px;
         }
     }
     .form-code{
-        :deep(.el-input-group__append){
+        :deep(.board-input-group__append){
             padding:0;
             width: 90px;
             overflow: hidden;
@@ -229,7 +230,7 @@
         height: 30px;
         cursor: pointer;
     }
-    .login-form :deep(.el-input) {width: 90%;}
+    .login-form :deep(.board-input) {width: 90%;}
     .login-form :deep(.login-btn) {
         width: 100px;
         display: block;
@@ -237,9 +238,9 @@
         font-size: 14px;
     }
     .login-form{
-        .el-form-item{display: flex;}
-        :deep(.el-form-item__label) {width: 70px;}
-        :deep(.el-form-item__content) {flex: 1;}
+        .board-form-item{display: flex;}
+        :deep(.board-form-item__label) {width: 70px;}
+        :deep(.board-form-item__content) {flex: 1;}
     }
-    .el-button + .el-button{margin-left:0;}
+    .board-button + .board-button{margin-left:0;}
 </style>
