@@ -70,6 +70,7 @@ class DhIntersectionPromoter(DhIntersect):
                                                                  role=consts.PROVIDER,
                                                                  idx=i)
             LOGGER.info("Remote promoter_ids to Provider {}".format(i))
+            del promoter_ids_provider
 
         # (provider_eid, 1)
         provider_id_list = self.transfer_variable.intersect_provider_ids_process.get(-1)
@@ -94,7 +95,9 @@ class DhIntersectionPromoter(DhIntersect):
         LOGGER.info(f"encrypt_intersect_id_list :{encrypt_intersect_id_list[0].first()}")
         # 上面的是一致的
 
-
+        # del encrypt_promoter_id_list
+        for item_dataset in encrypt_promoter_id_list:
+            del item_dataset
 
         # (promoter_eid, provider_eid)
         intersect_id_list = [ids.map(lambda k, v: (v[0], v[1])) for ids in encrypt_intersect_id_list]
