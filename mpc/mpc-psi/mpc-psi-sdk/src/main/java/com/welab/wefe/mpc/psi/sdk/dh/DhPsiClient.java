@@ -120,7 +120,6 @@ public class DhPsiClient {
         ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
         for (Set<String> partition : partitionList) {
             executorService.submit(() -> {
-                LOG.info("thread " + Thread.currentThread().getName() + ", partition size = " + partition.size());
                 for (String id : partition) {
                     Long key = idAtomicCounter.incrementAndGet();
                     this.originalClientIds.put(key, id);
