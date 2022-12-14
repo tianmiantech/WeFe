@@ -16,11 +16,13 @@
 
 package com.welab.wefe.mpc.psi.sdk;
 
+import java.nio.charset.Charset;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -35,13 +37,14 @@ import com.welab.wefe.mpc.psi.sdk.service.PrivateSetIntersectionService;
 import com.welab.wefe.mpc.psi.sdk.util.EcdhUtil;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 
 /**
  * @Author: eval
  * @Date: 2021-12-23
  **/
-public class PrivateSetIntersection implements Psi {
+public class PrivateSetIntersection extends Psi {
 
     private static final Logger logger = LoggerFactory.getLogger(PrivateSetIntersection.class);
 
@@ -76,17 +79,22 @@ public class PrivateSetIntersection implements Psi {
      * @throws Exception
      */
     public List<String> query(CommunicationConfig config, List<String> clientIds) throws Exception {
-        return query(config, clientIds, DEFAULT_CURRENT_BATH);
+        return query(config, clientIds, DEFAULT_CURRENT_BATCH);
     }
 
     @Override
     public List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch) throws Exception {
-        return query(config, clientIds, DEFAULT_CURRENT_BATH, DEFAULT_BATCH_SIZE);
+        return query(config, clientIds, DEFAULT_CURRENT_BATCH, DEFAULT_BATCH_SIZE);
     }
 
     @Override
     public List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch, int batchSize)
             throws Exception {
+        if (config.isContinue()) {
+            int arr[] = readLastCurrentBatchAndSize(config.getRequestId());
+            currentBatch = arr[0];
+            batchSize = arr[1];
+        }
         if (CollectionUtil.isEmpty(clientIds)) {
             throw new IllegalArgumentException("local id is empty");
         }
@@ -101,11 +109,12 @@ public class PrivateSetIntersection implements Psi {
         request.setP(client.getP().toString(16));
         // 发给服务端
         request.setClientIds(EcdhUtil.convert2List(clientEncryptedDatasetMap));
-        request.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
+        request.setRequestId(config.getRequestId());
         request.setCurrentBatch(currentBatch);
         request.setType(Psi.DH_PSI);
         request.setBatchSize(batchSize);
         PrivateSetIntersectionService privateSetIntersectionService = new PrivateSetIntersectionService();
+        logger.info("dh psi request = " + request);
         QueryPrivateSetIntersectionResponse response = privateSetIntersectionService.handle(config, request);
         if (response.getCode() != 0) {
             throw new Exception(response.getMessage());
@@ -120,12 +129,16 @@ public class PrivateSetIntersection implements Psi {
         Set<String> allResult = client.psi();
         logger.info("dh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
                 + allResult.size() + ", hasNext = " + hasNext + ", duration = " + (System.currentTimeMillis() - start));
+
+        saveLastCurrentBatch(request.getRequestId(), request.getCurrentBatch(), request.getBatchSize());
+        saveResult(allResult, request.getRequestId());
         while (hasNext) {
             start = System.currentTimeMillis();
             // 发给服务端
             request.setClientIds(null);// 只需要第一次传给服务端
             request.setCurrentBatch(request.getCurrentBatch() + 1);
             privateSetIntersectionService = new PrivateSetIntersectionService();
+            logger.info("dh psi request = " + request);
             response = privateSetIntersectionService.handle(config, request);
             if (response.getCode() != 0) {
                 throw new Exception(response.getMessage());
@@ -144,7 +157,19 @@ public class PrivateSetIntersection implements Psi {
             logger.info("dh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
                     + allResult.size() + ", hasNext = " + hasNext + ",duration = "
                     + (System.currentTimeMillis() - start));
+            saveLastCurrentBatch(request.getRequestId(), request.getCurrentBatch(), request.getBatchSize());
+            saveResult(batchResult, request.getRequestId());
         }
         return new ArrayList<>(allResult);
+    }
+
+    private void saveLastCurrentBatch(String requestId, int currentBatch, int batchSize) {
+        FileUtil.writeString(currentBatch + "-" + batchSize,
+                Paths.get(SAVE_RESULT_DIR, requestId + "_currentBatch").toFile(), Charset.forName("utf-8").toString());
+    }
+
+    private void saveResult(Collection<String> allResult, String requestId) {
+        FileUtil.appendLines(allResult, Paths.get(SAVE_RESULT_DIR, requestId).toFile(),
+                Charset.forName("utf-8").toString());
     }
 }

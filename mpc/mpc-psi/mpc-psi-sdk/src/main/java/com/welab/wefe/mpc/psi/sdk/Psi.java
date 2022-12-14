@@ -16,23 +16,47 @@
 
 package com.welab.wefe.mpc.psi.sdk;
 
+import java.nio.charset.Charset;
+import java.nio.file.Paths;
 import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.welab.wefe.mpc.config.CommunicationConfig;
 
-public interface Psi {
+import cn.hutool.core.io.FileUtil;
+
+public abstract class Psi {
 
     public static final String ECDH_PSI = "ECDH_PSI";
     public static final String DH_PSI = "DH_PSI";
 
-    public static final int DEFAULT_CURRENT_BATH = 0; // 第一页
+    public static final int DEFAULT_CURRENT_BATCH = 0; // 第一页
     public static final int DEFAULT_BATCH_SIZE = -1; // 默认不用配置，以服务端为准
 
-    List<String> query(CommunicationConfig config, List<String> clientIds) throws Exception;
+    public static final String SAVE_RESULT_DIR = System.getProperty("user.dir"); // 当前目录
 
-    List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch) throws Exception;
+    public abstract List<String> query(CommunicationConfig config, List<String> clientIds) throws Exception;
 
-    List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch, int batchSize)
+    public abstract List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch)
             throws Exception;
 
+    public abstract List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch,
+            int batchSize) throws Exception;
+
+    public int[] readLastCurrentBatchAndSize(String requestId) throws Exception {
+        String content = FileUtil.readString(Paths.get(SAVE_RESULT_DIR, requestId + "_currentBatch").toFile(),
+                Charset.forName("utf-8").toString());
+        if (StringUtils.isBlank(content)) {
+            throw new Exception(requestId + "_currentBatch" + " is empty");
+        } else {
+            try {
+                String[] arr = content.split("-");
+                return new int[] { Integer.valueOf(arr[0]), Integer.valueOf(arr[1]) };
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new Exception(requestId + "_currentBatch" + " content error : " + content);
+            }
+        }
+    }
 }

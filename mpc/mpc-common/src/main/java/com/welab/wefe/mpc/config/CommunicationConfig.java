@@ -16,6 +16,8 @@
 
 package com.welab.wefe.mpc.config;
 
+import java.util.UUID;
+
 /**
  * 与服务通信配置
  *
@@ -24,7 +26,7 @@ package com.welab.wefe.mpc.config;
  **/
 public class CommunicationConfig {
 
-    private String requestId;
+    private String requestId = UUID.randomUUID().toString().replaceAll("-", "");
 
     /**
      * 查询的接口名
@@ -44,6 +46,11 @@ public class CommunicationConfig {
      * 签名私钥
      */
     private String signPrivateKey;
+
+    /**
+     * 是否续跑
+     */
+    private boolean isContinue;
 
     /**
      * 是否需要签名
@@ -97,4 +104,13 @@ public class CommunicationConfig {
     public void setRequestId(String requestId) {
         this.requestId = requestId;
     }
+
+    public boolean isContinue() {
+        return isContinue;
+    }
+
+    public void setContinue(boolean isContinue) {
+        this.isContinue = isContinue;
+    }
+
 }

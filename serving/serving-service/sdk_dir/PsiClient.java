@@ -63,6 +63,9 @@ public class PsiClient {
         // 服务地址
         config.setServerUrl(serverUrl);
         config.setApiName(apiName);
+        // 如果是续跑 需要带上下面两个参数
+        // config.setRequestId("");
+        // config.setContinue(true);
         List<String> result = psi.query(config, clientDataset);
         // 如果 clientId = result 说明有结果
         System.out.println(clientDataset.size());

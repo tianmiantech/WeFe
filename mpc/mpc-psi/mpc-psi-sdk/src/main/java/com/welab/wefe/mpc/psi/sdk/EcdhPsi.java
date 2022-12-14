@@ -40,7 +40,7 @@ import cn.hutool.core.util.StrUtil;
 /**
  * @Author: winter
  **/
-public class EcdhPsi implements Psi {
+public class EcdhPsi extends Psi {
 
     private static final Logger logger = LoggerFactory.getLogger(EcdhPsi.class);
 
@@ -74,13 +74,14 @@ public class EcdhPsi implements Psi {
      * @return
      * @throws Exception
      */
+    @Override
     public List<String> query(CommunicationConfig config, List<String> ids) throws Exception {
-        return query(config, ids, DEFAULT_CURRENT_BATH);
+        return query(config, ids, DEFAULT_CURRENT_BATCH);
     }
 
     @Override
     public List<String> query(CommunicationConfig config, List<String> ids, int currentBatch) throws Exception {
-        return query(config, ids, DEFAULT_CURRENT_BATH, -1);
+        return query(config, ids, DEFAULT_CURRENT_BATCH, DEFAULT_BATCH_SIZE);
     }
 
     /**
@@ -96,6 +97,11 @@ public class EcdhPsi implements Psi {
     @Override
     public List<String> query(CommunicationConfig config, List<String> ids, int currentBatch, int batchSize)
             throws Exception {
+        if (config.isContinue()) {
+            int arr[] = readLastCurrentBatchAndSize(config.getRequestId());
+            currentBatch = arr[0];
+            batchSize = arr[1];
+        }
         if (CollectionUtil.isEmpty(ids)) {
             throw new IllegalArgumentException("local id is empty");
         }

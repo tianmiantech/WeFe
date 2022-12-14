@@ -95,4 +95,10 @@ public class QueryPrivateSetIntersectionRequest {
         this.batchSize = batchSize;
     }
 
+    @Override
+    public String toString() {
+        return "QueryPrivateSetIntersectionRequest [p=" + p + ", requestId=" + requestId + ", currentBatch="
+                + currentBatch + ", batchSize=" + batchSize + ", type=" + type + "]";
+    }
+
 }
