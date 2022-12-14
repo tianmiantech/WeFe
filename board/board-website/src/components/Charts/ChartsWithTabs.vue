@@ -130,15 +130,10 @@
 
                 if (code === 0 && data) {
                     const $data = Array.isArray(data) ? data[0] : data;
-                    const { result, component_type, task_config, prob_need_to_bin } = $data;
+                    const { result, component_type, task_config } = $data;
 
                     this.componentType = component_type;
-                    this.prob_need_to_bin =
-                        task_config && task_config?.params && task_config?.params?.score_param?.prob_need_to_bin
-                            ? task_config?.params?.prob_need_to_bin
-                            : prob_need_to_bin
-                                ? prob_need_to_bin
-                                : false;
+                    this.prob_need_to_bin = task_config?.params?.score_param?.prob_need_to_bin || task_config?.params?.prob_need_to_bin || false;
                     if (this.prob_need_to_bin) {
                         this.ChartsMap[this.componentType].tabs = orginChartsMap[this.componentType].tabs;
                     } else {
@@ -396,6 +391,9 @@
 
                 let xAxis = {}, yAxis = [];
 
+                console.log(result);
+                console.log(scores_distribution);
+
                 if (scores_distribution) {
                     for (let i=0; i<scores_distribution.length; i++) {
                         xAxisData.push(scores_distribution[i][0]);
@@ -471,7 +469,6 @@
                 this.charts[tabName].config.xAxis = xAxis;
                 this.charts[tabName].config.yAxis = yAxis;
                 this.charts[tabName].config.series = series;
-
             },
 
             renderRoc({ result }) {
