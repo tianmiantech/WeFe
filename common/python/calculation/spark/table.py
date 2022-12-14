@@ -95,7 +95,8 @@ class RDDSource(Table):
         """
         tmp table, with namespace == job_id
         """
-        rdd = util.materialize(rdd)
+        # TODO:Test
+        # rdd = util.materialize(rdd)
         name = name or f"{self._session_id}_{str(uuid.uuid1())}"
         return RDDSource(session_id=self._session_id,
                          # namespace=self._namespace,
@@ -131,8 +132,13 @@ class RDDSource(Table):
     @log_elapsed
     def _rdd_from_dtable(self):
         storage_iterator = self._dsource.collect(use_serialize=True)
-        if self._dsource.count() <= 0:
+        data_count = self._dsource.count()
+        if data_count <= 0:
             storage_iterator = []
+
+        storage_level = util.get_storage_level()
+        if data_count > 10000000:
+            storage_level = util.get_large_data_storage_level()
 
         num_partition = self._dsource._partitions
 
@@ -148,7 +154,7 @@ class RDDSource(Table):
         from pyspark import SparkContext
         self._rdd = SparkContext.getOrCreate() \
             .parallelize(storage_iterator, num_partition) \
-            .persist(util.get_storage_level())
+            .persist(storage_level)
         return self._rdd
 
     def dsource(self):
