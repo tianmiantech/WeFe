@@ -45,5 +45,6 @@ public enum ColumnDataType {
     /**
      * String
      */
-    String
+    String,
+    DateTime
 }

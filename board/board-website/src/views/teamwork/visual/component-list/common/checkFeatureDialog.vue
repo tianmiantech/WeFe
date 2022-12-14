@@ -79,7 +79,11 @@
                                             type="checkbox"
                                         />
                                     </span>
-                                    <span class="board-checkbox__label">{{ list[index * 5 + i - 1].name }}</span>
+
+                                    <span class="board-checkbox__label">
+                                        {{ list[index * 5 + i - 1].name }}
+                                        <FeatureTagVue :name="list[index * 5 + i - 1].name" :data_set_id="item.data_set_id" />
+                                    </span>
                                 </label>
                             </template>
                         </template>
@@ -104,6 +108,7 @@
 <script>
     import { reactive } from 'vue';
     import checkFeatureMixin from './checkFeature';
+    import FeatureTagVue from './featureTag.vue';
 
     export default {
         props: {
@@ -112,7 +117,8 @@
             columnListType:   String,
             revertCheckEmit:  String,
         },
-        emits: [...checkFeatureMixin().emits, 'confirmCheck', 'getCheckedFeature'],
+        components: { FeatureTagVue },
+        emits:      [...checkFeatureMixin().emits, 'confirmCheck', 'getCheckedFeature'],
         setup(props, context) {
             let vData = reactive({
                 featureSelectTabIndex: '0',

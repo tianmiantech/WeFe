@@ -52,6 +52,7 @@ public class AccountService {
             String salt = SecurityUtil.createRandomSalt();
             String password = Sha1.of(UUID.randomUUID().toString().replace("-", "") + salt);
             account = new Account();
+            account.setAccountId(accountInfo.getId());
             account.setPhoneNumber(DatabaseEncryptUtil.encrypt(accountInfo.getPhoneNumber()));
             account.setSalt(salt);
             account.setPassword(password);
@@ -65,6 +66,7 @@ public class AccountService {
             account.setNeedUpdatePassword(false);
             account.setLastActionTime(new Date());
             account.setUpdatedBy(accountInfo.getId());
+            accountMongoRepo.save(account);
         } else {
             String nickName = account.getNickname();
             String phoneNumber = DatabaseEncryptUtil.decrypt(account.getPhoneNumber());

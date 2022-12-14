@@ -16,8 +16,8 @@
 
 package com.welab.wefe.serving.service.database.entity;
 
+import com.welab.wefe.common.jdbc.base.DatabaseType;
 import com.welab.wefe.common.web.util.DatabaseEncryptConverter;
-import com.welab.wefe.common.wefe.enums.DatabaseType;
 
 import javax.persistence.*;
 

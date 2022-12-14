@@ -16,42 +16,18 @@
 
 package com.welab.wefe.union.service.api.member;
 
-import com.mongodb.client.gridfs.GridFSBucket;
-import com.mongodb.client.gridfs.model.GridFSFile;
-import com.mongodb.client.gridfs.model.GridFSUploadOptions;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.entity.union.MemberFileInfo;
-import com.welab.wefe.common.data.mongodb.entity.union.UnionNode;
-import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
-import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.enums.FilePublicLevel;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.Md5;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.dto.UploadFileApiOutput;
 import com.welab.wefe.common.wefe.enums.FileRurpose;
-import com.welab.wefe.union.service.cache.UnionNodeConfigCache;
-import com.welab.wefe.union.service.service.MemberFileInfoContractService;
-import com.welab.wefe.union.service.task.UploadFileSyncToUnionTask;
-import com.welab.wefe.union.service.util.FileCheckerUtil;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.content.InputStreamBody;
-import org.bson.Document;
+import com.welab.wefe.union.service.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.gridfs.GridFsTemplate;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author yuxin.zhang
@@ -59,139 +35,19 @@ import java.util.Map;
 @Api(path = "member/file/upload", name = "member_file_upload", allowAccessWithSign = true)
 public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileApiOutput> {
     @Autowired
-    private UnionNodeMongoRepo unionNodeMongoRepo;
-
-    @Autowired
-    private GridFsTemplate gridFsTemplate;
-
-    @Autowired
-    private GridFSBucket gridFSBucket;
-
-    @Autowired
-    private MemberFileInfoContractService memberFileInfoContractService;
+    private MemberService memberService;
 
 
     @Override
-    protected ApiResult<UploadFileApiOutput> handle(Input input) throws StatusCodeWithException, IOException {
+    protected ApiResult<UploadFileApiOutput> handle(Input input) throws StatusCodeWithException {
         LOG.info("FileUploadApi handle..");
-
-        if (FileRurpose.RealnameAuth != input.purpose) {
-            throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "purpose");
-        }
-
-        String fileName = input.getFilename();
-
-        // 检查文件是否是支持的文件类型
         try {
-            FileCheckerUtil.checkIsAllowFileType(fileName);
-        } catch (Exception e) {
-            return fail(e)
-                    .setHttpCode(599);
-        }
-
-        String sign = Md5.of(input.getFirstFile().getInputStream());
-        String contentType = input.getFirstFile().getContentType();
-
-        Map<String, InputStreamBody> fileStreamBodyMap = buildFileStreamBodyMap(input.files);
-
-        GridFSFile gridFSFile = gridFsTemplate.findOne(
-                new QueryBuilder()
-                        .append("metadata.sign", sign)
-                        .append("metadata.memberId", input.getCurMemberId())
-                        .build()
-        );
-
-        String fileId;
-        if (gridFSFile == null) {
-            GridFSUploadOptions options = new GridFSUploadOptions();
-            Document metadata = new Document();
-            metadata.append("contentType", contentType);
-            metadata.append("sign", sign);
-            metadata.append("memberId", input.curMemberId);
-
-            options.metadata(metadata);
-
-            fileId = gridFSBucket.uploadFromStream(fileName, input.getFirstFile().getInputStream(), options).toString();
-
-            saveFileInfoToBlockchain(
-                    input.curMemberId,
-                    fileId,
-                    fileName,
-                    sign,
-                    input.getFirstFile().getSize(),
-                    input.purpose.name(),
-                    input.filePublicLevel.name(),
-                    input.describe
-            );
-
-            syncDataToOtherUnionNode(input.curMemberId, fileStreamBodyMap);
-
-        } else {
-            fileId = gridFSFile.getObjectId().toString();
-            return success(new UploadFileApiOutput(fileId));
-        }
-
-        return success(new UploadFileApiOutput(fileId));
-    }
-
-
-    private void saveFileInfoToBlockchain(
-            String memberId,
-            String fileId,
-            String fileName,
-            String fileSign,
-            long fileSize,
-            String purpose,
-            String filePublicLevel,
-            String describe
-    ) throws StatusCodeWithException {
-        MemberFileInfo memberFileInfo = new MemberFileInfo();
-        memberFileInfo.setFileId(fileId);
-        memberFileInfo.setMemberId(memberId);
-        memberFileInfo.setFileName(fileName);
-        memberFileInfo.setFileSign(fileSign);
-        memberFileInfo.setFileSize(String.valueOf(fileSize));
-        memberFileInfo.setBlockchainNodeId(UnionNodeConfigCache.currentBlockchainNodeId);
-        memberFileInfo.setRurpose(purpose);
-        memberFileInfo.setFilePublicLevel(filePublicLevel);
-        memberFileInfo.setDescribe(describe);
-        memberFileInfoContractService.add(memberFileInfo);
-    }
-
-    private Map<String, InputStreamBody> buildFileStreamBodyMap(MultiValueMap<String, MultipartFile> files) throws StatusCodeWithException {
-        Map<String, InputStreamBody> fileStreamBodyMap = new HashMap<>();
-        for (Map.Entry<String, MultipartFile> item : files.toSingleValueMap().entrySet()) {
-            try {
-                MultipartFile file = item.getValue();
-                ContentType contentType = StringUtil.isEmpty(file.getContentType())
-                        ? ContentType.DEFAULT_BINARY
-                        : ContentType.create(file.getContentType());
-
-                InputStreamBody streamBody = new InputStreamBody(
-                        file.getInputStream(),
-                        contentType,
-                        file.getOriginalFilename()
-                );
-                fileStreamBodyMap.put(item.getKey(), streamBody);
-            } catch (IOException e) {
-                LOG.error("File read / write failed", e);
-                throw new StatusCodeWithException(StatusCode.FILE_IO_ERROR);
+            return success(memberService.fileUpload(input));
+        } catch (StatusCodeWithException e) {
+            if (StatusCode.FILE_IO_ERROR.equals(e.getStatusCode())) {
+                return fail(e).setHttpCode(599);
             }
-        }
-        return fileStreamBodyMap;
-    }
-
-    private void syncDataToOtherUnionNode(String memberId, Map<String, InputStreamBody> fileStreamBodyMap) {
-        List<UnionNode> unionNodeList = unionNodeMongoRepo.findExcludeCurrentNode(UnionNodeConfigCache.currentBlockchainNodeId);
-        for (UnionNode unionNode :
-                unionNodeList) {
-
-            new UploadFileSyncToUnionTask(
-                    unionNode.getBaseUrl(),
-                    "member/file/upload/sync",
-                    JObject.create("memberId", memberId),
-                    fileStreamBodyMap
-            ).start();
+            throw e;
         }
     }
 
@@ -235,6 +91,10 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
 
         public void setDescribe(String describe) {
             this.describe = describe;
+        }
+
+        public FilePublicLevel getFilePublicLevel() {
+            return filePublicLevel;
         }
     }
 }

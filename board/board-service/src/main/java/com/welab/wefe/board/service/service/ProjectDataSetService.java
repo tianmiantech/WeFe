@@ -19,6 +19,7 @@ package com.welab.wefe.board.service.service;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.gateway.GetDerivedDataSetDetailApi;
 import com.welab.wefe.board.service.api.project.dataset.QueryDerivedDataSetApi;
+import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectDataSetMySqlModel;
 import com.welab.wefe.board.service.database.repository.ProjectDataSetRepository;
@@ -66,7 +67,8 @@ public class ProjectDataSetService extends AbstractService {
     private BloomFilterService bloomFilterService;
     @Autowired
     private ProjectDataSetRepository projectDataSetRepo;
-
+    @Autowired
+    private JobMemberService jobMemberService;
 
     /**
      * Get the details of the derived data set
@@ -189,8 +191,6 @@ public class ProjectDataSetService extends AbstractService {
         return derivedDataSet;
     }
 
-    @Autowired
-    private JobMemberService jobMemberService;
 
     public List<ProjectDataResourceOutputModel> listRawDataSet(String projectId, DataResourceType dataResourceType, String memberId, JobMemberRole memberRole, Boolean containsY) {
         return listRawDataSet(projectId, dataResourceType, null, memberId, memberRole, containsY, null);
