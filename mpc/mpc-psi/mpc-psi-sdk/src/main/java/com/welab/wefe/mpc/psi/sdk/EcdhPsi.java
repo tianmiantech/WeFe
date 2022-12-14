@@ -76,6 +76,11 @@ public class EcdhPsi implements Psi {
      * @throws Exception
      */
     public List<String> query(CommunicationConfig config, List<String> ids) throws Exception {
+        return query(config, ids, DEFAULT_CURRENT_BATH);
+    }
+
+    @Override
+    public List<String> query(CommunicationConfig config, List<String> ids, int currentBatch) throws Exception {
         if (CollectionUtil.isEmpty(ids)) {
             throw new IllegalArgumentException("local id is empty");
         }
@@ -90,7 +95,7 @@ public class EcdhPsi implements Psi {
         // 发给服务端
         request.setClientIds(EcdhUtil.convert2List(clientEncryptedDatasetMap));
         request.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
-        request.setCurrentBatch(DEFAULT_CURRENT_BATH);
+        request.setCurrentBatch(currentBatch);
         request.setType(Psi.ECDH_PSI);
         PrivateSetIntersectionService privateSetIntersectionService = new PrivateSetIntersectionService();
         QueryPrivateSetIntersectionResponse response = privateSetIntersectionService.handle(config, request);

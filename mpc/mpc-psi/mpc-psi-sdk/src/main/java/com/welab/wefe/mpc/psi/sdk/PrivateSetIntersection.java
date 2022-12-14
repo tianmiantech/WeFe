@@ -77,6 +77,11 @@ public class PrivateSetIntersection implements Psi {
      * @throws Exception
      */
     public List<String> query(CommunicationConfig config, List<String> clientIds) throws Exception {
+        return query(config, clientIds, DEFAULT_CURRENT_BATH);
+    }
+
+    @Override
+    public List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch) throws Exception {
         if (CollectionUtil.isEmpty(clientIds)) {
             throw new IllegalArgumentException("local id is empty");
         }
@@ -92,7 +97,7 @@ public class PrivateSetIntersection implements Psi {
         // 发给服务端
         request.setClientIds(EcdhUtil.convert2List(clientEncryptedDatasetMap));
         request.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
-        request.setCurrentBatch(DEFAULT_CURRENT_BATH);
+        request.setCurrentBatch(currentBatch);
         request.setType(Psi.DH_PSI);
         PrivateSetIntersectionService privateSetIntersectionService = new PrivateSetIntersectionService();
         QueryPrivateSetIntersectionResponse response = privateSetIntersectionService.handle(config, request);

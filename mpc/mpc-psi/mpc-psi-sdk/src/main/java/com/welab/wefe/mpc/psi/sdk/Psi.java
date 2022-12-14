@@ -27,4 +27,6 @@ public interface Psi {
 
     List<String> query(CommunicationConfig config, List<String> clientIds) throws Exception;
 
+    List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch) throws Exception;
+
 }
