@@ -95,8 +95,7 @@ class RDDSource(Table):
         """
         tmp table, with namespace == job_id
         """
-        # TODO:Test
-        # rdd = util.materialize(rdd)
+        rdd = util.materialize(rdd)
         name = name or f"{self._session_id}_{str(uuid.uuid1())}"
         return RDDSource(session_id=self._session_id,
                          # namespace=self._namespace,
@@ -137,8 +136,8 @@ class RDDSource(Table):
             storage_iterator = []
 
         storage_level = util.get_storage_level()
-        if data_count > 10000000:
-            storage_level = util.get_large_data_storage_level()
+        # if data_count > 10000000:
+        #     storage_level = util.get_large_data_storage_level()
 
         num_partition = self._dsource._partitions
 

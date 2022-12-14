@@ -14,6 +14,7 @@
 
 import datetime
 import uuid
+import multiprocessing
 from collections.abc import Iterable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from fnmatch import fnmatch
@@ -29,7 +30,7 @@ from multiprocessing.pool import Pool
 
 FORCE_SERI = False
 LOGGER = log_utils.get_logger()
-
+BATCH_BYTE_SIZE = 4 * 1024 * 1024
 
 def set_force_serialize(in_seri):
     return in_seri if not FORCE_SERI else FORCE_SERI
@@ -117,38 +118,48 @@ class ClickHouseStorage(Storage):
     def put_all(self, kv_list: Iterable, use_serialize=True, chunk_size=100000):
         use_serialize = set_force_serialize(use_serialize)
         sql = f"INSERT INTO {self.table_name} (eventDate,k,v,id) values"
-        write_batch = 500000
-        max_workers = 2
-        use_pool = False
+        # write_batch = 500000
         now = datetime.datetime.now()
 
-        # TODO: 根据size控制写入批次
-        if use_pool:
-            with ThreadPoolExecutor(max_workers=max_workers) as t:
-                data = []
-                all_task = []
-                for k, v in kv_list:
-                    k_bytes, v_bytes = self.kv_to_bytes(k=k, v=v, use_serialize=use_serialize)
-                    data.append([now, k_bytes, v_bytes, str(uuid.uuid1())])
-                    if len(data) == write_batch:
-                        all_task.append(t.submit(self.ck_execute, sql, data))
-                        data = []
-                if len(data) > 0:
-                    all_task.append(t.submit(self.ck_execute, sql, data))
+        data = []
+        batch_count = None
+        max_batch_count = 500000
 
-                for future in as_completed(all_task):
-                    future.result()
+        for k, v in kv_list:
+            k_bytes, v_bytes = self.kv_to_bytes(k=k, v=v, use_serialize=use_serialize)
+            data.append([now, k_bytes, v_bytes, ''])
 
-        else:
-            data = []
-            for k, v in kv_list:
-                k_bytes, v_bytes = self.kv_to_bytes(k=k, v=v, use_serialize=use_serialize)
-                data.append([now, k_bytes, v_bytes, str(uuid.uuid1())])
-                if len(data) == write_batch:
-                    self.ck_execute(sql, data)
-                    data = []
-            if len(data) > 0:
+            if batch_count is None:
+                row_size = len(k_bytes) + len(v_bytes)
+                batch_count = BATCH_BYTE_SIZE // row_size
+                if batch_count > max_batch_count:
+                    batch_count = max_batch_count
+
+            if len(data) == batch_count:
                 self.ck_execute(sql, data)
+                data = []
+        if len(data) > 0:
+            self.ck_execute(sql, data)
+
+        # max_workers = 2
+        # use_pool = False
+        # if use_pool:
+        #     with ThreadPoolExecutor(max_workers=max_workers) as t:
+        #         data = []
+        #         all_task = []
+        #         for k, v in kv_list:
+        #             k_bytes, v_bytes = self.kv_to_bytes(k=k, v=v, use_serialize=use_serialize)
+        #             data.append([now, k_bytes, v_bytes, str(uuid.uuid1())])
+        #             if len(data) == write_batch:
+        #                 all_task.append(t.submit(self.ck_execute, sql, data))
+        #                 data = []
+        #         if len(data) > 0:
+        #             all_task.append(t.submit(self.ck_execute, sql, data))
+
+        #         for future in as_completed(all_task):
+        #             future.result()
+        # else:
+   
 
     def put_if_absent(self, k, v, use_serialize=True):
         use_serialize = set_force_serialize(use_serialize)
@@ -172,9 +183,12 @@ class ClickHouseStorage(Storage):
     def collect(self, min_chunk_size=0, use_serialize=True, partition=None) -> Iterable:
         use_serialize = set_force_serialize(use_serialize)
         # sql = f"SELECT k,v FROM {self.table_name} ORDER BY k DESC"
+
         sql = f"SELECT k,v FROM {self.table_name}"
         use_pool = True if self.count() > 1000000 else False
+        max_pool_size = 5 if  multiprocessing.cpu_count() > 5 else multiprocessing.cpu_count()
         print(f'use_pool:{use_pool}')
+
         try:
             client = self.get_conn()
             data = client.execute_iter(sql)
@@ -190,7 +204,7 @@ class ClickHouseStorage(Storage):
                 
                 batch_data = self.generate_batch(data)        
 
-                pool = Pool(10)
+                pool = Pool(max_pool_size)
                 result = pool.imap(fun_deserialize, batch_data)
                 for item_batch_result in result:
                     for k,v in item_batch_result:

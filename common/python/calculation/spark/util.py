@@ -35,10 +35,6 @@ def get_storage_level():
     from pyspark import StorageLevel
     return StorageLevel.MEMORY_AND_DISK
 
-def get_large_data_storage_level():
-    from pyspark import StorageLevel
-    return StorageLevel.DISK_ONLY
-
 
 def materialize(rdd):
     rdd.persist(get_storage_level())
