@@ -48,7 +48,7 @@
                             :flow-node-id="flowNodeId"
                         />
                     </el-collapse-item>
-                    <el-collapse-item :title="`预测概率/评分 PSI:${vData.featurePsi}`" name="4">
+                    <el-collapse-item v-if="vData.need_psi" :title="`预测概率/评分 PSI:${vData.featurePsi}`" name="4">
                         <psi-table :tableData="vData.tableData" type="evalution" />
                     </el-collapse-item>
                 </template>
@@ -120,6 +120,7 @@
                 pollingOnJobRunning: true,
                 tableData:           [],
                 featurePsi:          '',
+                need_psi:            true,
             });
 
             let methods = {
@@ -159,14 +160,18 @@
                     getDataResult({
                         flowId: flow_id, flowNodeId: flow_node_id, jobId: job_id, type: 'psi',
                     }).then((data) => {
-                        const { psi= {} } = data;
+                        const { psi= {},task_config } = data;
                         const { 
                             pred_label_psi = '',
                             train_pred_label_static,
                             test_pred_label_static ,
                             bin_cal_results = {},
                             split_point = [] } = psi; 
+                        const { params } = task_config || {};
+                        const { psi_param } = params || {};
+                        const { need_psi } = psi_param || {};
 
+                        vData.need_psi = need_psi;
                         vData.featurePsi = turnDemical(pred_label_psi, 4);
                         vData.tableData = {
                             '预测概率/评分': {
