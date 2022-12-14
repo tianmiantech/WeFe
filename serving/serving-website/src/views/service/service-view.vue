@@ -1115,6 +1115,7 @@
                 :visible.sync="keyMaps.visible"
                 title="设置求交主键:"
                 width="500px"
+                :before-close="cancelKeyMaps"
             >
                 <p class="mb10">示例: md5(mobile+name) + sha256(cnid) </p>
                 <el-form>
@@ -2209,6 +2210,10 @@ export default {
             this.getDataTable();
         },
         async getDataTable() {
+            if(!this.form.data_source.id){
+                // this.$message.warning('缺少查询参数!');
+                return ;
+            }
             const { code, data } = await this.$http.post({
                 url:  '/data_source/query_tables',
                 data: {
@@ -2396,10 +2401,14 @@ export default {
         deleteKeyMaps(index) {
             this.keyMaps.key_calc_rules.splice(index, 1);
         },
-        cancelKeyMaps() {
+        cancelKeyMaps(done) {
             this.keyMaps.key_calc_rules = [];
             this.keyMaps.stringResult = '';
             this.keyMaps.visible = false;
+
+            if(typeof done === 'function'){
+                done();
+            }
         },
         calcKeyMaps(event, opt = { action: '' }) {
             const array = this.keyMaps.key_calc_rules;

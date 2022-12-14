@@ -9,7 +9,8 @@
         "fix": "node_modules/eslint/bin/eslint.js --ext .js,.ts,.vue --fix --cache --fix-type suggestion,layout,problem .",
         "build": "vue-cli-service build",
         "dev": "vue-cli-service serve --HOST_ENV dev",
-        "fat": "vue-cli-service serve --HOST_ENV fat"
+        "fat": "vue-cli-service serve --HOST_ENV fat",
+        "hwfat": "vue-cli-service serve --HOST_ENV hwcloud_fat"
     },
     "keywords": [
         "vue",
