@@ -677,7 +677,7 @@ public class ProjectFlowService extends AbstractService {
                         .getTaskResult(evaluationTask.getTaskId(), input.getType());
             }
             if (result != null) {
-                result.setProbNeedToBin(isCalculateScoreDistribution(evaluationTask));
+                result.setTaskConfig(JSON.parseObject(evaluationTask.getTaskConf()));
             }
 
         } else {
