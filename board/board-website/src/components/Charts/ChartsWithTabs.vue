@@ -391,9 +391,6 @@
 
                 let xAxis = {}, yAxis = [];
 
-                console.log(result);
-                console.log(scores_distribution);
-
                 if (scores_distribution) {
                     for (let i=0; i<scores_distribution.length; i++) {
                         xAxisData.push(scores_distribution[i][0]);
