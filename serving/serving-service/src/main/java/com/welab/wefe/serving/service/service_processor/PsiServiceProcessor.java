@@ -84,7 +84,6 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             }
             List<String> doubleEncryptedClientDataset = null;
             if (!CollectionUtils.isEmpty(clientIds)) {
-                
                 Map<Long, String> clientEncryptedDatasetMap = EcdhUtil.convert2Map(clientIds);
                 // 对客户端数据进行加密
                 Map<Long, String> doubleEncryptedClientDatasetMap = server.encryptClientDatasetMap(clientEncryptedDatasetMap);
