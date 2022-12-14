@@ -1,0 +1,63 @@
+:root {
+  --tm-font-family: PingFangSC-Regular;
+  --tm-brand-blue: #2484ff;
+  /*  #0078d4; */
+
+  --tm-shadow1: 0 1.6px 3.6px 0 rgba(0, 0, 0, 0.132), 0 0.3px 0.9px 0 rgba(0, 0, 0, 0.108);
+  --tm-shadow2: 0 3.2px 7.2px 0 rgba(0, 0, 0, 0.132), 0 0.6px 1.8px 0 rgba(0, 0, 0, 0.108);
+  --tm-shadow3: 0 6.4px 14.4px 0 rgba(0, 0, 0, 0.132), 0 1.2px 3.6px 0 rgba(0, 0, 0, 0.108);
+  --tm-shadow4: 0 0px 0px 0 rgba(0, 0, 0, 0.22), 0 4.8px 14.4px 0 rgba(0, 0, 0, 0.18);
+  --tm-page-header-height: 32px;
+
+
+  --tm-header-bg: #0078d4; /* #2484ff; */
+  --tm-header-color: #f9f9f9;
+  --tm-header-hoverBg: #0d70ef;
+  --tm-header-height: 40px;
+  --tm-header-inputBg: #4395ff;
+  --tm-header-inputColor: #9AC6FF;
+
+  --tm-menu-bg: #fff;
+  --tm-menu-color: #57638a;
+  --tm-menu-hover-color: #fff;
+  --tm-menu-fontSize: 12px;
+  --tm-menu-hoverBg: #F2F5FF;
+  --tm-menu-hoverColor: #57638a;
+  --tm-menu-activeBg: #F2F5FF;
+  --tm-menu-activeColor: #2484ff;
+  --tm-menu-paddingLeft: 20px;
+  --tm-menu-height: 40px;
+  --tm-menu-padding: 0;
+  --tm-menu-item-padding: 0;
+  --tm-menu-item-borderRadius: 8px;
+
+  --tm-main-bg: #EDEFF3;
+}
+
+/** 黑色主题 **/
+body[theme='dark'] {
+  --tm-header-bg: #282f46;
+  --tm-header-color: #abb2cb;
+}
+
+body[theme='white'] {
+  --tm-header-bg: #fff;
+  --tm-header-color: #57638a;
+  --tm-header-bg: #2484ff;
+  --tm-header-color: #57638aa;
+  --tm-header-hoverBg: #F2F5FF;
+  --tm-header-height: 40px;
+  --tm-header-inputBg: #4395ff;
+  --tm-header-inputColor: #ABC4FF;
+}
+
+
+/** vi色主题 **/
+body[theme='blue'] {
+  --tm-header-bg: #2484ff;
+  --tm-header-color: #f9f9f9;
+  --tm-header-hoverBg: #0d70ef;
+  --tm-header-height: 40px;
+  --tm-header-inputBg: #4395ff;
+  --tm-header-inputColor: #9AC6FF;
+}

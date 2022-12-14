@@ -29,7 +29,7 @@
                 </el-collapse-item>
                 <template v-if="vData.hasResult">
                     <el-collapse-item title="模型准确率表现" name="2">
-                        <TopN ref="topnRef" />
+                        <TopN ref="topnRef" refer="Oot" />
                     </el-collapse-item>
                     <el-collapse-item title="模型评估" name="3">
                         <ChartsWithTabs
@@ -40,12 +40,13 @@
                             :flow-node-id="flowNodeId"
                         />
                     </el-collapse-item>
-                    <el-collapse-item :title="`预测概率/评分 PSI:${vData.featurePsi}`" name="4">
+                    <el-collapse-item v-if="vData.need_psi" :title="`预测概率/评分 PSI:${vData.featurePsi}`" name="4">
                         <psi-table :tableData="vData.tableData" type="Oot"/>
                     </el-collapse-item>
                 </template>
             </el-collapse>
-            <div v-if="vData.isSqlShow && vData.hasResult" class="sql-box">
+            <!-- 以下不在此版本展示-->
+            <!-- <div v-if="vData.isSqlShow && vData.hasResult" class="sql-box">
                 <p class="sql-title">请到board所在的mysql库执行以下sql语句查询批量跑分结果，或者点击<a @click="methods.export_predict_data">导出数据</a></p>
                 <h4 class="mb10 pb5" >{{vData.tips}}</h4>
                 <div class="sql" >
@@ -61,7 +62,7 @@
             </div>
 
             <div v-if="vData.isSqlShow && vData.hasResult" style="margin-top: 20px;">
-            </div>
+            </div> -->
         </template>
         <div
             v-else
@@ -83,6 +84,7 @@
     import { mapGetters } from 'vuex';
     import { getDataResult } from '@src/service';
     import { turnDemical } from '@src/utils/utils';
+    import { appCode, baseURL } from '@src/utils/constant';
 
     const mixin = resultMixin();
 
@@ -120,6 +122,7 @@
                 tips:                '',
                 tableData:           {},
                 featurePsi:          '',
+                need_psi:            true,
             });
 
             vData.sqlStatement = `
@@ -151,9 +154,7 @@
                 async export_predict_data(){
                     vData.tips = '正在查询，请不要离开.....';
 
-                    const { baseUrl } = window.api;
-
-                    let userInfo = setStorage().getItem(`${baseUrl}_userInfo`);
+                    let userInfo = setStorage().getItem(`${appCode()}_userInfo`);
 
                     userInfo = JSON.parse(userInfo);
                     let count = 0;
@@ -168,7 +169,7 @@
                         });
 
                         if(data.finished){
-                            const api = `${window.api.baseUrl}${data.get_file_url}&token=${userInfo.token}&time=${new Date().getTime()}`;
+                            const api = `${baseURL()}${data.get_file_url}&token=${userInfo.token}&time=${new Date().getTime()}`;
                             const link = document.createElement('a');
 
                             link.href = api;
@@ -213,14 +214,18 @@
                     getDataResult({
                         flowId: flow_id, flowNodeId: flow_node_id, jobId: job_id, type: 'psi',
                     }).then((data) => {
-                        const { psi= {} } = data;
-                        const { 
+                        const { psi= {},task_config } = data;
+                        const {
                             pred_label_psi = '',
                             train_pred_label_static,
                             test_pred_label_static ,
                             bin_cal_results = {},
-                            split_point = [] } = psi; 
+                            split_point = [] } = psi;
+                        const { params } = task_config || {};
+                        const { psi_param } = params || {};
+                        const { need_psi } = psi_param || {};
 
+                        vData.need_psi = need_psi;
                         vData.featurePsi = turnDemical(pred_label_psi, 4);
                         vData.tableData = {
                             '预测概率/评分': {

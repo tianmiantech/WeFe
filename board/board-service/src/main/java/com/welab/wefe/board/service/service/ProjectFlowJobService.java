@@ -47,7 +47,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.wefe.checkpoint.dto.MemberAvailableCheckOutput;
 import com.welab.wefe.common.wefe.enums.*;
 import org.apache.commons.collections4.CollectionUtils;
@@ -186,6 +186,9 @@ public class ProjectFlowJobService extends AbstractService {
             if (jobMember.getJobRole() == JobMemberRole.promoter && !input.fromGateway()) {
                 checkBeforeStartFlow(graph, project, isOotMode);
             }
+
+            // 跟踪并检查特征列表是否满足各组件要求
+            // new TableDataSetFeatureTracer(graph, input.getEndNodeId()).check();
 
             // create task
             createJobTasks(jobBuilder, project, graph, input.isUseCache(), input.getEndNodeId(), flow.getFederatedLearningType());
@@ -477,7 +480,7 @@ public class ProjectFlowJobService extends AbstractService {
         job.setFederatedLearningType(flow.getFederatedLearningType());
         job.setMyRole(myRole);
         job.setJobId(input.getJobId());
-        job.setCreatedBy(CurrentAccount.id());
+        job.setCreatedBy(CurrentAccountUtil.get().getId());
         job.setName(flow.getFlowName());
         job.setProgress(0);
         job.setStatus(JobStatus.wait_run);
@@ -775,26 +778,7 @@ public class ProjectFlowJobService extends AbstractService {
 
         String promoterId = null;
         for (ProjectFlowNodeMySqlModel node : nodes) {
-            List<? extends AbstractDataSetItem> dataSetItemList = null;
-
-            AbstractDataIOParam params = (AbstractDataIOParam) Components
-                    .get(node.getComponentType())
-                    .deserializationParam(node.getParams());
-
-            switch (node.getComponentType()) {
-                case DataIO:
-                case ImageDataIO:
-                    dataSetItemList = params.getDataSetList();
-                    break;
-                case Oot:
-                    OotComponent.Params ootParams = (OotComponent.Params) params;
-                    dataSetItemList = StringUtil.isNotEmpty(ootParams.getJobId())
-                            ? params.getDataSetList()
-                            : dataSetItemList;
-                    break;
-                default:
-                    StatusCode.UNEXPECTED_ENUM_CASE.throwException();
-            }
+            List<? extends AbstractDataSetItem> dataSetItemList = listNodeDataSetItems(node);
 
             if (CollectionUtils.isEmpty(dataSetItemList)) {
                 continue;
@@ -833,7 +817,7 @@ public class ProjectFlowJobService extends AbstractService {
         }
 
         jobMembers.forEach(x -> {
-            x.setCreatedBy(CurrentAccount.id());
+            x.setCreatedBy(CurrentAccountUtil.get().getId());
             x.setProjectId(projectId);
             x.setFlowId(flowId);
             x.setJobId(jobId);
@@ -845,6 +829,30 @@ public class ProjectFlowJobService extends AbstractService {
         jobMembers.sort(Comparator.comparingInt(o -> o.getJobRole().getIndex()));
 
         return jobMembers;
+    }
+
+    public List<? extends AbstractDataSetItem> listNodeDataSetItems(ProjectFlowNodeMySqlModel node) throws StatusCodeWithException {
+        List<? extends AbstractDataSetItem> dataSetItemList = null;
+
+        AbstractDataIOParam params = (AbstractDataIOParam) Components
+                .get(node.getComponentType())
+                .deserializationParam(node.getParams());
+
+        switch (node.getComponentType()) {
+            case DataIO:
+            case ImageDataIO:
+                dataSetItemList = params.getDataSetList();
+                break;
+            case Oot:
+                OotComponent.Params ootParams = (OotComponent.Params) params;
+                dataSetItemList = StringUtil.isNotEmpty(ootParams.getJobId())
+                        ? params.getDataSetList()
+                        : dataSetItemList;
+                break;
+            default:
+                StatusCode.UNEXPECTED_ENUM_CASE.throwException();
+        }
+        return dataSetItemList;
     }
 
 

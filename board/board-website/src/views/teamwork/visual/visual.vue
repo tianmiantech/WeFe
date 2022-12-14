@@ -4,10 +4,11 @@
         :element-loading-text="vData.loadingText"
         ref="PageRef"
         class="page"
+        :style="{height: isQianKun() ? 'calc(100vh - 120px)' : 'calc(100vh - 80px)'}"
     >
         <div
             v-show="!vData.jobGraphShow && !vData.componentsHide"
-            class="el-card"
+            class="board-card"
         >
             <div class="panel-title">组件库</div>
             <p :class="['panel-desc', { 'color-danger': vData.oot_job_id }]">{{ vData.oot_job_id ? 'OOT模式下禁止拖拽组件' : '拖动组件到右侧画布区' }}</p>
@@ -31,11 +32,11 @@
             <transition name="dropIn">
                 <div
                     v-if="vData.jobFinishedMessage.show"
-                    :class="['job-alert', 'el-alert', 'is-dark', `el-alert--${vData.jobFinishedMessage.status}`]"
+                    :class="['job-alert', 'board-alert', 'is-dark', `board-alert--${vData.jobFinishedMessage.status}`]"
                 >
-                    <div class="el-alert__content">
+                    <div class="board-alert__content">
                         <p
-                            class="el-alert__title mr10"
+                            class="board-alert__title mr10"
                             v-html="`【${vData.jobFinishedMessage.status}】${vData.jobFinishedMessage.message}`"
                         />
                         <span
@@ -46,7 +47,7 @@
                             点此查看任务详情
                         </span>
                         <el-icon
-                            class="el-icon-close f16"
+                            class="board-icon-close f16"
                             @click="vData.jobFinishedMessage.show=false"
                         >
                             <elicon-close />
@@ -85,12 +86,12 @@
                 class="f14 p10"
             >
                 <el-icon
-                    class="el-icon-close f18"
+                    class="board-icon-close f18"
                     @click="vData.paramsEmptynodesPanel = false"
                 >
                     <elicon-close />
                 </el-icon>
-                <p class="pb5"><strong class="f13">由于数据资源发生变更<br>以下节点需要重新保存参数: </strong></p>
+                <p class="pb5"><strong class="f13">由于特征列表发生变更<br>以下节点需要重新保存参数: </strong></p>
                 <span
                     class="f12"
                     style="color: #c0c4cc;"
@@ -169,7 +170,7 @@
             title="警告"
             top="25vh"
         >
-            <el-icon class="el-icon-warning f20">
+            <el-icon class="board-icon-warning f20">
                 <elicon-warning-filled />
             </el-icon>
             流程初始化失败, 请重试!
@@ -207,6 +208,7 @@
     import ComponentsPanel from './components/components-panel';
     import toolbarMixin from './graph/toolbar.mixin';
     import graphMixin from './graph/graph.mixin';
+    import { isQianKun } from '@src/http/utils';
 
     export default {
         components: {
@@ -230,7 +232,7 @@
             const route = useRoute();
             const router = useRouter();
             const { flow_id } = route.query;
-            const { is_project_admin } = route.query || 'false';
+            const { is_project_admin = 'true' } = route.query;
             const vData = reactive({
                 loadingText:            '',
                 locker:                 false,
@@ -601,6 +603,13 @@
                 componentPanelChangeSize(maxSize) {
                     vData.componentsHide = maxSize;
                 },
+
+                getFeatureType(flow_id){
+                    /** 获取特征type并存储到vuex */
+                    store.dispatch('getFeatureType', {
+                        flow_id,
+                    });
+                },
             };
 
             // mixin function
@@ -631,6 +640,7 @@
 
                 if(flow_id) {
                     methods.init();
+                    methods.getFeatureType(flow_id);
                 } else {
                     $message.error('缺少流程 id, 请重新创建流程!');
                 }
@@ -684,6 +694,8 @@
                 ComponentsPanel,
                 GraphMinimap,
                 methods,
+
+                isQianKun,
             };
         },
     };

@@ -36,7 +36,7 @@ public class DatabaseEncryptUtil {
             return plaintext;
         }
         try {
-            CommonConfig config = GatewayServer.CONTEXT.getBean(CommonConfig.class);
+            CommonConfig config = GatewayServer.CONTEXT.getBean("commonConfig", CommonConfig.class);
             if (!config.isDatabaseEncryptEnable() || isCiphertext(plaintext)) {
                 return plaintext;
             }
@@ -55,7 +55,7 @@ public class DatabaseEncryptUtil {
             return ciphertext;
         }
         try {
-            CommonConfig config = GatewayServer.CONTEXT.getBean(CommonConfig.class);
+            CommonConfig config = GatewayServer.CONTEXT.getBean("commonConfig", CommonConfig.class);
             if (!config.isDatabaseEncryptEnable() || !isCiphertext(ciphertext)) {
                 return ciphertext;
             }
@@ -80,12 +80,12 @@ public class DatabaseEncryptUtil {
     }
 
     private static String baseEncrypt(String plaintext) throws Exception {
-        CommonConfig config = GatewayServer.CONTEXT.getBean(CommonConfig.class);
+        CommonConfig config = GatewayServer.CONTEXT.getBean("commonConfig", CommonConfig.class);
         return SM4Util.encrypt(config.getDatabaseEncryptSecretKey(), plaintext);
     }
 
     private static String baseDecrypt(String ciphertext) throws Exception {
-        CommonConfig config = GatewayServer.CONTEXT.getBean(CommonConfig.class);
+        CommonConfig config = GatewayServer.CONTEXT.getBean("commonConfig", CommonConfig.class);
         return SM4Util.decrypt(config.getDatabaseEncryptSecretKey(), ciphertext);
     }
 }

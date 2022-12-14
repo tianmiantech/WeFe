@@ -16,17 +16,18 @@
 
 package com.welab.wefe.union.service.api.cert;
 
+import com.welab.wefe.common.data.mongodb.entity.union.TrustCerts;
 import com.welab.wefe.common.data.mongodb.repo.TrustCertsMongoRepo;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.union.service.dto.cert.TrustCertsQueryOutput;
-import com.welab.wefe.union.service.mapper.TrustCertsMapper;
-import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,16 +40,20 @@ public class QueryTrustCertApi extends AbstractApi<AbstractApiInput, JObject> {
     @Autowired
     protected TrustCertsMongoRepo trustCertsMongoRepo;
 
-    protected TrustCertsMapper mMapper = Mappers.getMapper(TrustCertsMapper.class);
-
-
     @Override
     protected ApiResult<JObject> handle(AbstractApiInput input) throws Exception {
-        List<TrustCertsQueryOutput> list = trustCertsMongoRepo.findAll(false)
-                .stream()
-                .map(trustCerts -> mMapper.transfer(trustCerts))
-                .collect(Collectors.toList());
+        List<TrustCertsQueryOutput> list = trustCertsMongoRepo.findAll(false).stream()
+                .map(trustCerts -> transfer(trustCerts)).collect(Collectors.toList());
 
         return success(JObject.create("list", JObject.toJSON(list)));
+    }
+
+    public TrustCertsQueryOutput transfer(TrustCerts trustCerts) {
+        TrustCertsQueryOutput out = ModelMapper.map(trustCerts, TrustCertsQueryOutput.class);
+        out.setCaCert("1".equalsIgnoreCase(trustCerts.getIsCaCert()));
+        out.setRootCert("1".equalsIgnoreCase(trustCerts.getIsRootCert()));
+        out.setCreatedTime(new Date());
+        out.setUpdatedTime(new Date());
+        return out;
     }
 }

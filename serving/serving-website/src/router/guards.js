@@ -20,128 +20,32 @@
  *          logged in and to.path === login or like register, go index
  */
 
-import { baseIsLogin, setStorage } from './auth';
+import { setStorage } from './auth';
+import { MENU_LIST } from '@src/utils/constant';
+import { isQianKun } from '../http/utils';
 
-const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV ? `/${process.env.CONTEXT_ENV}/` : '/'}`;
-const blacklist = ['register', 'find-password', 'init'];
+
+
+import {prefixPath} from './routes';
+const whiteList = [`${prefixPath()}home`, `${prefixPath()}init`];
 
 export default router => {
     router.beforeEach((to, from, next) => {
-        const { baseUrl } = window.api;
-        const isLogin = baseIsLogin();
+        const menuList = setStorage().getItem(MENU_LIST) || '[]';
+        const authority = JSON.parse(menuList) || [];
+        const isExits = (name) => authority.includes(name);
 
-        let inited = setStorage().getItem(`${baseUrl}_system_inited`);
-
-        inited == null ? inited = false : inited = JSON.parse(inited);
-
-        if(isLogin) {
-            if (inited) {
-                if (to.name === 'init') {
-                    next({ name: 'index', replace: true });
-                }
-            } else if(to.name === 'init') {
-                return next();
-            } else {
-                next({ name: 'init', replace: true });
-            }
+        if(whiteList.includes(to.path) || !isQianKun()){
+            return next();
         }
 
-        // matched is all path
-        if (to.matched.some(record => record.meta.requiresAuth !== false)) {
-            // need to login
-            if (isLogin) {
-                const { redirect } = from.query;
-
-                if(redirect) {
-                    let pathIsBlackList = false;
-                    const redirectUrl = decodeURIComponent(redirect);
-                    const params = redirectUrl.split('?');
-                    const path = params[0];
-                    const query = params[1];
-                    const queryArr = query && query.length ? query.split(/=|&/) : [];
-                    const queryObject = {};
-
-                    queryArr.forEach((val, i) => {
-                        const key = queryArr[i - 1];
-
-                        if (i % 2 === 0 && val) {
-                            queryObject[val] = '';
-                        }
-                        if (i % 2 === 1) {
-                            queryObject[key] = val;
-                        }
-                    });
-
-                    for (let i = 0; i < blacklist.length; i++) {
-                        if (path === `${prefixPath}${blacklist[i]}`) {
-                            pathIsBlackList = true;
-                            break;
-                        }
-                    }
-
-                    if (pathIsBlackList) {
-                        next();
-                    } else {
-                        if (to.fullPath === redirectUrl || to.path === redirectUrl.split('?')[0]) {
-                            // break the loop
-                            next();
-                        } else {
-                            next({ path, query: queryObject, replace: true });
-                        }
-                    }
-                } else {
-                    if (inited) {
-                        next();
-                    } else {
-                        if (to.fullPath === `${prefixPath}init`) {
-                            next();
-                        } else {
-                            next({
-                                name:    'init',
-                                replace: true,
-                            });
-                        }
-                    }
-                }
-            } else {
-                next({
-                    path:    `${prefixPath}login`,
-                    query:   { redirect: encodeURIComponent(to.fullPath) },
-                    replace: true,
-                });
-            }
-        } else if (to.matched.some(record => record.meta.requiresLogout)) {
-            // logged in and to.path === login
-            if (isLogin) {
-                next({ name: 'index', replace: true });
-            } else {
-                next();
-            }
+        if(isExits(to.name) || !to.name){
+            return next();
         } else {
-            // no need to login
-            next();
+            // window.$app.$message.error({ message: '页面不存在或权限未开放' });
+            return next({ name: 'service-list' });
         }
-    });
 
-    router.beforeResolve((to, from, next) => {
-        const { baseUrl } = window.api;
-        const isLogin = baseIsLogin();
-
-        let inited = setStorage().getItem(`${baseUrl}_system_inited`);
-
-        inited == null ? inited = false : inited = JSON.parse(inited);
-
-        if (isLogin) {
-            if (!inited) {
-                if (to.name !== 'init') {
-                    return next({
-                        name:    'init',
-                        replace: true,
-                    });
-                }
-            }
-        }
-        next();
     });
 
     router.afterEach(route => {

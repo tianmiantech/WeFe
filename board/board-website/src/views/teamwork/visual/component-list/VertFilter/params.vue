@@ -4,7 +4,7 @@
         class="flex-form"
         @submit.prevent
     >
-        <el-form-item label="案例:">
+        <!-- <el-form-item label="案例:">
             <p class="f12"><span class="color-danger">date</span><span>>2022-01-01</span>或<span class="color-danger">x1</span>>2<span class="strong">&</span><span class="color-danger">x1</span>&lt;50<span class="strong">&</span><span class="color-danger">x3</span>=100<span class="strong">&</span><span class="color-danger">x5</span>!=30</p>
         </el-form-item>
         <el-form-item label="含义:">
@@ -18,10 +18,10 @@
         </el-form-item>
         <el-form-item label="注意:">
             <p class="f12 color-danger">操作符两边只能有一个特征</p>
-        </el-form-item>
+        </el-form-item> -->
 
         <el-form
-            v-for="member in vData.members"
+            v-for="(member, midx) in vData.members"
             :key="`${member.member_id}-${member.member_role}`"
             :disabled="disabled"
             class="flex-form li"
@@ -58,81 +58,26 @@
             <el-form-item
                 label="过滤规则:"
                 prop="filter_rules"
-                :rules="formRules.filterRule"
+                class="is-required"
             >
-                <el-input
+                <filter-rules
+                    :disabled="disabled"
+                    :memberData="member"
+                    :ref="el => { if(el) filterRulesRef[midx] = el }"
+                />
+                <!-- <el-input
                     type="textarea"
                     v-model="member.filter_rules"
                     clearable
-                />
+                /> -->
             </el-form-item>
         </el-form>
     </el-form>
 </template>
 
 <script>
-    import { reactive, getCurrentInstance,toRaw } from 'vue';
-    import { replace } from '../common/utils';
-    
-    const { $message } = window.$app.config.globalProperties;
-
-    const validator = (value, features = []) => {
-        const str = replace(value);
-        // const set = new Set();
-        const array = str.split('&');
-
-        if(/&$/.test(value)){
-            $message.error('不能以&结尾');
-            return false;
-        }
-        for(const i of array){
-            const tmp = i.split(/>=|<=|!=|=|>|</g);
-
-            /**
-             * 切割后只能为两个
-             */
-            if(tmp.length !== 2){
-                $message.error(`${i}不符合规则`);
-                return false;
-            }
-            const [l, r] = tmp;
-            // const reg = /^\d+$|^'.*'$/;
-            const reg = /'|"/;
-            /**
-             * 一方为数字或字符串，一方为特征
-             */
-            const a = features.includes(l);
-            const b = features.includes(r);
-
-            if(!l || !r){
-                $message.error(`操作符两边不能为空【${i}】`);
-                return false;
-            }
-            if(!a && !b){
-                $message.error(`找不到特征【${i}】`);
-                return false;
-            } else if(a && b){
-                $message.error(`操作符两边不能同时为特征【${i}】`);
-                return false;
-            } else if(a && reg.test(r)){
-                $message.error(`过滤规则中不应该包含引号【'"】【${i}】中【${r}】`);
-                return false;
-            } else if(b && reg.test(l)){
-                $message.error(`过滤规则中不应该包含引号【'"】【${i}】中【${l}】`);
-                return false;
-            }
-        }
-        // /**
-        //  * 特征不重复
-        //  */
-        // if(set.size !== array.length){
-        //     $message.error('相同特征不能用两次');
-        //     return false;
-        // }
-
-        return true;
-
-    };
+    import { reactive, getCurrentInstance, ref } from 'vue';
+    import filterRules from './filterRules.vue';
 
     export default {
         name:  'VertFilter',
@@ -148,19 +93,18 @@
             jobId:              String,
             class:              String,
         },
+        components: {
+            filterRules,
+        },
 
         setup(props, context) {
             const { appContext } = getCurrentInstance();
             const { $alert, $http } = appContext.config.globalProperties;
-            const formRules = {
-                filterRule: [
-                    { required: true, message: '请输入过滤规则' },
-                ],
-            };
             const vData = reactive({
                 loading: false,
                 members: [],
             });
+            const filterRulesRef = ref([]);
             const methods = {
                 async readData (model) {
                     vData.loading = true;
@@ -223,28 +167,17 @@
                     for(const i in vData.members) {
                         const member = vData.members[i];
 
-                        if(!member.filter_rules) {
-                            $alert('警告:', {
-                                type:                     'warning',
-                                title:                    '警告:',
-                                message:                  '<div class="color-danger">过滤规则必填!</div>',
-                                dangerouslyUseHTMLString: true,
-                            });
-                            return false;
-                        }
-
-                        if(!validator(member.filter_rules, toRaw(member.features))){
-                            return false;
-                        }
-
+                        member.filter_rules = filterRulesRef.value?.[i].getRule();
                         members.push({
                             member_id:    member.member_id,
                             member_role:  member.member_role,
                             member_name:  member.member_name,
-                            filter_rules: replace(member.filter_rules),
+                            filter_rules: member.filter_rules,
                         });
+                        if (!member.filter_rules) {
+                            return false;
+                        }
                     }
-
                     return {
                         params: {
                             members,
@@ -255,7 +188,7 @@
 
             return {
                 vData,
-                formRules,
+                filterRulesRef,
                 methods,
             };
         },
@@ -267,6 +200,6 @@
         padding-top: 15px;
         border-top: 1px solid $border-color-base;
     }
-    .el-form-item{margin-bottom:0;}
+    .board-form-item{margin-bottom:0;}
     .strong{color:$--color-success;}
 </style>

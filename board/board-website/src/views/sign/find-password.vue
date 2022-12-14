@@ -258,7 +258,7 @@
         height:100vh;
         background: #fff;
     }
-    .el-form-item{
+    .board-form-item{
         .smsCount{
             width: 126px;
             line-height: 28px;

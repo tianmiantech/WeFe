@@ -38,7 +38,7 @@
 
         <mysql.connector.version>8.0.16</mysql.connector.version>
         <mapstruct.version>1.3.1.Final</mapstruct.version>
-
+        <hutool.version>5.8.9</hutool.version>
     </properties>
 
     <modules>

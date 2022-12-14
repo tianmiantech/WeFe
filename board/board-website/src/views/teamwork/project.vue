@@ -199,6 +199,7 @@
         watch: {
             '$route.query': {
                 handler (val) {
+                    console.log('route change')
                     this.activeTab = val.activeTab || 'allProjects';
                     for (const key in this.search) {
                         this.search[key] = '';
@@ -275,13 +276,16 @@
                 this.search.member_id = item.id;
             },
             searchList() {
-                this.$router.push({
-                    query: {
-                        ...this.search,
-                        activeTab: this.activeTab,
-                    },
-                });
-                this.getProjectList();
+                this.$nextTick(()=>{
+                    this.$router.push({
+                        query: {
+                            ...this.search,
+                            activeTab: this.activeTab,
+                            page_index: 1,
+                        },
+                    });
+                    this.getProjectList();
+                })
             },
             getProjectList() {
                 this.getProjectStatistic();
@@ -314,19 +318,19 @@
         position: relative;
         z-index: 2;
     }
-    .el-tabs{
-        :deep(.el-tabs__header){height: 40px;}
-        :deep(.el-tabs__nav-wrap){
+    .board-tabs{
+        :deep(.board-tabs__header){height: 40px;}
+        :deep(.board-tabs__nav-wrap){
             overflow: visible;
             margin-bottom:0;
-            .el-badge{vertical-align: top;}
+            .board-badge{vertical-align: top;}
         }
-        :deep(.el-tabs__nav-scroll){overflow: visible;}
-        :deep(.el-tabs__item){
+        :deep(.board-tabs__nav-scroll){overflow: visible;}
+        :deep(.board-tabs__item){
             height: 40px;
             margin-top: 0;
         }
-        :deep(.el-badge__content){
+        :deep(.board-badge__content){
             right: -20px;
             transform:translateY(-50%) translateX(0);
         }

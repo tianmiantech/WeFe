@@ -119,10 +119,18 @@
                     }
                 });
             }
+
+            function judge(value){
+                try {
+                    return value > 0.0001;
+                } catch (error) {
+                    return false;
+                }
+            }
             
             tableData.push({
                 feature,
-                psi:         turnDemical((feature_psi || 0), 4),
+                psi:         judge(feature_psi) ? turnDemical((feature_psi || 0), 4) : 0,
                 key:         feature,
                 test:        '-',
                 train:       '-',
@@ -133,10 +141,10 @@
                     return {
                         key:         `${feature}-${index}`,
                         bin:         tmp[index] ,
-                        test:        `${turnDemical((testRate[index] || 0) * 100, 2)}%`,
-                        train:       `${turnDemical((trainRate[index] || 0) * 100, 2)}%`,
+                        test:        `${turnDemical((testRate[index] || 0) * 100, 2)}`,
+                        train:       `${turnDemical((trainRate[index] || 0) * 100, 2)}`,
                         testSubBase: `${turnDemical((bin_sub_test_base_value[index] || 0) * 100, 2)}%`,
-                        psi:         turnDemical((bin_psi[index] || 0), 4),
+                        psi:         judge(bin_psi[index]) ? turnDemical((bin_psi[index] || 0), 4) : 0,
                         lntestbase:  turnDemical((bin_ln_test_base_value[index] || 0), 4),
                     };
                 }),
@@ -247,7 +255,7 @@
 </script>
 
 <style>
-  .notShowExpand .cell .el-table__expand-icon{display: none;}
+  .notShowExpand .cell .board-table__expand-icon{display: none;}
 
   .iconExpand{cursor: pointer;height: 16px;width: 16px;background-color: #fff;position: relative;display: inline-block;}
   .iconExpand::before{top: 3px;bottom: 3px;height: 9px;width: 1px;content:'';background: currentColor;position: absolute;transform: rotate(-180deg);transition: transform .3s ease-out;}
@@ -256,7 +264,7 @@
   .icon-collage::before{transform: rotate(90deg);}
   .icon-collage::after{transform: rotate(180deg);}
   
-  .psi-table .el-table .el-table__expand-icon{
+  .psi-table .board-table .board-table__expand-icon{
     display: none;
   }
   .psi-table .line{

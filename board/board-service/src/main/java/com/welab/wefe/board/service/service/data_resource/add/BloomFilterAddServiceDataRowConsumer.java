@@ -18,7 +18,6 @@ package com.welab.wefe.board.service.service.data_resource.add;
 
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
-import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
 import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTaskService;
 import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterStorageService;
 import com.welab.wefe.board.service.service.fusion.FieldInfoService;
@@ -58,7 +57,6 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<LinkedHash
 
     protected Config config;
     //region construction parameters
-    private BloomFilterRepository bloomFilterRepository;
 
     /**
      * bloom_filter id
@@ -142,7 +140,6 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<LinkedHash
         this.config = Launcher.CONTEXT.getBean(Config.class);
         this.bloomfilterStorageService = Launcher.CONTEXT.getBean(BloomFilterStorageService.class);
         this.dataResourceUploadTaskService = Launcher.CONTEXT.getBean(DataResourceUploadTaskService.class);
-        this.bloomFilterRepository = Launcher.CONTEXT.getBean(BloomFilterRepository.class);
         FieldInfoService service = Launcher.CONTEXT.getBean(FieldInfoService.class);
         this.fieldInfoList = service.fieldInfoList(bloomfilterId);
         File outFile = model.file();
@@ -154,7 +151,6 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<LinkedHash
         model.setRsaP(this.rsaP.toString());
         model.setRsaQ(this.rsaQ.toString());
         model.setTotalDataCount(this.totalDataCount);
-        this.bloomFilterRepository.save(model);
 
         this.bloomfilterPath = outFile.getPath();
         batchConsumer = new BatchConsumer<>(102400, 1_000, rows -> {

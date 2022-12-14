@@ -201,6 +201,11 @@ public class FeatureCalculationComponent extends AbstractComponent<FeatureCalcul
         return true;
     }
 
+//    @Override
+//    public List<FlowDataSetOutputModel> getTableDataSetOutputFeatures(List<FlowDataSetOutputModel> dataSetList, Params params) {
+//        return null;
+//    }
+
     @Override
     public boolean hasParams() {
         return false;

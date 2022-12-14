@@ -51,10 +51,10 @@
 
 <style lang="scss" scoped>
     .strong{color:$--color-success;}
-    .el-form-item{
+    .board-form-item{
         margin-bottom: 0;
-        :deep(.el-form-item__label),
-        :deep(.el-form-item__content) {
+        :deep(.board-form-item__label),
+        :deep(.board-form-item__content) {
             line-height: 22px;
         }
     }

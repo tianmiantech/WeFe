@@ -51,6 +51,7 @@
                     member_role:     '',
                     features:        [],
                     selectedFeature: [],
+                    data_set_id:     '',
                 },
                 provider: {
                     featureNames:    [],
@@ -59,6 +60,7 @@
                     member_role:     '',
                     features:        [],
                     selectedFeature: [],
+                    data_set_id:     '',
                 },
             });
 
@@ -164,8 +166,12 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-input-number{
+    .board-input-number{
         width: 104px;
         margin-right:10px;
+        // :deep(.board-input__inner){
+        //     padding-left:5px;
+        //     padding-right: 40px;
+        // }
     }
 </style>

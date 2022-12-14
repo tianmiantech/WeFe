@@ -344,6 +344,8 @@
 <script>
 import progressBar from '../components/progressBar';
 import { mapGetters } from 'vuex';
+import { getHeader } from '@src/http/utils';
+import { baseURL } from '@src/utils/constant';
 
 export default {
     components: {
@@ -364,10 +366,10 @@ export default {
             data_type_options:       ['Integer', 'Long', 'Double', 'Enum', 'String'],
             // help: https://github.com/simple-uploader/Uploader/blob/develop/README_zh-CN.md#%E5%A4%84%E7%90%86-get-%E6%88%96%E8%80%85-test-%E8%AF%B7%E6%B1%82
             file_upload_options:     {
-                target: window.api.baseUrl + '/file/upload',
+                target: baseURL() + '/file/upload',
 
                 headers: {
-                    token: '',
+                    ...getHeader(),
                 },
                 singleFile: true,
 
@@ -477,7 +479,7 @@ export default {
     },
     async created() {
 
-        this.file_upload_options.headers.token = this.userInfo.token;
+        // this.file_upload_options.headers.token = this.userInfo.token;
         this.getDataSources();
     },
 

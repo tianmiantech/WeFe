@@ -48,13 +48,39 @@
             >
                 <el-input v-model="client.servingBaseUrl" />
             </el-form-item>
-            <el-form-item label="联邦成员：" prop="isUnionMember">
-                <el-radio v-model="client.isUnionMember" label="1">是</el-radio>
-                <el-radio v-model="client.isUnionMember" label="0">否</el-radio>
+            <el-form-item
+                label="联邦成员："
+                prop="isUnionMember"
+            >
+                <el-radio
+                    v-model="client.isUnionMember"
+                    label="1"
+                >
+                    是
+                </el-radio>
+                <el-radio
+                    v-model="client.isUnionMember"
+                    label="0"
+                >
+                    否
+                </el-radio>
             </el-form-item>
-            <el-form-item label="是否是我自己：" prop="isMe">
-                <el-radio v-model="client.isMe" label="1">是</el-radio>
-                <el-radio v-model="client.isMe" label="0">否</el-radio>
+            <el-form-item
+                label="是否是我自己："
+                prop="isMe"
+            >
+                <el-radio
+                    v-model="client.isMe"
+                    label="1"
+                >
+                    是
+                </el-radio>
+                <el-radio
+                    v-model="client.isMe"
+                    label="0"
+                >
+                    否
+                </el-radio>
             </el-form-item>
             <el-form-item label="备注">
                 <el-input
@@ -94,15 +120,15 @@ export default {
     data() {
         return {
             client: {
-                id:     '',
-                name:   '',
-                email:  '',
-                servingBaseUrl:'',
-                isUnionMember:'0',
-                isMe:'0',
-                remark: '',
-                code:   '',
-                status: '',
+                id:             '',
+                name:           '',
+                email:          '',
+                servingBaseUrl: '',
+                isUnionMember:  '0',
+                isMe:           '0',
+                remark:         '',
+                code:           '',
+                status:         '',
             },
             rules: {
                 name: [
@@ -132,15 +158,15 @@ export default {
                     const { code } = await this.$http.post({
                         url:  '/partner/save',
                         data: {
-                            id:        this.client.id,
-                            name:      this.client.name,
-                            email:     this.client.email,
-                            remark:    this.client.remark,
-                            createdBy: this.userInfo.nickname,
-                            servingBaseUrl:this.client.servingBaseUrl,
-                            isUnionMember:this.client.isUnionMember,
-                            isMe:this.client.isMe,
-                            code:      this.client.code,
+                            id:             this.client.id,
+                            name:           this.client.name,
+                            email:          this.client.email,
+                            remark:         this.client.remark,
+                            createdBy:      this.userInfo.nickname,
+                            servingBaseUrl: this.client.servingBaseUrl,
+                            isUnionMember:  this.client.isUnionMember,
+                            isMe:           this.client.isMe,
+                            code:           this.client.code,
                         },
                     });
 

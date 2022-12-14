@@ -21,9 +21,9 @@ import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 
 /**
  * Some strategies specific to the online experience environment (demo environment).
@@ -47,13 +47,8 @@ public class OnlineDemoBranchStrategy {
             return;
         }
 
-        // Administrators can delete other people’s data
-        if (CurrentAccount.isAdmin()) {
-            return;
-        }
-
         // If the current data is not created by the current member, deletion is not allowed.
-        if (!model.getCreatedBy().equals(CurrentAccount.id())) {
+        if (!model.getCreatedBy().equals(CurrentAccountUtil.get().getId())) {
             throw new StatusCodeWithException(message, StatusCode.UNSUPPORTED_HANDLE);
         }
     }

@@ -7,7 +7,7 @@
     >
         <span
             v-if="ootModelFlowNodeId"
-            class="el-button el-button--text el-button--small mb10"
+            class="board-button board-button--text board-button--small mb10"
             @click="methods.checkJobDetail"
         >
             查看前置流程详情
@@ -15,25 +15,6 @@
                 <elicon-top-right />
             </el-icon>
         </span>
-
-        <div v-if="!vData.check_result" class="flex-form">
-            <h4 class="f14 mb10 mr30 pr20">前置流程缺少评估模型, 请选择评估模型入参:</h4>
-            <el-form-item label="评估类别：">
-                <el-select v-model="vData.form.eval_type">
-                    <el-option
-                        v-for="(model, index) in vData.evalTypes"
-                        :key="index"
-                        :label="model.text"
-                        :value="model.value"
-                    />
-                </el-select>
-            </el-form-item>
-
-            <el-form-item label="正标签类型：">
-                <el-input v-model="vData.form.pos_label" />
-            </el-form-item>
-        </div>
-
         <h4>选择验证数据资源:</h4>
         <p class="f12 mt5 mb15">tips: 数据资源需包含原流程数据资源中的所有列</p>
         <div
@@ -57,7 +38,7 @@
                 <span class="name f14">
                     <el-icon
                         v-if="member.audit_status !== 'agree'"
-                        class="el-icon-warning-outline color-danger"
+                        class="board-icon-warning-outline color-danger"
                     >
                         <elicon-warning />
                     </el-icon>
@@ -76,7 +57,7 @@
                     选择数据资源
                 </el-button>
                 <span
-                    class="el-link el-link--info f12"
+                    class="board-link board-link--info f12"
                     @click="methods.ootFeaturePreview($event, member.member_id)"
                 >预览原入模特征列</span>
             </p>
@@ -103,7 +84,7 @@
                         <el-icon
                             v-if="!disabled"
                             title="移除"
-                            class="el-icon-circle-close f20"
+                            class="board-icon-circle-close f20"
                             @click="methods.removeDataSet(index)"
                         >
                             <elicon-circle-close />
@@ -138,36 +119,30 @@
                 </el-form>
             </div>
         </div>
-        <el-form>
-            <el-form-item v-if="!vData.check_result" label="是否计算分布">
-                <el-switch v-model="vData.prob_need_to_bin" active-color="#13ce66"/>
-            </el-form-item>
-            <el-form-item v-if="vData.prob_need_to_bin">
-                <el-select
-                    v-model="vData.calcDistribution.bin_method"
-                    placeholder="请选择"
-                    style="width: 84px;"
-                >
+        <div v-if="!vData.check_result" class="flex-form">
+            <h4 class="f14 mb10 mr30 pr20">前置流程缺少评估模型, 请选择评估模型入参:</h4>
+            <el-form-item label="评估类别：">
+                <el-select v-model="vData.form.eval_type">
                     <el-option
-                        v-for="item in vData.bin_method"
-                        :key="item.value"
-                        :label="item.text"
-                        :value="item.value"
+                        v-for="(model, index) in vData.evalTypes"
+                        :key="index"
+                        :label="model.text"
+                        :value="model.value"
                     />
                 </el-select>
-                <el-input-number
-                    v-model="vData.calcDistribution.bin_num"
-                    type="number"
-                    controls-position="right"
-                />箱
-                <span style="color: #999;">（建议设置10-20箱）</span>
             </el-form-item>
+
+            <el-form-item label="正标签类型：">
+                <el-input v-model="vData.form.pos_label" />
+            </el-form-item>
+        </div>
+        <el-form>
             <el-form-item v-if="vData.exitVertComponent" label="是否启用PSI分箱（预测概览概率/评分）">
                 <el-switch v-model="vData.need_psi" active-color="#13ce66"/>
             </el-form-item>
         </el-form>
         <psi-bin 
-            v-if="vData.need_psi"
+            v-if="vData.exitVertComponent && vData.need_psi"
             v-model:binValue="vData.binValue" 
             title="PSI分箱方式（预测概率/评分）"
             :disabled="disabled"
@@ -394,17 +369,13 @@
                     eval_type: 'binary',
                     pos_label: 1,
                 },
-                oot_job_id: '',
-                need_psi: false,
+                oot_job_id:       '',
+                need_psi:         false,
                 prob_need_to_bin: false,
-                binValue:   {
+                binValue:         {
                     method:       'bucket',
                     binNumber:    6,
                     split_points: '',
-                },
-                calcDistribution: {
-                    bin_method: 'bucket',
-                    bin_num: 10
                 },
                 exitVertComponent: false,
             });
@@ -421,7 +392,7 @@
                     });
 
                     if (code === 0 && data && data.params && data.params.dataset_list) {
-                        const { dataset_list, eval_type, pos_label, psi_param, score_param } = data.params;
+                        const { dataset_list, eval_type, pos_label, psi_param } = data.params;
 
                         for(const memberIndex in vData.member_list) {
                             const member = vData.member_list[memberIndex];
@@ -459,22 +430,13 @@
                         vData.form.pos_label = pos_label || 1;
                         if(psi_param) {
                             const { bin_method, bin_num, need_psi, split_points } = psi_param;
+
                             vData.need_psi = need_psi;
                             vData.binValue = {
                                 method:       bin_method,
                                 binNumber:    bin_num ,
                                 split_points: split_points ? split_points.join() : '',
                             };
-                        }
-                        if(score_param) {
-                            const { prob_need_to_bin, bin_num, bin_method } = score_param;
-                            vData.prob_need_to_bin = prob_need_to_bin;
-                            if(prob_need_to_bin) {
-                                vData.calcDistribution = {
-                                    bin_num,
-                                    bin_method,
-                                }
-                            }
                         }
                     }
                 },
@@ -768,9 +730,8 @@
                 },
 
                 checkParams() {
-                    const { binValue, exitVertComponent, need_psi, prob_need_to_bin, calcDistribution } = vData;
+                    const { binValue, exitVertComponent, need_psi } = vData;
                     const { method, binNumber, split_points } = binValue;
-                    const { bin_num, bin_method } = calcDistribution;
                     const isCustom = method === 'custom';
                     const array = replace(split_points).replace(/，/g,',').replace(/,$/, '').split(',');
 
@@ -784,16 +745,11 @@
                     const params = {
                         job_id:          props.ootJobId,
                         modelFlowNodeId: props.ootModelFlowNodeId,
-                        psi_param: {
+                        psi_param:       {
                             need_psi,
-                            bin_method:      exitVertComponent ? method : undefined,
+                            bin_method:   exitVertComponent ? method : undefined,
                             bin_num:      exitVertComponent && !isCustom ? binNumber : undefined,
-                            split_points:    exitVertComponent && isCustom ?  [...new Set([0, ...re ,1])] : undefined,
-                        },
-                        score_param: vData.check_result ? undefined : {
-                            prob_need_to_bin,
-                            bin_num,
-                            bin_method,
+                            split_points: exitVertComponent && isCustom ?  [...new Set([0, ...re ,1])] : undefined,
                         },
                     };
 
@@ -858,7 +814,7 @@
         font-size: 16px;
     }
     .dialog-min-width{min-width: 800px;}
-    .el-icon-circle-close{
+    .board-icon-circle-close{
         cursor: pointer;
         color:$--color-danger;
         position: absolute;
@@ -867,22 +823,22 @@
     }
     .data-set{
         border-top: 1px solid $border-color-base;
-        .el-form{
+        .board-form{
             padding: 5px 10px;
             border: 1px solid $border-color-base;
             border-top: 0;
         }
-        :deep(.el-form-item){
+        :deep(.board-form-item){
             display:flex;
             margin-bottom: 0;
             flex-wrap: wrap;
-            .el-form-item__label{
+            .board-form-item__label{
                 font-size: 12px;
                 text-align: left;
                 margin-bottom: 0;
                 line-height: 24px;
             }
-            .el-form-item__content{
+            .board-form-item__content{
                 font-size: 12px;
                 line-height: 22px;
                 word-break:break-all;

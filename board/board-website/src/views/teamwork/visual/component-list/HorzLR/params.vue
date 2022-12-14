@@ -215,7 +215,7 @@
                     </template>
                 </el-collapse-item>
 
-                <el-collapse-item title="评分基准分设置" name="5">
+                <!-- <el-collapse-item title="评分基准分设置" name="5">
                     <el-form-item label="是否启用评分卡：">
                         <el-switch
                             v-model="vData.form.score_param.need_scorecard"
@@ -238,7 +238,7 @@
                             controls-position="right"
                         />
                     </el-form-item>
-                </el-collapse-item>
+                </el-collapse-item> -->
             </el-collapse>
         </el-form>
     </div>
@@ -399,22 +399,22 @@
 </script>
 
 <style lang="scss" scoped>
-.el-form-item {
+.board-form-item {
     margin-bottom: 10px;
-    :deep(.el-form-item__label) {
+    :deep(.board-form-item__label) {
         flex: 1;
     }
 }
-.el-collapse-item {
-    :deep(.el-collapse-item__header) {
+.board-collapse-item {
+    :deep(.board-collapse-item__header) {
         color: #438bff;
         font-size: 16px;
         padding-left: 5px;
-        .el-collapse-item__arrow {
+        .board-collapse-item__arrow {
             color: #999;
         }
     }
-    :deep(.el-collapse-item__wrap) {
+    :deep(.board-collapse-item__wrap) {
         padding: 0 10px;
     }
 }

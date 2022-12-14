@@ -17,7 +17,6 @@
 package com.welab.wefe.serving.service.listener;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -109,7 +108,11 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
         String now = DateUtil.getCurrentDate2();
         // 获取 order_statistics 表中最新一次统计的时间
         OrderStatisticsMysqlModel lastRecord = orderStatisticsService.getLastRecord();
-        Date lastRecordCreatedTime = lastRecord.getCreatedTime();
+        Date lastRecordCreatedTime = new Date();
+        if (lastRecord != null) {
+            // 获取最后记录时间
+            lastRecordCreatedTime = lastRecord.getCreatedTime();
+        }
 
         ServiceOrderInput input = new ServiceOrderInput();
         input.setUpdatedStartTime(lastRecordCreatedTime);
@@ -172,8 +175,12 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
 
     public void checkAndSaveFeeDetail() {
         List<ClientServiceMysqlModel> clientServiceMysqlModels = clientServiceService.getAll();
-        // 获取最后记录时间
-        Date lastRecordTime = feeDetailService.getLastRecord().getCreatedTime();
+        FeeDetailMysqlModel lastRecord = feeDetailService.getLastRecord();
+        Date lastRecordTime = new Date();
+        if (lastRecord != null) {
+            // 获取最后记录时间
+            lastRecordTime = lastRecord.getCreatedTime();
+        }
         for (ClientServiceMysqlModel model : clientServiceMysqlModels) {
             if (model.getType() == null || model.getType() == ServiceClientTypeEnum.ACTIVATE.getValue()) {
                 continue;

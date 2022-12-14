@@ -54,7 +54,7 @@
         </div>
 
         <div class="mt20">
-            <p class="el-form-item mt20">
+            <p class="board-form-item mt20">
                 运行模式:
                 <el-radio-group
                     v-model="vData.workMode"
@@ -101,6 +101,7 @@
             const { appContext } = getCurrentInstance();
             const { $http, $alert } = appContext.config.globalProperties;
             const CheckFeatureDialogRef = ref();
+
             let vData = reactive({
                 inited:               false,
                 loading:              false,
@@ -125,6 +126,7 @@
                 workMode:         'federation',
                 fixedOptions:     [],
             });
+
             let methods = {
                 async getNodeDetail(model) {
                     vData.loading = true;
@@ -135,11 +137,14 @@
                             flow_id: props.flowId,
                         },
                     });
+
                     vData.loading = false;
                     if (code === 0 && data && data.params) {
                         const { params } = data;
+
                         if(params.members) {
                             const { members, workMode, form } = params;
+
                             vData.feature_column_count = 0;
                             vData.form = form;
                             members.forEach(member => {
@@ -207,6 +212,7 @@
 
                 checkParams() {
                     const members = [];
+
                     vData.data_set_list.forEach(row => {
                         members.push({
                             member_id:   row.member_id,
@@ -248,18 +254,18 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-form-item{
-        .el-form-item__label{
+    .board-form-item{
+        .board-form-item__label{
             line-height: 28px !important;
         }
     }
-    .el-checkbox-group{
+    .board-checkbox-group{
         max-height: 500px;
         overflow: auto;
         font-size: 14px;
     }
-    .el-checkbox{user-select:auto;}
-    .el-tag-list{
+    .board-checkbox{user-select:auto;}
+    .board-tag-list{
         max-height: 140px;
         overflow: auto;
     }

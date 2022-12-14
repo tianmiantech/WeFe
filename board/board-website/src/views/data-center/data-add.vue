@@ -125,7 +125,7 @@
                                                 {{ item.id }}
                                             </span>
                                         </p>
-                                        <el-icon class="el-icon-close" @click="deleteSelectedMember(item, index)">
+                                        <el-icon class="board-icon-close" @click="deleteSelectedMember(item, index)">
                                             <elicon-close />
                                         </el-icon>
                                     </li>
@@ -168,7 +168,7 @@
                             />
                         </div>
                         <uploader
-                            v-if="form.data_set_add_method === 'HttpUpload'"
+                            v-show="form.data_set_add_method === 'HttpUpload'"
                             ref="uploaderRef"
                             :options="file_upload_options"
                             :file-status-text="fileStatusText"
@@ -178,7 +178,7 @@
                             @file-added="fileAdded"
                         >
                             <uploader-unsupport />
-                            <uploader-drop v-if="file_upload_options.files.length === 0">
+                            <uploader-drop v-show="file_upload_options.files.length === 0">
                                 <p class="mb10">将文件（.csv .xls .xlsx）拖到此处</p>或
                                 <uploader-btn
                                     :attrs="file_upload_attrs"
@@ -232,7 +232,8 @@
 
                         <ul v-if="addDataType !== 'img'" class="data-set-upload-tip">
                             <template v-if="addDataType === 'csv'">
-                                <li>主键字段必须是第一列，并且会被自动 hash</li>
+                                <!-- <li>主键字段必须是第一列，并且会被自动 hash</li> -->
+                                <li>主键字段必须是第一列</li>
                                 <li>主键重复的数据会被自动去重，仅保留第 1 条</li>
                                 <li>y 值列的列名必须为 y</li>
                             </template>
@@ -567,6 +568,9 @@
     import EncryptionGenerator from '../teamwork/components/fusion-job/encryption-generator';
     import DataSetPublicTips from './components/data-set-public-tips';
     import SelectMember from './components/select-member';
+    import { getToken } from '@tianmiantech/util';
+    import { getTokenName } from '@src/utils/tools';
+    import { baseURL } from '@src/utils/constant';
 
     let canLeave = false;
 
@@ -603,7 +607,7 @@
                 // help：https://github.com/simple-uploader/Uploader/blob/develop/README_zh-CN.md#%E5%A4%84%E7%90%86-get-%E6%88%96%E8%80%85-test-%E8%AF%B7%E6%B1%82
                 file_upload_options: {
                     files:               [],
-                    target:              window.api.baseUrl + '/file/upload',
+                    target:              baseURL() + '/file/upload',
                     singleFile:          true,
                     // chunks check
                     testChunks:          true,
@@ -714,7 +718,7 @@
                 // 图像数据上传options
                 img_upload_options: {
                     files:               [],
-                    target:              window.api.baseUrl + '/file/upload',
+                    target:              baseURL() + '/file/upload',
                     singleFile:          true,
                     // chunks check
                     testChunks:          true,
@@ -773,8 +777,8 @@
                 this.getDataSouceList();
                 this.getList();
             });
-            this.file_upload_options.headers.token = this.userInfo.token;
-            this.img_upload_options.headers.token = this.userInfo.token;
+            this.file_upload_options.headers['x-user-token'] = getToken(getTokenName());
+            this.img_upload_options.headers['x-user-token'] = getToken(getTokenName());
             this.file_upload_options.target = this.file_upload_options.target + '?uploadFileUseType=Add' + this.search.dataResourceType;
             this.img_upload_options.target = this.img_upload_options.target + '?uploadFileUseType=Add' + this.search.dataResourceType;
         },
@@ -1290,15 +1294,15 @@
 
 <style lang="scss" scoped>
     .page{overflow: visible;}
-    .el-form{overflow-x: auto;}
-    .el-icon-close{
+    .board-form{overflow-x: auto;}
+    .board-icon-close{
         font-weight: bold;
         margin-right: -20px;
         color: $--color-danger;
         position: relative;
         top: 2px;
     }
-    .el-pagination{overflow: auto;}
+    .board-pagination{overflow: auto;}
     .deduplication-tips{
         font-size: 14px;
         p:first-child{
@@ -1312,7 +1316,7 @@
         position: relative;
         z-index: 1;
     }
-    .el-divider--horizontal {
+    .board-divider--horizontal {
         margin: 8px 0 20px 0;
     }
     .uploader {
@@ -1347,7 +1351,7 @@
         top:-2px;
     }
     .save-btn {width: 100px;}
-    .el-form-item .el-tag {
+    .board-form-item .board-tag {
         height: 32px;
         line-height: 32px;
         margin: 0 5px 5px 0;
@@ -1388,7 +1392,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        .el-icon-close {
+        .board-icon-close {
             margin-right: unset;
             cursor: pointer;
             color: rgb(201, 199, 199);

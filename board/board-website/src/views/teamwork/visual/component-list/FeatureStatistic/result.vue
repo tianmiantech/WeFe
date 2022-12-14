@@ -9,15 +9,14 @@
                     <el-tabs v-model="vData.tabName">
                         <el-tab-pane v-for="(member, mIdx) in vData.members" :key="`${member.member_id}-${member.member_role}`" :name="`${member.member_id}-${member.member_role}`" :label="`${member.member_name} (${member.member_role === 'provider' ? '协作方' : '发起方' })`">
                             <p class="mb10 pb5">分布:</p>
-                            <el-table :data="member.table" stripe :border="true" style="width :100%" class="fold-table" default-expand-all @expand-change="methods.expandChange">
+                            <el-table :data="member.table" stripe :border="true" style="width :100%" class="fold-table">
                                 <el-table-column type="expand">
                                     <template #default="props">
                                         <el-tabs
                                             type="border-card"
-                                            v-model="member.table[props.$index].activeTab"
                                             @tab-click="methods.tabChangeEvent(props.$index, mIdx, $event)"
                                         >
-                                            <el-tab-pane label="Overview" name="overview">
+                                            <el-tab-pane label="Overview">
                                                 <el-table :data="member.table[props.$index].overviewtable" stripe border>
                                                     <el-table-column label="最小值" prop="min"/>
                                                     <el-table-column label="最大值" prop="max"/>
@@ -330,10 +329,10 @@
 
 <style lang="scss" scoped>
     .fold-table {
-        :deep(.el-table__expanded-cell) {
+        :deep(.board-table__expanded-cell) {
             padding: 20px;
         }
-        :deep(.el-descriptions__header) {
+        :deep(.board-descriptions__header) {
             padding: 10px;
             border: 1px solid #ebeef5;
             margin-bottom: 0;

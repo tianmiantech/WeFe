@@ -184,11 +184,11 @@
             v-model="cooperAuthDialog.show"
             destroy-on-close
         >
-            <div class="el-message-box__container">
-                <el-icon class="el-message-box__status color-danger">
+            <div class="board-message-box__container">
+                <el-icon class="board-message-box__status color-danger">
                     <elicon-warning-filled />
                 </el-icon>
-                <div class="el-message-box__message">{{ cooperAuthDialog.flag ? '同意加入合作' : '拒绝与发起方的此次项目合作' }}</div>
+                <div class="board-message-box__message">{{ cooperAuthDialog.flag ? '同意加入合作' : '拒绝与发起方的此次项目合作' }}</div>
             </div>
             <div class="mt20 text-r">
                 <el-button @click="cooperAuthDialog.show=false">
@@ -490,7 +490,7 @@
 
 
                     if (this.isDemo) {
-                        // this.form.is_project_admin = !!(this.userInfo.admin_role || (admin_user.length > 0 || this.userInfo.id === data.created_by) || (!this.userInfo.admin_role && is_not_admin_created.length === 0)); 
+                        // this.form.is_project_admin = !!(this.userInfo.admin_role || (admin_user.length > 0 || this.userInfo.id === data.created_by) || (!this.userInfo.admin_role && is_not_admin_created.length === 0));
                         this.form.is_project_admin = !!((this.userInfo.admin_role || is_self_project || is_not_admin_created.length===0));
                     } else {
                         this.form.is_project_admin = true;
@@ -550,7 +550,7 @@
                     callback && callback();
                     // get project/detail first
                     if(!this.getModelingList && this.form.project_type === 'MachineLearning') {
-                        this.$refs['ModelingList'][0].getList();
+                        this.$refs['ModelingList'][0] && this.$refs['ModelingList'][0].getList();
                         this.getModelingList = true;
                     }
 
@@ -576,7 +576,9 @@
                                 role = 'provider';
                             }
                         }
-                        this.$refs['membersListRef'][0].memberTabName = `${this.userInfo.member_id}-${role}`;
+                        if(this.$refs['membersListRef'][0]){
+                            this.$refs['membersListRef'][0].memberTabName = `${this.userInfo.member_id}-${role}`;
+                        }
                     }
 
                     // refresh audit state every 30s
@@ -584,7 +586,7 @@
                     timer = setTimeout(() => {
                         this.getProjectInfo(null, { requestFromRefresh: true });
                     }, 30 * 10e2);
-                    
+
                     // 自定义模块顺序
                     if (this.uiConfig.project_module_sort) {
                         const idx = Object.keys(this.uiConfig.project_module_sort).indexOf(this.form.project_id);
@@ -772,7 +774,7 @@
 
 <style lang="scss">
     .audit_dialog{width: 360px;}
-    .el-table-maxwidth{max-width: 1000px;}
+    .board-table-maxwidth{max-width: 1000px;}
     .flex-row {
         display: flex;
         justify-content: space-between;
@@ -782,19 +784,18 @@
         justify-content: space-between;
         align-items: center;
         justify-content: space-between;
-        color: #333;
-        .el-icon, span {
+        color: #c0c0c0;
+        .board-icon, span {
             cursor: pointer;
         }
     }
-    .el-card__header {
-        padding-top: 10px;
+    .board-card__header {
         padding-bottom: unset;
         background: mintcream;
         height: 65px;
     }
     .unedit-tips {
-        .el-alert__content {
+        .board-alert__content {
             height: 18px;
             line-height: 23px;
             padding: 0 6px;
@@ -826,14 +827,14 @@
         }
         .project-desc-time{padding: 8px 0;}
     }
-    .el-form{
-        :deep(.el-form-item__label){font-weight: bold;}
+    .board-form{
+        :deep(.board-form-item__label){font-weight: bold;}
     }
     .form-item__wrap{
         display:inline-block;
         vertical-align: top;
-        .el-input,
-        .el-textarea{
+        .board-input,
+        .board-textarea{
             min-width: 300px;
         }
     }

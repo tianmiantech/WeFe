@@ -38,8 +38,8 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.data.fusion.service.api.bloomfilter.AddApi;
 import com.welab.wefe.data.fusion.service.config.Config;
 import com.welab.wefe.data.fusion.service.database.entity.BloomFilterMySqlModel;
@@ -95,8 +95,8 @@ public class BloomFilterAddService extends AbstractService {
 
         BloomFilterMySqlModel model = new BloomFilterMySqlModel();
 
-        model.setUpdatedBy(CurrentAccount.id());
-        model.setCreatedBy(CurrentAccount.id());
+        model.setUpdatedBy(CurrentAccountUtil.get().getId());
+        model.setCreatedBy(CurrentAccountUtil.get().getId());
         model.setDescription(input.getDescription());
         model.setDataResourceSource(input.getDataResourceSource());
         model.setName(input.getName());
@@ -154,8 +154,12 @@ public class BloomFilterAddService extends AbstractService {
         AbstractDataSetReader dataSetReader = isCsv ? new CsvDataSetReader(file) : new ExcelDataSetReader(file);
         dataSetReader.getHeader();
         File src = Paths.get(config.getBloomFilterDir()).resolve(model.getName()).toFile();
-
+        if(!src.exists()){
+            boolean result = src.mkdirs();
+            LOG.info("mkdir " + src.toString() + (result ? "success":"fail"));
+        }
         model.setSrc(src.toString());
+
 
         BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model, file);
         // Read all rows of data

@@ -27,9 +27,9 @@ export default {
         app.config.globalProperties.$bus = bus;
 
         // register element-plus components on demand
-        for (const component in elComponents) {
+        /* for (const component in elComponents) {
             app.use(elComponents[component]);
-        }
+        } */
         for (const component in elIcons) {
             app.component(`elicon${component}`, elIcons[component]);
         }

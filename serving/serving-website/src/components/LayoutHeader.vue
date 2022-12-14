@@ -1,6 +1,6 @@
 <template>
     <div class="layout-header">
-        <div class="heading-bar">
+        <div class="service-heading-bar">
             <span
                 ref="heading-title"
                 class="heading-title float-left"
@@ -19,9 +19,15 @@
                     />
                 </el-tooltip>
             </span>
-            <div class="heading-user">
+            <div
+                v-if="!isQiankun"
+                class="heading-user"
+            >
                 你好,
-                <el-dropdown @command="handleCommand">
+                <span class="el-dropdown-link">
+                    <strong>{{ userInfo.nickname }}</strong>
+                </span>
+                <!-- <el-dropdown @command="handleCommand">
                     <span class="el-dropdown-link">
                         <strong>{{ userInfo.nickname }}</strong>
                         <i class="el-icon-arrow-down el-icon--right" />
@@ -36,7 +42,7 @@
                             注销
                         </el-dropdown-item>
                     </el-dropdown-menu>
-                </el-dropdown>
+                </el-dropdown> -->
             </div>
         </div>
 
@@ -114,6 +120,7 @@ import { mapGetters } from 'vuex';
 import { baseLogout } from '@src/router/auth';
 import LayoutTags from './LayoutTags.vue';
 import { PASSWORDREG } from '@js/const/reg';
+import {isQianKun} from '@src/http/utils';
 
 export default {
     components: {
@@ -121,6 +128,7 @@ export default {
     },
     data() {
         return {
+            isQiankun:       isQianKun(),
             headingTitle:    '',
             asideCollapsed:  false,
             changepwdDialog: {
@@ -288,11 +296,11 @@ export default {
 </script>
 
 <style lang="scss">
-.heading-bar {
+.service-heading-bar {
+    white-space: nowrap;
     text-align: right;
-    padding: 12px 0;
-    height: 60px;
-    line-height: 36px;
+    line-height: 30px;
+    padding: 10px 0 6px 20px;
     .heading-tools {
         display: inline-block;
         padding: 0 10px;
