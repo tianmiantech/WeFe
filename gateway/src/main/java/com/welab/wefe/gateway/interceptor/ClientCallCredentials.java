@@ -14,34 +14,12 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.common.wefe.enums;
+package com.welab.wefe.gateway.interceptor;
 
-/**
- * Database type
- *
- * @author hunter.zhao
- */
-public enum DatabaseType {
-    /**
-     * MySql
-     */
-    MySql,
-    /**
-     * PgSql
-     */
-    PgSql,
-    /**
-     * Hive
-     */
-    Hive,
-    /**
-     * Impala
-     */
-    Impala,
-    // Oracle,
-    // Db2,
-    /**
-     * Cassandra
-     */
-    Cassandra
+import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
+
+public class ClientCallCredentials extends AbstractCallCredentials {
+    public ClientCallCredentials(GatewayMetaProto.TransferMeta transferMeta, AbstractMetadataBuilder... metadataBuilders) {
+        super(transferMeta, metadataBuilders);
+    }
 }

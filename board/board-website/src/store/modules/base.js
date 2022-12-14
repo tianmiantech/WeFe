@@ -1,5 +1,7 @@
 import { MENU_LIST,appCode } from '@src/utils/constant';
 
+import { getFeatureType } from '../../service';
+
 function setStorage () {
     /* let keepAlive = localStorage.getItem(KEEPALIVE);
 
@@ -58,6 +60,7 @@ export default _ => {
         adminUserList,
         menuList,
         appInfo: {},
+        featureType: {},
     };
 
     const getters = {
@@ -70,6 +73,7 @@ export default _ => {
         adminUserList: state => state.adminUserList,
         menuList:      state => state.menuList,
         appInfo:       state => state.appInfo,
+        featureType:   state => state.featureType,
     };
 
     const mutations = {
@@ -102,6 +106,18 @@ export default _ => {
             state.adminUserList = data;
             setStorage().setItem(ADMIN_USER_LIST, JSON.stringify(data));
         },
+        'UPDATE_FEATURE_TYPE'(state, data){
+            state.featureType = data;
+        },
+    };
+
+    const actions = {
+        getFeatureType({ commit }, { flow_id }){
+            /** 获取特征type并存储到vuex */
+            getFeatureType({ flow_id }).then((res) => {
+                commit('UPDATE_FEATURE_TYPE', res);
+            });
+        },
         'MENU_LIST'(state, data){
             state.menuList = data;
             setStorage().setItem(MENU_LIST, JSON.stringify(data));
@@ -115,5 +131,6 @@ export default _ => {
         getters,
         mutations,
         state,
+        actions,
     };
 };

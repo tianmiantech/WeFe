@@ -51,6 +51,7 @@
                     member_role:     '',
                     features:        [],
                     selectedFeature: [],
+                    data_set_id:     '',
                 },
                 provider: {
                     featureNames:    [],
@@ -59,6 +60,7 @@
                     member_role:     '',
                     features:        [],
                     selectedFeature: [],
+                    data_set_id:     '',
                 },
             });
 

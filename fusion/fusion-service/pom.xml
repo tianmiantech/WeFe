@@ -123,6 +123,12 @@
             <artifactId>hibernate-types-52</artifactId>
             <version>2.4.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.welab.wefe</groupId>
+            <artifactId>common-jdbc</artifactId>
+            <version>1.0.0</version>
+            <scope>compile</scope>
+        </dependency>
 
     </dependencies>
 

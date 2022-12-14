@@ -23,10 +23,10 @@ import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDa
 import com.welab.wefe.board.service.util.AbstractTableDataSetReader;
 import com.welab.wefe.board.service.util.CsvTableDataSetReader;
 import com.welab.wefe.board.service.util.ExcelTableDataSetReader;
-import com.welab.wefe.board.service.util.JdbcManager;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.jdbc.JdbcClient;
 import com.welab.wefe.common.util.ListUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -38,7 +38,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -54,15 +53,17 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
     TableDataSetService tableDataSetService;
 
     @Override
-    protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<Output> handle(Input input) throws Exception {
 
         Output output = new Output();
         // Read data from the database for preview
         if (DataSetAddMethod.Database.equals(input.getDataSetAddMethod())) {
             // Test whether SQL can be queried normally
-            boolean result = tableDataSetService.testSqlQuery(input.getDataSourceId(), input.getSql());
-            if (result) {
+            String message = tableDataSetService.testSqlQuery(input.getDataSourceId(), input.getSql());
+            if (message == null) {
                 output = readFromDatabase(input.getDataSourceId(), input.getSql());
+            } else {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("测试连接数据库失败：" + message);
             }
         } else {
 
@@ -103,13 +104,13 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
         return new Output(columnDataTypeInferrer);
     }
 
-    private Output readFromDatabase(String dataSourceId, String sql) throws StatusCodeWithException {
+    private Output readFromDatabase(String dataSourceId, String sql) throws Exception {
         DataSourceMysqlModel model = tableDataSetService.getDataSourceById(dataSourceId);
         if (model == null) {
             throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
         }
 
-        Connection conn = JdbcManager.getConnection(
+        JdbcClient client = JdbcClient.create(
                 model.getDatabaseType(),
                 model.getHost(),
                 model.getPort(),
@@ -119,7 +120,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
         );
 
         // Get the column header of the data set
-        List<String> header = JdbcManager.getRowHeaders(conn, sql);
+        List<String> header = client.getHeaders(sql);
         if (header.stream().distinct().count() != header.size()) {
             throw new StatusCodeWithException("数据集包含重复的字段，请处理后重新上传。", StatusCode.PARAMETER_VALUE_INVALID);
         }
@@ -136,8 +137,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
         }
 
         ColumnDataTypeInferrer columnDataTypeInferrer = new ColumnDataTypeInferrer(header);
-
-        JdbcManager.readWithFieldRow(conn, sql, columnDataTypeInferrer, 10);
+        client.scan(sql, columnDataTypeInferrer, 10_000);
 
 
         return new Output(columnDataTypeInferrer);

@@ -14,12 +14,34 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.gateway.interceptor;
+package com.welab.wefe.common.jdbc.base;
 
-import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
-
-public class RemoteGrpcProxyCallCredentials extends AbstractCallCredentials {
-    public RemoteGrpcProxyCallCredentials(GatewayMetaProto.TransferMeta transferMeta, AbstractMetadataBuilder... metadataBuilders) {
-        super(transferMeta, metadataBuilders);
-    }
+/**
+ * Database type
+ *
+ * @author hunter.zhao
+ */
+public enum DatabaseType {
+    /**
+     * MySql
+     */
+    MySql,
+    /**
+     * PgSql
+     */
+    PgSql,
+    /**
+     * Hive
+     */
+    Hive,
+    /**
+     * Impala
+     */
+    Impala,
+    // Oracle,
+    // Db2,
+    /**
+     * Cassandra
+     */
+    Cassandra
 }

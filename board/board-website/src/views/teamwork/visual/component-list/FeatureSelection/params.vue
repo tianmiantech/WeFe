@@ -46,6 +46,11 @@
             </template>
         </el-table-column>
         <el-table-column
+            property="data_type"
+            label="类型"
+            width="120"
+        />
+        <el-table-column
             v-if="frontStatus.has_c_v"
             property="missing_rate"
             label="缺失率"
@@ -61,6 +66,7 @@
 import { ref, getCurrentInstance, computed } from 'vue';
 import numeral from 'numeral';
 import FeatureFilter from './FeatureFilter.vue';
+import {useStore} from 'vuex';
 
 const formatNumber = (num) =>
     num === null ? null : numeral(num).format('0.000');
@@ -82,7 +88,8 @@ export default {
     },
     setup(props) {
         const { appContext } = getCurrentInstance();
-        const { $http } = appContext.config.globalProperties;
+        const { $http,$notify } = appContext.config.globalProperties;
+        const store = useStore();
         const loading = ref(false);
         const tezhenRef = ref();
         const allFeatures = ref([]);
@@ -101,6 +108,7 @@ export default {
                 color: colors[index],
             }));
         });
+        const featureType = computed(() => store.state.base.featureType);
         const calcColor = (item) =>
             colorSet.value.find((each) => each.member === item.member_name)
                 ?.color;
@@ -165,16 +173,18 @@ export default {
                                         ...each,
                                         member_name: cur.member_name,
                                         member_id: cur.member_id,
+                                        data_set_id: cur.data_set_id,
                                     })),
                                 ],
                                 []
                             )
-                            .map(({ cv, iv, name, ...other }) => ({
+                            .map(({ cv, iv, name,data_set_id, ...other }) => ({
                                 ...other,
                                 cv: formatNumber(cv),
                                 iv: formatNumber(iv),
                                 name,
                                 ...list.find((each) => each.name === name),
+                                data_type: (featureType.value[data_set_id] || {})[name],
                             }));
                     }
                 }
@@ -187,6 +197,28 @@ export default {
             tezhenRef.value.open = false;
         };
         const checkParams = () => {
+            const tipsArray = [];
+
+            selectedFeature.value.forEach(item => {
+                const isNumerical = ['Integer', 'Long', 'Double']; 
+                if(item.data_type && !isNumerical.includes(item.data_type)){
+                    tipsArray.push({
+                        name:      item.name,
+                        data_type: item.data_type,
+                    })
+                }
+            })
+
+            if(tipsArray.length){
+                $notify({
+                    type:     'warning',
+                    offset:   5,
+                    duration: 2000,
+                    title:    '提示',
+                    message:  `请知悉：您当前选择的特征有${tipsArray.length}个不是数值型，部分组件不支持输入非数值型特征，必要时可以通过重新选择、热编码、特征转换等方式处理这些特征。非数值型特征：${tipsArray.reduce((pre,cur)=> pre + `${cur.name}(${cur.data_type}),`, '')}`,
+                });
+            }
+
             const temp = members.value.map((each) => ({
                 ...each,
                 features: selectedFeature.value.filter(
