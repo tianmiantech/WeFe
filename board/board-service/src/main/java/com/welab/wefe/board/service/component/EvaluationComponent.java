@@ -180,9 +180,15 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
                 topn.putAll(parserTopN(trainObj, normalName, "train"));
                 topn.putAll(parserTopN(validateObj, normalName, "validate"));
                 return topn;
-            case "scores_distribution":
+            /*case "scores_distribution":
                 return JObject.create()
-                        .append("scored", JObject.create(scoreAndSpiObj.getJObjectByPath("train_validate_" + normalName + "_scored.data")));
+                        .append("scored", JObject.create(scoreAndSpiObj.getJObjectByPath("train_validate_" + normalName + "_scored.data")));*/
+
+            case "scores_distribution":
+                JObject scores_distribution = JObject.create();
+                scores_distribution.putAll(parserScoresDistributionCurveData(scoreAndSpiObj, normalName));
+                return scores_distribution;
+
             case "psi":
                 return JObject.create()
                         .append("psi", JObject.create(scoreAndSpiObj.getJObjectByPath("train_validate_" + normalName + "_psi.data")));
