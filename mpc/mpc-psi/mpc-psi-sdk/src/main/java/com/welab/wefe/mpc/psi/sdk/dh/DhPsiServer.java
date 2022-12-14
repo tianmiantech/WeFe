@@ -2,8 +2,10 @@ package com.welab.wefe.mpc.psi.sdk.dh;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -60,15 +62,17 @@ public class DhPsiServer {
     /**
      * step 2 对输入（客户端）的数据进行加密操作
      */
-    public List<String> encryptClientDatasetMap(List<String> clientIds) {
+    public Map<Long, String> encryptClientDatasetMap(Map<Long, String> clientIds) {
         LOG.info("server begin encryptClientDatasetMap, threads = " + threads);
-        List<String> encryptClientIds = new CopyOnWriteArrayList<>();
-        List<Set<String>> partitionList = PartitionUtil.partitionList(clientIds, threads);
+        List<Map<Long, String>> partitionList = PartitionUtil.partitionMap(clientIds, threads);
         ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
-        for (Set<String> partition : partitionList) {
+        Map<Long, String> encryptedMap = new ConcurrentHashMap<>();
+        for (Map<Long, String> partition : partitionList) {
             executorService.submit(() -> {
-                partition.forEach(id -> encryptClientIds
-                        .add(DiffieHellmanUtil.encrypt(id, this.serverPrivateD, this.p, false).toString(16)));
+                for (Map.Entry<Long, String> entry : partition.entrySet()) {
+                    encryptedMap.put(entry.getKey(), DiffieHellmanUtil
+                            .encrypt(entry.getValue(), this.serverPrivateD, this.p, false).toString(16));
+                }
             });
         }
         executorService.shutdown();
@@ -82,7 +86,7 @@ public class DhPsiServer {
             executorService.shutdown();
         }
         LOG.info("server end encryptClientDatasetMap");
-        return encryptClientIds;
+        return encryptedMap;
     }
 
     /**

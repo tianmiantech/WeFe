@@ -73,7 +73,6 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             String p = data.getString("p");
             // 当前批次
             DhPsiServer server = DH_SERVER_MAP.get(requestId);
-            List<String> encryptClientIds = null;
             if (server == null) {
                 LOG.info("dh server not found, new one");
                 server = new DhPsiServer(p);
@@ -83,15 +82,19 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             if (CollectionUtils.isEmpty(clientIds)) {
                 clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
             }
+            List<String> doubleEncryptedClientDataset = null;
             if (!CollectionUtils.isEmpty(clientIds)) {
+                
+                Map<Long, String> clientEncryptedDatasetMap = EcdhUtil.convert2Map(clientIds);
                 // 对客户端数据进行加密
-                encryptClientIds = server.encryptClientDatasetMap(clientIds);
+                Map<Long, String> doubleEncryptedClientDatasetMap = server.encryptClientDatasetMap(clientEncryptedDatasetMap);
+                doubleEncryptedClientDataset = EcdhUtil.convert2List(doubleEncryptedClientDatasetMap);
             }
             List<String> batchData = getBatchData(model, currentBatch);
             // 对自己的数据集进行加密
             List<String> encryptServerIds = server.encryptDataset(batchData);
             QueryPrivateSetIntersectionResponse response = new QueryPrivateSetIntersectionResponse();
-            response.setClientIdByServerKeys(encryptClientIds);
+            response.setClientIdByServerKeys(doubleEncryptedClientDataset);
             response.setServerEncryptIds(encryptServerIds);
             response.setRequestId(this.requestId);
             response.setCurrentBatch(currentBatch);

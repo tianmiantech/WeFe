@@ -18,6 +18,8 @@ package com.welab.wefe.mpc.psi.sdk;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -30,6 +32,7 @@ import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
 import com.welab.wefe.mpc.psi.sdk.dh.DhPsiClient;
 import com.welab.wefe.mpc.psi.sdk.service.PrivateSetIntersectionService;
+import com.welab.wefe.mpc.psi.sdk.util.EcdhUtil;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
@@ -73,8 +76,7 @@ public class PrivateSetIntersection implements Psi {
      * @return
      * @throws Exception
      */
-    public List<String> query(CommunicationConfig config, List<String> clientIds)
-            throws Exception {
+    public List<String> query(CommunicationConfig config, List<String> clientIds) throws Exception {
         if (CollectionUtil.isEmpty(clientIds)) {
             throw new IllegalArgumentException("local id is empty");
         }
@@ -83,13 +85,12 @@ public class PrivateSetIntersection implements Psi {
         }
         long start = System.currentTimeMillis();
         DhPsiClient client = new DhPsiClient();
-        client.setOriginalClientIds(clientIds);
         // 加密我自己的数据
-        List<String> encryptClientIds = client.encryptClientOriginalDataset();
+        Map<Long, String> clientEncryptedDatasetMap = client.encryptClientOriginalDataset(clientIds);
         QueryPrivateSetIntersectionRequest request = new QueryPrivateSetIntersectionRequest();
         request.setP(client.getP().toString(16));
         // 发给服务端
-        request.setClientIds(encryptClientIds);
+        request.setClientIds(EcdhUtil.convert2List(clientEncryptedDatasetMap));
         request.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
         request.setCurrentBatch(DEFAULT_CURRENT_BATH);
         request.setType(Psi.DH_PSI);
@@ -104,8 +105,8 @@ public class PrivateSetIntersection implements Psi {
         // 获取服务端id, 加密服务端ID
         client.encryptServerDataset(response.getServerEncryptIds());
         // 获取被服务端加密了的客户端ID
-        client.setClientIdByServerKeys(response.getClientIdByServerKeys());
-        List<String> allResult = client.psi();
+        client.setClientIdByServerKeys(EcdhUtil.convert2Map(response.getClientIdByServerKeys()));
+        Set<String> allResult = client.psi();
         logger.info("dh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
                 + allResult.size() + ", hasNext = " + hasNext + ", duration = " + (System.currentTimeMillis() - start));
         while (hasNext) {
@@ -125,7 +126,7 @@ public class PrivateSetIntersection implements Psi {
             client.encryptServerDataset(response.getServerEncryptIds());
             // 获取被服务端加密了的客户端ID
 //            client.setClientIdByServerKeys(response.getClientIdByServerKeys());
-            List<String> batchResult = client.psi();
+            Set<String> batchResult = client.psi();
             if (batchResult != null && !batchResult.isEmpty()) {
                 allResult.addAll(batchResult);
             }
@@ -133,6 +134,6 @@ public class PrivateSetIntersection implements Psi {
                     + allResult.size() + ", hasNext = " + hasNext + ",duration = "
                     + (System.currentTimeMillis() - start));
         }
-        return allResult;
+        return new ArrayList<>(allResult);
     }
 }

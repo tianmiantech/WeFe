@@ -3,12 +3,14 @@ package com.welab.wefe.mpc.psi.sdk.dh;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +18,6 @@ import org.slf4j.LoggerFactory;
 import com.welab.wefe.mpc.key.DiffieHellmanKey;
 import com.welab.wefe.mpc.psi.sdk.util.PartitionUtil;
 import com.welab.wefe.mpc.util.DiffieHellmanUtil;
-
-import cn.hutool.core.collection.CollectionUtil;
 
 public class DhPsiClient {
 
@@ -27,9 +27,10 @@ public class DhPsiClient {
     private BigInteger clientPrivateD; // 客户端私钥
     private BigInteger p;
 
-    private List<String> originalClientIds; // 原始客户端数据
+    private AtomicLong idAtomicCounter; // id 计数器
+    private Map<Long, String> originalClientIds; // 原始客户端数据
     private List<String> serverIdWithClientKeys; // 经过客户端加密后的服务端数据
-    private List<String> clientIdByServerKeys; // 保存经过服务端二次加密后客户端的数据
+    private Map<Long, String> clientIdByServerKeys; // 保存经过服务端二次加密后客户端的数据
 
     public DhPsiClient() {
         this.clientPrivateD = generaterPrivateKey();
@@ -47,14 +48,33 @@ public class DhPsiClient {
      * @param encryptServerIds 加密服务器id列表
      * @return
      */
-    public List<String> psi() {
-        if (CollectionUtil.isEmpty(originalClientIds) || CollectionUtil.isEmpty(clientIdByServerKeys)
-                || CollectionUtil.isEmpty(serverIdWithClientKeys)) {
-            return new ArrayList<>();
+    public Set<String> psi() {
+        LOG.info("client begin psi, threads = " + threads);
+        Set<String> psi = ConcurrentHashMap.newKeySet();
+        // 对客户端的数据进行分片
+        List<Map<Long, String>> reversedMapPartition = PartitionUtil.partitionMap(this.clientIdByServerKeys, threads);
+        ExecutorService executorService = Executors.newFixedThreadPool(reversedMapPartition.size());
+        for (Map<Long, String> partition : reversedMapPartition) {
+            executorService.submit(() -> {
+                for (Map.Entry<Long, String> entry : partition.entrySet()) {
+                    // 如果服务端的数据中存在客户端的数据
+                    if (this.serverIdWithClientKeys.contains(entry.getValue()))
+                        psi.add(originalClientIds.get(entry.getKey()));
+                }
+            });
         }
-        List<String> result = clientIdByServerKeys.stream().filter(item -> serverIdWithClientKeys.contains(item))
-                .map(item -> originalClientIds.get(clientIdByServerKeys.indexOf(item))).collect(Collectors.toList());
-        return result;
+        executorService.shutdown();
+        try {
+            while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                // pass
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            executorService.shutdown();
+        }
+        LOG.info("client end psi");
+        return psi;
     }
 
     /**
@@ -92,15 +112,18 @@ public class DhPsiClient {
     /**
      * step 1 加密客户端ID
      */
-    public List<String> encryptClientOriginalDataset() {
+    public Map<Long, String> encryptClientOriginalDataset(List<String> clientIds) {
         LOG.info("client begin encryptClientOriginalDataset, threads = " + threads);
-        List<String> encryptClientIds = new CopyOnWriteArrayList<>();
-        List<Set<String>> partitionList = PartitionUtil.partitionList(this.originalClientIds, threads);
+        Map<Long, String> clientEncryptedDatasetMap = new ConcurrentHashMap<>();
+        List<Set<String>> partitionList = PartitionUtil.partitionList(clientIds, threads);
         ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
         for (Set<String> partition : partitionList) {
             executorService.submit(() -> {
                 for (String id : partition) {
-                    encryptClientIds.add(DiffieHellmanUtil.encrypt(id, this.clientPrivateD, this.p).toString(16));
+                    Long key = idAtomicCounter.incrementAndGet();
+                    originalClientIds.put(key, id);
+                    clientEncryptedDatasetMap.put(key,
+                            DiffieHellmanUtil.encrypt(id, this.clientPrivateD, this.p).toString(16));
                 }
             });
         }
@@ -115,14 +138,14 @@ public class DhPsiClient {
             executorService.shutdown();
         }
         LOG.info("client end encryptClientOriginalDataset");
-        return encryptClientIds;
+        return clientEncryptedDatasetMap;
     }
 
     /**
      * step 0 生成一个私钥
      */
-    private BigInteger generaterPrivateKey() {
-        return DiffieHellmanUtil.generateRandomKey(this.keySize);
+    private static BigInteger generaterPrivateKey() {
+        return DiffieHellmanUtil.generateRandomKey(keySize);
     }
 
     public BigInteger getClientPrivateD() {
@@ -149,19 +172,19 @@ public class DhPsiClient {
         this.serverIdWithClientKeys = serverIdWithClientKeys;
     }
 
-    public List<String> getClientIdByServerKeys() {
+    public Map<Long, String> getClientIdByServerKeys() {
         return clientIdByServerKeys;
     }
 
-    public void setClientIdByServerKeys(List<String> clientIdByServerKeys) {
+    public void setClientIdByServerKeys(Map<Long, String> clientIdByServerKeys) {
         this.clientIdByServerKeys = clientIdByServerKeys;
     }
 
-    public List<String> getOriginalClientIds() {
+    public Map<Long, String> getOriginalClientIds() {
         return originalClientIds;
     }
 
-    public void setOriginalClientIds(List<String> originalClientIds) {
+    public void setOriginalClientIds(Map<Long, String> originalClientIds) {
         this.originalClientIds = originalClientIds;
     }
 
