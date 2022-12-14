@@ -25,8 +25,14 @@ public interface Psi {
     public static final String ECDH_PSI = "ECDH_PSI";
     public static final String DH_PSI = "DH_PSI";
 
+    public static final int DEFAULT_CURRENT_BATH = 0; // 第一页
+    public static final int DEFAULT_BATCH_SIZE = -1; // 默认不用配置，以服务端为准
+
     List<String> query(CommunicationConfig config, List<String> clientIds) throws Exception;
 
     List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch) throws Exception;
+
+    List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch, int batchSize)
+            throws Exception;
 
 }

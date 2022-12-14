@@ -43,7 +43,6 @@ import cn.hutool.core.util.StrUtil;
 public class EcdhPsi implements Psi {
 
     private static final Logger logger = LoggerFactory.getLogger(EcdhPsi.class);
-    private static final int DEFAULT_CURRENT_BATH = 0;
 
     /**
      * 多方求交集
@@ -81,6 +80,22 @@ public class EcdhPsi implements Psi {
 
     @Override
     public List<String> query(CommunicationConfig config, List<String> ids, int currentBatch) throws Exception {
+        return query(config, ids, DEFAULT_CURRENT_BATH, -1);
+    }
+
+    /**
+     * 查询本文id集与服务器id集的集合操作
+     *
+     * @param config   服务器的连接信息
+     * @param ids      本方id集
+     * @param keySize  密钥安全长度
+     * @param operator 自定义列表运算结果,默认求两个列表交集
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public List<String> query(CommunicationConfig config, List<String> ids, int currentBatch, int batchSize)
+            throws Exception {
         if (CollectionUtil.isEmpty(ids)) {
             throw new IllegalArgumentException("local id is empty");
         }
@@ -96,6 +111,7 @@ public class EcdhPsi implements Psi {
         request.setClientIds(EcdhUtil.convert2List(clientEncryptedDatasetMap));
         request.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
         request.setCurrentBatch(currentBatch);
+        request.setBatchSize(batchSize);
         request.setType(Psi.ECDH_PSI);
         PrivateSetIntersectionService privateSetIntersectionService = new PrivateSetIntersectionService();
         QueryPrivateSetIntersectionResponse response = privateSetIntersectionService.handle(config, request);

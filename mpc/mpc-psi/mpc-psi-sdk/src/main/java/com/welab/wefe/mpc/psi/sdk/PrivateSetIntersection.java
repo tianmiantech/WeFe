@@ -44,7 +44,6 @@ import cn.hutool.core.util.StrUtil;
 public class PrivateSetIntersection implements Psi {
 
     private static final Logger logger = LoggerFactory.getLogger(PrivateSetIntersection.class);
-    private static final int DEFAULT_CURRENT_BATH = 0;
 
     /**
      * 多方求交集
@@ -82,6 +81,12 @@ public class PrivateSetIntersection implements Psi {
 
     @Override
     public List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch) throws Exception {
+        return query(config, clientIds, DEFAULT_CURRENT_BATH, DEFAULT_BATCH_SIZE);
+    }
+
+    @Override
+    public List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch, int batchSize)
+            throws Exception {
         if (CollectionUtil.isEmpty(clientIds)) {
             throw new IllegalArgumentException("local id is empty");
         }
@@ -99,6 +104,7 @@ public class PrivateSetIntersection implements Psi {
         request.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
         request.setCurrentBatch(currentBatch);
         request.setType(Psi.DH_PSI);
+        request.setBatchSize(batchSize);
         PrivateSetIntersectionService privateSetIntersectionService = new PrivateSetIntersectionService();
         QueryPrivateSetIntersectionResponse response = privateSetIntersectionService.handle(config, request);
         if (response.getCode() != 0) {

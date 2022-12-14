@@ -67,6 +67,10 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         String type = data.getString("type");
         this.requestId = rid;
         this.batchSize = config.getPsiBatchSize();
+        int bs = data.getIntValue("batchSize");
+        if (bs > 0) {
+            this.batchSize = bs;
+        }
         // 当前批次
         int currentBatch = data.getIntValue("currentBatch");
         if (Psi.DH_PSI.equalsIgnoreCase(type)) {
@@ -86,7 +90,8 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             if (!CollectionUtils.isEmpty(clientIds)) {
                 Map<Long, String> clientEncryptedDatasetMap = EcdhUtil.convert2Map(clientIds);
                 // 对客户端数据进行加密
-                Map<Long, String> doubleEncryptedClientDatasetMap = server.encryptClientDatasetMap(clientEncryptedDatasetMap);
+                Map<Long, String> doubleEncryptedClientDatasetMap = server
+                        .encryptClientDatasetMap(clientEncryptedDatasetMap);
                 doubleEncryptedClientDataset = EcdhUtil.convert2List(doubleEncryptedClientDatasetMap);
             }
             List<String> batchData = getBatchData(model, currentBatch);

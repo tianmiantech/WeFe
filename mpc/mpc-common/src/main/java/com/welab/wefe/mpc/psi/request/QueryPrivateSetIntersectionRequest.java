@@ -38,6 +38,11 @@ public class QueryPrivateSetIntersectionRequest {
     private int currentBatch;
 
     /**
+     * 批次大小
+     */
+    private int batchSize;
+
+    /**
      * psi 类型
      */
     private String type; // Psi
@@ -80,6 +85,14 @@ public class QueryPrivateSetIntersectionRequest {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public int getBatchSize() {
+        return batchSize;
+    }
+
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
     }
 
 }
