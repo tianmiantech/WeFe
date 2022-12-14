@@ -72,82 +72,42 @@
         num === null ? null : numeral(num).format('0.000');
     const colors = ['#108ee9', '#87d068', '#2db7f5', '#f50'];
 
-export default {
-    name: 'FeatureSelection',
-    components: {
-        FeatureFilter,
-    },
-    props: {
-        projectId: String,
-        flowId: String,
-        disabled: Boolean,
-        learningType: String,
-        currentObj: Object,
-        jobId: String,
-        class: String,
-    },
-    setup(props) {
-        const { appContext } = getCurrentInstance();
-        const { $http,$notify } = appContext.config.globalProperties;
-        const store = useStore();
-        const loading = ref(false);
-        const tezhenRef = ref();
-        const allFeatures = ref([]);
-        const members = ref([]);
-        const selectedFeature = ref([]);
-        const selectedConditions = ref([]);
-        const frontStatus = ref({});
-        const colorSet = computed(() => {
-            const temp = allFeatures.value.reduce(
-                (acc, { member_name }) =>
-                    acc.includes(member_name) ? acc : [...acc, member_name],
-                []
-            );
-            return temp.map((each, index) => ({
-                member: each,
-                color: colors[index],
-            }));
-        });
-        const featureType = computed(() => store.state.base.featureType);
-        const calcColor = (item) =>
-            colorSet.value.find((each) => each.member === item.member_name)
-                ?.color;
-        const readData = async (model) => {
-            loading.value = true;
-            $http
-                .get({
-                    url: '/project/flow/node/detail',
-                    params: {
-                        nodeId: model.id,
-                        flow_id: props.flowId,
-                    },
-                })
-                .then((NodeDetailReq) => {
-                    if (NodeDetailReq.code === 0) {
-                        const { members = [], conditions } =
-                            NodeDetailReq.data?.params || {};
-                        selectedFeature.value = members.reduce(
-                            (acc, cur) => [
-                                ...acc,
-                                ...cur.features.map((each) => ({
-                                    ...each,
-                                    member_name: cur.member_name,
-                                    member_id: cur.member_id,
-                                })),
-                            ],
-                            []
-                        );
-                        if (Array.isArray(conditions))
-                            selectedConditions.value = conditions;
-                    }
-                });
-            const { code, data } = await $http.post({
-                url: '/flow/job/task/feature',
-                data: {
-                    job_id: props.jobId,
-                    flow_id: props.flowId,
-                    flow_node_id: model.id,
-                },
+    export default {
+        name:       'FeatureSelection',
+        components: {
+            FeatureFilter,
+        },
+        props: {
+            projectId:    String,
+            flowId:       String,
+            disabled:     Boolean,
+            learningType: String,
+            currentObj:   Object,
+            jobId:        String,
+            class:        String,
+        },
+        setup(props) {
+            const { appContext } = getCurrentInstance();
+            const { $http,$notify } = appContext.config.globalProperties;
+            const store = useStore();
+            const loading = ref(false);
+            const tezhenRef = ref();
+            const allFeatures = ref([]);
+            const members = ref([]);
+            const selectedFeature = ref([]);
+            const selectedConditions = ref([]);
+            const frontStatus = ref({});
+            const colorSet = computed(() => {
+                const temp = allFeatures.value.reduce(
+                    (acc, { member_name }) =>
+                        acc.includes(member_name) ? acc : [...acc, member_name],
+                    [],
+                );
+
+                return temp.map((each, index) => ({
+                    member: each,
+                    color:  colors[index],
+                }));
             });
             const featureType = computed(() => store.state.base.featureType);
             const calcColor = (item) =>
@@ -165,8 +125,8 @@ export default {
                     })
                     .then((NodeDetailReq) => {
                         if (NodeDetailReq.code === 0) {
-                            const { members, conditions } =
-                                NodeDetailReq.data.params;
+                            const { members = [], conditions } =
+                                NodeDetailReq.data?.params || {};
 
                             selectedFeature.value = members.reduce(
                                 (acc, cur) => [
@@ -179,10 +139,8 @@ export default {
                                 ],
                                 [],
                             );
-                            if (Array.isArray(conditions)) {
+                            if (Array.isArray(conditions))
                                 selectedConditions.value = conditions;
-                            }
-                            vData.inited = true;
                         }
                     });
                 const { code, data } = await $http.post({
@@ -280,7 +238,7 @@ export default {
                     },
                 };
             };
-            const methods = { checkParams, readData };
+            const methods = { checkParams };
 
             return {
                 submitHandle,
@@ -297,7 +255,6 @@ export default {
                 showDrawer: () => {
                     tezhenRef.value.open = true;
                 },
-                vData,
             };
         },
     };
