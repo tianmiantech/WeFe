@@ -61,6 +61,8 @@ public class InitializeApi extends AbstractNoneOutputApi<InitializeApi.Input> {
         )
         private String memberName;
 
+        private SecretKeyType secretKeyType;
+
         public IdentityInfoModel convertToIdentityInfoModel() {
             IdentityInfoModel model = new IdentityInfoModel();
             model.setMemberId(memberId);
@@ -69,9 +71,10 @@ public class InitializeApi extends AbstractNoneOutputApi<InitializeApi.Input> {
             model.setMode(ServingModeEnum.standalone.name());
 
             try {
-                SignUtil.KeyPair keyPair = SignUtil.generateKeyPair(SecretKeyType.rsa);
+                SignUtil.KeyPair keyPair = SignUtil.generateKeyPair(secretKeyType);
                 model.setRsaPrivateKey(keyPair.privateKey);
                 model.setRsaPublicKey(keyPair.publicKey);
+                model.setSecretKeyType(secretKeyType);
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
@@ -96,8 +99,15 @@ public class InitializeApi extends AbstractNoneOutputApi<InitializeApi.Input> {
             this.memberName = memberName;
         }
 
+        public SecretKeyType getSecretKeyType() {
+            return secretKeyType;
+        }
 
-        //endregion
+        public void setSecretKeyType(SecretKeyType secretKeyType) {
+            this.secretKeyType = secretKeyType;
+        }
+
+//endregion
     }
 
 

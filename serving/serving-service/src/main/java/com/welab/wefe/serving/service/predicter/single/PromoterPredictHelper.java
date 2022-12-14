@@ -23,6 +23,7 @@ import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.serving.sdk.config.Config;
@@ -114,7 +115,8 @@ public class PromoterPredictHelper {
          */
         String sign;
         try {
-            sign = RSAUtil.sign(data, Config.RSA_PRIVATE_KEY);
+            //sign = RSAUtil.sign(data, Config.RSA_PRIVATE_KEY);
+            sign = SignUtil.sign(data, Config.RSA_PRIVATE_KEY, Config.SECRET_KEY_TYPE);
         } catch (Exception e) {
             e.printStackTrace();
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
@@ -153,7 +155,8 @@ public class PromoterPredictHelper {
          */
         String sign;
         try {
-            sign = RSAUtil.sign(data, Config.RSA_PRIVATE_KEY);
+            //sign = RSAUtil.sign(data, Config.RSA_PRIVATE_KEY);
+            sign = SignUtil.sign(data, Config.RSA_PRIVATE_KEY, Config.SECRET_KEY_TYPE);
         } catch (Exception e) {
             e.printStackTrace();
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);

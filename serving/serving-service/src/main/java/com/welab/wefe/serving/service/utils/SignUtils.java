@@ -19,6 +19,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.serving.service.service.CacheObjects;
 
 import java.util.TreeMap;
@@ -43,7 +44,8 @@ public class SignUtils {
          */
         String sign;
         try {
-            sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey());
+            //sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey());
+            sign = SignUtil.sign(data, CacheObjects.getRsaPrivateKey(), CacheObjects.getSecretKeyType());
         } catch (Exception e) {
             e.printStackTrace();
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);

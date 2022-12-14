@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.common.util.StringUtil;
@@ -56,9 +57,10 @@ public class PartnerVerifySignFunction extends AbstractVerifySignFunction {
 
         String partnerId = findPartner(signedApiInput.getPartnerCode());
 
-        String partnerRsaKey = findPartnerRsaKey(partnerId, serviceId);
+        //String partnerRsaKey = findPartnerRsaKey(partnerId, serviceId);
+        ClientServiceMysqlModel partnerClientServiceModel =  findPartnerClientServiceModel(partnerId, serviceId);
 
-        verify(signedApiInput, partnerRsaKey);
+        verify(signedApiInput, partnerClientServiceModel.getPublicKey(), partnerClientServiceModel.getSecretKeyType());
 
         buildParams(request, params, signedApiInput, serviceId);
     }
@@ -71,10 +73,10 @@ public class PartnerVerifySignFunction extends AbstractVerifySignFunction {
         params.put("isModelService", isModelService(request));
     }
 
-    private void verify(SignedApiInput signedApiInput, String partnerRsaKey) throws Exception {
+    private void verify(SignedApiInput signedApiInput, String partnerRsaKey, SecretKeyType secretKeyType) throws Exception {
         boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(),
                 RSAUtil.getPublicKey(partnerRsaKey), signedApiInput.getSign());
-        //boolean verified = com.welab.wefe.common.util.SignUtil.verify(signedApiInput.getData().getBytes(), CacheObjects.getRsaPublicKey(), signedApiInput.getSign(), CacheObjects.getSecretKeyType());
+        verified = com.welab.wefe.common.util.SignUtil.verify(signedApiInput.getData().getBytes(), partnerRsaKey, signedApiInput.getSign(), secretKeyType);
         if (!verified) {
             throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
         }
@@ -88,6 +90,16 @@ public class PartnerVerifySignFunction extends AbstractVerifySignFunction {
             throw new StatusCodeWithException("未查询到该合作方到开通记录", StatusCode.PARAMETER_VALUE_INVALID);
         }
         return clientServiceMysqlModel.getPublicKey();
+    }
+
+    private ClientServiceMysqlModel findPartnerClientServiceModel(String partnerId, String serviceId) throws StatusCodeWithException {
+
+        ClientServiceService clientServiceService = Launcher.CONTEXT.getBean(ClientServiceService.class);
+        ClientServiceMysqlModel clientServiceMysqlModel = clientServiceService.queryByIdAndServiceId(partnerId, serviceId);
+        if (clientServiceMysqlModel == null) {
+            throw new StatusCodeWithException("未查询到该合作方到开通记录", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        return clientServiceMysqlModel;
     }
 
     private String findPartner(String customerId) throws StatusCodeWithException {

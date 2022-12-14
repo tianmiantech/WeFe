@@ -92,8 +92,12 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
         @Check(name = "created by")
         private String createdBy;
 
-        @Check(name = "公私类型")
+        @Check(name = "是否使用系统自带的公私钥")
+        private boolean useSystemSecretKey;
+
+        @Check(name = "公私钥类型")
         private SecretKeyType secretKeyType;
+
 
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {
@@ -237,6 +241,14 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
 
         public void setSecretKeyType(SecretKeyType secretKeyType) {
             this.secretKeyType = secretKeyType;
+        }
+
+        public boolean isUseSystemSecretKey() {
+            return useSystemSecretKey;
+        }
+
+        public void setUseSystemSecretKey(boolean useSystemSecretKey) {
+            this.useSystemSecretKey = useSystemSecretKey;
         }
     }
 

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
+import com.welab.wefe.common.util.SignUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -187,7 +188,8 @@ public class UnionServiceService {
 		if (needSign) {
 			String sign = null;
 			try {
-				sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
+				//sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
+				sign = SignUtil.sign(data, CacheObjects.getRsaPrivateKey(), CacheObjects.getSecretKeyType());
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);

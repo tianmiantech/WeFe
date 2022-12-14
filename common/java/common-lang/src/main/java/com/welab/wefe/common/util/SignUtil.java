@@ -25,7 +25,7 @@ import java.security.NoSuchAlgorithmException;
  * Sign util class
  *
  * <p>
- *     At present, only Ras and SM2 are supported
+ * At present, only Ras and SM2 are supported
  * </p>
  *
  * @author aaron.li
@@ -37,7 +37,7 @@ public class SignUtil {
      * Generate key pair
      */
     public static KeyPair generateKeyPair(SecretKeyType secretKeyType) throws NoSuchAlgorithmException {
-        secretKeyType = (null == secretKeyType ? SecretKeyType.rsa : secretKeyType);
+        secretKeyType = getSecretKeyType(secretKeyType);
         switch (secretKeyType) {
             case sm2:
                 SM2Util.Sm2KeyPair sm2KeyPair = SM2Util.generateKeyPair();
@@ -58,7 +58,7 @@ public class SignUtil {
      * @throws Exception
      */
     public static String sign(String data, String privateKeyStr, SecretKeyType secretKeyType) throws Exception {
-        secretKeyType = (null == secretKeyType ? SecretKeyType.rsa : secretKeyType);
+        secretKeyType = getSecretKeyType(secretKeyType);
         switch (secretKeyType) {
             case sm2:
                 return SM2Util.sign(data, privateKeyStr);
@@ -76,12 +76,22 @@ public class SignUtil {
      * @param secretKeyType Secret key type
      */
     public static boolean verify(byte[] data, String publicKey, String sign, SecretKeyType secretKeyType) throws Exception {
-        secretKeyType = (null == secretKeyType ? SecretKeyType.rsa : secretKeyType);
+        secretKeyType = getSecretKeyType(secretKeyType);
         switch (secretKeyType) {
             case sm2:
                 return SM2Util.verify(data, SM2Util.getPublicKey(publicKey), sign);
             default:
                 return RSAUtil.verify(data, RSAUtil.getPublicKey(publicKey), sign);
+        }
+    }
+
+    public static String decryptByPrivateKey(String ciphertext, String privateKeyStr, SecretKeyType secretKeyType) throws Exception {
+        secretKeyType = getSecretKeyType(secretKeyType);
+        switch (secretKeyType) {
+            case sm2:
+                return SM2Util.decryptByPrivateKey(ciphertext, privateKeyStr);
+            default:
+                return RSAUtil.decryptByPrivateKey(ciphertext, privateKeyStr);
         }
     }
 
@@ -93,5 +103,9 @@ public class SignUtil {
             this.publicKey = publicKey;
             this.privateKey = privateKey;
         }
+    }
+
+    private static SecretKeyType getSecretKeyType(SecretKeyType secretKeyType) {
+        return null == secretKeyType ? SecretKeyType.rsa : secretKeyType;
     }
 }

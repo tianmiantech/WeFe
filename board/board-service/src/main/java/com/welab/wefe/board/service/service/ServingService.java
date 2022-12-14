@@ -36,6 +36,7 @@ import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.dto.global_config.MemberInfoModel;
 import com.welab.wefe.common.wefe.dto.global_config.ServingConfigModel;
@@ -127,7 +128,8 @@ public class ServingService extends AbstractService {
 
             String sign = null;
             try {
-                sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey());
+                //sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey());
+                sign = SignUtil.sign(data, CacheObjects.getRsaPrivateKey(), CacheObjects.getSecretKeyType());
             } catch (Exception e) {
                 throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
             }
@@ -389,6 +391,11 @@ public class ServingService extends AbstractService {
                                 getJSONObject(0).
                                 getJSONObject("ext_json").
                                 getString("serving_base_url"));
+                        member.put("secretKeyType", json.getJSONObject("data").
+                                getJSONArray("list").
+                                getJSONObject(0).
+                                getJSONObject("ext_json").
+                                getString("secret_key_type"));
                     } catch (StatusCodeWithException e) {
                         super.log(e);
                     }
