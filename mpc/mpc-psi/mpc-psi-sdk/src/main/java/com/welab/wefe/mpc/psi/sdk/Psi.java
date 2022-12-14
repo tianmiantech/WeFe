@@ -18,15 +18,22 @@ package com.welab.wefe.mpc.psi.sdk;
 
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.welab.wefe.mpc.config.CommunicationConfig;
 
 import cn.hutool.core.io.FileUtil;
 
 public abstract class Psi {
+
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static final String ECDH_PSI = "ECDH_PSI";
     public static final String DH_PSI = "DH_PSI";
@@ -36,10 +43,23 @@ public abstract class Psi {
 
     public static final String SAVE_RESULT_DIR = System.getProperty("user.dir"); // 当前目录
 
-    public abstract List<String> query(CommunicationConfig config, List<String> clientIds) throws Exception;
+    protected Map<String, String> clientDatasetMap = new LinkedHashMap<String, String>();
 
-    public abstract List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch)
-            throws Exception;
+    /**
+     * 查询本文id集与服务器id集的集合操作
+     *
+     * @param config    服务器的连接信息
+     * @param clientIds 本方id集
+     * @return
+     * @throws Exception
+     */
+    public List<String> query(CommunicationConfig config, List<String> clientIds) throws Exception {
+        return query(config, clientIds, DEFAULT_CURRENT_BATCH);
+    }
+
+    public List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch) throws Exception {
+        return query(config, clientIds, DEFAULT_CURRENT_BATCH, DEFAULT_BATCH_SIZE);
+    }
 
     public abstract List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch,
             int batchSize) throws Exception;
@@ -51,7 +71,7 @@ public abstract class Psi {
             throw new Exception(requestId + "_currentBatch" + " is empty");
         } else {
             try {
-                String[] arr = content.split("-");
+                String[] arr = content.split("###");
                 return new int[] { Integer.valueOf(arr[0]), Integer.valueOf(arr[1]) };
             } catch (Exception e) {
                 e.printStackTrace();
@@ -59,4 +79,23 @@ public abstract class Psi {
             }
         }
     }
+
+    public void saveLastCurrentBatchAndSize(String requestId, int currentBatch, int batchSize) {
+        FileUtil.writeString(currentBatch + "###" + batchSize,
+                Paths.get(SAVE_RESULT_DIR, requestId + "_currentBatch").toFile(), Charset.forName("utf-8").toString());
+    }
+
+    public void saveResult(Collection<String> allResult, String requestId) {
+        FileUtil.appendLines(allResult, Paths.get(SAVE_RESULT_DIR, requestId).toFile(),
+                Charset.forName("utf-8").toString());
+    }
+
+    public Map<String, String> getClientDatasetMap() {
+        return clientDatasetMap;
+    }
+
+    public void setClientDatasetMap(Map<String, String> clientDatasetMap) {
+        this.clientDatasetMap = clientDatasetMap;
+    }
+
 }

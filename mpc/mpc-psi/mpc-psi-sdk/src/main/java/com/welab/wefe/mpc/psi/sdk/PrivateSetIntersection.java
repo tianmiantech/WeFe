@@ -16,18 +16,13 @@
 
 package com.welab.wefe.mpc.psi.sdk;
 
-import java.nio.charset.Charset;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
@@ -37,7 +32,6 @@ import com.welab.wefe.mpc.psi.sdk.service.PrivateSetIntersectionService;
 import com.welab.wefe.mpc.psi.sdk.util.EcdhUtil;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 
 /**
@@ -45,8 +39,6 @@ import cn.hutool.core.util.StrUtil;
  * @Date: 2021-12-23
  **/
 public class PrivateSetIntersection extends Psi {
-
-    private static final Logger logger = LoggerFactory.getLogger(PrivateSetIntersection.class);
 
     /**
      * 多方求交集
@@ -68,31 +60,12 @@ public class PrivateSetIntersection extends Psi {
         return result;
     }
 
-    /**
-     * 查询本文id集与服务器id集的集合操作
-     *
-     * @param config    服务器的连接信息
-     * @param clientIds 本方id集
-     * @param keySize   密钥安全长度
-     * @param operator  自定义列表运算结果,默认求两个列表交集
-     * @return
-     * @throws Exception
-     */
-    public List<String> query(CommunicationConfig config, List<String> clientIds) throws Exception {
-        return query(config, clientIds, DEFAULT_CURRENT_BATCH);
-    }
-
-    @Override
-    public List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch) throws Exception {
-        return query(config, clientIds, DEFAULT_CURRENT_BATCH, DEFAULT_BATCH_SIZE);
-    }
-
     @Override
     public List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch, int batchSize)
             throws Exception {
         if (config.isContinue()) {
             int arr[] = readLastCurrentBatchAndSize(config.getRequestId());
-            currentBatch = arr[0];
+            currentBatch = arr[0] + 1;
             batchSize = arr[1];
         }
         if (CollectionUtil.isEmpty(clientIds)) {
@@ -126,12 +99,16 @@ public class PrivateSetIntersection extends Psi {
         client.encryptServerDataset(response.getServerEncryptIds());
         // 获取被服务端加密了的客户端ID
         client.setClientIdByServerKeys(EcdhUtil.convert2Map(response.getClientIdByServerKeys()));
-        Set<String> allResult = client.psi();
+        List<String> result = new ArrayList<>();
+        Set<String> batchResult = client.psi();
+        if (batchResult != null && !batchResult.isEmpty()) {
+            batchResult = batchResult.stream().map(s -> clientDatasetMap.get(s)).collect(Collectors.toSet());
+            result.addAll(batchResult);
+        }
+        saveLastCurrentBatchAndSize(request.getRequestId(), request.getCurrentBatch(), request.getBatchSize());
+        saveResult(batchResult, request.getRequestId());
         logger.info("dh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
-                + allResult.size() + ", hasNext = " + hasNext + ", duration = " + (System.currentTimeMillis() - start));
-
-        saveLastCurrentBatch(request.getRequestId(), request.getCurrentBatch(), request.getBatchSize());
-        saveResult(allResult, request.getRequestId());
+                + result.size() + ", hasNext = " + hasNext + ", duration = " + (System.currentTimeMillis() - start));
         while (hasNext) {
             start = System.currentTimeMillis();
             // 发给服务端
@@ -150,26 +127,16 @@ public class PrivateSetIntersection extends Psi {
             client.encryptServerDataset(response.getServerEncryptIds());
             // 获取被服务端加密了的客户端ID
 //            client.setClientIdByServerKeys(response.getClientIdByServerKeys());
-            Set<String> batchResult = client.psi();
+            batchResult = client.psi();
             if (batchResult != null && !batchResult.isEmpty()) {
-                allResult.addAll(batchResult);
+                batchResult = batchResult.stream().map(s -> clientDatasetMap.get(s)).collect(Collectors.toSet());
+                result.addAll(batchResult);
             }
             logger.info("dh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
-                    + allResult.size() + ", hasNext = " + hasNext + ",duration = "
-                    + (System.currentTimeMillis() - start));
-            saveLastCurrentBatch(request.getRequestId(), request.getCurrentBatch(), request.getBatchSize());
+                    + result.size() + ", hasNext = " + hasNext + ",duration = " + (System.currentTimeMillis() - start));
+            saveLastCurrentBatchAndSize(request.getRequestId(), request.getCurrentBatch(), request.getBatchSize());
             saveResult(batchResult, request.getRequestId());
         }
-        return new ArrayList<>(allResult);
-    }
-
-    private void saveLastCurrentBatch(String requestId, int currentBatch, int batchSize) {
-        FileUtil.writeString(currentBatch + "-" + batchSize,
-                Paths.get(SAVE_RESULT_DIR, requestId + "_currentBatch").toFile(), Charset.forName("utf-8").toString());
-    }
-
-    private void saveResult(Collection<String> allResult, String requestId) {
-        FileUtil.appendLines(allResult, Paths.get(SAVE_RESULT_DIR, requestId).toFile(),
-                Charset.forName("utf-8").toString());
+        return result;
     }
 }
