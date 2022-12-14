@@ -79,7 +79,7 @@
         async created() {
             await this.readResult();
             // show topn or not for modeling-list
-            if (!this.showTopn && this.ChartsMap.Evaluation.tabs && this.ChartsMap.Evaluation.tabs.length) {
+            /* if (!this.showTopn && this.ChartsMap.Evaluation.tabs && this.ChartsMap.Evaluation.tabs.length) {
                 this.ChartsMap.Evaluation.tabs.forEach((item, idx) => {
                     if (item.name === 'topn') {
                         this.ChartsMap.Evaluation.tabs.splice(idx, 1);
@@ -105,7 +105,7 @@
                         },
                     });
                 }
-            }
+            } */
         },
         methods: {
             async readResult() {
@@ -138,6 +138,26 @@
                         this.ChartsMap[this.componentType].tabs = orginChartsMap[this.componentType].tabs;
                     } else {
                         this.ChartsMap[this.componentType].tabs = this.ChartsMap[this.componentType].tabs.filter(item => item.name !== 'scoresDistribution');
+                    }
+                    if (this.componentType === 'Evaluation') {
+                        if (!this.showTopn) {
+                            const topnIdx = this.ChartsMap[this.componentType].tabs.findIndex(item => item.name === 'topn');
+                            if (topnIdx > -1) this.ChartsMap.Evaluation.tabs.splice(topnIdx, 1);
+                        } else {
+                            const topnIdx = this.ChartsMap[this.componentType].tabs.findIndex(item => item.name === 'topn');
+                            if (topnIdx === -1) {
+                                this.ChartsMap[this.componentType].tabs.push({
+                                    label: 'TOPN',
+                                    name:  'topn',
+                                    chart: {
+                                        type:   'table',
+                                        config: {
+                                            type: 'topn',
+                                        },
+                                    },
+                                });
+                            }
+                        }
                     }
 
                     if (result) {

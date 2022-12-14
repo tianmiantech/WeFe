@@ -11,7 +11,7 @@
             <div class="mb10 flex-row">
                 <h3 class="mb10 f19">
                     <el-icon :class="['board-icon-cpu', 'mr10', 'ml10']" style="font-size: xx-large; top:9px; right: -3px; color: dodgerblue"><elicon-cpu /></el-icon>
-                        模型列表</h3>
+                    模型列表</h3>
                 <div v-if="form.is_project_admin" class="right-sort-area">
                     <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['board-icon-top f14', {'mr10': maxIndex === sortIndex}]" @click="moveUp"><elicon-top /></el-icon>
                     <el-icon v-if="maxIndex !== sortIndex" :class="['board-icon-bottom f14', 'ml10', 'mr10']" @click="moveDown"><elicon-bottom /></el-icon>
@@ -427,7 +427,7 @@
                     data: {
                         ootJobId:           row.job_id,
                         ootModelFlowNodeId: row.flow_node_id,
-                        ootModelName:       `${scope.row.role}: ${scope.row.flow_name} - ${scope.row.name}`
+                        ootModelName:       `${scope.row.role}: ${scope.row.flow_name} - ${scope.row.name}`,
                     },
                 });
 
@@ -518,8 +518,8 @@
     .close-result-panel-icon {
         cursor: pointer;
         position: absolute;
-        right: 15px;
-        top: 15px;
+        right: 10px;
+        top: 5px;
         z-index: 1024;
     }
     .flex-layout{
