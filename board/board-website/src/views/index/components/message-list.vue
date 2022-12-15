@@ -6,7 +6,9 @@
         <el-tabs v-model="activeName" class="msg-tabs" type="border-card" @tab-click="tabChange">
             <el-tab-pane name="todoList">
                 <template #label>
-                    <el-badge :is-dot="msgDots.todo" class="msg-badge">待办事项</el-badge>
+                    <el-badge :is-dot="msgDots.todo" class="msg-badge">
+                        待办事项
+                    </el-badge>
                 </template>
                 <div class="search_box">
                     <span>状态：</span>
@@ -73,7 +75,9 @@
             </el-tab-pane>
             <el-tab-pane name="cooperateNotice">
                 <template #label>
-                    <el-badge :is-dot="msgDots.notice" class="msg-badge">合作通知</el-badge>
+                    <el-badge :is-dot="msgDots.notice" class="msg-badge">
+                        合作通知
+                    </el-badge>
                 </template>
                 <div class="search_box">
                     <span>状态：</span>
@@ -144,7 +148,9 @@
             </el-tab-pane>
             <el-tab-pane name="systemMsg">
                 <template #label>
-                    <el-badge :is-dot="msgDots.msg" class="msg-badge">系统消息</el-badge>
+                    <el-badge :is-dot="msgDots.msg" class="msg-badge">
+                        系统消息
+                    </el-badge>
                 </template>
                 <div class="search_box">
                     <span>状态：</span>
@@ -297,21 +303,23 @@
                     this.message_search.todo = true;
                     this.message_search.eventList = ['ApplyJoinProject', 'ApplyDataResource', 'AgreeJoinProject'];
                     this.message_search.todoComplete = false;
+                    this.message_search.unread = null;
                     break;
                 case 'cooperateNotice':
                     this.message_search.eventList = ['AgreeJoinProject', 'DisagreeJoinProject', 'AgreeApplyDataResource', 'DisagreeApplyDataResource'];
                     this.message_search.todo = false;
                     this.message_search.todoComplete = '';
+                    this.message_search.unread = true;
                     break;
                 case 'systemMsg':
                     this.message_search.eventList = ['OnGatewayError', 'OnEmailSendFail'];
                     this.message_search.todoComplete = '';
+                    this.message_search.unread = true;
                     if (this.message_search.todo !== '') delete this.message_search.todo;
                     break;
                 }
                 this.message_search.page_index = 0;
                 this.noMore = false;
-                this.message_search.unread = true;
                 this.loadMessageList();
             },
             todoListChange(val) {
@@ -410,6 +418,7 @@
                         ...params,
                     },
                 });
+
                 if (code === 0) {
                     this.msgDots[type] = data.list.length;
                 }
