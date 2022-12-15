@@ -58,7 +58,7 @@ public abstract class Psi {
     }
 
     public List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch) throws Exception {
-        return query(config, clientIds, DEFAULT_CURRENT_BATCH, DEFAULT_BATCH_SIZE);
+        return query(config, clientIds, currentBatch, DEFAULT_BATCH_SIZE);
     }
 
     public abstract List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch,
