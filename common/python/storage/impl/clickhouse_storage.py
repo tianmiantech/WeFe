@@ -86,7 +86,7 @@ class ClickHouseStorage(Storage):
 
     def init_tb(self):
         sql = f"CREATE TABLE IF NOT EXISTS {self.table_name}(`eventDate` Date, `k` String, `v` String, `id` String)" \
-              f"ENGINE = MergeTree() PARTITION BY toYYYYMM(eventDate) ORDER BY (id) SETTINGS index_granularity = 8192"
+              f"ENGINE = MergeTree() PARTITION BY toYYYYMM(eventDate) ORDER BY tuple() SETTINGS index_granularity = 8192"
         try:
             client = self.get_conn()
             client.execute(sql)
@@ -119,7 +119,7 @@ class ClickHouseStorage(Storage):
         use_serialize = set_force_serialize(use_serialize)
         sql = f"INSERT INTO {self.table_name} (eventDate,k,v,id) values"
         # write_batch = 500000
-        now = datetime.datetime.now()
+        now = datetime.datetime.now().strftime("%Y%m")
 
         data = []
         batch_count = None
