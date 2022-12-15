@@ -44,21 +44,6 @@
 			<artifactId>hutool-all</artifactId>
 			<version>5.5.7</version>
 		</dependency>
-		<dependency>
-			<groupId>de.siegmar</groupId>
-			<artifactId>fastcsv</artifactId>
-			<version>1.0.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi</artifactId>
-			<version>${apache.poi.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi-ooxml</artifactId>
-			<version>${apache.poi.version}</version>
-		</dependency>
 	</dependencies>
 
 </project>

@@ -25,9 +25,9 @@ import java.util.Map;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.mpc.config.CommunicationConfig;
-import com.welab.wefe.mpc.excel.AbstractDataSetReader;
-import com.welab.wefe.mpc.excel.CsvDataSetReader;
-import com.welab.wefe.mpc.excel.ExcelDataSetReader;
+import com.welab.wefe.mpc.psi.sdk.excel.AbstractDataSetReader;
+import com.welab.wefe.mpc.psi.sdk.excel.CsvDataSetReader;
+import com.welab.wefe.mpc.psi.sdk.excel.ExcelDataSetReader;
 
 //两方交集查询 psi
 //配合 mpc-psi-sdk-1.0.0.jar使用
