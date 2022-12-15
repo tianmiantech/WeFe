@@ -487,7 +487,7 @@
     position: absolute;
     top: 57.3%;
     left: -24px;
-    z-index: 101;
+    z-index: 100001;
     &.is-recover {
         top: 8px;
         left: 97%;
