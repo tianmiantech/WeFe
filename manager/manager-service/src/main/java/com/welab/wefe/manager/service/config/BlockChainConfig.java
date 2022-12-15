@@ -19,6 +19,7 @@ package com.welab.wefe.manager.service.config;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.wefe.enums.ContractName;
 import com.welab.wefe.manager.service.contract.*;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.commons.collections4.CollectionUtils;
@@ -60,17 +61,6 @@ public class BlockChainConfig {
     private String ip = "127.0.0.1";
     private String channelPort = "20200";
 
-
-    private String memberContractName;
-    private String dataSetContractName;
-    private String dataSetMemberPermissionContractName;
-    private String dataSetDefaultTagContractName;
-    private String memberAuthTypeContractName;
-    private String unionNodeContractName;
-    private String realnameAuthAgreementTemplateContractName;
-    private String dataResourceContractName;
-    private String dataResourceDefaultTagContractName;
-    private String trustCertsContractName = "TrustCertsContract";
 
     // add channel disconnect
     public static boolean PEER_CONNECTED = true;
@@ -177,28 +167,28 @@ public class BlockChainConfig {
 
     @Bean
     public MemberContract getLatestVersionMemberContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, memberContractName);
+        String address = getLatestContractAddressByName(cnsService, ContractName.MEMBER_CONTRACT);
         return MemberContract.load(address, client, cryptoKeyPair);
     }
 
 
     @Bean
     public DataSetContract getLatestVersionDataSetContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, dataSetContractName);
+        String address = getLatestContractAddressByName(cnsService, ContractName.DATA_SET_CONTRACT);
         return DataSetContract.load(address, client, cryptoKeyPair);
     }
 
 
     @Bean
     public DataSetMemberPermissionContract getLatestVersionDataSetMemberPermissionContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, dataSetMemberPermissionContractName);
+        String address = getLatestContractAddressByName(cnsService, ContractName.DATA_SET_MEMBER_PERMISSION_CONTRACT);
         return DataSetMemberPermissionContract.load(address, client, cryptoKeyPair);
     }
 
 
     @Bean
     public DataSetDefaultTagContract getLatestVersionDataSetDefaultTagContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, dataSetDefaultTagContractName);
+        String address = getLatestContractAddressByName(cnsService, ContractName.DATA_SET_DEFAULT_TAG_CONTRACT);
         return DataSetDefaultTagContract.load(address, client, cryptoKeyPair);
     }
 
@@ -206,14 +196,14 @@ public class BlockChainConfig {
 
     @Bean
     public MemberAuthTypeContract getLatestVersionMemberAuthTypeContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, memberAuthTypeContractName);
+        String address = getLatestContractAddressByName(cnsService, ContractName.MEMBER_AUTH_TYPE_CONTRACT);
         return MemberAuthTypeContract.load(address, client, cryptoKeyPair);
     }
 
 
     @Bean
     public UnionNodeContract getLatestVersionUnionNodeContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, unionNodeContractName);
+        String address = getLatestContractAddressByName(cnsService, ContractName.UNION_NODE_CONTRACT);
         return UnionNodeContract.load(address, client, cryptoKeyPair);
     }
 
@@ -221,27 +211,27 @@ public class BlockChainConfig {
 
     @Bean
     public RealnameAuthAgreementTemplateContract getLatestVersionRealnameAuthAgreementTemplateContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, realnameAuthAgreementTemplateContractName);
+        String address = getLatestContractAddressByName(cnsService, ContractName.REAL_NAME_AUTH_AGREEMENT_TEMPLATE_CONTRACT);
         return RealnameAuthAgreementTemplateContract.load(address, client, cryptoKeyPair);
     }
 
 
     @Bean
     public DataResourceContract getLatestVersionDataResourceContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, dataResourceContractName);
+        String address = getLatestContractAddressByName(cnsService, ContractName.DATA_RESOURCE_CONTRACT);
         return DataResourceContract.load(address, client, cryptoKeyPair);
     }
 
 
     @Bean
     public DataResourceDefaultTagContract getLatestVersionDataResourceDefaultTagContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, dataResourceDefaultTagContractName);
+        String address = getLatestContractAddressByName(cnsService, ContractName.DATA_RESOURCE_DEFAULT_TAG_CONTRACT);
         return DataResourceDefaultTagContract.load(address, client, cryptoKeyPair);
     }
 
     @Bean
     public TrustCertsContract getLatestVersionTrustCertsContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, trustCertsContractName);
+        String address = getLatestContractAddressByName(cnsService, ContractName.TRUST_CERTS_CONTRACT);
         return TrustCertsContract.load(address, client, cryptoKeyPair);
     }
 
@@ -272,29 +262,6 @@ public class BlockChainConfig {
         return cnsInfoList.get(cnsInfoList.size() - 1).getAddress();
     }
 
-    public String getMemberContractName() {
-        return memberContractName;
-    }
-
-    public void setMemberContractName(String memberContractName) {
-        this.memberContractName = memberContractName;
-    }
-
-    public String getDataSetContractName() {
-        return dataSetContractName;
-    }
-
-    public void setDataSetContractName(String dataSetContractName) {
-        this.dataSetContractName = dataSetContractName;
-    }
-
-    public String getDataSetMemberPermissionContractName() {
-        return dataSetMemberPermissionContractName;
-    }
-
-    public void setDataSetMemberPermissionContractName(String dataSetMemberPermissionContractName) {
-        this.dataSetMemberPermissionContractName = dataSetMemberPermissionContractName;
-    }
 
     public String getCertPath() {
         return certPath;
@@ -350,55 +317,5 @@ public class BlockChainConfig {
 
     public void setChannelPort(String channelPort) {
         this.channelPort = channelPort;
-    }
-
-    public String getDataSetDefaultTagContractName() {
-        return dataSetDefaultTagContractName;
-    }
-
-    public void setDataSetDefaultTagContractName(String dataSetDefaultTagContractName) {
-        this.dataSetDefaultTagContractName = dataSetDefaultTagContractName;
-    }
-
-
-    public String getMemberAuthTypeContractName() {
-        return memberAuthTypeContractName;
-    }
-
-    public void setMemberAuthTypeContractName(String memberAuthTypeContractName) {
-        this.memberAuthTypeContractName = memberAuthTypeContractName;
-    }
-
-    public String getUnionNodeContractName() {
-        return unionNodeContractName;
-    }
-
-    public void setUnionNodeContractName(String unionNodeContractName) {
-        this.unionNodeContractName = unionNodeContractName;
-    }
-
-
-    public String getRealnameAuthAgreementTemplateContractName() {
-        return realnameAuthAgreementTemplateContractName;
-    }
-
-    public void setRealnameAuthAgreementTemplateContractName(String realnameAuthAgreementTemplateContractName) {
-        this.realnameAuthAgreementTemplateContractName = realnameAuthAgreementTemplateContractName;
-    }
-
-    public String getDataResourceContractName() {
-        return dataResourceContractName;
-    }
-
-    public void setDataResourceContractName(String dataResourceContractName) {
-        this.dataResourceContractName = dataResourceContractName;
-    }
-
-    public String getDataResourceDefaultTagContractName() {
-        return dataResourceDefaultTagContractName;
-    }
-
-    public void setDataResourceDefaultTagContractName(String dataResourceDefaultTagContractName) {
-        this.dataResourceDefaultTagContractName = dataResourceDefaultTagContractName;
     }
 }
