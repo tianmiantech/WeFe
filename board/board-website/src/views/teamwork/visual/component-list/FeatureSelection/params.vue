@@ -63,192 +63,203 @@
 </template>
 
 <script>
-import { ref, getCurrentInstance, computed } from 'vue';
-import numeral from 'numeral';
-import FeatureFilter from './FeatureFilter.vue';
-import {useStore} from 'vuex';
+    import { ref, getCurrentInstance, computed } from 'vue';
+    import numeral from 'numeral';
+    import FeatureFilter from './FeatureFilter.vue';
+    import { useStore } from 'vuex';
 
-const formatNumber = (num) =>
-    num === null ? null : numeral(num).format('0.000');
-const colors = ['#108ee9', '#87d068', '#2db7f5', '#f50'];
+    const formatNumber = (num) =>
+        num === null ? null : numeral(num).format('0.000');
+    const colors = ['#108ee9', '#87d068', '#2db7f5', '#f50'];
 
-export default {
-    name: 'FeatureSelection',
-    components: {
-        FeatureFilter,
-    },
-    props: {
-        projectId: String,
-        flowId: String,
-        disabled: Boolean,
-        learningType: String,
-        currentObj: Object,
-        jobId: String,
-        class: String,
-    },
-    setup(props) {
-        const { appContext } = getCurrentInstance();
-        const { $http,$notify } = appContext.config.globalProperties;
-        const store = useStore();
-        const loading = ref(false);
-        const tezhenRef = ref();
-        const allFeatures = ref([]);
-        const members = ref([]);
-        const selectedFeature = ref([]);
-        const selectedConditions = ref([]);
-        const frontStatus = ref({});
-        const colorSet = computed(() => {
-            const temp = allFeatures.value.reduce(
-                (acc, { member_name }) =>
-                    acc.includes(member_name) ? acc : [...acc, member_name],
-                []
-            );
-            return temp.map((each, index) => ({
-                member: each,
-                color: colors[index],
-            }));
-        });
-        const featureType = computed(() => store.state.base.featureType);
-        const calcColor = (item) =>
-            colorSet.value.find((each) => each.member === item.member_name)
-                ?.color;
-        const readData = async (model) => {
-            loading.value = true;
-            $http
-                .get({
-                    url: '/project/flow/node/detail',
-                    params: {
-                        nodeId: model.id,
-                        flow_id: props.flowId,
-                    },
-                })
-                .then((NodeDetailReq) => {
-                    if (NodeDetailReq.code === 0) {
-                        const { members = [], conditions } =
-                            NodeDetailReq.data?.params || {};
-                        selectedFeature.value = members.reduce(
-                            (acc, cur) => [
-                                ...acc,
-                                ...cur.features.map((each) => ({
-                                    ...each,
-                                    member_name: cur.member_name,
-                                    member_id: cur.member_id,
-                                })),
-                            ],
-                            []
-                        );
-                        if (Array.isArray(conditions))
-                            selectedConditions.value = conditions;
-                    }
-                });
-            const { code, data } = await $http.post({
-                url: '/flow/job/task/feature',
-                data: {
-                    job_id: props.jobId,
-                    flow_id: props.flowId,
-                    flow_node_id: model.id,
-                },
+    export default {
+        name:       'FeatureSelection',
+        components: {
+            FeatureFilter,
+        },
+        props: {
+            projectId:    String,
+            flowId:       String,
+            disabled:     Boolean,
+            learningType: String,
+            currentObj:   Object,
+            jobId:        String,
+            class:        String,
+        },
+        setup(props) {
+            const { appContext } = getCurrentInstance();
+            const { $http,$notify } = appContext.config.globalProperties;
+            const store = useStore();
+            const vData = { inited: false };
+            const loading = ref(false);
+            const tezhenRef = ref();
+            const allFeatures = ref([]);
+            const members = ref([]);
+            const selectedFeature = ref([]);
+            const selectedConditions = ref([]);
+            const frontStatus = ref({});
+            const colorSet = computed(() => {
+                const temp = allFeatures.value.reduce(
+                    (acc, { member_name }) =>
+                        acc.includes(member_name) ? acc : [...acc, member_name],
+                    [],
+                );
+
+                return temp.map((each, index) => ({
+                    member: each,
+                    color:  colors[index],
+                }));
             });
+            const featureType = computed(() => store.state.base.featureType);
+            const calcColor = (item) =>
+                colorSet.value.find((each) => each.member === item.member_name)
+                    ?.color;
+            const readData = async (model) => {
+                loading.value = true;
+                $http
+                    .get({
+                        url:    '/project/flow/node/detail',
+                        params: {
+                            nodeId:  model.id,
+                            flow_id: props.flowId,
+                        },
+                    })
+                    .then((NodeDetailReq) => {
+                        if (NodeDetailReq.code === 0) {
+                            const { members, conditions } =
+                                NodeDetailReq.data.params;
 
-            const { has_i_v, has_c_v } = data;
-            frontStatus.value = { has_i_v, has_c_v };
-            if (code === 0) {
-                members.value = data.members;
-                const { data_set_id } = data.members[0];
-                const response = await $http.get({
-                    url: '/table_data_set/column/list',
-                    params: {
-                        data_set_id,
-                    },
-                });
-                if (response.code === 0) {
-                    const { list } = response.data;
-
-                    if (list.length) {
-                        allFeatures.value = data.members
-                            .reduce(
+                            selectedFeature.value = members.reduce(
                                 (acc, cur) => [
                                     ...acc,
                                     ...cur.features.map((each) => ({
                                         ...each,
                                         member_name: cur.member_name,
-                                        member_id: cur.member_id,
-                                        data_set_id: cur.data_set_id,
+                                        member_id:   cur.member_id,
                                     })),
                                 ],
-                                []
-                            )
-                            .map(({ cv, iv, name,data_set_id, ...other }) => ({
-                                ...other,
-                                cv: formatNumber(cv),
-                                iv: formatNumber(iv),
-                                name,
-                                ...list.find((each) => each.name === name),
-                                data_type: (featureType.value[data_set_id] || {})[name],
-                            }));
+                                [],
+                            );
+                            if (Array.isArray(conditions)) {
+                                selectedConditions.value = conditions;
+                            }
+                            vData.inited = true;
+                        }
+                    });
+                const { code, data } = await $http.post({
+                    url:  '/flow/job/task/feature',
+                    data: {
+                        job_id:       props.jobId,
+                        flow_id:      props.flowId,
+                        flow_node_id: model.id,
+                    },
+                });
+
+                const { has_i_v, has_c_v } = data;
+
+                frontStatus.value = { has_i_v, has_c_v };
+                if (code === 0) {
+                    members.value = data.members;
+                    const { data_set_id } = data.members[0];
+                    const response = await $http.get({
+                        url:    '/table_data_set/column/list',
+                        params: {
+                            data_set_id,
+                        },
+                    });
+
+                    if (response.code === 0) {
+                        const { list } = response.data;
+
+                        if (list.length) {
+                            allFeatures.value = data.members
+                                .reduce(
+                                    (acc, cur) => [
+                                        ...acc,
+                                        ...cur.features.map((each) => ({
+                                            ...each,
+                                            member_name: cur.member_name,
+                                            member_id:   cur.member_id,
+                                            data_set_id: cur.data_set_id,
+                                        })),
+                                    ],
+                                    [],
+                                )
+                                .map(({ cv, iv, name,data_set_id, ...other }) => ({
+                                    ...other,
+                                    cv:        formatNumber(cv),
+                                    iv:        formatNumber(iv),
+                                    name,
+                                    ...list.find((each) => each.name === name),
+                                    data_type: (featureType.value[data_set_id] || {})[name],
+                                }));
+                        }
                     }
                 }
-            }
-            loading.value = false;
-        };
-        const submitHandle = (selected, conditions) => {
-            selectedFeature.value = selected;
-            selectedConditions.value = conditions;
-            tezhenRef.value.open = false;
-        };
-        const checkParams = () => {
-            const tipsArray = [];
-
-            selectedFeature.value.forEach(item => {
-                const isNumerical = ['Integer', 'Long', 'Double']; 
-                if(item.data_type && !isNumerical.includes(item.data_type)){
-                    tipsArray.push({
-                        name:      item.name,
-                        data_type: item.data_type,
-                    })
-                }
-            })
-
-            if(tipsArray.length){
-                $notify({
-                    type:     'warning',
-                    offset:   5,
-                    duration: 2000,
-                    title:    '提示',
-                    message:  `请知悉：您当前选择的特征有${tipsArray.length}个不是数值型，部分组件不支持输入非数值型特征，必要时可以通过重新选择、热编码、特征转换等方式处理这些特征。非数值型特征：${tipsArray.reduce((pre,cur)=> pre + `${cur.name}(${cur.data_type}),`, '')}`,
-                });
-            }
-
-            const temp = members.value.map((each) => ({
-                ...each,
-                features: selectedFeature.value.filter(
-                    (value) => value.member_id === each.member_id
-                ),
-            }));
-            return {
-                params: {
-                    members: temp,
-                    conditions: selectedConditions.value,
-                },
+                loading.value = false;
             };
-        };
-        const methods = { checkParams };
-        return {
-            submitHandle,
-            readData,
-            tezhenRef,
-            allFeatures,
-            methods,
-            selectedFeature,
-            selectedConditions,
-            calcColor,
-            loading,
-            colorSet,
-            frontStatus,
-            showDrawer: () => {
-                tezhenRef.value.open = true;
-            },
-        };
-    },
-};
+            const submitHandle = (selected, conditions) => {
+                selectedFeature.value = selected;
+                selectedConditions.value = conditions;
+                tezhenRef.value.open = false;
+            };
+            const checkParams = () => {
+                const tipsArray = [];
+
+                selectedFeature.value.forEach(item => {
+                    const isNumerical = ['Integer', 'Long', 'Double'];
+
+                    if(item.data_type && !isNumerical.includes(item.data_type)){
+                        tipsArray.push({
+                            name:      item.name,
+                            data_type: item.data_type,
+                        });
+                    }
+                });
+
+                if(tipsArray.length){
+                    $notify({
+                        type:     'warning',
+                        offset:   5,
+                        duration: 2000,
+                        title:    '提示',
+                        message:  `请知悉：您当前选择的特征有${tipsArray.length}个不是数值型，部分组件不支持输入非数值型特征，必要时可以通过重新选择、热编码、特征转换等方式处理这些特征。非数值型特征：${tipsArray.reduce((pre,cur)=> pre + `${cur.name}(${cur.data_type}),`, '')}`,
+                    });
+                }
+
+                const temp = members.value.map((each) => ({
+                    ...each,
+                    features: selectedFeature.value.filter(
+                        (value) => value.member_id === each.member_id,
+                    ),
+                }));
+
+                return {
+                    params: {
+                        members:    temp,
+                        conditions: selectedConditions.value,
+                    },
+                };
+            };
+            const methods = { checkParams, readData };
+
+            return {
+                submitHandle,
+                readData,
+                tezhenRef,
+                allFeatures,
+                methods,
+                selectedFeature,
+                selectedConditions,
+                calcColor,
+                loading,
+                colorSet,
+                frontStatus,
+                showDrawer: () => {
+                    tezhenRef.value.open = true;
+                },
+                vData,
+            };
+        },
+    };
 </script>
