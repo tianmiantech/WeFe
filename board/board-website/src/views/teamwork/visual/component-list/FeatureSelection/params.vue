@@ -90,6 +90,7 @@
             const { appContext } = getCurrentInstance();
             const { $http,$notify } = appContext.config.globalProperties;
             const store = useStore();
+            const vData = { inited: false };
             const loading = ref(false);
             const tezhenRef = ref();
             const allFeatures = ref([]);
@@ -125,8 +126,8 @@
                     })
                     .then((NodeDetailReq) => {
                         if (NodeDetailReq.code === 0) {
-                            const { members = [], conditions } =
-                                NodeDetailReq.data?.params || {};
+                            const { members, conditions } =
+                                NodeDetailReq.data.params;
 
                             selectedFeature.value = members.reduce(
                                 (acc, cur) => [
@@ -139,8 +140,10 @@
                                 ],
                                 [],
                             );
-                            if (Array.isArray(conditions))
+                            if (Array.isArray(conditions)) {
                                 selectedConditions.value = conditions;
+                            }
+                            vData.inited = true;
                         }
                     });
                 const { code, data } = await $http.post({
@@ -238,7 +241,7 @@
                     },
                 };
             };
-            const methods = { checkParams };
+            const methods = { checkParams, readData };
 
             return {
                 submitHandle,
@@ -255,6 +258,7 @@
                 showDrawer: () => {
                     tezhenRef.value.open = true;
                 },
+                vData,
             };
         },
     };
