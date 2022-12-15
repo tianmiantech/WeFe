@@ -33,7 +33,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.interfaces.ECPrivateKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -125,6 +124,7 @@ public class EcdhPsiClient {
      * step 3 客户端使用私钥多线程加密服务端的数据集
      */
     public void encryptServerDataset(List<String> serverEncryptedDataset) {
+        this.serverDoubleEncryptedDataset = ConcurrentHashMap.newKeySet();
         LOG.info("client begin encryptServerDataset, threads = " + threads);
         List<Set<String>> partitionList = PartitionUtil.partitionList(serverEncryptedDataset, this.threads);
 

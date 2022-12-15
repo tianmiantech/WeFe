@@ -83,6 +83,7 @@ public class DhPsiClient {
      * step 2 加密服务端ID
      */
     public void encryptServerDataset(List<String> encryptServerIds) {
+        this.serverIdWithClientKeys = ConcurrentHashMap.newKeySet();
         LOG.info("client begin encryptServerDataset, threads = " + threads);
         List<Set<String>> partitionList = PartitionUtil.partitionList(encryptServerIds, threads);
         ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
