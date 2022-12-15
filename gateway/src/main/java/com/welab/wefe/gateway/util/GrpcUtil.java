@@ -295,13 +295,11 @@ public class GrpcUtil {
     public static boolean checkTlsEnable(GatewayMetaProto.TransferMeta transferMeta) {
         GatewayMetaProto.Member dstMember = transferMeta.getDst();
         MemberEntity dstMemberEntity = MemberCache.getInstance().get(dstMember.getMemberId());
+        boolean tlsEnable = dstMemberEntity.tlsEnable();
+        // 目的地址与自身内网IP地址相同,则证明接收方也是自身且使用了内网,连路直接走内网即可,而内网开启的是非tls服务（此处不能直接拿dst member id对比来判断,因为调用方可以指定dst的地址）
         MemberEntity selfMemberEntity = MemberCache.getInstance().getSelfMember();
         String dstGatewayUri = EndpointBuilder.endpointToUri(dstMember.getEndpoint());
-        // 接收方也是自身且走内网,而内网开启的是非tls服务（此处不能直接拿dst member id对比来判断,因为调用方可以指定dst的地址）
-        if (selfMemberEntity.getId().equals(dstMemberEntity.getId()) && dstGatewayUri.equals(selfMemberEntity.getGatewayInternalUri())) {
-            return false;
-        }
-        return dstMemberEntity.tlsEnable();
+        return !dstGatewayUri.equals(selfMemberEntity.getGatewayInternalUri()) && tlsEnable;
     }
 
 }
