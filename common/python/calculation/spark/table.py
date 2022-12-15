@@ -152,7 +152,7 @@ class RDDSource(Table):
 
         from pyspark import SparkContext
         self._rdd = SparkContext.getOrCreate() \
-            .parallelize(storage_iterator, num_partition) \
+            .parallelize(storage_iterator, num_partition, data_count=data_count) \
             .persist(storage_level)
         return self._rdd
 
