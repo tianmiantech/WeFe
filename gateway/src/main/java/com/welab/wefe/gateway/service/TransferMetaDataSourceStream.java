@@ -20,6 +20,7 @@ import com.google.common.util.concurrent.SettableFuture;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.service.persistent.PersistentStorage;
 import com.welab.wefe.common.data.storage.service.persistent.PersistentStorageStreamHandler;
+import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.api.service.proto.NetworkDataTransferProxyServiceGrpc;
@@ -59,7 +60,7 @@ public class TransferMetaDataSourceStream extends AbstractTransferMetaDataSource
     /**
      * 失败重试次数
      */
-    private static final int MAX_FAIL_RETRY_COUNT = 20;
+    private static final int MAX_FAIL_RETRY_COUNT = 50;
 
     @Autowired
     private ConfigProperties configProperties;
@@ -79,7 +80,7 @@ public class TransferMetaDataSourceStream extends AbstractTransferMetaDataSource
             }
             return ReturnStatusBuilder.ok(transferMeta.getSessionId());
         } catch (Exception e) {
-            LOG.error("pushToRemote exception: ", e);
+            LOG.error("发送CK数据异常: ", e);
             return ReturnStatusBuilder.sysExc("pushToRemote exception", transferMeta.getSessionId());
         }
     }
@@ -135,16 +136,17 @@ public class TransferMetaDataSourceStream extends AbstractTransferMetaDataSource
 
                     boolean success = CollectionUtils.isNotEmpty(asyncResponseCollector.getSuccessList());
                     if (success) {
-                        LOG.info("发送CK数据完成成功,库名：{}, 表名：{}, 分片号：{},  耗时：{}", TransferMetaUtil.getDbName(transferMeta), TransferMetaUtil.getTableName(transferMeta), this.sequenceNo, (System.currentTimeMillis() - startTime));
+                        LOG.info("发送CK数据完成, session id：{}, 库名：{}, 表名：{}, 分片号：{}, 数据量：{}, 耗时：{}", transferMeta.getSessionId(), TransferMetaUtil.getDbName(transferMeta), TransferMetaUtil.getTableName(transferMeta), this.sequenceNo, itemModelList.size(), (System.currentTimeMillis() - startTime));
                         sequenceNo++;
                         return;
                     }
-                    LOG.info("发送CK数据失败,库名：{}, 表名：{}, 分片号：{}", TransferMetaUtil.getDbName(transferMeta), TransferMetaUtil.getTableName(transferMeta), this.sequenceNo);
+                    LOG.info("发送CK数据失败, session id：{}, 库名：{}, 表名：{}, 分片号：{}, 数据量：{}", transferMeta.getSessionId(), TransferMetaUtil.getDbName(transferMeta), TransferMetaUtil.getTableName(transferMeta), this.sequenceNo, itemModelList.size());
                 } catch (Exception e) {
-                    LOG.error("Data source send fail, session id: " + transferMeta.getSessionId() + ", dbName:" + TransferMetaUtil.getDbName(transferMeta) + ", tableName: " + TransferMetaUtil.getTableName(transferMeta) + ", exception: ", e);
+                    LOG.error("发送CK数据失败, session id: " + transferMeta.getSessionId() + ", dbName:" + TransferMetaUtil.getDbName(transferMeta) + ", tableName: " + TransferMetaUtil.getTableName(transferMeta) + ", 重试次数：" + i + ", exception: ", e);
                     if (i == MAX_FAIL_RETRY_COUNT) {
                         throw e;
                     }
+                    ThreadUtil.sleep(100 * (i + 1));
                 }
             }
         }
@@ -153,7 +155,7 @@ public class TransferMetaDataSourceStream extends AbstractTransferMetaDataSource
         public void finish(long totalCount) {
             String dbName = TransferMetaUtil.getDbName(transferMeta);
             String tableName = TransferMetaUtil.getTableName(transferMeta);
-            LOG.info("发送CK数据完成成功,库名：{}, 表名：{}, 总数量：{}.", dbName, tableName, totalCount);
+            LOG.info("发送CK数据完成, session id：{}, 库名：{}, 表名：{}, 总数量：{}.", transferMeta.getSessionId(), dbName, tableName, totalCount);
         }
     }
 
@@ -169,7 +171,8 @@ public class TransferMetaDataSourceStream extends AbstractTransferMetaDataSource
             try {
                 boolean tlsEnable = GrpcUtil.checkTlsEnable(transferMeta);
                 originalChannel = channelCache.getNonNull(EndpointBuilder.endpointToUri(transferMeta.getDst().getEndpoint()), tlsEnable, TlsUtil.getAllCertificates(tlsEnable));
-                transferMeta = transferMeta.toBuilder().setTransferStatus(success ? GatewayMetaProto.TransferStatus.COMPLETE : GatewayMetaProto.TransferStatus.ERROR).build();
+                transferMeta = transferMeta.toBuilder().setTransferStatus(success ? GatewayMetaProto.TransferStatus.COMPLETE : GatewayMetaProto.TransferStatus.ERROR)
+                        .setSequenceIsEnd(true).build();
                 // Set header
                 NetworkDataTransferProxyServiceGrpc.NetworkDataTransferProxyServiceStub asyncClientStub = NetworkDataTransferProxyServiceGrpc.newStub(originalChannel).withCallCredentials(new RemoteGrpcProxyCallCredentials(null, new SignVerifyMetadataBuilder(null), new SystemTimestampMetadataBuilder(null)));
 
@@ -190,6 +193,7 @@ public class TransferMetaDataSourceStream extends AbstractTransferMetaDataSource
                 if (i == MAX_FAIL_RETRY_COUNT) {
                     throw e;
                 }
+                ThreadUtil.sleep(100 * (i + 1));
             }
         }
         return false;
