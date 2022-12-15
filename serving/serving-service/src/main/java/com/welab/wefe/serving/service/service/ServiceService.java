@@ -221,33 +221,39 @@ public class ServiceService {
         }
         JSONObject preview = new JSONObject();
         preview.put("id", entity.getId());
-        preview.put("params", displayServiceQueryParams(entity.getQueryParams(), entity.getQueryParamsConfig()));
+        preview.put("params", displayServiceQueryParams(entity));
         preview.put("url", SERVICE_PRE_URL + entity.getUrl());
         preview.put("method", "POST");
         output.setPreview(preview);
         return output;
     }
 
-    public String displayServiceQueryParams(String queryParams, String queryParamsConfig) {
+    public String displayServiceQueryParams(TableServiceMySqlModel entity) {
         String result = "";
-        if (StringUtils.isNotBlank(queryParamsConfig)) {
-            List<JSONObject> params = new ArrayList<>();
-            JSONArray arr = JSONObject.parseArray(queryParamsConfig);
-            for (int i = 0; i < arr.size(); i++) {
-                JSONObject jo = arr.getJSONObject(i);
-                String name = jo.getString("name");
-                String desc = jo.getString("desc");
-                JSONObject j = new JSONObject();
-                j.put("参数名:", name);
-                j.put("描述:", desc);
-                params.add(j);
-            }
-            result = JSONObject.toJSONString(params);
+        if (entity.getServiceType() == ServiceTypeEnum.PSI.getCode()) {
+            JSONObject dataSource = JObject.parseObject(entity.getDataSource());
+            JSONArray keyCalcRules = dataSource.getJSONArray("key_calc_rules");
+            return keyCalcRules.toJSONString();
         } else {
-            result = queryParams;
-        }
-        if (StringUtils.isBlank(result)) {
-            return "";
+            if (StringUtils.isNotBlank(entity.getQueryParamsConfig())) {
+                List<JSONObject> params = new ArrayList<>();
+                JSONArray arr = JSONObject.parseArray(entity.getQueryParamsConfig());
+                for (int i = 0; i < arr.size(); i++) {
+                    JSONObject jo = arr.getJSONObject(i);
+                    String name = jo.getString("name");
+                    String desc = jo.getString("desc");
+                    JSONObject j = new JSONObject();
+                    j.put("参数名:", name);
+                    j.put("描述:", desc);
+                    params.add(j);
+                }
+                result = JSONObject.toJSONString(params);
+            } else {
+                result = entity.getQueryParams();
+            }
+            if (StringUtils.isBlank(result)) {
+                return "";
+            }
         }
         return result;
     }
@@ -378,7 +384,7 @@ public class ServiceService {
         serviceRepository.save(model);
         com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
         output.setId(model.getId());
-        output.setParams(displayServiceQueryParams(model.getQueryParams(), model.getQueryParamsConfig()));
+        output.setParams(displayServiceQueryParams(model));
         output.setUrl(SERVICE_PRE_URL + model.getUrl());
         return output;
     }
@@ -622,7 +628,7 @@ public class ServiceService {
         serviceRepository.save(model);
         com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
         output.setId(model.getId());
-        output.setParams(displayServiceQueryParams(model.getQueryParams(), model.getQueryParamsConfig()));
+        output.setParams(displayServiceQueryParams(model));
         output.setUrl(SERVICE_PRE_URL + model.getUrl());
         if (model.getStatus() == 1) {
             if (model.getServiceType() == ServiceTypeEnum.PSI.getCode()) {
@@ -935,7 +941,7 @@ public class ServiceService {
             valuesMap.put("url", CacheObjects.getServingBaseUrl() + SERVICE_PRE_URL + model.getUrl());
             valuesMap.put("serverUrl", CacheObjects.getServingBaseUrl());
             valuesMap.put("apiName", SERVICE_PRE_URL + model.getUrl());
-            valuesMap.put("params", displayServiceQueryParams(model.getQueryParams(), model.getQueryParamsConfig()));
+            valuesMap.put("params", displayServiceQueryParams(model));
             valuesMap.put("desc", model.getName());
             valuesMap.put("method", "POST");
             String templateString = "# serverUrl:\n" + "	${serverUrl}\n" + "	\n"
