@@ -233,6 +233,7 @@ public class ServiceService {
         if (entity.getServiceType() == ServiceTypeEnum.PSI.getCode()) {
             JSONObject dataSource = JObject.parseObject(entity.getDataSource());
             JSONArray keyCalcRules = dataSource.getJSONArray("key_calc_rules");
+            LOG.info("displayServiceQueryParams result = " + keyCalcRules.toJSONString());
             return keyCalcRules.toJSONString();
         } else {
             if (StringUtils.isNotBlank(entity.getQueryParamsConfig())) {
@@ -949,6 +950,7 @@ public class ServiceService {
                     + "# method:\n" + " ${method}\n" + "    \n"
                     + "# params:\n" + "	${params}\n" + "	\n"
                     + "# desc\n" + "	${desc}";
+            LOG.info("displayServiceQueryParams result = " + valuesMap.get("params"));
             StringSubstitutor sub = new StringSubstitutor(valuesMap);
             String content = sub.replace(templateString);
             FileUtils.write(readme, content);
