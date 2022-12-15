@@ -66,7 +66,7 @@ public class InitStorageManager {
         if (!PERSISTENT_INIT.get()) {
             LOG.error("Init persistent storage fail, Please check whether the configuration is correct!!!!!!!!!!!!(＞﹏＜)(＞﹏＜)(＞﹏＜)(＞﹏＜)(＞﹏＜)(＞﹏＜)(＞﹏＜)(＞﹏＜)!!!!!!!!!!!");
         } else {
-            LOG.error("Init persistent storage success.");
+            LOG.info("Init persistent storage success.");
         }
         return PERSISTENT_INIT.get();
     }
@@ -84,7 +84,7 @@ public class InitStorageManager {
         if (!FC_INIT.get()) {
             LOG.error("Init FC storage fail, Please check whether the configuration is correct!!!!!!!!!!!!(＞﹏＜)(＞﹏＜)(＞﹏＜)(＞﹏＜)(＞﹏＜)(＞﹏＜)(＞﹏＜)(＞﹏＜)");
         } else {
-            LOG.error("Init FC storage success.");
+            LOG.info("Init FC storage success.");
         }
         return FC_INIT.get();
     }
