@@ -16,7 +16,6 @@
 
 package com.welab.wefe.union.service.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -24,60 +23,4 @@ import org.springframework.stereotype.Component;
  **/
 @Component
 public class ConfigProperties {
-
-    @Value("${aliyun.access.key.id:xxx}")
-    private String aliyunAccessKeyId;
-
-    @Value("${aliyun.access.key.secret:xxx}")
-    private String aliyunAccessKeySecret;
-
-    @Value("${sms.aliyun.sign.name:xxx}")
-    private String smsAliyunSignName;
-
-    @Value("${sms.aliyun.account.forget.password.verification.code.template.code:xxx}")
-    private String smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
-
-    @Value("${sms.aliyun.member.register.verification.code.template.code:xxx}")
-    private String smsAliyunMemberRegisterVerificationCodeTemplateCode;
-
-    public String getAliyunAccessKeyId() {
-        return aliyunAccessKeyId;
-    }
-
-    public void setAliyunAccessKeyId(String aliyunAccessKeyId) {
-        this.aliyunAccessKeyId = aliyunAccessKeyId;
-    }
-
-    public String getAliyunAccessKeySecret() {
-        return aliyunAccessKeySecret;
-    }
-
-    public void setAliyunAccessKeySecret(String aliyunAccessKeySecret) {
-        this.aliyunAccessKeySecret = aliyunAccessKeySecret;
-    }
-
-    public String getSmsAliyunSignName() {
-        return smsAliyunSignName;
-    }
-
-    public void setSmsAliyunSignName(String smsAliyunSignName) {
-        this.smsAliyunSignName = smsAliyunSignName;
-    }
-
-    public String getSmsAliyunAccountForgetPasswordVerificationCodeTemplateCode() {
-        return smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
-    }
-
-    public void setSmsAliyunAccountForgetPasswordVerificationCodeTemplateCode(String smsAliyunAccountForgetPasswordVerificationCodeTemplateCode) {
-        this.smsAliyunAccountForgetPasswordVerificationCodeTemplateCode = smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
-    }
-
-    public String getSmsAliyunMemberRegisterVerificationCodeTemplateCode() {
-        return smsAliyunMemberRegisterVerificationCodeTemplateCode;
-    }
-
-    public void setSmsAliyunMemberRegisterVerificationCodeTemplateCode(String smsAliyunMemberRegisterVerificationCodeTemplateCode) {
-        this.smsAliyunMemberRegisterVerificationCodeTemplateCode = smsAliyunMemberRegisterVerificationCodeTemplateCode;
-    }
-
 }
