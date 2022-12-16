@@ -266,7 +266,7 @@ public abstract class PersistentStorage {
         PreparedStatement statement = null;
         try {
             conn = getConnection();
-            String sql = "CREATE TABLE IF NOT EXISTS " + formatTableName(dbName, tbName) + "(`eventDate` Date, `k` String, `v` String) ENGINE = MergeTree() PARTITION BY toDate(eventDate) SETTINGS index_granularity = 8192";
+            String sql = "CREATE TABLE IF NOT EXISTS " + formatTableName(dbName, tbName) + "(`eventDate` Date, `k` String, `v` String) ENGINE = MergeTree() PARTITION BY toDate(eventDate) ORDER BY tuple() SETTINGS index_granularity = 8192";
             statement = conn.prepareStatement(sql);
             statement.execute();
         } finally {
