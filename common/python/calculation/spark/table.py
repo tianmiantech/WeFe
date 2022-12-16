@@ -150,9 +150,9 @@ class RDDSource(Table):
             num_slices = conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_NUM_SLICES)
             num_partition = int(num_slices) if num_slices else num_partition
 
-        from pyspark import SparkContext
-        self._rdd = SparkContext.getOrCreate() \
-            .parallelize(storage_iterator, num_partition, data_count=data_count) \
+        # from pyspark import SparkContext
+        self._rdd = util.WefeSparkContext() \
+            .parallelize(storage_iterator, num_partition, data_count) \
             .persist(storage_level)
         return self._rdd
 
