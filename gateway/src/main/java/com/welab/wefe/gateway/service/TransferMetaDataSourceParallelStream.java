@@ -148,7 +148,7 @@ public class TransferMetaDataSourceParallelStream extends AbstractTransferMetaDa
         public void finish(long totalCount) {
             String dbName = TransferMetaUtil.getDbName(transferMeta);
             String tableName = TransferMetaUtil.getTableName(transferMeta);
-            LOG.info("发送CK数据完成, session id：{}, 库名：{}, 表名：{}, 总数量：{}.", transferMeta.getSessionId(), dbName, tableName, totalCount);
+            LOG.info("发送CK数据完成, session id：{}, 库名：{}, 表名：{}, 总数据量：{}.", transferMeta.getSessionId(), dbName, tableName, totalCount);
         }
 
         /**

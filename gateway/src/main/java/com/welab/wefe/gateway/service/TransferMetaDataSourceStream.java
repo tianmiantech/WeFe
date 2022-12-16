@@ -73,7 +73,7 @@ public class TransferMetaDataSourceStream extends AbstractTransferMetaDataSource
             LOG.info("发送CK数据完成,库名：{}, 表名：{}, 成功与否：{}, 耗时：{}", TransferMetaUtil.getDbName(transferMeta), TransferMetaUtil.getTableName(transferMeta), success, (System.currentTimeMillis() - startTime));
             boolean completeSuccess = sendCompleteRequest(transferMeta, success);
             if (!completeSuccess) {
-                return ReturnStatusBuilder.sysExc("重试" + MAX_FAIL_RETRY_COUNT + "次后发送CK完成标识数据到成员:" + transferMeta.getDst().getMemberName() + " 失败,请确认网络是否正常.", transferMeta.getSessionId());
+                return ReturnStatusBuilder.sysExc("重试" + MAX_FAIL_RETRY_COUNT + "次后发送CK完成标识到成员:" + transferMeta.getDst().getMemberName() + " 失败,请确认网络是否正常.", transferMeta.getSessionId());
             }
             if (!success) {
                 return ReturnStatusBuilder.sysExc("重试" + MAX_FAIL_RETRY_COUNT + "次后发转发CK数据到成员:" + transferMeta.getDst().getMemberName() + " 失败,请确认网络是否正常.", transferMeta.getSessionId());
@@ -155,7 +155,7 @@ public class TransferMetaDataSourceStream extends AbstractTransferMetaDataSource
         public void finish(long totalCount) {
             String dbName = TransferMetaUtil.getDbName(transferMeta);
             String tableName = TransferMetaUtil.getTableName(transferMeta);
-            LOG.info("发送CK数据完成, session id：{}, 库名：{}, 表名：{}, 总数量：{}.", transferMeta.getSessionId(), dbName, tableName, totalCount);
+            LOG.info("发送CK数据完成, session id：{}, 库名：{}, 表名：{}, 总数据量：{}.", transferMeta.getSessionId(), dbName, tableName, totalCount);
         }
     }
 
