@@ -158,11 +158,10 @@ public class TransferMetaDataSourceParallelStream extends AbstractTransferMetaDa
             List<List<DataItemModel<byte[], byte[]>>> splitResultList = new ArrayList<>();
             List<DataItemModel<byte[], byte[]>> block = new ArrayList<>();
             for (int i = 0; i < itemModelList.size(); i++) {
-                if ((block.size() == this.pageSize) || (i == itemModelList.size() - 1)) {
+                block.add(itemModelList.get(i));
+                if ((this.pageSize > 0 && block.size() == this.pageSize) || (i == itemModelList.size() - 1)) {
                     splitResultList.add(new ArrayList<>(block));
                     block.clear();
-                } else {
-                    block.add(itemModelList.get(i));
                 }
             }
             return splitResultList;
