@@ -38,6 +38,7 @@ import com.welab.wefe.gateway.util.GrpcUtil;
 import com.welab.wefe.gateway.util.TlsUtil;
 import com.welab.wefe.gateway.util.TransferMetaUtil;
 import io.grpc.ManagedChannel;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
@@ -79,9 +80,25 @@ public class TransferMetaDataSourceStream extends AbstractTransferMetaDataSource
                 return ReturnStatusBuilder.sysExc("重试" + MAX_FAIL_RETRY_COUNT + "次后发转发CK数据到成员:" + transferMeta.getDst().getMemberName() + " 失败,请确认网络是否正常.", transferMeta.getSessionId());
             }
             return ReturnStatusBuilder.ok(transferMeta.getSessionId());
+        } catch (StatusRuntimeException e) {
+            LOG.error("发送CK数据异常, session id: " + transferMeta.getSessionId() + ", dbName:" + TransferMetaUtil.getDbName(transferMeta) + ", tableName: " + TransferMetaUtil.getTableName(transferMeta) + ", exception: ", e);
+            GatewayMetaProto.Member dstMember = transferMeta.getDst();
+            String dstName = dstMember.getMemberName();
+            String endpoint = dstMember.getEndpoint().getIp() + ":" + dstMember.getEndpoint().getPort();
+            // Signature issue
+            if (GrpcUtil.checkIsSignPermissionExp(e)) {
+                return ReturnStatusBuilder.sysExc("成员方[" + dstName + "]对您的签名验证不通过;　存在以下可能性：1、请检查您的公私钥是否匹配以及公钥是否已上报到 union. 2、请确认双方机器系统时间差是否超过5分钟. 3、如果对方的网关使用了nginx做负载转发,请确认对方的nginx配置项[underscores_in_headers]的值是否为[on]", transferMeta.getSessionId());
+            }
+            if (GrpcUtil.checkIsSslConnectionDisableExp(e)) {
+                return ReturnStatusBuilder.sysExc("访问成员方[" + dstName + "]的网关[" + endpoint + "]不通, 其网关启用了SSL通道,请确认CA证书的有效性.", transferMeta.getSessionId());
+            }
+            if (GrpcUtil.checkIsConnectionDisableExp(e)) {
+                return ReturnStatusBuilder.sysExc("访问成员方[" + dstName + "]的网关[" + endpoint + "]不通，请检查网络连接是否正常以及对方网关是否已启动", transferMeta.getSessionId());
+            }
+            return ReturnStatusBuilder.sysExc("访问成员方[" + dstName + "]的网关[" + endpoint + "]异常：" + e.getMessage(), transferMeta.getSessionId());
         } catch (Exception e) {
-            LOG.error("发送CK数据异常: ", e);
-            return ReturnStatusBuilder.sysExc("pushToRemote exception", transferMeta.getSessionId());
+            LOG.error("发送CK数据异常, session id: " + transferMeta.getSessionId() + ", dbName:" + TransferMetaUtil.getDbName(transferMeta) + ", tableName: " + TransferMetaUtil.getTableName(transferMeta) + ", exception: ", e);
+            return ReturnStatusBuilder.sysExc("发送CK数据异常: " + e.getMessage(), transferMeta.getSessionId());
         }
     }
 
@@ -95,9 +112,9 @@ public class TransferMetaDataSourceStream extends AbstractTransferMetaDataSource
             storage.getByStream(dbName, tableName, pageSize, new ClickhouseStorageStreamHandler(transferMeta));
             return true;
         } catch (Exception e) {
-            LOG.error("pushToRemote exception: ", e);
+            LOG.error("发送CK数据异常: ", e);
+            return false;
         }
-        return false;
     }
 
     public static class ClickhouseStorageStreamHandler implements PersistentStorageStreamHandler {
@@ -140,7 +157,10 @@ public class TransferMetaDataSourceStream extends AbstractTransferMetaDataSource
                         sequenceNo++;
                         return;
                     }
-                    LOG.info("发送CK数据失败, session id：{}, 库名：{}, 表名：{}, 分片号：{}, 数据量：{}", transferMeta.getSessionId(), TransferMetaUtil.getDbName(transferMeta), TransferMetaUtil.getTableName(transferMeta), this.sequenceNo, itemModelList.size());
+                    if (i == MAX_FAIL_RETRY_COUNT) {
+                        LOG.error("发送CK数据失败, session id：{}, 库名：{}, 表名：{}, 分片号：{}, 数据量：{}", transferMeta.getSessionId(), TransferMetaUtil.getDbName(transferMeta), TransferMetaUtil.getTableName(transferMeta), this.sequenceNo, itemModelList.size());
+                        throw new Exception("发送CK数据失败");
+                    }
                 } catch (Exception e) {
                     LOG.error("发送CK数据失败, session id: " + transferMeta.getSessionId() + ", dbName:" + TransferMetaUtil.getDbName(transferMeta) + ", tableName: " + TransferMetaUtil.getTableName(transferMeta) + ", 重试次数：" + i + ", exception: ", e);
                     if (i == MAX_FAIL_RETRY_COUNT) {
@@ -186,6 +206,9 @@ public class TransferMetaDataSourceStream extends AbstractTransferMetaDataSource
                 finishFuture.get();
                 if (CollectionUtils.isNotEmpty(asyncResponseCollector.getSuccessList())) {
                     return true;
+                }
+                if (i == MAX_FAIL_RETRY_COUNT) {
+                    return false;
                 }
             } catch (Exception e) {
                 LOG.error("Data source send complete request fail, session id: " + transferMeta.getSessionId() + ", retry count:" + i);
