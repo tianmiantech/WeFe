@@ -84,7 +84,7 @@ public class TransferMetaDataSourceParallelStream extends AbstractTransferMetaDa
         try {
             long startTime = System.currentTimeMillis();
             boolean success = pushToRemote(transferMeta);
-            LOG.info("发送CK数据完成,库名：{}, 表名：{}, 成功与否：{}, 耗时：{}", TransferMetaUtil.getDbName(transferMeta), TransferMetaUtil.getTableName(transferMeta), success, (System.currentTimeMillis() - startTime));
+            LOG.info("发送CK数据完成,库名：{}, 表名：{}, 成功与否：{}, 总耗时：{}", TransferMetaUtil.getDbName(transferMeta), TransferMetaUtil.getTableName(transferMeta), success, (System.currentTimeMillis() - startTime));
             boolean completeSuccess = sendCompleteRequest(transferMeta, success);
             if (!completeSuccess) {
                 return ReturnStatusBuilder.sysExc("重试" + MAX_FAIL_RETRY_COUNT + "次后发送CK完成标识数据到成员:" + transferMeta.getDst().getMemberName() + " 失败,请确认网络是否正常.", transferMeta.getSessionId());
@@ -116,8 +116,8 @@ public class TransferMetaDataSourceParallelStream extends AbstractTransferMetaDa
 
     public static class ClickhouseStorageStreamHandler implements PersistentStorageStreamHandler {
         private GatewayMetaProto.TransferMeta transferMeta;
-        private int sequenceNo = 0;
-        private int pageSize = 0;
+        private int sequenceNo;
+        private int pageSize;
         private CopyOnWriteArrayList<ToRemoteTaskResult> toRemoteTaskResultCollector = new CopyOnWriteArrayList<>();
 
         public ClickhouseStorageStreamHandler(GatewayMetaProto.TransferMeta transferMeta, int pageSize) {
@@ -129,10 +129,12 @@ public class TransferMetaDataSourceParallelStream extends AbstractTransferMetaDa
         public void handler(List<DataItemModel<byte[], byte[]>> itemModelList) throws Exception {
             List<List<DataItemModel<byte[], byte[]>>> splitResultList = splitData(itemModelList);
             CountDownLatch countDownLatch = new CountDownLatch(splitResultList.size());
+            long startTime = System.currentTimeMillis();
             for (List<DataItemModel<byte[], byte[]>> dataItemModelList : splitResultList) {
                 EXECUTOR_SERVICE.submit(new ToRemoteTask(transferMeta, dataItemModelList, sequenceNo++, countDownLatch, toRemoteTaskResultCollector));
             }
             countDownLatch.await();
+            LOG.info("发送CK数据完成, session id：{}, 分片数：{}, 数据量：{}, 耗时：{}", transferMeta.getSessionId(), splitResultList.size(), itemModelList.size(), (System.currentTimeMillis() - startTime));
             for (int i = 0; i < toRemoteTaskResultCollector.size(); i++) {
                 ToRemoteTaskResult toRemoteTaskResult = toRemoteTaskResultCollector.get(i);
                 if (!toRemoteTaskResult.success) {
