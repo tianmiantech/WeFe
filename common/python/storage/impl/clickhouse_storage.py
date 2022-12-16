@@ -31,7 +31,7 @@ from multiprocessing.pool import Pool
 
 FORCE_SERI = False
 LOGGER = log_utils.get_logger()
-BATCH_BYTE_SIZE = 4 * 1024 * 1024
+BATCH_BYTE_SIZE = 10 * 1024 * 1024
 
 
 def set_force_serialize(in_seri):
@@ -191,11 +191,9 @@ class ClickHouseStorage(Storage):
 
         sql = f"SELECT k,v FROM {self.table_name}"
 
-        #use_pool = True if self.count() > 5000000 else False
-        # 经测试，由于反序列化比较快，无需采用多进程也可以达到比较高的效率
-        use_pool = False
-        use_minibatch = True
-        max_pool_size = 5 if multiprocessing.cpu_count() > 5 else multiprocessing.cpu_count()
+        use_pool = True if self.count() > 1000000 else False
+        use_minibatch = False
+        max_pool_size = 10 if multiprocessing.cpu_count() > 10 else multiprocessing.cpu_count()
 
         try:
             client = self.get_conn()
@@ -209,10 +207,10 @@ class ClickHouseStorage(Storage):
                     else:
                         yield key, value
             else:
-                batch_data = self.generate_batch(data, batch_count=10000)
+                batch_data = self.generate_batch(data, batch_count=1000)
                 pool = Pool(max_pool_size)
 
-                # 采用minibatch的方案，避免读取效率比spark的parallelize速度要快太多，导致内存堆积
+                # 采用minibatch的方案，避免读取效率比处理速度快太多，导致内存堆积
                 if use_minibatch:
                     mini_batch = []
                     mini_batch_length = 50
