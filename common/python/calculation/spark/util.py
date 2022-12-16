@@ -26,6 +26,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+from typing import Iterable
+from pyspark.rdd import RDD
+from pyspark import SparkContext
+from pyspark.serializers import BatchedSerializer
+
+
 _STORAGE_CLIENT = "_storage_client"
 RDD_ATTR_NAME = "_rdd"
 
@@ -65,3 +72,27 @@ def maybe_create_storage_client():
     if _STORAGE_VERSION < 2:
         from common.python.p_session.base_impl.db_runtime import DBRuntime
         DBRuntime(storage_session)
+
+
+class WefeSparkContext(SparkContext):
+
+    def __init__(self):
+        self.context = super().getOrCreate()
+
+    def parallelize(self, c: Iterable, numSlices: int, data_count: int):
+        c_size = data_count
+
+        batchSize = max(1, min(c_size // numSlices,
+                        self.context._batchSize or 1024))
+        serializer = BatchedSerializer(
+            self.context._unbatched_serializer, batchSize)
+
+        def reader_func(temp_filename):
+            return self.context._jvm.PythonRDD.readRDDFromFile(self.context._jsc, temp_filename, numSlices)
+
+        def createRDDServer():
+            return self.context._jvm.PythonParallelizeServer(self.context._jsc.sc(), numSlices)
+
+        jrdd = self.context._serialize_to_jvm(
+            c, serializer, reader_func, createRDDServer)
+        return RDD(jrdd, self.context, serializer)
