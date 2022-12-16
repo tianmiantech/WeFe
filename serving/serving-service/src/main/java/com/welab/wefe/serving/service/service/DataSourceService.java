@@ -154,7 +154,7 @@ public class DataSourceService {
      * @throws StatusCodeWithException
      */
     public TestDBConnectApi.Output testDBConnect(DatabaseType databaseType, String host, int port, String userName,
-                                                 String password, String databaseName) throws StatusCodeWithException {
+            String password, String databaseName) throws StatusCodeWithException {
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(databaseType, host, port, userName, password, databaseName);
         if (conn != null) {
@@ -170,7 +170,7 @@ public class DataSourceService {
     }
 
     public void createTable(String sql, DatabaseType databaseType, String host, int port, String userName,
-                            String password, String databaseName) throws StatusCodeWithException {
+            String password, String databaseName) throws StatusCodeWithException {
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(databaseType, host, port, userName, password, databaseName);
         if (conn != null) {
@@ -182,7 +182,7 @@ public class DataSourceService {
     }
 
     public void batchInsert(String sql, DatabaseType databaseType, String host, int port, String userName,
-                            String password, String databaseName, Set<String> ids) throws StatusCodeWithException {
+            String password, String databaseName, Set<String> ids) throws StatusCodeWithException {
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(databaseType, host, port, userName, password, databaseName);
         if (conn != null) {
@@ -205,7 +205,7 @@ public class DataSourceService {
     public DataSourceMySqlModel getDataSourceById(String dataSourceId) {
         return dataSourceRepo.findById(dataSourceId).orElse(null);
     }
-    
+
     public boolean update(DataSourceMySqlModel model, String sql) throws StatusCodeWithException {
         if (model == null) {
             throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
@@ -237,6 +237,28 @@ public class DataSourceService {
         Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
                 model.getUserName(), model.getPassword(), model.getDatabaseName());
         return jdbcManager.count(conn, sql);
+    }
+
+    public List<Map<String, String>> queryListByConditions(DataSourceMySqlModel model, String sql,
+            List<Map<String, Object>> conditionFieldValues, List<String> returnFields) throws StatusCodeWithException {
+        if (model == null) {
+            throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
+        }
+        JdbcManager jdbcManager = new JdbcManager();
+        Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
+                model.getUserName(), model.getPassword(), model.getDatabaseName());
+        return jdbcManager.queryListByConditions(conn, sql, conditionFieldValues, returnFields);
+    }
+
+    public List<Map<String, String>> queryListByIds(DataSourceMySqlModel model, String sql, List<String> ids,
+            List<String> returnFields) throws StatusCodeWithException {
+        if (model == null) {
+            throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
+        }
+        JdbcManager jdbcManager = new JdbcManager();
+        Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
+                model.getUserName(), model.getPassword(), model.getDatabaseName());
+        return jdbcManager.queryListByIds(conn, sql, ids, returnFields);
     }
 
     public List<Map<String, String>> queryList(DataSourceMySqlModel model, String sql, List<String> returnFields)

@@ -46,6 +46,11 @@ public class CommunicationConfig {
      * 签名私钥
      */
     private String signPrivateKey;
+    
+    /**
+     * 是否要返回结果标签
+     * */
+    private boolean needReturnFields;
 
     /**
      * 是否续跑
@@ -113,4 +118,11 @@ public class CommunicationConfig {
         this.isContinue = isContinue;
     }
 
+    public boolean isNeedReturnFields() {
+        return needReturnFields;
+    }
+
+    public void setNeedReturnFields(boolean needReturnFields) {
+        this.needReturnFields = needReturnFields;
+    }
 }

@@ -106,7 +106,7 @@ public class PrivateSetIntersection extends Psi {
             result.addAll(batchResult);
         }
         saveLastCurrentBatchAndSize(request.getRequestId(), request.getCurrentBatch(), request.getBatchSize());
-        saveResult(batchResult, request.getRequestId());
+        savePsiResult(batchResult, request.getRequestId());
         logger.info("dh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
                 + result.size() + ", hasNext = " + hasNext + ", duration = " + (System.currentTimeMillis() - start));
         while (hasNext) {
@@ -135,8 +135,9 @@ public class PrivateSetIntersection extends Psi {
             logger.info("dh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
                     + result.size() + ", hasNext = " + hasNext + ",duration = " + (System.currentTimeMillis() - start));
             saveLastCurrentBatchAndSize(request.getRequestId(), request.getCurrentBatch(), request.getBatchSize());
-            saveResult(batchResult, request.getRequestId());
+            savePsiResult(batchResult, request.getRequestId());
         }
+        returnFields(config);
         return result;
     }
 }

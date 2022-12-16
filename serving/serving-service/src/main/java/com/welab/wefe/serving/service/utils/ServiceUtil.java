@@ -114,14 +114,14 @@ public class ServiceUtil {
         return buffer;
     }
 
-    public static String generateOneSQL(String params, JSONObject dataSource, String dbName) {
+    public static String generateOneSQL(String idJson, JSONObject dataSource, String dbName) {
         String tableName = dbName + "." + dataSource.getString("table");
         String resultfields = parseReturnFields(dataSource);
-        String where = parseWhere(dataSource, JObject.create(params));
+        String where = parseWhere(dataSource, JObject.create(idJson));
         String sql = "SELECT " + resultfields + " FROM " + tableName + " WHERE " + where + " limit 1";
         return sql;
     }
-
+    
     public static String parseReturnFields(JSONObject dataSource) {
         JSONArray returnFields = dataSource.getJSONArray("return_fields");
         if (returnFields.isEmpty()) {

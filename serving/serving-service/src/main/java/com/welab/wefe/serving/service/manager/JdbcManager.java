@@ -184,6 +184,83 @@ public class JdbcManager {
         return fieldMap;
     }
 
+    // sql SELECT xxx FROM MY_TABLE WHERE a=? and b=? limit 1;
+    public List<Map<String, String>> queryListByConditions(Connection conn, String sql,
+            List<Map<String, Object>> conditionFieldValues, List<String> returnFields) {
+        long start = System.currentTimeMillis();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        List<Map<String, String>> result = new ArrayList<>();
+        try {
+            ps = conn.prepareStatement(sql);
+            int times = conditionFieldValues.size();
+            for (int i = 0; i < times; i++) {
+                Map<String, Object> conditionFieldValue = conditionFieldValues.get(i);
+                int count = 1;
+                for (Map.Entry<String, Object> entry : conditionFieldValue.entrySet()) {
+                    ps.setObject(count, entry.getValue());
+                    count++;
+                }
+                rs = ps.executeQuery();
+                while (rs.next()) {
+                    Map<String, String> fieldMap = new LinkedHashMap<>();
+                    for (String field : returnFields) {
+                        String value = rs.getString(field);
+                        fieldMap.put(field, value);
+                    }
+                    result.add(fieldMap);
+                }
+            }
+        } catch (SQLException e) {
+            log.error("queryListByIds error", e);
+            return result;
+        } finally {
+            close(conn, ps, rs);
+            long duration = System.currentTimeMillis() - start;
+            log.info("JdbcManager queryListByIds duration: " + duration);
+        }
+        return result;
+    }
+
+    // sql SELECT xxx FROM MY_TABLE WHERE ID IN (?,?,?,?,?,?,?,?,?,?))
+    public List<Map<String, String>> queryListByIds(Connection conn, String sql, List<String> ids,
+            List<String> returnFields) {
+        long start = System.currentTimeMillis();
+        // 每10个ID批量查询一次
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        List<Map<String, String>> result = new ArrayList<>();
+        try {
+            ps = conn.prepareStatement(sql);
+            int index = 0;// ID的下标
+            int times = (ids.size() - 1) / 10 + 1; // 外循环次数
+            for (int i = 0; i < times; i++) {
+                for (int j = 0; j < 10; j++) {
+                    // 如果不足10个（最后一次时）ID，以不可能的ID凑数
+                    ps.setString(j + 1, (index < ids.size() ? ids.get(index) : -j + ""));
+                    index++;
+                }
+                rs = ps.executeQuery();
+                while (rs.next()) {
+                    Map<String, String> fieldMap = new LinkedHashMap<>();
+                    for (String field : returnFields) {
+                        String value = rs.getString(field);
+                        fieldMap.put(field, value);
+                    }
+                    result.add(fieldMap);
+                }
+            }
+        } catch (SQLException e) {
+            log.error("queryListByIds error", e);
+            return result;
+        } finally {
+            close(conn, ps, rs);
+            long duration = System.currentTimeMillis() - start;
+            log.info("JdbcManager queryListByIds duration: " + duration);
+        }
+        return result;
+    }
+
     public List<Map<String, String>> queryList(Connection conn, String sql, List<String> returnFields) {
         long start = System.currentTimeMillis();
         log.info("JdbcManager queryList sql: " + sql);
@@ -204,7 +281,6 @@ public class JdbcManager {
                 }
                 result.add(fieldMap);
             }
-
         } catch (SQLException e) {
             log.error("queryList error", e);
             return result;

@@ -17,6 +17,8 @@ package com.welab.wefe.serving.service.service_processor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -63,79 +65,181 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
 
     @Override
     public JObject process(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {
-        String rid = data.getString("requestId");
         String type = data.getString("type");
+        initParams(data);
+        if (Psi.DH_PSI.equalsIgnoreCase(type)) { // dh
+            return processDH(data, model);
+        } else if (Psi.ECDH_PSI.equalsIgnoreCase(type)) { // default ECDH
+            return processECDH(data, model);
+        } else {
+            return processPSIResult(data, model);
+        }
+    }
+
+    private void initParams(JObject data) {
+        String rid = data.getString("requestId");
         this.requestId = rid;
         this.batchSize = config.getPsiBatchSize();
         int bs = data.getIntValue("batchSize");
         if (bs > 0) {
             this.batchSize = bs;
         }
+    }
+
+    private JObject processPSIResult(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {
+        List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
+        if (CollectionUtils.isEmpty(clientIds)) {
+            clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
+        }
+        JSONObject dataSource = JObject.parseObject(model.getDataSource());
+        DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
+        if (dataSourceModel == null) {
+            throw new StatusCodeWithException("datasource not found", StatusCode.DATA_NOT_FOUND);
+        }
+        String tempId = clientIds.get(0);
+        QueryPrivateSetIntersectionResponse response = new QueryPrivateSetIntersectionResponse();
+        response.setRequestId(this.requestId);
+        List<String> result = new ArrayList<>();
+        // 这种情况 单个clientId 为json ,包含多个字段
+        if (JObject.isValidObject(tempId)) { // id is json
+            LOG.info("process psi result , id is json , first = " + tempId);
+            String fieldStr = ServiceUtil.parseReturnFields(dataSource);
+            List<String> resultFields = new ArrayList<>(Arrays.asList(fieldStr.split(",")));
+            List<String> conditions = new ArrayList<>();
+            List<String> fieldList = new LinkedList<>();
+            JSONArray keyCalcRules = dataSource.getJSONArray("key_calc_rules");
+            for (int i = 0; i < keyCalcRules.size(); i++) {
+                JSONObject item = keyCalcRules.getJSONObject(i);
+                String[] fields = item.getString("field").split(",");
+                for (String f : fields) {
+                    conditions.add(f + " = ?");
+                    fieldList.add(f);
+                    if (!resultFields.contains(f)) {
+                        resultFields.add(f);
+                    }
+                }
+            }
+            List<Map<String, Object>> conditionFieldValues = new ArrayList<>();
+            for (String idJson : clientIds) {// params
+                JSONObject idObj = JSONObject.parseObject(idJson);
+                Map<String, Object> idMap = new LinkedHashMap<>();
+                for (String f : fieldList) {
+                    idMap.put(f, idObj.get(f));
+                }
+                conditionFieldValues.add(idMap);
+            }
+            String tableName = dataSourceModel.getDatabaseName() + "." + dataSource.getString("table");
+            String sql = "SELECT " + StringUtils.join(resultFields, ",") + " FROM " + tableName + " WHERE "
+                    + StringUtils.join(conditions, " and ") + " limit 1";
+            LOG.info("sql is " + sql);
+            try {
+                List<Map<String, String>> resultMaps = dataSourceService.queryListByConditions(dataSourceModel, sql,
+                        conditionFieldValues, resultFields);
+                resultMaps.stream().forEach(s -> {
+                    result.add(JObject.toJSONString(s));
+                });
+            } catch (StatusCodeWithException e) {
+                LOG.error("pir query data error", e);
+            }
+        } else {// 这种情况 单个clientId 为单个值
+            LOG.info("process psi result , id is value , first = " + tempId);
+            String tableName = dataSourceModel.getDatabaseName() + "." + dataSource.getString("table");
+            String fieldStr = ServiceUtil.parseReturnFields(dataSource);
+            List<String> resultFields = new ArrayList<>(Arrays.asList(fieldStr.split(",")));
+            JSONArray keyCalcRules = dataSource.getJSONArray("key_calc_rules");
+            if (keyCalcRules.size() != 1) {
+                throw new StatusCodeWithException("参数错误", StatusCode.ILLEGAL_REQUEST);
+            }
+            JSONObject item = keyCalcRules.getJSONObject(0);
+            String[] fields = item.getString("field").split(",");
+            if (fields.length != 1) {
+                throw new StatusCodeWithException("参数错误", StatusCode.ILLEGAL_REQUEST);
+            }
+            String keyField = fields[0];
+            if (!resultFields.contains(keyField)) {
+                resultFields.add(keyField);
+            }
+            // sql like SELECT xxx FROM MY_TABLE WHERE ID IN (?,?,?,?,?,?,?,?,?,?))
+            String sql = "SELECT " + StringUtils.join(resultFields, ",") + " FROM " + tableName + " WHERE " + keyField
+                    + " IN (?,?,?,?,?,?,?,?,?,?)";
+            LOG.info("sql is " + sql);
+            List<Map<String, String>> list = dataSourceService.queryListByIds(dataSourceModel, sql, clientIds,
+                    resultFields);
+            list.stream().forEach(s -> {
+                result.add(JObject.toJSONString(s));
+            });
+        }
+        response.setFieldResults(result);
+        return JObject.create(response);
+    }
+
+    private JObject processDH(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {
         // 当前批次
         int currentBatch = data.getIntValue("currentBatch");
-        if (Psi.DH_PSI.equalsIgnoreCase(type)) {
-            String p = data.getString("p");
-            // 当前批次
-            DhPsiServer server = DH_SERVER_MAP.get(requestId);
-            if (server == null) {
-                LOG.info("dh server not found, new one");
-                server = new DhPsiServer(p);
-                DH_SERVER_MAP.put(requestId, server);
-            }
-            List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
-            if (CollectionUtils.isEmpty(clientIds)) {
-                clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
-            }
-            List<String> doubleEncryptedClientDataset = null;
-            if (!CollectionUtils.isEmpty(clientIds)) {
-                Map<Long, String> clientEncryptedDatasetMap = EcdhUtil.convert2Map(clientIds);
-                // 对客户端数据进行加密
-                Map<Long, String> doubleEncryptedClientDatasetMap = server
-                        .encryptClientDatasetMap(clientEncryptedDatasetMap);
-                doubleEncryptedClientDataset = EcdhUtil.convert2List(doubleEncryptedClientDatasetMap);
-            }
-            List<String> batchData = getBatchData(model, currentBatch);
-            // 对自己的数据集进行加密
-            List<String> encryptServerIds = server.encryptDataset(batchData);
-            QueryPrivateSetIntersectionResponse response = new QueryPrivateSetIntersectionResponse();
-            response.setClientIdByServerKeys(doubleEncryptedClientDataset);
-            response.setServerEncryptIds(encryptServerIds);
-            response.setRequestId(this.requestId);
-            response.setCurrentBatch(currentBatch);
-            response.setHasNext(currentBatch < (this.numPartitions - 1));
-            return JObject.create(response);
-        } else { // default ECDH
-            Map<Long, String> doubleEncryptedClientDatasetMap = null;
-            List<String> doubleEncryptedClientDataset = null;
-            EcdhPsiServer server = ECDH_SERVER_MAP.get(requestId);
-            if (server == null) {
-                LOG.info("ecdh server not found, new one");
-                server = new EcdhPsiServer();
-                ECDH_SERVER_MAP.put(this.requestId, server);
-            }
-            List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
-            if (CollectionUtils.isEmpty(clientIds)) {
-                clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
-            }
-            if (!CollectionUtils.isEmpty(clientIds)) {
-                Map<Long, String> clientEncryptedDatasetMap = EcdhUtil.convert2Map(clientIds);
-                // 对客户端数据进行二次加密
-                doubleEncryptedClientDatasetMap = server.encryptDatasetMap(clientEncryptedDatasetMap);
-                doubleEncryptedClientDataset = EcdhUtil.convert2List(doubleEncryptedClientDatasetMap);
-            }
-
-            List<String> batchData = getBatchData(model, currentBatch);
-            // 服务端对自己的数据集进行加密
-            List<String> serverEncryptedDataset = server.encryptDataset(batchData);
-            // 把上面两个set发给客户端
-            QueryPrivateSetIntersectionResponse response = new QueryPrivateSetIntersectionResponse();
-            response.setClientIdByServerKeys(doubleEncryptedClientDataset); // 第一批次会传，后续批次为空
-            response.setRequestId(this.requestId);
-            response.setServerEncryptIds(serverEncryptedDataset);
-            response.setCurrentBatch(currentBatch);
-            response.setHasNext(currentBatch < (this.numPartitions - 1));
-            return JObject.create(response);
+        String p = data.getString("p");
+        DhPsiServer server = DH_SERVER_MAP.get(requestId);
+        if (server == null) {
+            LOG.info("dh server not found, new one");
+            server = new DhPsiServer(p);
+            DH_SERVER_MAP.put(requestId, server);
         }
+        List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
+        if (CollectionUtils.isEmpty(clientIds)) {
+            clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
+        }
+        List<String> doubleEncryptedClientDataset = null;
+        if (!CollectionUtils.isEmpty(clientIds)) {
+            Map<Long, String> clientEncryptedDatasetMap = EcdhUtil.convert2Map(clientIds);
+            // 对客户端数据进行加密
+            Map<Long, String> doubleEncryptedClientDatasetMap = server
+                    .encryptClientDatasetMap(clientEncryptedDatasetMap);
+            doubleEncryptedClientDataset = EcdhUtil.convert2List(doubleEncryptedClientDatasetMap);
+        }
+        List<String> batchData = getBatchData(model, currentBatch);
+        // 对自己的数据集进行加密
+        List<String> encryptServerIds = server.encryptDataset(batchData);
+        QueryPrivateSetIntersectionResponse response = new QueryPrivateSetIntersectionResponse();
+        response.setClientIdByServerKeys(doubleEncryptedClientDataset);
+        response.setServerEncryptIds(encryptServerIds);
+        response.setRequestId(this.requestId);
+        response.setCurrentBatch(currentBatch);
+        response.setHasNext(currentBatch < (this.numPartitions - 1));
+        return JObject.create(response);
+    }
+
+    private JObject processECDH(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {
+        // 当前批次
+        int currentBatch = data.getIntValue("currentBatch");
+        Map<Long, String> doubleEncryptedClientDatasetMap = null;
+        List<String> doubleEncryptedClientDataset = null;
+        EcdhPsiServer server = ECDH_SERVER_MAP.get(requestId);
+        if (server == null) {
+            LOG.info("ecdh server not found, new one");
+            server = new EcdhPsiServer();
+            ECDH_SERVER_MAP.put(this.requestId, server);
+        }
+        List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
+        if (CollectionUtils.isEmpty(clientIds)) {
+            clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
+        }
+        if (!CollectionUtils.isEmpty(clientIds)) {
+            Map<Long, String> clientEncryptedDatasetMap = EcdhUtil.convert2Map(clientIds);
+            // 对客户端数据进行二次加密
+            doubleEncryptedClientDatasetMap = server.encryptDatasetMap(clientEncryptedDatasetMap);
+            doubleEncryptedClientDataset = EcdhUtil.convert2List(doubleEncryptedClientDatasetMap);
+        }
+
+        List<String> batchData = getBatchData(model, currentBatch);
+        // 服务端对自己的数据集进行加密
+        List<String> serverEncryptedDataset = server.encryptDataset(batchData);
+        // 把上面两个set发给客户端
+        QueryPrivateSetIntersectionResponse response = new QueryPrivateSetIntersectionResponse();
+        response.setClientIdByServerKeys(doubleEncryptedClientDataset); // 第一批次会传，后续批次为空
+        response.setRequestId(this.requestId);
+        response.setServerEncryptIds(serverEncryptedDataset);
+        response.setCurrentBatch(currentBatch);
+        response.setHasNext(currentBatch < (this.numPartitions - 1));
+        return JObject.create(response);
     }
 
     // doris

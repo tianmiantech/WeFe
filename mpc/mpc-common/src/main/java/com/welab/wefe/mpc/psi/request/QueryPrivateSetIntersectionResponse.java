@@ -27,6 +27,7 @@ public class QueryPrivateSetIntersectionResponse {
     private String requestId;
     private List<String> serverEncryptIds;
     private List<String> clientIdByServerKeys;
+    private List<String> fieldResults;
 
     /**
      * 当前批次
@@ -96,4 +97,11 @@ public class QueryPrivateSetIntersectionResponse {
         this.hasNext = hasNext;
     }
 
+    public List<String> getFieldResults() {
+        return fieldResults;
+    }
+
+    public void setFieldResults(List<String> fieldResults) {
+        this.fieldResults = fieldResults;
+    }
 }

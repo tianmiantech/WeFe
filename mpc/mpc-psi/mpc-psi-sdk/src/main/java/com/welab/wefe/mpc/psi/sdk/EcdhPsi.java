@@ -114,7 +114,7 @@ public class EcdhPsi extends Psi {
             result.addAll(batchResult);
         }
         saveLastCurrentBatchAndSize(request.getRequestId(), request.getCurrentBatch(), request.getBatchSize());
-        saveResult(batchResult, request.getRequestId());
+        savePsiResult(batchResult, request.getRequestId());
         logger.info("ecdh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
                 + result.size() + ", hasNext = " + hasNext + ",duration = " + (System.currentTimeMillis() - start));
         while (hasNext) {
@@ -142,10 +142,11 @@ public class EcdhPsi extends Psi {
                 result.addAll(batchResult);
             }
             saveLastCurrentBatchAndSize(request.getRequestId(), request.getCurrentBatch(), request.getBatchSize());
-            saveResult(batchResult, request.getRequestId());
+            savePsiResult(batchResult, request.getRequestId());
             logger.info("ecdh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
                     + result.size() + ", hasNext = " + hasNext + ",duration = " + (System.currentTimeMillis() - start));
         }
+        returnFields(config);
         return result;
     }
 }
