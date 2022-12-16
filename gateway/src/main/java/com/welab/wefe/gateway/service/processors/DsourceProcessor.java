@@ -47,8 +47,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class DsourceProcessor extends AbstractProcessor {
 
     @Autowired
-    private TransferMetaDataSourceParallelStream transferMetaDataSource;
-    //private TransferMetaDataSourceStream transferMetaDataSource;
+    //private TransferMetaDataSourceParallelStream transferMetaDataSource;
+    private TransferMetaDataSourceStream transferMetaDataSource;
     //private AbstractTransferMetaDataSource transferMetaDataSource;
 
     @Autowired
