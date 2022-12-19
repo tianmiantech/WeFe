@@ -275,7 +275,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         executorService.shutdown();
         try {
             while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
-                // pass
+                // wait
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
