@@ -2066,7 +2066,7 @@ export default {
                                     this.form.stringResult += `${i > 0 ? ' + ' : ''}${x.operator}(${x.field.split(',').join('+')})`;
                                 });
                             }
-                            this.form.data_source.return_fields = return_fields;
+                            this.form.data_source.return_fields = return_fields.map(x => x.name);
                         } else if (type === 1 || type === 3) {
                             this.form.data_source.return_fields = data_source.return_fields.map(x => x.name);
                             this.form.data_source.condition_fields = data_source.condition_fields.map(x => {
