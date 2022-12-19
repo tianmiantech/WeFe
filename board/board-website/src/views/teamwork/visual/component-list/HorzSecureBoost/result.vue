@@ -109,6 +109,7 @@
     import CommonResult from '../common/CommonResult';
     import resultMixin from '../result-mixin';
     import gridSearchParams from '../../../../../assets/js/const/gridSearchParams';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     const mixin = resultMixin();
 
@@ -154,7 +155,7 @@
 
                         losses.forEach((item, index) => {
                             vData.loss.xAxis.push(index);
-                            vData.loss.series[0].push(item);
+                            vData.loss.series[0].push(dealNumPrecision(item));
                         });
                         vData.loss.iters = losses.length;
                         vData.loss.isConverged = isConverged;
@@ -163,13 +164,14 @@
                             .map((each) => ({
                                 ...each,
                                 importanceShow:
-                                    Math.round(
+                                    /* Math.round(
                                         each[
                                             each.main === 'split'
                                                 ? 'importance2'
                                                 : 'importance'
                                         ] * 1e2,
-                                    ) / 1e2,
+                                    ) / 1e2, */
+                                    each.main === 'split' ? dealNumPrecision(each.importance2) : each.importance,
                             }))
                             .reduce(
                                 (acc, cur) => ({

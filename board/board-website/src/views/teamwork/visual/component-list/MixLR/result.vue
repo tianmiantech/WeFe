@@ -46,7 +46,11 @@
                             <el-table-column
                                 prop="weight"
                                 label="权重"
-                            />
+                            >
+                                <template v-slot="scope">
+                                    {{ dealNumPrecision(scope.row.weight) }}
+                                </template>
+                            </el-table-column>
                         </el-table>
                         <el-divider v-if="index === 0"></el-divider>
                     </template>
@@ -95,6 +99,7 @@
     import CommonResult from '../common/CommonResult';
     import resultMixin from '../result-mixin';
     import gridSearchParams from '../../../../../assets/js/const/gridSearchParams';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     const mixin = resultMixin();
 
@@ -176,6 +181,7 @@
                 activeName,
                 methods,
                 mapGridName,
+                dealNumPrecision,
             };
         },
     };

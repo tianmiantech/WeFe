@@ -51,6 +51,7 @@
     import { ref, reactive, onMounted } from 'vue';
     import CommonResult from '../../visual/component-list/common/CommonResult.vue';
     import resultMixin from '../../visual/component-list/result-mixin';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     const mixin = resultMixin();
 
@@ -102,7 +103,7 @@
 
                         for (const key in train_loss) {
                             vData.train_loss.xAxis.push(key);
-                            vData.train_loss.series[0].push(train_loss[key].value);
+                            vData.train_loss.series[0].push(dealNumPrecision(train_loss[key].value));
                         }
                     } else {
                         vData.result = false;

@@ -80,6 +80,7 @@
     import CommonResult from '../common/CommonResult';
     import resultMixin from '../result-mixin';
     import gridSearchParams from '../../../../../assets/js/const/gridSearchParams';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     const mixin = resultMixin();
 
@@ -124,7 +125,7 @@
 
                             losses.forEach((item, index) => {
                                 result.loss.xAxis.push(index);
-                                result.loss.series[0].push(item);
+                                result.loss.series[0].push(dealNumPrecision(item));
                             });
                             result.loss.isConverged = isConverged;
                             result.loss.lossHistory = lossHistory;
