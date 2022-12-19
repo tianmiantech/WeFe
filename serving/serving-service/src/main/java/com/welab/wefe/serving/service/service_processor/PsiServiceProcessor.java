@@ -275,7 +275,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         executorService.shutdown();
         try {
             while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
-                // pass
+                // wait
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -287,6 +287,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
                     "select * from " + model.getIdsTableName());
             SERVER_DATASET_SIZE.put(this.requestId, serverDatasetSize);
         }
+        this.numPartitions = Math.max(SERVER_DATASET_SIZE.get(this.requestId) / this.batchSize, 1);
         LOG.info("get doris data end, serverDatasetSize = " + SERVER_DATASET_SIZE.get(this.requestId)
                 + ", numPartitions=" + numPartitions + ", serverDataSet size = " + queue.size());
         return new ArrayList<>(queue);
