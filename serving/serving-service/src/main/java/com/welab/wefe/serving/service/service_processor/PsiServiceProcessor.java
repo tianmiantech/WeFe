@@ -292,7 +292,6 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
                 + ", numPartitions=" + numPartitions + ", serverDataSet size = " + queue.size());
         return new ArrayList<>(queue);
     }
-
     private List<String> getMysqlData(TableServiceMySqlModel model, DataSourceMySqlModel dataSourceModel,
             JSONObject dataSource, int currentBatch) throws StatusCodeWithException {
         List<String> needFields = new ArrayList<>(Arrays.asList("id"));
