@@ -294,7 +294,7 @@
                                 />
                             </el-select>
                         </el-form-item>
-                        
+
                         <el-form-item
                             label="返回字段:"
                             label-width="100px"
@@ -1477,7 +1477,7 @@ export default {
             },
             keyMaps: {
                 visible:        false,
-                encrypts:       ['md5', 'sha256', '-'],
+                encrypts:       ['md5', 'sha256', 'none'],
                 key_calc_rules: [],
                 stringResult:   '',
             },
