@@ -10,7 +10,7 @@
             ref="component-panel"
             class="component-form"
         >
-            <div class="ctrl-btns">
+            <div class="ctrl-btns" :class="{'is-recover': maxSize}">
                 <i
                     v-if="maxSize"
                     title="原始大小"
@@ -246,7 +246,7 @@
             },
 
             changeSize() {
-                console.log('this.$refs',this.$refs['component-panel-box'],this.$refs['component-panel-box'].vData)
+                // console.log('this.$refs',this.$refs['component-panel-box'],this.$refs['component-panel-box'].vData);
                 if(this.maxSize) {
                     if(this.$refs['component-panel-box']){
                         this.$refs['component-panel-box'].vData.rect.width = 350;
@@ -264,7 +264,7 @@
 
                 if(paneName === 'result') {
                     child.methods.readData(this.nodeModel);
-                } else if(paneName === 'params' && (child.vData.inited === false || this.jobGraphShow)) {
+                } else if(paneName === 'params' && (child?.vData?.inited === false || this.jobGraphShow)) {
                     // never inited
                     child.methods.readData && child.methods.readData(this.nodeModel);
                 }
@@ -469,33 +469,36 @@
     z-index: 100;
     :deep(.drag-content){overflow: visible;}
     :deep(.ctrl-left){
-        left: -9px;
+        left: -24px;
         padding:12px 3px;
         color: white;
-        background: gray;
-        border-radius:4px 4px 0px 0px;
-        border: 1px solid #e5e9f2;
+        background: #888;
+        border-radius:4px;
+        border: 1px solid #888;
     }
     :deep(.control-points.covered){
-        .ctrl-left{background: #f5f5f5;}
+        .ctrl-left{
+            background: #bdbdbd;
+            border-color: #bdbdbd;
+        }
     }
 }
 .ctrl-btns{
     position: absolute;
     top: 57.3%;
-    left: -9px;
-    z-index: 101;
+    left: -24px;
+    z-index: 100001;
+    &.is-recover {
+        top: 8px;
+        left: 97%;
+    }
     .iconfont{
         cursor: pointer;
         font-size: 22px;
         color: white;
-        background: gray;
-        border-radius: 0px 0px 4px 4px;
-
-        padding:0px;
-        border-left: 1px solid #e5e9f2;
-        border-right: 1px solid #e5e9f2;
-        border-bottom: 1px solid #e5e9f2;
+        background: #888;
+        border-radius: 4px;
+        border: 1px solid #888;
 
 
     }
@@ -535,7 +538,7 @@
         border-left: 1px solid #dfe4ed;
         border-top: 1px solid #dfe4ed;
         position: absolute;
-        left: -60px;
+        left: -52px;
         top: 0;
         z-index: 1;
         height:auto;

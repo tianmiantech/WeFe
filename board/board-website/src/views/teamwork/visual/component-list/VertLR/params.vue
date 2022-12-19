@@ -7,6 +7,7 @@
             :model="vData.form"
             :disabled="disabled"
             @submit.prevent
+            :label-width="160"
         >
             <el-collapse v-model="vData.activeNames">
                 <el-collapse-item title="模型参数" name="1">
@@ -294,7 +295,7 @@
             n_splits: 5,
             shuffle:  true,
             need_cv:  false,
-             
+
         },
         other_param: {
             lr_method:             'lr',
@@ -445,9 +446,9 @@
 <style lang="scss" scoped>
 .board-form-item {
     margin-bottom: 10px;
-    :deep(.board-form-item__label) {
+    /* :deep(.board-form-item__label) {
         flex: 1;
-    }
+    } */
 }
 .board-collapse-item {
     :deep(.board-collapse-item__header) {
