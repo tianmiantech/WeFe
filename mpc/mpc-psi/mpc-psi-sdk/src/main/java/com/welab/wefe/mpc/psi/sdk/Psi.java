@@ -19,6 +19,9 @@ package com.welab.wefe.mpc.psi.sdk;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
@@ -49,6 +53,7 @@ public abstract class Psi {
     public static final String SAVE_RESULT_DIR = System.getProperty("user.dir"); // 当前目录
 
     protected Map<String, String> clientDatasetMap = new LinkedHashMap<>();
+    protected List<String> confuseData = new ArrayList<>();
 
     /**
      * 查询本文id集与服务器id集的集合操作
@@ -85,7 +90,8 @@ public abstract class Psi {
             logger.info("psi result response = " + response);
             throw new Exception(response.getMessage());
         }
-        saveFieldResult(response.getFieldResults(), config.getRequestId());
+        saveFieldResult(new HashSet<>(response.getFieldResults()), config.getRequestId());
+        config.setNeedReturnFields(false);
         return response.getFieldResults();
     }
 
@@ -110,18 +116,61 @@ public abstract class Psi {
                 Paths.get(SAVE_RESULT_DIR, requestId + "_currentBatch").toFile(), Charset.forName("utf-8").toString());
     }
 
-    public void saveFieldResult(List<String> data, String requestId) {
+    public void saveFieldResult(Set<String> data, String requestId) {
         FileUtil.appendLines(data, Paths.get(SAVE_RESULT_DIR, requestId + "_field_result").toFile(),
                 Charset.forName("utf-8").toString());
+        saveInCsv(data, requestId + "_field_result" + ".csv");
     }
 
     public void savePsiResult(Set<String> jsonSet, String requestId) {
         FileUtil.appendLines(jsonSet, Paths.get(SAVE_RESULT_DIR, requestId).toFile(),
                 Charset.forName("utf-8").toString());
+        saveInCsv(jsonSet, requestId + ".csv");
+    }
+
+    private void saveInCsv(Collection<String> set, String fileName) {
+        try {
+            Iterator<String> it = set.iterator();
+            String first = it.next();
+            List<String> contents = new ArrayList<>();
+            if (JSONObject.isValidObject(first)) {
+                Map<String, Object> firstMap = JSONObject.parseObject(first).getInnerMap();
+                Set<String> keys = firstMap.keySet();
+                contents.add(StringUtils.join(keys, ","));
+                for (String json : set) {
+                    Collection<Object> values = JSONObject.parseObject(json).getInnerMap().values();
+                    contents.add(StringUtils.join(values, ","));
+                }
+                FileUtil.appendLines(contents, Paths.get(SAVE_RESULT_DIR, fileName).toFile(),
+                        Charset.forName("utf-8").toString());
+            } else {
+                FileUtil.appendLines(set, Paths.get(SAVE_RESULT_DIR, fileName).toFile(),
+                        Charset.forName("utf-8").toString());
+            }
+        } catch (Exception e) {
+            logger.info("save in csv error", e);
+        }
     }
 
     public List<String> readPsiResult(String requestId) {
-        return FileUtil.readLines(Paths.get(SAVE_RESULT_DIR, requestId).toFile(), Charset.forName("utf-8").toString());
+        List<String> result = FileUtil.readLines(Paths.get(SAVE_RESULT_DIR, requestId).toFile(),
+                Charset.forName("utf-8").toString());
+        List<String> confuseData = getConfuseData();
+        if (confuseData != null && !confuseData.isEmpty()) {
+            result.addAll(confuseData);
+        }
+        return new ArrayList<>(new HashSet<>(result));
+    }
+
+    public List<String> getConfuseData() {
+        return confuseData;
+    }
+
+    /**
+     * 设置混淆数据 格式与{{requestId}}文件一致
+     */
+    public void setConfuseData(List<String> confuseData) {
+        this.confuseData = confuseData;
     }
 
     public Map<String, String> getClientDatasetMap() {
