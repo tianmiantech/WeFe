@@ -226,15 +226,6 @@
                                 @click="add_params"
                             />
                         </el-form-item>
-                        <!--                    <el-form-item>-->
-                        <!--                        <el-button-->
-                        <!--                            type="primary"-->
-                        <!--                            @click="add_params"-->
-                        <!--                            class="dashed-btn"-->
-                        <!--                        >-->
-                        <!--                            + 新增-->
-                        <!--                        </el-button>-->
-                        <!--                    </el-form-item>-->
                     </template>
 
                     <template
@@ -294,7 +285,7 @@
                                 />
                             </el-select>
                         </el-form-item>
-                        
+
                         <el-form-item
                             label="返回字段:"
                             label-width="100px"
@@ -302,11 +293,11 @@
                             <el-select
                                 v-model="form.data_source.return_fields"
                                 :placeholder="
-                                    form.service_type === 1
+                                    [1, 2].includes(form.service_type)
                                         ? '支持多选'
                                         : '单选'
                                 "
-                                :multiple="form.service_type === 1"
+                                :multiple="[1, 2].includes(form.service_type)"
                                 value-key="value"
                                 clearable
                                 @change="sqlShow"
@@ -1477,7 +1468,7 @@ export default {
             },
             keyMaps: {
                 visible:        false,
-                encrypts:       ['md5', 'sha256', '-'],
+                encrypts:       ['md5', 'sha256', 'none'],
                 key_calc_rules: [],
                 stringResult:   '',
             },
@@ -2061,6 +2052,7 @@ export default {
                         await this.getTablesFields();
 
                         if (type === 2) {
+                            const { return_fields = [] } = data_source;
                             const rules = data_source.key_calc_rules;
 
                             if (rules) {
@@ -2074,6 +2066,7 @@ export default {
                                     this.form.stringResult += `${i > 0 ? ' + ' : ''}${x.operator}(${x.field.split(',').join('+')})`;
                                 });
                             }
+                            this.form.data_source.return_fields = return_fields;
                         } else if (type === 1 || type === 3) {
                             this.form.data_source.return_fields = data_source.return_fields.map(x => x.name);
                             this.form.data_source.condition_fields = data_source.condition_fields.map(x => {
@@ -2530,13 +2523,9 @@ export default {
                 $params.data_source = {
                     id:             obj.id,
                     table:          obj.table,
-                    key_calc_rules: this.form.key_calc_rules.map(x => {
-                        return {
-                            ...x,
-                            field: x.field.join(','),
-                        };
-                    }),
-                    key_calc_rule: this.form.stringResult,
+                    key_calc_rules: this.form.key_calc_rules.map(x => ({ ...x, field: x.field.join(',') })),
+                    key_calc_rule:  this.form.stringResult,
+                    return_fields:  obj.return_fields.map(each => this.data_fields.find(y => y.name === each)).filter(each => each),
                 };
             } else {
                 if (type !== 5) {
