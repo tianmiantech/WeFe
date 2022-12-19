@@ -1468,7 +1468,7 @@ export default {
             },
             keyMaps: {
                 visible:        false,
-                encrypts:       ['md5', 'sha256', '-'],
+                encrypts:       ['md5', 'sha256', 'none'],
                 key_calc_rules: [],
                 stringResult:   '',
             },

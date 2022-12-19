@@ -25,6 +25,8 @@ import java.util.Map;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.mpc.config.CommunicationConfig;
+import com.welab.wefe.mpc.psi.sdk.Psi;
+import com.welab.wefe.mpc.psi.sdk.PsiFactory;
 import com.welab.wefe.mpc.psi.sdk.excel.AbstractDataSetReader;
 import com.welab.wefe.mpc.psi.sdk.excel.CsvDataSetReader;
 import com.welab.wefe.mpc.psi.sdk.excel.ExcelDataSetReader;
@@ -33,18 +35,19 @@ import com.welab.wefe.mpc.psi.sdk.excel.ExcelDataSetReader;
 //配合 mpc-psi-sdk-1.0.0.jar使用
 public class PsiClient {
     // 私钥
-    private static final String 测试客户1_privateKey = "*****";
+    private static final String 测试客户1_privateKey = "xxxx";
     // 公钥
-    private static final String 测试客户1_publicKey = "*****";
+    private static final String 测试客户1_publicKey = "xxxx";
     // 客户code
-    private static final String 测试客户1_code = "******";
+    private static final String 测试客户1_code = "xxxx";
     // Serving服务地址
-    private static final String serverUrl = "http://xxxx.com/serving-xxxx-xxx/";        // TODO 参考readme.md 的serverUrl
+    private static final String serverUrl = "http://xxxxx.com/xxxx/"; // TODO 参考readme.md 的serverUrl
     // Service Api name
-    private static final String apiName = "api/user/query";                              // TODO 参考readme.md 的apiName
-    private static final String params = "[{\"field\":\"xxxx\",\"operator\":\"xxxx\"}]"; // TODO 参考readme.md 的params
+    private static final String apiName = "api/user/query"; // TODO 参考readme.md 的apiName
+    // ID生成策略参数
+    private static final String params = "[{\"field\":\"xxx\",\"operator\":\"-\"}]"; // TODO 参考readme.md 的params
 
-    private static Map<String, String> clientDatasetMap; // key 哈希数据， value 原数据
+    private static Map<String, String> clientDatasetMap; // key:哈希数据 value:原数据
 
     public static void main(String[] args) throws Exception {
         init(args);
@@ -53,18 +56,22 @@ public class PsiClient {
         Psi psi = PsiFactory.generatePsi();
         psi.setClientDatasetMap(clientDatasetMap);
         CommunicationConfig config = new CommunicationConfig();
-        config.setNeedSign(true); // 是否需要签名
         config.setSignPrivateKey(测试客户1_privateKey);// 私钥
         config.setCommercialId(测试客户1_code); // 客户ID
         // 服务地址
         config.setServerUrl(serverUrl);
         config.setApiName(apiName);
+        // 是否要返回结果标签
+        config.setNeedReturnFields(false);
         // 如果是续跑 需要带上下面两个参数
         // config.setRequestId("xxx");
         // config.setContinue(true);
         List<String> result = psi.query(config, new ArrayList<>(clientDatasetMap.keySet()));
         System.out.println("client size = " + clientDatasetMap.size() + ", result size = " + result.size()
                 + ", duration = " + (System.currentTimeMillis() - start));
+        // psi.setConfuseData(null); // 混淆数据
+        // config.setRequestId("xxx");
+        // psi.returnFields(config); // 主动调用返回标签结果
     }
 
     private static void init(String[] args) throws Exception {
@@ -94,15 +101,18 @@ public class PsiClient {
     public static String calcKey(Map<String, Object> data) {
         JSONArray keyCalcRules = JSONArray.parseArray(params);
         int size = keyCalcRules.size();
-        StringBuilder encodeValue = new StringBuilder("");
-        StringBuilder originalValue = new StringBuilder("");
+        StringBuilder encodeValue = new StringBuilder(""); // 哈希后的数据
+        JSONObject originValueJson = new JSONObject(); // 原数据
+        String tempField = "";
         for (int i = 0; i < size; i++) {
             JSONObject item = keyCalcRules.getJSONObject(i);
             String operator = item.getString("operator");
             String[] fields = item.getString("field").split(",");
+            tempField = fields[0];
             StringBuffer v = new StringBuffer();
             for (String field : fields) {
                 v.append(data.get(field));
+                originValueJson.put(field, data.get(field));
             }
             if ("md5".equalsIgnoreCase(operator)) {
                 encodeValue.append(getMD5String(v.toString()));
@@ -111,10 +121,13 @@ public class PsiClient {
             } else { // 不作处理
                 encodeValue.append(v.toString());
             }
-            originalValue.append(v);
         }
         // 哈希数据，原数据
-        clientDatasetMap.put(encodeValue.toString(), originalValue.toString());
+        if (originValueJson.size() == 1) {
+            clientDatasetMap.put(encodeValue.toString(), originValueJson.getString(tempField));
+        } else {
+            clientDatasetMap.put(encodeValue.toString(), originValueJson.toJSONString());
+        }
         return encodeValue.toString();
     }
 
