@@ -294,27 +294,8 @@
                                 />
                             </el-select>
                         </el-form-item>
-
-                        <template v-if="form.service_type === 2">
-                            <el-form-item
-                                label="求交主键:"
-                                required
-                                label-width="100px"
-                            >
-                                <el-button
-                                    type="primary"
-                                    @click="setKeyMap"
-                                >
-                                    设置
-                                </el-button>
-                                <p v-if="form.stringResult">
-                                    结果: {{ form.stringResult }}
-                                </p>
-                            </el-form-item>
-                        </template>
-
+                        
                         <el-form-item
-                            v-else
                             label="返回字段:"
                             label-width="100px"
                         >
@@ -338,6 +319,24 @@
                                 />
                             </el-select>
                         </el-form-item>
+
+                        <template v-if="form.service_type === 2">
+                            <el-form-item
+                                label="求交主键:"
+                                required
+                                label-width="100px"
+                            >
+                                <el-button
+                                    type="primary"
+                                    @click="setKeyMap"
+                                >
+                                    设置
+                                </el-button>
+                                <p v-if="form.stringResult">
+                                    结果: {{ form.stringResult }}
+                                </p>
+                            </el-form-item>
+                        </template>
 
                         <template
                             v-if="
