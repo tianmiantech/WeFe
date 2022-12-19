@@ -409,7 +409,7 @@
 
                             corr_feature_names[0].forEach((item, index) => {
                                 if(index < maxFeatureNum) {
-                                    vData.providerConfig.yAxis.push(item);
+                                    vData.providerConfig.yAxis.unshift(item);
                                 }
                             });
                             corr_feature_names[1].forEach((item, index) => {
@@ -534,12 +534,19 @@
                     chartData.yAxis = [];
                     chartData.featureColumnCount = 0;
 
+                    console.log('list', list,chartData.mixCorr)
                     if(role === 'provider') {
-                        chartData.xAxis.unshift(...list[1].$checkedColumnsArr);
-                        list[0].$checkedColumnsArr.forEach(name => {
-                            chartData.yAxis.push(name);
+                        /** 按顺序排列 */
+                        const {$checkedColumnsArr: secondArr,$feature_list: secondList} = list[1];
+                        const {$checkedColumnsArr: firstArr,$feature_list: firstList} = list[0];
+                        const firstFeature = firstList.map(item => item.name).filter(item => firstArr.includes(item));
+                        const secondFeature = secondList.map(item => item.name).filter(item => secondArr.includes(item));
+
+                        chartData.xAxis.push(...secondFeature);
+                        firstFeature.forEach(name => {
+                            chartData.yAxis.unshift(name);
                         });
-                        chartData.featureColumnCount += list[0].$checkedColumnsArr.length + list[1].$checkedColumnsArr.length;
+                        chartData.featureColumnCount += firstFeature.length + secondFeature.length;
 
                         // set rows
                         const { length } = chartData.yAxis;
@@ -548,19 +555,22 @@
                         chartData.yAxis.forEach(($row, rowIndex) => {
                             chartData.xAxis.forEach((column, columnIndex) => {
                                 const row = chartData.mixCorr[$row][column];
+                                console.log('$row, rowIndex',$row, column, rowIndex, columnIndex,row)
 
-                                chartData.series.push([rowIndex, length - columnIndex - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
+                                chartData.series.push([columnIndex, rowIndex, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
                             });
                         });
                     } else {
 
-                        list.forEach(({ $checkedColumnsArr }) => {
-                            chartData.xAxis.push(...$checkedColumnsArr);
-                            $checkedColumnsArr.forEach(name => {
+                        list.forEach(({ $checkedColumnsArr,$feature_list }) => {
+                            /** 按照正常顺序 */
+                            const allFeature = $feature_list.map(item => item.name).filter(item => $checkedColumnsArr.includes(item));
+                            chartData.xAxis.push(...allFeature);
+                            allFeature.forEach(name => {
                                 chartData.yAxis.unshift(name);
                             });
                             if(role !== 'local') {
-                                chartData.featureColumnCount += $checkedColumnsArr.length;
+                                chartData.featureColumnCount += allFeature.length;
                             }
                         });
 
