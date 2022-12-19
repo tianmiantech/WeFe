@@ -266,7 +266,6 @@
                             remote_features_names,
                             num_local_features,
                         } = data[0].result.statistics_pearson.data.corr.value;
-
                         if(props.myRole === 'promoter') {
                             // promoter Multidimensional matrix thermodynamic diagram
                             // ---> mix_corr array to object mapping
@@ -290,24 +289,25 @@
                                 }
                             });
                             vData.promoterConfig.series = [];
+                            const length = vData.promoterConfig.yAxis.length;
                             mix_corr.forEach((rows, rowIndex) => {
                                 if(rowIndex < maxFeatureNum) {
                                     rows.forEach((row, index) => {
                                         if(index < maxFeatureNum) {
-                                            vData.promoterConfig.series.push([rowIndex, maxFeatureNum - index - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
+                                            vData.promoterConfig.series.push([rowIndex,  length - index - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
                                         }
                                     });
                                 }
                             });
 
-                            vData.promoterConfig.featureColumnCount = maxFeatureNum;
+                            vData.promoterConfig.featureColumnCount = mix_feature_names.length;
                             vData.promoterConfig.width = vData.promoterConfig.xAxis.length * (vData.promoterConfig.xAxis.length > 10 ? 60 : 100);
                             vData.promoterConfig.height = vData.promoterConfig.yAxis.length * 34 + (vData.promoterConfig.yAxis.length > 10 ? 50: 100);
 
                             const promoterCheckedFeatures = [];
                             const providerCheckedFeatures = [];
                             const array = features.map((feature, index) => {
-                                const key = `promoter_${feature}`;
+                                const key = features.length === mix_feature_names.length ? feature :`promoter_${feature}`;
 
                                 if(index < maxFeatureNum) {
                                     promoterCheckedFeatures.push(key);
