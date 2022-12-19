@@ -1503,24 +1503,24 @@ export default {
                     value: 1,
                 },
                 {
+                    name:  '多方匿踪查询',
+                    value: 6,
+                },
+                {
                     name:  '两方交集查询',
                     value: 2,
-                },
-                {
-                    name:  '多方安全统计(被查询方)',
-                    value: 3,
-                },
-                {
-                    name:  '多方安全统计(查询方)',
-                    value: 4,
                 },
                 {
                     name:  '多方交集查询',
                     value: 5,
                 },
                 {
-                    name:  '多方匿踪查询',
-                    value: 6,
+                    name:  '多方安全统计(查询方)',
+                    value: 4,
+                },
+                {
+                    name:  '多方安全统计(被查询方)',
+                    value: 3,
                 },
                 {
                     name:  '机器学习模型服务',
