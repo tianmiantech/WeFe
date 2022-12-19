@@ -129,6 +129,10 @@ public abstract class Psi {
     }
 
     private void saveInCsv(Collection<String> set, String fileName) {
+        if (set == null || set.isEmpty()) {
+            logger.info("save in csv, set is empty");
+            return;
+        }
         try {
             Iterator<String> it = set.iterator();
             String first = it.next();
