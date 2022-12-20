@@ -390,7 +390,7 @@ public class ServiceService {
         return output;
     }
 
-    private String generateIdsTable(TableServiceMySqlModel model) {
+    private String generateIdsTable(TableServiceMySqlModel model) throws StatusCodeWithException {
         String keysTableName = "";
         if (model.getServiceType() != ServiceTypeEnum.PSI.getCode()) {// 对于 交集查询 需要额外生成对应的主键数据
             return keysTableName;
@@ -418,7 +418,7 @@ public class ServiceService {
     }
     
 
-    private String generateMySqlIdsTable(final DataSourceMySqlModel oldDataSourceModel, JSONObject dataSource) {
+    private String generateMySqlIdsTable(final DataSourceMySqlModel oldDataSourceModel, JSONObject dataSource) throws StatusCodeWithException {
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
         DataSourceMySqlModel newDataSourceMySqlModel = (DataSourceMySqlModel) SerializationUtils.clone(oldDataSourceModel);
         String keysTableName = newDataSourceMySqlModel.getDatabaseName() + "_" + dataSource.getString("table");
@@ -432,61 +432,47 @@ public class ServiceService {
         keysTableName += ("_" + format.format(new Date()));
         String sql = "SELECT " + StringUtils.join(needFields, ",") + " FROM " + newDataSourceMySqlModel.getDatabaseName() + "."
                 + dataSource.getString("table");
-        try {
-            String tmpSql = "SELECT * FROM " + newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table");
-            long count = dataSourceService.count(newDataSourceMySqlModel, tmpSql);
-            if (count <= 0) {
-                throw new StatusCodeWithException("数据源数据为空", StatusCode.DATA_NOT_FOUND);
-            }
-            // 异步
-            final String keysTableNameTmp = keysTableName;
-            CommonThreadPool.run(() -> {
-                try {
-                    String createTableSql = String.format(
-                            "CREATE TABLE `%s` (`id` varchar(100) NOT NULL ,PRIMARY KEY (`id`) USING BTREE ) ENGINE=InnoDB;",
-                            keysTableNameTmp);
-                    dataSourceService.createTable(createTableSql, DatabaseType.MySql, newDataSourceMySqlModel.getHost(),
-                            newDataSourceMySqlModel.getPort(), newDataSourceMySqlModel.getUserName(), newDataSourceMySqlModel.getPassword(),
-                            newDataSourceMySqlModel.getDatabaseName());
-                    List<Map<String, String>> result = dataSourceService.queryList(newDataSourceMySqlModel, sql,
-                            needFields);
-                    if (result == null || result.isEmpty()) {
-                        return;
-                    }
-                    int partitionSize = 500000;
-                    int taskNum = Math.max(result.size() / partitionSize, 1);
-                    LOG.info(newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table")
-                            + " count = " + result.size() + ", taskNum = " + taskNum + ", threads size = "
-                            + this.threads);
-                    List<Queue<Map<String, String>>> partitionList = ServiceUtil.partitionList(result, taskNum);
-                    result = null;
-                    ExecutorService executorService1 = Executors.newFixedThreadPool(this.threads);
-                    Map<String, BlockingQueue<String>> queues = new ConcurrentHashMap<>();
-                    for (int i = 0; i < partitionList.size(); i++) {
-                        final int finalI = i;
-                        Queue<Map<String, String>> partition = partitionList.get(i);
-                        executorService1.submit(() -> {
-                            LOG.info("calcKey begin index = " + finalI + ", partition size = " + partition.size());
-                            BlockingQueue<String> queue = new LinkedBlockingQueue<>();
-                            queues.put(finalI + "", queue);
-                            String insertSql = String.format("insert into %s values (?)", keysTableNameTmp);
-                            while (!partition.isEmpty()) {
-                                String id = ServiceUtil.calcKey(keyCalcRules, partition.poll());
-                                queue.add(id);
-                                if (queue.size() > 250000) {
-                                    try {
-                                        dataSourceService.batchInsert(insertSql, DatabaseType.MySql,
-                                                newDataSourceMySqlModel.getHost(), newDataSourceMySqlModel.getPort(),
-                                                newDataSourceMySqlModel.getUserName(),
-                                                newDataSourceMySqlModel.getPassword(),
-                                                newDataSourceMySqlModel.getDatabaseName(), new HashSet<>(queue));
-                                        queue.clear();
-                                    } catch (StatusCodeWithException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
-                            if (!queue.isEmpty()) {
+        String tmpSql = "SELECT * FROM " + newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table");
+        long count = dataSourceService.count(newDataSourceMySqlModel, tmpSql);
+        if (count <= 0) {
+            throw new StatusCodeWithException("数据源数据为空", StatusCode.DATA_NOT_FOUND);
+        }
+        // 异步
+        final String keysTableNameTmp = keysTableName;
+        CommonThreadPool.run(() -> {
+            try {
+                String createTableSql = String.format(
+                        "CREATE TABLE `%s` (`id` varchar(100) NOT NULL ,PRIMARY KEY (`id`) USING BTREE ) ENGINE=InnoDB;",
+                        keysTableNameTmp);
+                dataSourceService.createTable(createTableSql, DatabaseType.MySql, newDataSourceMySqlModel.getHost(),
+                        newDataSourceMySqlModel.getPort(), newDataSourceMySqlModel.getUserName(), newDataSourceMySqlModel.getPassword(),
+                        newDataSourceMySqlModel.getDatabaseName());
+                List<Map<String, String>> result = dataSourceService.queryList(newDataSourceMySqlModel, sql,
+                        needFields);
+                if (result == null || result.isEmpty()) {
+                    return;
+                }
+                int partitionSize = 500000;
+                int taskNum = Math.max(result.size() / partitionSize, 1);
+                LOG.info(newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table")
+                        + " count = " + result.size() + ", taskNum = " + taskNum + ", threads size = "
+                        + this.threads);
+                List<Queue<Map<String, String>>> partitionList = ServiceUtil.partitionList(result, taskNum);
+                result = null;
+                ExecutorService executorService1 = Executors.newFixedThreadPool(this.threads);
+                Map<String, BlockingQueue<String>> queues = new ConcurrentHashMap<>();
+                for (int i = 0; i < partitionList.size(); i++) {
+                    final int finalI = i;
+                    Queue<Map<String, String>> partition = partitionList.get(i);
+                    executorService1.submit(() -> {
+                        LOG.info("calcKey begin index = " + finalI + ", partition size = " + partition.size());
+                        BlockingQueue<String> queue = new LinkedBlockingQueue<>();
+                        queues.put(finalI + "", queue);
+                        String insertSql = String.format("insert into %s values (?)", keysTableNameTmp);
+                        while (!partition.isEmpty()) {
+                            String id = ServiceUtil.calcKey(keyCalcRules, partition.poll());
+                            queue.add(id);
+                            if (queue.size() > 250000) {
                                 try {
                                     dataSourceService.batchInsert(insertSql, DatabaseType.MySql,
                                             newDataSourceMySqlModel.getHost(), newDataSourceMySqlModel.getPort(),
@@ -498,32 +484,42 @@ public class ServiceService {
                                     e.printStackTrace();
                                 }
                             }
-                            LOG.info("calcKey end index = " + finalI + ", queue size = " + queue.size());
-                        });
-                    }
-                    executorService1.shutdown();
-                    try {
-                        while (!executorService1.awaitTermination(10, TimeUnit.SECONDS)) {
-                            int c = 0;
-                            for (Entry<String, BlockingQueue<String>> queue : queues.entrySet()) {
-                                LOG.info("index:" + (c++) + ", queue size =" + queue.getValue().size());
+                        }
+                        if (!queue.isEmpty()) {
+                            try {
+                                dataSourceService.batchInsert(insertSql, DatabaseType.MySql,
+                                        newDataSourceMySqlModel.getHost(), newDataSourceMySqlModel.getPort(),
+                                        newDataSourceMySqlModel.getUserName(),
+                                        newDataSourceMySqlModel.getPassword(),
+                                        newDataSourceMySqlModel.getDatabaseName(), new HashSet<>(queue));
+                                queue.clear();
+                            } catch (StatusCodeWithException e) {
+                                e.printStackTrace();
                             }
                         }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    finally {
-                        executorService1.shutdown();
-                        executorService1 = null;
-                    }
-                    LOG.info("end batchInsert");
-                } catch (StatusCodeWithException e1) {
-                    e1.printStackTrace();
+                        LOG.info("calcKey end index = " + finalI + ", queue size = " + queue.size());
+                    });
                 }
-            });
-        } catch (StatusCodeWithException e) {
-            e.printStackTrace();
-        }
+                executorService1.shutdown();
+                try {
+                    while (!executorService1.awaitTermination(10, TimeUnit.SECONDS)) {
+                        int c = 0;
+                        for (Entry<String, BlockingQueue<String>> queue : queues.entrySet()) {
+                            LOG.info("index:" + (c++) + ", queue size =" + queue.getValue().size());
+                        }
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                finally {
+                    executorService1.shutdown();
+                    executorService1 = null;
+                }
+                LOG.info("end batchInsert");
+            } catch (StatusCodeWithException e1) {
+                e1.printStackTrace();
+            }
+        });
         return keysTableName;
     }
 
