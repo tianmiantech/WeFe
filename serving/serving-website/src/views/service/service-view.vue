@@ -1480,8 +1480,10 @@ export default {
                 url:    '',
             },
             rules: {
-                name:         [{ required: true, message: '服务名称必填!' }],
-                url:          [{ required: true, message: '服务英文名必填!' }],
+                name: [{ required: true, message: '服务名称必填!' }],
+                url:  [{ required: true, message: '服务英文名必填!' }, {
+                    pattern: /^[\da-zA-Z-_/]+$/, message: '只支持数字，字母，-，_，/',
+                }],
                 service_type: [{ required: true, message: '服务类型必选!' }],
                 paramsArr:    [{ required: true, message: '查询参数不能为空!' }],
             },
@@ -2508,6 +2510,10 @@ export default {
             }
             if (!this.form.url) {
                 this.$message.error('服务英文名称不能为空！');
+                return;
+            }
+            if (!/^[\da-zA-Z-_/]+$/.test(this.form.url)) {
+                this.$message.error('服务英文名称只支持数字，字母，及符号-_/');
                 return;
             }
             if (!this.form.service_type) {
