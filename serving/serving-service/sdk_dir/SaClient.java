@@ -24,7 +24,15 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.TreeMap;
 
-// 多方安全统计 用来生成http请求参数，然后自己通过http请求
+// 
+// 
+/**
+ * 多方安全统计 客户端 <br>
+ * 生成http请求参数，然后通过http请求服务 <br>
+ * 编译 `javac -cp mpc-sa-sdk-1.0.0.jar:. SaClient.java` <br>
+ * 运行 `java -cp mpc-sa-sdk-1.0.0.jar:. SaClient`
+ * 
+ */
 public class SaClient {
     // 私钥
     private static final String customer_privateKey = "***"; // TODO
