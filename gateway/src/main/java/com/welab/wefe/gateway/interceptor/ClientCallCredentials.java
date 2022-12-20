@@ -18,8 +18,8 @@ package com.welab.wefe.gateway.interceptor;
 
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 
-public class RemoteGrpcProxyCallCredentials extends AbstractCallCredentials {
-    public RemoteGrpcProxyCallCredentials(GatewayMetaProto.TransferMeta transferMeta, AbstractMetadataBuilder... metadataBuilders) {
+public class ClientCallCredentials extends AbstractCallCredentials {
+    public ClientCallCredentials(GatewayMetaProto.TransferMeta transferMeta, AbstractMetadataBuilder... metadataBuilders) {
         super(transferMeta, metadataBuilders);
     }
 }

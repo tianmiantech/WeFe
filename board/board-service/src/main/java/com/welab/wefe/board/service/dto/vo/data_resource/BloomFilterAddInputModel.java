@@ -17,7 +17,6 @@
 package com.welab.wefe.board.service.dto.vo.data_resource;
 
 import com.welab.wefe.board.service.constant.BloomfilterAddMethod;
-import com.welab.wefe.board.service.constant.DataSetAddMethod;
 import com.welab.wefe.board.service.util.primarykey.FieldInfo;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -69,7 +68,7 @@ public class BloomFilterAddInputModel extends BloomFilterUpdateInputModel {
         }
 
         // 如果来源是数据库，则要求dataSourceId、sql不能为空
-        if (DataSetAddMethod.Database.equals(bloomfilterAddMethod)) {
+        if (BloomfilterAddMethod.Database.equals(bloomfilterAddMethod)) {
             if (StringUtils.isEmpty(dataSourceId)) {
                 throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
             }

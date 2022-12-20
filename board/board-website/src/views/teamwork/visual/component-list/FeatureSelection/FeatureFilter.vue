@@ -38,6 +38,11 @@
                         </template>
                     </el-table-column>
                     <el-table-column
+                        property="data_type"
+                        label="类型"
+                        width="120"
+                    />
+                    <el-table-column
                         property="missing_rate"
                         label="缺失率"
                         width="120"

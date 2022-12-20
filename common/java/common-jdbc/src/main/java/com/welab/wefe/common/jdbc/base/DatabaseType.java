@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.common.wefe.enums;
+package com.welab.wefe.common.jdbc.base;
 
 /**
  * Database type
@@ -44,6 +44,5 @@ public enum DatabaseType {
      * Cassandra
      */
     Cassandra,
-    
-    Doris,
+    Doris
 }

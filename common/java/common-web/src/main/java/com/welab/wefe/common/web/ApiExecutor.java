@@ -78,12 +78,12 @@ public class ApiExecutor {
             }
         }
         if (api == null) {
-            return ApiResult.ofErrorWithStatusCode(StatusCode.REQUEST_API_NOT_FOUND, "接口不存在：" + apiPath);
+            return ApiResult.ofErrorWithStatusCode(StatusCode.REQUEST_API_NOT_FOUND, "接口不存在：" + apiName.toLowerCase());
         }
 
         Api annotation = api.getClass().getAnnotation(Api.class);
         if (!annotation.forward() && !apiPath.equalsIgnoreCase(apiName)) {
-            return ApiResult.ofErrorWithStatusCode(StatusCode.REQUEST_API_NOT_FOUND, "接口不存在：" + apiPath);
+            return ApiResult.ofErrorWithStatusCode(StatusCode.REQUEST_API_NOT_FOUND, "接口不存在：" + apiName.toLowerCase());
         }
         switch (annotation.logLevel()) {
             case "debug":

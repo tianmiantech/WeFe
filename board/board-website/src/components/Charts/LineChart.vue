@@ -28,6 +28,7 @@
         reactive,
         onMounted,
         onBeforeUnmount,
+        nextTick,
     } from 'vue';
 
     use([
@@ -202,11 +203,10 @@
 
             onMounted(() => {
                 vData.loading = props.config.loading || false;
-
-                setTimeout(() => {
+                nextTick(() => {
                     initChart();
                     changeData();
-                }, 100);
+                });
             });
 
             onBeforeUnmount(() => {

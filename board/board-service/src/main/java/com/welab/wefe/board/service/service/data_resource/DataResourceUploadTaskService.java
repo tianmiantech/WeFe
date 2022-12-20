@@ -54,6 +54,10 @@ public class DataResourceUploadTaskService extends AbstractService {
      * 创建一个新的上传任务
      */
     public DataResourceUploadTaskMysqlModel newTask(DataResourceType dataResourceType, AbstractDataResourceUpdateInputModel input) {
+        // 删除不需要的旧数据
+        dataResourceUploadTaskRepository.deleteHistory();
+        // 关闭超时未响应的任务
+        dataResourceUploadTaskRepository.closeTimeoutTask();
 
         DataResourceUploadTaskMysqlModel task = new DataResourceUploadTaskMysqlModel();
         task.setDataResourceName(input.getName());

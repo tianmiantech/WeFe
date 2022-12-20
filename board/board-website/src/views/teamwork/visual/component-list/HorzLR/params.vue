@@ -215,7 +215,7 @@
                     </template>
                 </el-collapse-item>
 
-                <el-collapse-item title="评分基准分设置" name="5">
+                <!-- <el-collapse-item title="评分基准分设置" name="5">
                     <el-form-item label="是否启用评分卡：">
                         <el-switch
                             v-model="vData.form.score_param.need_scorecard"
@@ -238,7 +238,7 @@
                             controls-position="right"
                         />
                     </el-form-item>
-                </el-collapse-item>
+                </el-collapse-item> -->
             </el-collapse>
         </el-form>
     </div>

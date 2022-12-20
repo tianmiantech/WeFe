@@ -18,10 +18,10 @@ package com.welab.wefe.data.fusion.service.api.datasource;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.jdbc.base.DatabaseType;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.data.fusion.service.dto.base.PagingInput;
 import com.welab.wefe.data.fusion.service.dto.base.PagingOutput;
 import com.welab.wefe.data.fusion.service.dto.entity.AbstractOutputModel;
