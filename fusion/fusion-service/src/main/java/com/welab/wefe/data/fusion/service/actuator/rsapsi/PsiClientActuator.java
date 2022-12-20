@@ -154,7 +154,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
             if (socket == null) {
                 LOG.error("fusion task log , socket connect error");
                 this.status = PSIActuatorStatus.exception;
-                throw new StatusCodeWithException("connect " + ip + ":" + port + "error", StatusCode.REMOTE_SERVICE_ERROR);
+                throw new StatusCodeWithException(StatusCode.REMOTE_SERVICE_ERROR, "connect " + ip + ":" + port + "error");
             }
             LOG.info("fusion task log , socket: {} ", socket);
 

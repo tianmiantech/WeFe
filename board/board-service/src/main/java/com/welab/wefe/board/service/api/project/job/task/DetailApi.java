@@ -129,7 +129,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
             super.checkAndStandardize();
             if (StringUtil.isEmpty(taskId)) {
                 if (StringUtil.isEmpty(jobId) && StringUtil.isEmpty(flowNodeId)) {
-                    throw new StatusCodeWithException("请指定 taskId，或者指定 jobId 和 flowNodeId。", StatusCode.PARAMETER_VALUE_INVALID);
+                    throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "请指定 taskId，或者指定 jobId 和 flowNodeId。");
                 }
             }
         }

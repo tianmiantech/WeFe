@@ -132,7 +132,7 @@ public class ModelImportService {
 
         TableModelMySqlModel model = modelRepository.findOne("name", name, TableModelMySqlModel.class);
         if (model != null) {
-            throw new StatusCodeWithException("该模型名称已存在，请更改后再尝试提交！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "该模型名称已存在，请更改后再尝试提交！");
         }
         String path = ServingFileUtil
                 .getBaseDir(ServingFileUtil.FileType.DeepLearningModelFile).toString();

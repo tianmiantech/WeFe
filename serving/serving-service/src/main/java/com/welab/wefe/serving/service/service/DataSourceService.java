@@ -57,7 +57,7 @@ public class DataSourceService {
     public AddApi.DataSourceAddOutput add(AddApi.DataSourceAddInput input) throws StatusCodeWithException {
 
         if (dataSourceRepo.countByName(input.getName()) > 0) {
-            throw new StatusCodeWithException("数据源名称已存在，请更改后再试", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "数据源名称已存在，请更改后再试");
         }
 
         // 测试连接
@@ -211,7 +211,7 @@ public class DataSourceService {
      */
     public boolean testSqlQuery(DataSourceMySqlModel model, String sql) throws StatusCodeWithException {
         if (model == null) {
-            throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据源不存在");
         }
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
@@ -224,7 +224,7 @@ public class DataSourceService {
     public Map<String, String> queryOne(DataSourceMySqlModel model, String sql, List<String> returnFields)
             throws StatusCodeWithException {
         if (model == null) {
-            throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据源不存在");
         }
         LOG.info("dataSourceModel = " + JSONObject.toJSONString(model));
         JdbcManager jdbcManager = new JdbcManager();
@@ -235,7 +235,7 @@ public class DataSourceService {
 
     public long count(DataSourceMySqlModel model, String sql) throws StatusCodeWithException {
         if (model == null) {
-            throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据源不存在");
         }
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
@@ -246,7 +246,7 @@ public class DataSourceService {
     public List<Map<String, String>> queryList(DataSourceMySqlModel model, String sql, List<String> returnFields)
             throws StatusCodeWithException {
         if (model == null) {
-            throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据源不存在");
         }
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
@@ -258,7 +258,7 @@ public class DataSourceService {
         DataSourceMySqlModel model = getDataSourceById(dataSourceId);
         Output out = new Output();
         if (model == null) {
-            throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据源不存在");
         }
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
@@ -277,7 +277,7 @@ public class DataSourceService {
         com.welab.wefe.serving.service.api.datasource.QueryTableFieldsApi.Output out = new com.welab.wefe.serving.service.api.datasource.QueryTableFieldsApi.Output();
         DataSourceMySqlModel model = getDataSourceById(input.getId());
         if (model == null) {
-            throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据源不存在");
         }
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),

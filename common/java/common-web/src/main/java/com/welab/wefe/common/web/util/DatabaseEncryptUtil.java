@@ -46,7 +46,7 @@ public class DatabaseEncryptUtil {
             return baseEncrypt(plaintext);
         } catch (Exception e) {
             LOG.error("加密字符串 " + plaintext + " 失败, 原因：", e);
-            throw new StatusCodeWithException("加密字符串:" + plaintext + " 失败, 原因：" + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "加密字符串:" + plaintext + " 失败, 原因：" + e.getMessage());
         }
     }
 
@@ -65,7 +65,7 @@ public class DatabaseEncryptUtil {
             return baseDecrypt(ciphertext);
         } catch (Exception e) {
             LOG.error("解密字符串 " + ciphertext + " 失败, 原因：", e);
-            throw new StatusCodeWithException("解密字符串:" + ciphertext + " 失败, 原因：" + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "解密字符串:" + ciphertext + " 失败, 原因：" + e.getMessage());
         }
     }
 

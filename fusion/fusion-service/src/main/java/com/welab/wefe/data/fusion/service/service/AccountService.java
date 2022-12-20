@@ -48,7 +48,7 @@ public class AccountService {
 
     public SsoLoginApi.Output ssoLogin() throws StatusCodeWithException {
         if (null == globalConfigService.getMemberInfo()) {
-            throw new StatusCodeWithException("系统尚未初始化", StatusCode.SYSTEM_NOT_BEEN_INITIALIZED);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_NOT_BEEN_INITIALIZED, "系统尚未初始化");
         }
         SsoAccountInfo accountInfo = CurrentAccountUtil.get();
         AccountMysqlModel accountMysqlModel = accountRepository.findById(accountInfo.getId()).orElse(null);

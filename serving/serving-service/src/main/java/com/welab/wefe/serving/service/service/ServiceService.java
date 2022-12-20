@@ -309,11 +309,11 @@ public class ServiceService {
         BaseServiceMySqlModel baseModel = baseServiceRepository.findOne("name", input.getName(),
                 BaseServiceMySqlModel.class);
         if (baseModel != null) {
-            throw new StatusCodeWithException("服务名称 【" + input.getName() + "】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
+            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, "服务名称 【" + input.getName() + "】已经存在");
         }
         TableServiceMySqlModel model = serviceRepository.findOne("url", input.getUrl(), TableServiceMySqlModel.class);
         if (model != null) {
-            throw new StatusCodeWithException("服务英文名称 【" + input.getUrl() + "】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
+            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, "服务英文名称 【" + input.getUrl() + "】已经存在");
         }
         model = ModelMapper.map(input, TableServiceMySqlModel.class);
         model.setCreatedBy(CurrentAccountUtil.get().getId());
@@ -364,7 +364,7 @@ public class ServiceService {
             String tmpSql = "SELECT * FROM " + newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table");
             long count = dataSourceService.count(newDataSourceMySqlModel, tmpSql);
             if (count <= 0) {
-                throw new StatusCodeWithException("数据源数据为空", StatusCode.DATA_NOT_FOUND);
+                throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据源数据为空");
             }
             // 异步
             final String keysTableNameTmp = keysTableName;
@@ -472,22 +472,24 @@ public class ServiceService {
             StatusCode.DATA_NOT_FOUND.throwException();
         }
         if (model.getStatus() == ServiceStatusEnum.USED.getCode()) {
-            throw new StatusCodeWithException("上线的服务不允许更新", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "上线的服务不允许更新");
         }
         if (!model.getName().equalsIgnoreCase(input.getName())) {
             List<BaseServiceMySqlModel> baseModels = baseServiceRepository
                     .findAll(Where.create().equal("name", input.getName()).build(BaseServiceMySqlModel.class));
             if (baseModels.size() > 0) {
-                throw new StatusCodeWithException("服务名称 【" + input.getName() + "】已经存在",
-                        StatusCode.PRIMARY_KEY_CONFLICT);
+                throw new StatusCodeWithException(
+                        StatusCode.PRIMARY_KEY_CONFLICT,
+                        "服务名称 【" + input.getName() + "】已经存在");
             }
         }
         if (!model.getUrl().equalsIgnoreCase(input.getUrl())) {
             List<BaseServiceMySqlModel> baseModels = baseServiceRepository
                     .findAll(Where.create().equal("url", input.getUrl()).build(BaseServiceMySqlModel.class));
             if (baseModels.size() > 0) {
-                throw new StatusCodeWithException("服务英文名称 【" + input.getUrl() + "】已经存在",
-                        StatusCode.PRIMARY_KEY_CONFLICT);
+                throw new StatusCodeWithException(
+                        StatusCode.PRIMARY_KEY_CONFLICT,
+                        "服务英文名称 【" + input.getUrl() + "】已经存在");
             }
         }
 
@@ -682,8 +684,8 @@ public class ServiceService {
             String responseId = UUID.randomUUID().toString().replaceAll("-", "");
             result.append("responseId", responseId);
             result.append("code", status.getCode());
-            JObject tmpResult = new JObject((JSONObject)result.clone());
-            if(serviceProcessor != null) {
+            JObject tmpResult = new JObject((JSONObject) result.clone());
+            if (serviceProcessor != null) {
                 tmpResult.put("subCalllogs", serviceProcessor.calllogs());
             }
             log(input, beginTime, service, tmpResult, status, responseId);

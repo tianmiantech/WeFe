@@ -165,7 +165,7 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
     private SqlTableDataSetReader createSqlDataSetReader(TableDataSetAddInputModel input) throws Exception {
         DataSourceMysqlModel dataSource = tableDataSetService.getDataSourceById(input.getDataSourceId());
         if (dataSource == null) {
-            throw new StatusCodeWithException("此dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "此dataSourceId在数据库不存在");
         }
         JdbcClient client = JdbcClient.create(
                 dataSource.getDatabaseType(),

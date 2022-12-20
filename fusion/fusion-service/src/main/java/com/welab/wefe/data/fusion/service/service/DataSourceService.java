@@ -65,7 +65,7 @@ public class DataSourceService extends AbstractService {
     public AddApi.DataSourceAddOutput add(AddApi.DataSourceAddInput input) throws StatusCodeWithException {
 
         if (dataSourceRepo.countByName(input.getName()) > 0) {
-            throw new StatusCodeWithException("数据源名称已存在, 请更该数据源名称再提交！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "数据源名称已存在, 请更该数据源名称再提交！");
         }
 
         // 测试连接
@@ -176,7 +176,7 @@ public class DataSourceService extends AbstractService {
     public boolean testSqlQuery(String dataSourceId, String sql) throws StatusCodeWithException {
         DataSourceMySqlModel model = getDataSourceById(dataSourceId);
         if (model == null) {
-            throw new StatusCodeWithException("数据不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据不存在");
         }
 
         JdbcManager jdbcManager = new JdbcManager();
@@ -206,7 +206,7 @@ public class DataSourceService extends AbstractService {
         }
 
         if (null == file || !file.exists()) {
-            throw new StatusCodeWithException("未找到文件：" + file.getPath(), StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未找到文件：" + file.getPath());
         }
 
         return file;

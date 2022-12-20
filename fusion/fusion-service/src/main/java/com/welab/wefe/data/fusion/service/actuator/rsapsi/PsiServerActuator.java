@@ -16,19 +16,6 @@
 
 package com.welab.wefe.data.fusion.service.actuator.rsapsi;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.collections4.CollectionUtils;
-
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
@@ -40,6 +27,18 @@ import com.welab.wefe.data.fusion.service.utils.FusionUtils;
 import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
+import org.apache.commons.collections4.CollectionUtils;
+
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author hunter.zhao
@@ -108,7 +107,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
 
     public void start() throws StatusCodeWithException {
         if (bf == null) {
-            throw new StatusCodeWithException("数据未初始化无法启动", StatusCode.UNSUPPORTED_HANDLE);
+            throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "数据未初始化无法启动");
         }
 
         LOG.info("fusion task log , PsiServerActuator start...");

@@ -109,7 +109,7 @@ public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFi
 
             return success(new UploadFileApiOutput(fileId));
         } else {
-            throw new StatusCodeWithException("请勿重复上传相同文件", StatusCode.DUPLICATE_RESOURCE_ERROR);
+            throw new StatusCodeWithException(StatusCode.DUPLICATE_RESOURCE_ERROR, "请勿重复上传相同文件");
         }
     }
 

@@ -116,7 +116,7 @@ public class FusionResultService extends AbstractService {
             client.execute(sql);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new StatusCodeWithException("create table error:" + e.getMessage(), StatusCode.SQL_ERROR);
+            throw new StatusCodeWithException(StatusCode.SQL_ERROR, "create table error:" + e.getMessage());
         }
     }
 

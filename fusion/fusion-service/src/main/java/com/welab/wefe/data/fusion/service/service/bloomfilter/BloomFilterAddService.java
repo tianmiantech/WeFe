@@ -89,7 +89,7 @@ public class BloomFilterAddService extends AbstractService {
         }
 
         if (count > 5) {
-            throw new StatusCodeWithException("加密组合不宜过于复杂", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "加密组合不宜过于复杂");
         }
 
         BloomFilterMySqlModel model = new BloomFilterMySqlModel();
@@ -189,7 +189,7 @@ public class BloomFilterAddService extends AbstractService {
 //        int processCount = bloomFilterMySqlModel.getProcessCount();
         DataSourceMySqlModel dsModel = dataSetService.getDataSourceById(model.getDataSourceId());
         if (dsModel == null) {
-            throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "dataSourceId在数据库不存在");
         }
         Connection conn = JdbcManager.getConnection(dsModel.getDatabaseType(), dsModel.getHost(), dsModel.getPort()
                 , dsModel.getUserName(), dsModel.getPassword(), dsModel.getDatabaseName());

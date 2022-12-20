@@ -116,20 +116,20 @@ public enum StatusCode {
     }
 
     public StatusCodeWithException throwException() throws StatusCodeWithException {
-        throw new StatusCodeWithException(this.getMessage(), this);
+        throw new StatusCodeWithException(this, this.getMessage());
     }
 
     public StatusCodeWithException throwException(String message) throws StatusCodeWithException {
-        throw new StatusCodeWithException(message, this);
+        throw new StatusCodeWithException(this, message);
     }
 
     public StatusCodeWithException throwException(Exception e) throws StatusCodeWithException {
-        throw new StatusCodeWithException(e.getClass().getSimpleName() + " " + e.getMessage(), this);
+        throw new StatusCodeWithException(this, e.getClass().getSimpleName() + " " + e.getMessage());
     }
 
     public void throwExWithFormatMsg(Enum aEnum) throws StatusCodeWithException {
         String message = getMessage(aEnum.name());
-        throw new StatusCodeWithException(message, this);
+        throw new StatusCodeWithException(this, message);
     }
 
     /**
@@ -138,7 +138,7 @@ public enum StatusCode {
      */
     public void throwExWithFormatMsg(String... args) throws StatusCodeWithException {
         String message = getMessage(args);
-        throw new StatusCodeWithException(message, this);
+        throw new StatusCodeWithException(this, message);
     }
 
     @Override

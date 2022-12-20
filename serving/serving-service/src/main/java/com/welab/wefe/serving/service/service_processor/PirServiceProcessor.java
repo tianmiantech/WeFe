@@ -65,7 +65,7 @@ public class PirServiceProcessor extends AbstractServiceProcessor<TableServiceMy
                 response = JObject.create(resp);
             } catch (Exception e) {
                 LOG.error("HUACK_OT handle error", e);
-                throw new StatusCodeWithException("系统异常，请联系管理员, " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员, " + e.getMessage());
             }
         } else {
             NaorPinkasRandomService service = new NaorPinkasRandomService();

@@ -25,7 +25,6 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.data.fusion.service.database.entity.PartnerMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.TaskMySqlModel;
-import com.welab.wefe.data.fusion.service.database.repository.TaskRepository;
 import com.welab.wefe.data.fusion.service.enums.CallbackType;
 import com.welab.wefe.data.fusion.service.enums.PSIActuatorRole;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +60,7 @@ public class ThirdPartyService {
         //Find Partner information
         PartnerMySqlModel partner = partnerService.findByPartnerId(task.getPartnerMemberId());
         if (partner == null) {
-            throw new StatusCodeWithException("未查找到对应的合作方信息", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "未查找到对应的合作方信息");
         }
 
         request(partner.getBaseUrl(), "task/receive", params);
@@ -103,7 +102,7 @@ public class ThirdPartyService {
     public void check(String memberId) throws StatusCodeWithException {
         PartnerMySqlModel partner = partnerService.findByPartnerId(memberId);
         if (partner == null) {
-            throw new StatusCodeWithException("未找到对应成员，请检查入参 memberId :" + memberId, StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未找到对应成员，请检查入参 memberId :" + memberId);
         }
         request(partner.getBaseUrl());
     }
@@ -140,7 +139,7 @@ public class ThirdPartyService {
                 sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey());
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
             }
 
 
@@ -158,13 +157,13 @@ public class ThirdPartyService {
                 .postJson();
 
         if (!response.success()) {
-            throw new StatusCodeWithException(response.getMessage(), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, response.getMessage());
         }
 
         JSONObject json = response.getBodyAsJson();
         Integer code = json.getInteger("code");
         if (code == null || !code.equals(0)) {
-            throw new StatusCodeWithException("合作方响应失败(" + code + ")：" + json.getString("message"), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "合作方响应失败(" + code + ")：" + json.getString("message"));
         }
         return json;
     }

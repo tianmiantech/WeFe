@@ -130,7 +130,7 @@ public class BloomFilterService extends AbstractService {
     public BloomfilterOutputModel detail(String id) throws StatusCodeWithException, FileNotFoundException, IOException {
         BloomFilterMySqlModel model = bloomFilterRepository.findById(id).orElse(null);
         if (model == null) {
-            throw new StatusCodeWithException("数据不存在！", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据不存在！");
         }
         
         LOG.info("detail readFrom " + Paths.get(model.getSrc()).toString());

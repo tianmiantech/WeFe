@@ -150,7 +150,7 @@ public class SqlFeatureDataHandler extends AbstractFeatureDataHandler {
     private static DataSourceMySqlModel getDataSourceMySqlModel(String dataSourceId) throws StatusCodeWithException {
         DataSourceMySqlModel dataSource = dataSourceService.findById(dataSourceId);
         if (dataSource == null) {
-            throw new StatusCodeWithException("未查找到特征sql配置！" + dataSourceId, StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未查找到特征sql配置！" + dataSourceId);
         }
 
         return dataSource;

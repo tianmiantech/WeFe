@@ -145,7 +145,7 @@ public class GetHeadersService {
         }
 
         if (null == file || !file.exists()) {
-            throw new StatusCodeWithException("未找到文件：" + file.getPath(), StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未找到文件：" + file.getPath());
         }
 
         return file;

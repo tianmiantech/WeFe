@@ -15,8 +15,6 @@
  */
 package com.welab.wefe.serving.service.utils.sign;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import com.welab.wefe.common.StatusCode;
@@ -33,6 +31,8 @@ import com.welab.wefe.serving.service.database.repository.TableModelRepository;
 import com.welab.wefe.serving.service.database.repository.TableServiceRepository;
 import com.welab.wefe.serving.service.service.ClientServiceService;
 import com.welab.wefe.serving.service.service.PartnerService;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author hunter.zhao
@@ -74,7 +74,7 @@ public class PartnerVerifySignFunction extends AbstractVerifySignFunction {
         boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(),
                 RSAUtil.getPublicKey(partnerRsaKey), signedApiInput.getSign());
         if (!verified) {
-            throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "Wrong signature");
         }
     }
 
@@ -83,7 +83,7 @@ public class PartnerVerifySignFunction extends AbstractVerifySignFunction {
         ClientServiceService clientServiceService = Launcher.CONTEXT.getBean(ClientServiceService.class);
         ClientServiceMysqlModel clientServiceMysqlModel = clientServiceService.queryByIdAndServiceId(partnerId, serviceId);
         if (clientServiceMysqlModel == null) {
-            throw new StatusCodeWithException("未查询到该合作方到开通记录", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未查询到该合作方到开通记录");
         }
         return clientServiceMysqlModel.getPublicKey();
     }
@@ -92,8 +92,9 @@ public class PartnerVerifySignFunction extends AbstractVerifySignFunction {
         PartnerService partnerService = Launcher.CONTEXT.getBean(PartnerService.class);
         PartnerMysqlModel partnerMysqlModel = partnerService.queryByCode(customerId);
         if (partnerMysqlModel == null) {
-            throw new StatusCodeWithException("未查询到该合作方：" + customerId,
-                    StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(
+                    StatusCode.PARAMETER_VALUE_INVALID,
+                    "未查询到该合作方：" + customerId);
         }
         return partnerMysqlModel.getId();
     }
@@ -109,7 +110,7 @@ public class PartnerVerifySignFunction extends AbstractVerifySignFunction {
             TableModelRepository tableModelRepository = Launcher.CONTEXT.getBean(TableModelRepository.class);
             TableModelMySqlModel model = tableModelRepository.findOne("url", serviceUrl, TableModelMySqlModel.class);
             if (model == null) {
-                throw new StatusCodeWithException("未查找到该模型服务！", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未查找到该模型服务！");
             }
             return model.getServiceId();
         }
@@ -117,7 +118,7 @@ public class PartnerVerifySignFunction extends AbstractVerifySignFunction {
         TableServiceRepository serviceRepository = Launcher.CONTEXT.getBean(TableServiceRepository.class);
         TableServiceMySqlModel service = serviceRepository.findOne("url", serviceUrl, TableServiceMySqlModel.class);
         if (service == null) {
-            throw new StatusCodeWithException("未查找到该服务！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未查找到该服务！");
         }
         return service.getId();
     }

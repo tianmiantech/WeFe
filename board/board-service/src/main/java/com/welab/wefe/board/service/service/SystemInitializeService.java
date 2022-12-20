@@ -73,7 +73,7 @@ public class SystemInitializeService extends AbstractService {
 
         AccountMysqlModel account = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(CurrentAccountUtil.get().getPhoneNumber()));
         if (!account.getSuperAdminRole()) {
-            throw new StatusCodeWithException("您没有初始化系统的权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
+            throw new StatusCodeWithException(StatusCode.INVALID_USER, "您没有初始化系统的权限，请联系超级管理员（第一个注册的人）进行操作。");
         }
 
         unionService.initializeSystem(globalConfigService.getModel(MemberInfoModel.class));
@@ -129,7 +129,7 @@ public class SystemInitializeService extends AbstractService {
             model.setRsaPublicKey(keyPair.publicKey);
             model.setSecretKeyType(input.getSecretKeyType());
         } catch (NoSuchAlgorithmException e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
         globalConfigService.put(model);
@@ -169,7 +169,7 @@ public class SystemInitializeService extends AbstractService {
             model.setRsaPrivateKey(keyPair.privateKey);
             model.setRsaPublicKey(keyPair.publicKey);
         } catch (NoSuchAlgorithmException e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
         // notify union

@@ -395,7 +395,7 @@ public class JdbcClient {
             conn = DriverManager.getConnection(url, userName, password);
         } catch (Exception e) {
             LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-            throw new StatusCodeWithException("创建链接失败：" + e.getMessage(), StatusCode.DATABASE_LOST);
+            throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "创建链接失败：" + e.getMessage());
         }
 
         return conn;

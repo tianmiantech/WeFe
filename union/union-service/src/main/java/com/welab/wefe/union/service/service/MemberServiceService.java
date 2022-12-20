@@ -50,7 +50,7 @@ public class MemberServiceService {
         } catch (StatusCodeWithException e) {
             throw e;
         } catch (Exception e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
     }
 

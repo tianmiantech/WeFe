@@ -63,7 +63,7 @@ public class SystemInitializeService {
     public void initialize(InitializeApi.Input input) throws StatusCodeWithException {
 
         if (isInitialized()) {
-            throw new StatusCodeWithException("系统已初始化，不能重复操作。", StatusCode.UNSUPPORTED_HANDLE);
+            throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "系统已初始化，不能重复操作。");
         }
 
         MemberInfoModel model = new MemberInfoModel();

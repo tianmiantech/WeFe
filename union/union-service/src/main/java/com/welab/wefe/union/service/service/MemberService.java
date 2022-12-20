@@ -110,7 +110,7 @@ public class MemberService {
             memberContractService.add(member);
         } catch (StatusCodeWithException e) {
             LOG.error("Add member info exception: ", e);
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
     }
 
@@ -273,7 +273,7 @@ public class MemberService {
         } catch (StatusCodeWithException e) {
             throw e;
         } catch (Exception e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
     }
 
@@ -281,7 +281,7 @@ public class MemberService {
         try {
             com.welab.wefe.common.data.mongodb.entity.union.Member member = memberMongoReop.findMemberId(input.curMemberId);
             if (member == null) {
-                throw new StatusCodeWithException("Invalid member_id: " + input.curMemberId, StatusCode.INVALID_MEMBER);
+                throw new StatusCodeWithException(StatusCode.INVALID_MEMBER, "Invalid member_id: " + input.curMemberId);
             }
             RealnameAuthInfoQueryOutput realNameAuthInfoQueryOutput = new RealnameAuthInfoQueryOutput();
             realNameAuthInfoQueryOutput.setAuthType(member.getExtJson().getAuthType());
@@ -328,7 +328,7 @@ public class MemberService {
             memberContractService.upsert(member);
         } catch (Exception e) {
             LOG.error("Failed to update member: ", e);
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
     }
 

@@ -51,17 +51,17 @@ public class EnableApi extends AbstractApi<UnionNodeEnableInput, AbstractApiOutp
             }
 
             if (StringUtil.isEmpty(node.getBaseUrl())) {
-                throw new StatusCodeWithException("请设置union base url", StatusCode.MISSING_DATA);
+                throw new StatusCodeWithException(StatusCode.MISSING_DATA, "请设置union base url");
             }
 
             boolean isValid = HttpRequest.create(node.getBaseUrl()).get().success();
             if (!isValid) {
-                throw new StatusCodeWithException("无效的union base url", StatusCode.MISSING_DATA);
+                throw new StatusCodeWithException(StatusCode.MISSING_DATA, "无效的union base url");
             }
 
             unionNodeContractService.enable(input);
         } catch (StatusCodeWithException e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
         return success();

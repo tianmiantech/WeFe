@@ -64,21 +64,21 @@ public class ModelExportService {
     public String handle(String jobId, String modelFlowNodeId, String role, String language) throws StatusCodeWithException {
         try {
             if (!ModelExportLanguage.isExist(language)) {
-                throw new StatusCodeWithException("language 参数值非法", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "language 参数值非法");
             }
 
             JobMySqlModel jobMySqlModel = jobService.findByJobId(jobId, JobMemberRole.valueOf(role));
             if (null == jobMySqlModel) {
-                throw new StatusCodeWithException("任务信息不存在", StatusCode.DATA_NOT_FOUND);
+                throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "任务信息不存在");
             }
 
             if (!FederatedLearningType.horizontal.equals(jobMySqlModel.getFederatedLearningType())) {
-                throw new StatusCodeWithException("只支持横向导出", StatusCode.DATA_NOT_FOUND);
+                throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "只支持横向导出");
             }
 
             TaskResultMySqlModel taskResultMySqlModel = taskResultService.findModelByJobIdAndNodeIdAndRole(jobId, modelFlowNodeId, JobMemberRole.valueOf(role));
             if (null == taskResultMySqlModel) {
-                throw new StatusCodeWithException("找不到模型信息", StatusCode.DATA_NOT_FOUND);
+                throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到模型信息");
             }
             JObject modelParam = JObject.create(taskResultMySqlModel.getResult());
 
@@ -92,7 +92,7 @@ public class ModelExportService {
             throw e;
         } catch (Exception e) {
             LOG.error("Export model exception：", e);
-            throw new StatusCodeWithException("系统异常: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常: " + e.getMessage());
         }
     }
 

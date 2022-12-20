@@ -32,8 +32,8 @@ import java.util.function.Consumer;
 /**
  * jdbc management tool
  *
- * @deprecated 建议使用 JdbcClient
  * @author Johnny.lin
+ * @deprecated 建议使用 JdbcClient
  */
 @Deprecated
 public class JdbcManager {
@@ -306,8 +306,9 @@ public class JdbcManager {
                 int columnCount = metaData.getColumnCount();
 
                 if (columnCount < 2) {
-                    throw new StatusCodeWithException("The number of column fields must be greater than 1",
-                            StatusCode.ILLEGAL_REQUEST);
+                    throw new StatusCodeWithException(
+                            StatusCode.ILLEGAL_REQUEST,
+                            "The number of column fields must be greater than 1");
                 }
             }
         } catch (SQLException e) {

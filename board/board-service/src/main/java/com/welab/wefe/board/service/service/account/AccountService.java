@@ -16,19 +16,7 @@
 
 package com.welab.wefe.board.service.service.account;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.welab.wefe.board.service.api.account.ListAllApi;
 import com.welab.wefe.board.service.api.account.QueryMemberAccountsApi;
 import com.welab.wefe.board.service.api.account.QueryOnlineApi;
@@ -39,7 +27,6 @@ import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.AccountListAllOutputModel;
 import com.welab.wefe.board.service.dto.entity.AccountOutputModel;
-import com.welab.wefe.board.service.dto.vo.AccountInputModel;
 import com.welab.wefe.board.service.dto.vo.OnlineAccountOutput;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.GatewayService;
@@ -57,10 +44,14 @@ import com.welab.wefe.common.web.service.account.SsoAccountInfo;
 import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.common.wefe.dto.global_config.BoardConfigModel;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
-import com.welab.wefe.common.wefe.enums.BoardUserSource;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 /**
  * @author Zane
@@ -177,7 +168,7 @@ public class AccountService {
 
             return output.getList();
         } catch (Exception e) {
-            throw new StatusCodeWithException("系统异常: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常: " + e.getMessage());
         }
     }
 

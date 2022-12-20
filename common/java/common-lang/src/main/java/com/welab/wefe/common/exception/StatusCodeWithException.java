@@ -24,7 +24,7 @@ import com.welab.wefe.common.StatusCode;
  */
 public class StatusCodeWithException extends Exception {
     public static StatusCodeWithException of(StatusCode statusCode, String message) {
-        return new StatusCodeWithException(message, statusCode);
+        return new StatusCodeWithException(statusCode, message);
     }
 
     /**
@@ -33,7 +33,7 @@ public class StatusCodeWithException extends Exception {
     public static StatusCodeWithException ofUnexpectedEnumCase(Enum aEnum) {
         StatusCode code = StatusCode.UNEXPECTED_ENUM_CASE;
         String message = code.getMessage(aEnum.name());
-        return new StatusCodeWithException(message, code);
+        return new StatusCodeWithException(code, message);
     }
 
 
@@ -44,7 +44,7 @@ public class StatusCodeWithException extends Exception {
         this.statusCode = statusCode;
     }
 
-    public StatusCodeWithException(String message, StatusCode statusCode) {
+    public StatusCodeWithException(StatusCode statusCode, String message) {
         super(message);
         this.statusCode = statusCode;
     }

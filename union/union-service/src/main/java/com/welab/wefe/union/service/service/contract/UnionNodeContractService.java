@@ -73,7 +73,7 @@ public class UnionNodeContractService extends AbstractContractService {
             throw e;
         } catch (Exception e) {
             LOG.error("add UnionNode error: ", e);
-            throw new StatusCodeWithException("add UnionNode error: ", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "add UnionNode error: ");
         }
     }
 
@@ -101,7 +101,7 @@ public class UnionNodeContractService extends AbstractContractService {
             throw e;
         } catch (Exception e) {
             LOG.error("UnionNode updatePublicKey error: ", e);
-            throw new StatusCodeWithException("UnionNode updatePublicKey error: ", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "UnionNode updatePublicKey error: ");
         }
     }
 

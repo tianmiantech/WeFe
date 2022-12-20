@@ -82,7 +82,7 @@ public class CommonService {
                 }
             } else {
                 if (!memberFileInfo.getMemberId().equals(input.curMemberId) && FileRurpose.RealnameAuth.name().equals(memberFileInfo.getRurpose())) {
-                    throw new StatusCodeWithException("没有下载该文件的权限", StatusCode.ILLEGAL_REQUEST);
+                    throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "没有下载该文件的权限");
                 } else {
                     fileUploadCurrentBlockchainNodeId = memberFileInfo.getBlockchainNodeId();
                 }

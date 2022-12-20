@@ -16,34 +16,18 @@
 
 package com.welab.wefe.fusion.core.utils;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 
 /**
  * @author hunter.zhao
@@ -108,8 +92,9 @@ public class PSIUtils {
             int length = receiver.readInt();
             LOG.info("receive longs, length = " + length);
             if (length <= 0) {
-                throw new StatusCodeWithException("receiveLongs error, first int = " + length,
-                        StatusCode.REMOTE_SERVICE_ERROR);
+                throw new StatusCodeWithException(
+                        StatusCode.REMOTE_SERVICE_ERROR,
+                        "receiveLongs error, first int = " + length);
             }
             long[] datas = new long[length];
             int count = 0;
