@@ -20,7 +20,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.wefe.enums.DatabaseType;
+import com.welab.wefe.common.jdbc.base.DatabaseType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,11 +28,14 @@ import java.sql.*;
 import java.util.*;
 import java.util.function.Consumer;
 
+
 /**
+ * jdbc management tool
+ *
+ * @deprecated 建议使用 JdbcClient
  * @author Johnny.lin
- * @Description: JDBC Management Tool
- * @date 2020/9/17
  */
+@Deprecated
 public class JdbcManager {
 	private static final Logger log = LoggerFactory.getLogger(JdbcManager.class);
 

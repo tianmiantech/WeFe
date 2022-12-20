@@ -101,6 +101,7 @@
             const { appContext } = getCurrentInstance();
             const { $http, $alert } = appContext.config.globalProperties;
             const CheckFeatureDialogRef = ref();
+
             let vData = reactive({
                 inited:               false,
                 loading:              false,
@@ -125,6 +126,7 @@
                 workMode:         'federation',
                 fixedOptions:     [],
             });
+
             let methods = {
                 async getNodeDetail(model) {
                     vData.loading = true;
@@ -135,11 +137,14 @@
                             flow_id: props.flowId,
                         },
                     });
+
                     vData.loading = false;
                     if (code === 0 && data && data.params) {
                         const { params } = data;
+
                         if(params.members) {
                             const { members, workMode, form } = params;
+
                             vData.feature_column_count = 0;
                             vData.form = form;
                             members.forEach(member => {
@@ -207,6 +212,7 @@
 
                 checkParams() {
                     const members = [];
+
                     vData.data_set_list.forEach(row => {
                         members.push({
                             member_id:   row.member_id,

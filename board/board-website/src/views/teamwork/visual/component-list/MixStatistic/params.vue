@@ -117,6 +117,10 @@
                                     <input :id="`label-${index * 5 + i - 1}`" class="board-checkbox__original" type="checkbox" />
                                 </span>
                                 <span class="board-checkbox__label">{{ list[index * 5 + i - 1] }}</span>
+                                <span class="board-checkbox__label">
+                                    {{ list[index * 5 + i - 1] }}
+                                    <FeatureTagVue :name="list[index * 5 + i - 1]" :data_set_id="vData.check_data_set_id" />
+                                </span>
                             </label>
                         </template>
                     </template>
@@ -145,6 +149,7 @@
         getCurrentInstance,
     } from 'vue';
     import checkFeatureMixin from '../common/checkFeature';
+    import FeatureTagVue from '../common/featureTag.vue';
 
     export default {
         name:  'MixStatistic',
@@ -156,6 +161,9 @@
             currentObj:   Object,
             jobId:        String,
             class:        String,
+        },
+        components: {
+            FeatureTagVue,
         },
         emits: [...checkFeatureMixin().emits],
         setup(props, context) {
@@ -170,6 +178,7 @@
                 column_list:       [],
                 checkedColumns:    '',
                 checkedColumnsArr: [],
+                check_data_set_id:  '',
                 showColumnList:    false,
                 columnListLoading: false,
                 indeterminate:     false,
@@ -238,6 +247,7 @@
                 },
 
                 checkColumns(row, index) {
+                    vData.check_data_set_id = row.data_set_id;
                     vData.row_index = index;
                     vData.checkedAll = false;
                     vData.indeterminate = false;
@@ -366,6 +376,7 @@
                     };
                     vData.showColumnList = false;
                     vData.colChecked = true;
+                    vData.check_data_set_id = '';
                 },
 
                 paramsCheck() {

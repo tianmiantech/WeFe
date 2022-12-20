@@ -213,7 +213,7 @@
                 </el-col>
                 <el-col :span="14">
                     <h4 class="m5">数据资源预览：</h4>
-                    <DataSetPreview ref="DataSetPreview" />
+                    <DataSetPreview ref="DataSetPreview" :featureType="featureType"/>
                 </el-col>
             </el-row>
             <el-row v-if="addType === 'img'" :gutter="30" style="padding: 0 20px;">
@@ -293,6 +293,7 @@
                     labeled:    '',
                     total:      1,
                 },
+                featureType: {},
             };
         },
         computed: {
@@ -325,6 +326,10 @@
                 }
             },
             dataTypeChange(row) {
+                this.featureType = {
+                    ... this.featureType,
+                    [row.name]: row.data_type,
+                };
                 this.metadata_list[row.$index].data_type = row.data_type;
             },
             dataTypeFill(val) {
@@ -353,11 +358,15 @@
                     this.raw_data_list = data.list;
                     this.metadata_list = [];
                     this.metadata_pagination.list = [];
+                    const featureType = {};
+
                     this.metadata_list = data.list.map((item, index) => {
+                        featureType[item.name] = item.data_type;
                         item.$index = index;
                         item.comment = item.comment || '';
                         return item;
                     });
+                    this.featureType = featureType;
                     this.metadata_pagination.total = data.list.length;
 
                     const length = this.metadata_pagination.page_size;

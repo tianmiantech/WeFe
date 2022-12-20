@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.listener;
 
-import com.welab.wefe.board.service.service.GatewayService;
+import com.welab.wefe.board.service.database.repository.data_resource.DataResourceUploadTaskRepository;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.util.HostUtil;
 import com.welab.wefe.common.util.StringUtil;
@@ -39,14 +39,15 @@ public class ApplicationReadyListener implements ApplicationListener<Application
 
     @Autowired
     private GlobalConfigService globalConfigService;
-
     @Autowired
-    private GatewayService gatewayService;
-
+    private DataResourceUploadTaskRepository dataResourceUploadTaskRepository;
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
         appendIpAddressToGatewayWhiteList();
+
+        dataResourceUploadTaskRepository.deleteHistory();
+        dataResourceUploadTaskRepository.closeTimeoutTask();
     }
 
     private void appendIpAddressToGatewayWhiteList() {
