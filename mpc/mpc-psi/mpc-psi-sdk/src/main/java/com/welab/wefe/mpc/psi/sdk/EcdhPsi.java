@@ -110,7 +110,9 @@ public class EcdhPsi extends Psi {
         Set<String> batchResult = client.psi();
         List<String> result = new ArrayList<>();
         if (batchResult != null && !batchResult.isEmpty()) {
-            batchResult = batchResult.stream().map(s -> clientDatasetMap.get(s)).collect(Collectors.toSet());
+            if (clientDatasetMap != null && !clientDatasetMap.isEmpty()) {
+                batchResult = batchResult.stream().map(s -> clientDatasetMap.get(s)).collect(Collectors.toSet());
+            }
             result.addAll(batchResult);
         }
         saveLastCurrentBatchAndSize(request.getRequestId(), request.getCurrentBatch(), request.getBatchSize());
@@ -138,7 +140,9 @@ public class EcdhPsi extends Psi {
 //                    EcdhUtil.convert2Map(response.getClientIdByServerKeys()));
             batchResult = client.psi();
             if (batchResult != null && !batchResult.isEmpty()) {
-                batchResult = batchResult.stream().map(s -> clientDatasetMap.get(s)).collect(Collectors.toSet());
+                if (clientDatasetMap != null && !clientDatasetMap.isEmpty()) {
+                    batchResult = batchResult.stream().map(s -> clientDatasetMap.get(s)).collect(Collectors.toSet());
+                }
                 result.addAll(batchResult);
             }
             saveLastCurrentBatchAndSize(request.getRequestId(), request.getCurrentBatch(), request.getBatchSize());

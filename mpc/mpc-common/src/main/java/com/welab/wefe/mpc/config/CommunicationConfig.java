@@ -50,7 +50,7 @@ public class CommunicationConfig {
     /**
      * 是否要返回结果标签
      * */
-    private boolean needReturnFields;
+    private boolean needReturnFields = false;
 
     /**
      * 是否续跑

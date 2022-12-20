@@ -34,16 +34,16 @@ import com.welab.wefe.mpc.psi.sdk.excel.ExcelDataSetReader;
 /**
  * 两方交集查询 客户端 <br>
  * 配合 mpc-psi-sdk-1.0.0.jar使用 <br>
- * 编译 `javac -classpath mpc-psi-sdk-1.0.0.jar:. PsiClient.java` <br>
- * 运行 `java -classpath mpc-psi-sdk-1.0.0.jar:. PsiClient xxxxx.csv`
+ * 编译 `javac -cp mpc-psi-sdk-1.0.0.jar:. PsiClient.java` <br>
+ * 运行 `java -cp mpc-psi-sdk-1.0.0.jar:. PsiClient xxxxx.csv`
  */
 public class PsiClient {
     // 私钥
-    private static final String 测试客户1_privateKey = "xxxx";
+    private static final String Customer_privateKey = "xxxx";
     // 公钥
-    private static final String 测试客户1_publicKey = "xxxx";
+    private static final String Customer_publicKey = "xxxx";
     // 客户code
-    private static final String 测试客户1_code = "xxxx";
+    private static final String Customer_code = "xxxx";
     // Serving服务地址
     private static final String serverUrl = "http://xxxxx.com/xxxx/"; // TODO 参考readme.md 的serverUrl
     // Service Api name
@@ -60,13 +60,15 @@ public class PsiClient {
         Psi psi = PsiFactory.generatePsi();
         psi.setClientDatasetMap(clientDatasetMap);
         CommunicationConfig config = new CommunicationConfig();
-        config.setSignPrivateKey(测试客户1_privateKey);// 私钥
-        config.setCommercialId(测试客户1_code); // 客户ID
+        // 私钥
+        config.setSignPrivateKey(Customer_privateKey);
+        // 客户code
+        config.setCommercialId(Customer_code);
         // 服务地址
         config.setServerUrl(serverUrl);
         config.setApiName(apiName);
         // 是否要返回结果标签
-        config.setNeedReturnFields(false);
+        // config.setNeedReturnFields(true);
         // 如果是续跑 需要带上下面两个参数
         // config.setRequestId("xxx");
         // config.setContinue(true);
