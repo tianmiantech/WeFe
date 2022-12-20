@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.mpc.util.RSAUtil;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,14 +22,14 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.TreeMap;
 
-// 
-// 
+import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.mpc.util.RSAUtil;
+
 /**
  * 多方安全统计 客户端 <br>
  * 生成http请求参数，然后通过http请求服务 <br>
  * 编译 `javac -cp mpc-sa-sdk-1.0.0.jar:. SaClient.java` <br>
  * 运行 `java -cp mpc-sa-sdk-1.0.0.jar:. SaClient`
- * 
  */
 public class SaClient {
     // 私钥
@@ -41,16 +39,21 @@ public class SaClient {
     // 客户code
     private static final String customer_code = "***"; // TODO
     // Serving服务地址
-    private static final String serverUrl = "http://****/***/"; // TODO
+    private static final String serverUrl = "http://xxxxx.com/xxxx/"; // TODO 参考readme.md 的serverUrl
     // Service Api name
-    private static final String apiName = "api/*****"; // TODO
+    private static final String apiName = "api/*****"; // TODO 参考readme.md 的apiName
 
     public static void main(String[] args) throws Exception {
-        // params
-        String dataStr = "{\n" + "  \"query_params\": {\n" + "    \"mobile\": \"*******\"\n" + "  }\n" + "}";
-        String params = request(dataStr);
+        JSONObject queryParams = new JSONObject();
+        // TODO 
+        // 参考readme.md params
+        // 例如 [{"描述:":"phone","参数名:":"phone"}]
+        // queryParams.put("phone", "188xxxxxxxx");
+        queryParams.put("xxxx", "xxxx");
+        JSONObject data = new JSONObject();
+        data.put("query_params", queryParams);
+        String params = request(data.toJSONString());
         System.out.println("多方安全统计参数:\t" + params);
-        // 服务地址
         System.out.println("多方安全统计 url:" + serverUrl + apiName);
         System.out.println("响应结果:" + sendPost(serverUrl + apiName, params));
     }
