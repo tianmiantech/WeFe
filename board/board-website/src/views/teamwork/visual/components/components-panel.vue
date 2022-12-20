@@ -487,7 +487,7 @@
     position: absolute;
     top: 57.3%;
     left: -24px;
-    z-index: 100001;
+    z-index: 101;
     &.is-recover {
         top: 8px;
         left: 97%;
@@ -568,7 +568,6 @@
         right:0;
         height:100%;
         overflow-y: auto;
-        z-index: 100000;
     }
 }
 .readonly-form{
