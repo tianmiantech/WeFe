@@ -36,7 +36,6 @@
                                 class="fold-table"
                                 :row-class-name="methods.tableRowClassName"
                                 row-key="Index"
-                                :expand-row-keys="vData.expandRowKeys"
                                 @expand-change="methods.expandChange"
                                 :fit="true"
                                 :cell-style="{borderColor: 'white'}"
@@ -48,13 +47,13 @@
 
                                         <el-table :data="row.dataList[props.$index].inline_table" :span-method="methods.arraySpanMethod" style="width: 100%; border: 1px solid lightgray; border-bottom: none;" :cell-style="{borderColor: 'white'}"  :header-cell-style="{borderColor: 'white'}">
 
-                                            <el-table-column v-if="row.dataList[props.$index].woeArray.length" label="WOE变化图" prop="weight" min-width="380%" align="center">
+                                            <el-table-column v-if="row.dataList[props.$index].woeArray.length" label="WOE变化图" prop="weight" min-width="330" align="center">
                                                 <template v-slot="scope">
                                                     <LineChart ref="LineChart" :config="scope.row.woeLineConfig" />
                                                 </template>
                                             </el-table-column>
 
-                                            <el-table-column v-if="row.member_role === 'promoter'" label="分布" min-width="550%" align="center" fixed="right">
+                                            <el-table-column v-if="row.member_role === 'promoter'" label="分布" min-width="330" align="center" fixed="right">
                                                 <template v-slot="scope">
                                                     <BarChartNew ref="BarChart" :config="scope.row.mapdata" />
                                                 </template>
@@ -140,7 +139,7 @@
                 expandChange(row) {
                     const tabIdx = vData.tabName.split('-')[1];
 
-                    if (vData.list[tabIdx].dataList[row.Index]?.isShowWOE) {
+                    if (vData?.list[tabIdx]?.dataList[row.Index]?.isShowWOE) {
                         vData.list[tabIdx].dataList[row.Index]['isShowWOE'] = true;
                     }
                 },

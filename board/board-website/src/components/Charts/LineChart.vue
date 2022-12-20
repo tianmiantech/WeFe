@@ -238,5 +238,5 @@
         padding-top: 170px;
         z-index: 20;
     }
-    .chart {min-height: 400px;}
+    .chart {min-height: 400px;min-width: 200px;}
 </style>
