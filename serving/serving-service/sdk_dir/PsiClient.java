@@ -31,8 +31,12 @@ import com.welab.wefe.mpc.psi.sdk.excel.AbstractDataSetReader;
 import com.welab.wefe.mpc.psi.sdk.excel.CsvDataSetReader;
 import com.welab.wefe.mpc.psi.sdk.excel.ExcelDataSetReader;
 
-//两方交集查询 psi
-//配合 mpc-psi-sdk-1.0.0.jar使用
+/**
+ * 两方交集查询 客户端 <br>
+ * 配合 mpc-psi-sdk-1.0.0.jar使用 <br>
+ * 编译 `javac -classpath mpc-psi-sdk-1.0.0.jar:. PsiClient.java` <br>
+ * 运行 `java -classpath mpc-psi-sdk-1.0.0.jar:. PsiClient xxxxx.csv`
+ */
 public class PsiClient {
     // 私钥
     private static final String 测试客户1_privateKey = "xxxx";
@@ -43,9 +47,9 @@ public class PsiClient {
     // Serving服务地址
     private static final String serverUrl = "http://xxxxx.com/xxxx/"; // TODO 参考readme.md 的serverUrl
     // Service Api name
-    private static final String apiName = "api/user/query"; // TODO 参考readme.md 的apiName
+    private static final String apiName = "api/*****"; // TODO 参考readme.md 的apiName
     // ID生成策略参数
-    private static final String params = "[{\"field\":\"xxx\",\"operator\":\"-\"}]"; // TODO 参考readme.md 的params
+    private static final String params = "[{\"field\":\"xxx\",\"operator\":\"xxx\"}]"; // TODO 参考readme.md 的params
 
     private static Map<String, String> clientDatasetMap; // key:哈希数据 value:原数据
 
@@ -80,6 +84,9 @@ public class PsiClient {
         }
         initClientDatasetByFile(args[0]);
         System.out.println("get client size = " + clientDatasetMap.size());
+        if (clientDatasetMap == null || clientDatasetMap.size() <= 0) {
+            throw new Exception("file is empty");
+        }
     }
 
     private static void initClientDatasetByFile(String file) throws Exception {
