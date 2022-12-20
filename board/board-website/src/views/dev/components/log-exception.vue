@@ -63,5 +63,6 @@
 .log-textarea{
     font-size: 13px;
     font-family: serif,revert,monospace;
+    overflow-x: scroll;
 }
 </style>

@@ -9,6 +9,7 @@
       "build": "vue-cli-service build",
       "dev": "vue-cli-service serve --HOST_ENV dev",
       "fat": "vue-cli-service serve --HOST_ENV fat",
+      "hwfat": "vue-cli-service serve --HOST_ENV hwcloud_fat",
       "report": "vue-cli-service build --report",
       "link": "yarn link @tianmiantech/theme"
     },

@@ -79,7 +79,7 @@
         async created() {
             await this.readResult();
             // show topn or not for modeling-list
-            if (!this.showTopn && this.ChartsMap.Evaluation.tabs && this.ChartsMap.Evaluation.tabs.length) {
+            /* if (!this.showTopn && this.ChartsMap.Evaluation.tabs && this.ChartsMap.Evaluation.tabs.length) {
                 this.ChartsMap.Evaluation.tabs.forEach((item, idx) => {
                     if (item.name === 'topn') {
                         this.ChartsMap.Evaluation.tabs.splice(idx, 1);
@@ -105,7 +105,7 @@
                         },
                     });
                 }
-            }
+            } */
         },
         methods: {
             async readResult() {
@@ -130,19 +130,34 @@
 
                 if (code === 0 && data) {
                     const $data = Array.isArray(data) ? data[0] : data;
-                    const { result, component_type, task_config, prob_need_to_bin } = $data;
+                    const { result, component_type, task_config } = $data;
 
                     this.componentType = component_type;
-                    this.prob_need_to_bin =
-                        task_config && task_config.params && task_config.params.score_param.prob_need_to_bin
-                            ? task_config.params.prob_need_to_bin
-                            : prob_need_to_bin
-                                ? prob_need_to_bin
-                                : false;
+                    this.prob_need_to_bin = task_config?.params?.score_param?.prob_need_to_bin || task_config?.params?.prob_need_to_bin || false;
                     if (this.prob_need_to_bin) {
                         this.ChartsMap[this.componentType].tabs = orginChartsMap[this.componentType].tabs;
                     } else {
                         this.ChartsMap[this.componentType].tabs = this.ChartsMap[this.componentType].tabs.filter(item => item.name !== 'scoresDistribution');
+                    }
+                    if (this.componentType === 'Evaluation') {
+                        if (!this.showTopn) {
+                            const topnIdx = this.ChartsMap[this.componentType].tabs.findIndex(item => item.name === 'topn');
+                            if (topnIdx > -1) this.ChartsMap.Evaluation.tabs.splice(topnIdx, 1);
+                        } else {
+                            const topnIdx = this.ChartsMap[this.componentType].tabs.findIndex(item => item.name === 'topn');
+                            if (topnIdx === -1) {
+                                this.ChartsMap[this.componentType].tabs.push({
+                                    label: 'TOPN',
+                                    name:  'topn',
+                                    chart: {
+                                        type:   'table',
+                                        config: {
+                                            type: 'topn',
+                                        },
+                                    },
+                                });
+                            }
+                        }
                     }
 
                     if (result) {
@@ -471,7 +486,6 @@
                 this.charts[tabName].config.xAxis = xAxis;
                 this.charts[tabName].config.yAxis = yAxis;
                 this.charts[tabName].config.series = series;
-
             },
 
             renderRoc({ result }) {
@@ -564,3 +578,9 @@
         },
     };
 </script>
+
+<style>
+.charts-group{
+    width: 100%;
+}
+</style>

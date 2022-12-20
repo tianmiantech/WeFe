@@ -66,7 +66,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
      */
     private final static List<ComponentType> EXCLUDE_COMPONENT_TYPE_LIST = Arrays.asList(ComponentType.FeatureStatistic,
             ComponentType.FeatureCalculation, ComponentType.MixStatistic,
-            ComponentType.Segment, ComponentType.VertPearson, ComponentType.Oot, ComponentType.VertFeaturePSI, ComponentType.VertFilter);
+            ComponentType.Segment, ComponentType.VertPearson, ComponentType.Oot, ComponentType.VertFeaturePSI, ComponentType.VertFilter, ComponentType.ScoreCard);
     /**
      * List of temporarily unsupported components
      */

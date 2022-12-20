@@ -1,45 +1,13 @@
 <template>
     <el-card class="page">
-        <el-table
-            v-loading="loading"
-            class="card-list"
-            :data="list"
-            border
-            stripe
-        >
-            <template #empty>
-                <el-form
-                    inline
-                    :model="init_form"
-                    label-width="100px"
-                >
-                    <el-row>
-                        <el-col :span="24" style="">
-                            <el-form-item label="所属组织名称:">
-                                <el-input v-model="init_form.organization_name" placeholder="Welab Inc." />
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="24">
-                        <el-form-item label="常用名:">
-                                <el-input v-model="init_form.common_name" placeholder="Welab" />
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="24">
-                            <el-form-item label="所属单位名称:">
-                                <el-input v-model="init_form.organization_unit_name" placeholder="IT" />
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                </el-form>
-                <el-button
-                    type="primary"
-                    native-type="submit"
-                    @click="initRoot($event)"
-                >
-                    初始化根证书
-                </el-button>
-            </template>
-            <template v-if="list.length">
+        <template v-if="(list && list.length)">
+            <el-table
+                v-loading="loading"
+                class="card-list"
+                :data="list"
+                border
+                stripe
+            >
                 <el-table-column label="序号" type="index"></el-table-column>
                 <el-table-column
                     label="ID"
@@ -96,6 +64,7 @@
                 <el-table-column
                     label="操作"
                     fixed="right"
+                    width="150"
                 >
                     <template v-slot="scope">
     <!--                    <template v-if="scope.row.status === 0 && !scope.row.is_ca_cert">-->
@@ -134,23 +103,58 @@
                         </template>
                     </template>
                 </el-table-column>
-            </template>
-        </el-table>
+            </el-table>
 
-        <div
-            v-if="pagination.total"
-            class="mt20 text-r"
-        >
-            <el-pagination
-                :total="pagination.total"
-                :page-sizes="[10, 20, 30, 40, 50]"
-                :page-size="pagination.page_size"
-                :current-page="pagination.page_index"
-                layout="total, sizes, prev, pager, next, jumper"
-                @current-change="currentPageChange"
-                @size-change="pageSizeChange"
-            />
-        </div>
+            <div
+                v-if="pagination.total"
+                class="mt20 text-r"
+            >
+                <el-pagination
+                    :total="pagination.total"
+                    :page-sizes="[10, 20, 30, 40, 50]"
+                    :page-size="pagination.page_size"
+                    :current-page="pagination.page_index"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    @current-change="currentPageChange"
+                    @size-change="pageSizeChange"
+                />
+            </div>
+        </template>
+
+        <template v-else>
+            <div style="text-align: center;">
+                <el-form
+                    inline
+                    :model="init_form"
+                    label-width="100px"
+                >
+                    <el-row>
+                        <el-col :span="24" style="">
+                            <el-form-item label="所属组织名称:">
+                                <el-input v-model="init_form.organization_name" placeholder="Welab Inc." />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="24">
+                        <el-form-item label="常用名:">
+                                <el-input v-model="init_form.common_name" placeholder="Welab" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="24">
+                            <el-form-item label="所属单位名称:">
+                                <el-input v-model="init_form.organization_unit_name" placeholder="IT" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-form>
+                <el-button
+                    type="primary"
+                    native-type="submit"
+                    @click="initRoot($event)"
+                >
+                    初始化根证书
+                </el-button>
+            </div>
+        </template>
     </el-card>
 </template>
 

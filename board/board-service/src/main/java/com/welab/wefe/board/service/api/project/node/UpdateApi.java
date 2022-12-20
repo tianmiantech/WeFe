@@ -105,6 +105,9 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, UpdateApi.Output> {
     public void checkByEvaluationNode(FlowGraph graph, FlowGraphNode evaluationNode) throws FlowNodeException {
         // 获取 DataIO 所选数据集的分类数
         FlowGraphNode dataIoNode = graph.findOneNodeFromParent(evaluationNode, ComponentType.DataIO);
+        if (dataIoNode == null) {
+            return;
+        }
         DataIOComponent.Params dataIoParams = dataIoNode.getParamsModel();
         if (dataIoParams == null) {
             return;

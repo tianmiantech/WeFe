@@ -119,10 +119,18 @@
                     }
                 });
             }
+
+            function judge(value){
+                try {
+                    return value > 0.0001;
+                } catch (error) {
+                    return false;
+                }
+            }
             
             tableData.push({
                 feature,
-                psi:         turnDemical((feature_psi || 0), 4),
+                psi:         judge(feature_psi) ? turnDemical((feature_psi || 0), 4) : 0,
                 key:         feature,
                 test:        '-',
                 train:       '-',
@@ -133,10 +141,10 @@
                     return {
                         key:         `${feature}-${index}`,
                         bin:         tmp[index] ,
-                        test:        `${turnDemical((testRate[index] || 0) * 100, 2)}%`,
-                        train:       `${turnDemical((trainRate[index] || 0) * 100, 2)}%`,
+                        test:        `${turnDemical((testRate[index] || 0) * 100, 2)}`,
+                        train:       `${turnDemical((trainRate[index] || 0) * 100, 2)}`,
                         testSubBase: `${turnDemical((bin_sub_test_base_value[index] || 0) * 100, 2)}%`,
-                        psi:         turnDemical((bin_psi[index] || 0), 4),
+                        psi:         judge(bin_psi[index]) ? turnDemical((bin_psi[index] || 0), 4) : 0,
                         lntestbase:  turnDemical((bin_ln_test_base_value[index] || 0), 4),
                     };
                 }),

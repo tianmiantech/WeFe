@@ -79,9 +79,12 @@ export const getNodeDetail = ({ id, flowId }) => {
             },
         }).then(res => {
             const { data = [] } = res || {};
-            const { result = {} } = data[0] || {};
+            const { result = {}, task_config = {} } = data[0] || {};
 
-            resolve(result || {});
+            resolve({
+                ... result,
+                task_config,
+            } || {});
         });
     });
 };

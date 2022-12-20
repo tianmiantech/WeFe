@@ -289,13 +289,13 @@
                 clearTimeout(timer);
             });
 
-            // watch(
-            //     () => route.query,
-            //     (newVal) => {
-            //         searchList();
-            //     },
-            //     { deep: true },
-            // );
+            watch(
+                () => route.query,
+                (newVal) => {
+                    searchList();
+                },
+                { deep: true },
+            );
 
             return {
                 vData,
