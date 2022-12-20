@@ -33,7 +33,7 @@ public class PirClient {
     // 公钥
     private static final String customer_publicKey = "***"; // TODO
     // code
-    private static final String customer_code = "TEST***25"; // TODO
+    private static final String customer_code = "***"; // TODO
     // Serving服务地址
     private static final String serverUrl = "http://xxxxx.com/xxxx/"; // TODO 参考readme.md 的serverUrl
     // Service Api name
@@ -49,28 +49,28 @@ public class PirClient {
 		// params
 		String idsStr = "[\n" +
 				"  {\n" +
-				"    \"member_id\": \"d0f47307804844898ecfc65b875abe87\",\n" +
-				"    \"model_id\": \"cee66626a97e42198bccb226dcd9743a_VertSecureBoost_16294251366419513\"\n" +
+				"    \"member_id\": \"****\",\n" +
+				"    \"model_id\": \"****\"\n" +
 				"  },\n" +
 				"  {\n" +
-				"    \"member_id\": \"1\",\n" +
-				"    \"model_id\": \"2\"\n" +
+				"    \"member_id\": \"asdf\",\n" +
+				"    \"model_id\": \"zxcvzxv\"\n" +
 				"  },\n" +
 				"  {\n" +
-				"    \"member_id\": \"1\",\n" +
-				"    \"model_id\": \"2\"\n" +
+				"    \"member_id\": \"asdfasdf\",\n" +
+				"    \"model_id\": \"dsfgsdfg\"\n" +
 				"  },\n" +
 				"  {\n" +
-				"    \"member_id\": \"1\",\n" +
-				"    \"model_id\": \"2\"\n" +
+				"    \"member_id\": \"asdfasq\",\n" +
+				"    \"model_id\": \"xbsdfg\"\n" +
 				"  },\n" +
 				"  {\n" +
-				"    \"member_id\": \"1\",\n" +
-				"    \"model_id\": \"2\"\n" +
+				"    \"member_id\": \"qwerqwe\",\n" +
+				"    \"model_id\": \"bdfgsd\"\n" +
 				"  },\n" +
 				"  {\n" +
-				"    \"member_id\": \"1\",\n" +
-				"    \"model_id\": \"2\"\n" +
+				"    \"member_id\": \"kjlkj\",\n" +
+				"    \"model_id\": \"asdfasdf\"\n" +
 				"  }\n" +
 				"]";
 		int targetIndex = 0; // 真实查询目标对应的数组下标
