@@ -225,7 +225,7 @@ public class MemberService {
             try {
                 FileCheckerUtil.checkIsAllowFileType(fileName);
             } catch (Exception e) {
-                StatusCode.PARAMETER_VALUE_INVALID.throwException(e);
+                StatusCode.FILE_IO_READ_ERROR.throwException(e);
             }
 
             String sign = Md5.of(input.getFirstFile().getInputStream());
@@ -408,7 +408,7 @@ public class MemberService {
                 fileStreamBodyMap.put(item.getKey(), streamBody);
             } catch (IOException e) {
                 LOG.error("File read / write failed", e);
-                StatusCode.SYSTEM_ERROR.throwException(e);
+                StatusCode.FILE_IO_READ_ERROR.throwException(e);
             }
         }
         return fileStreamBodyMap;
