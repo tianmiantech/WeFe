@@ -29,7 +29,7 @@ const resolve = dir => path.resolve(__dirname, dir);
 
 const { HOST_ENV,SERVICE_NAME } = argv;
 
-APP_CODE = SERVICE_NAME || APP_CODE;
+APP_CODE = SERVICE_NAME !== 'nil' ?  SERVICE_NAME || APP_CODE : APP_CODE;
 
 
 const buildDate = '3.1.0';
