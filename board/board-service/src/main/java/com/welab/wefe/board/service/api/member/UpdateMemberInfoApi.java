@@ -18,7 +18,6 @@ package com.welab.wefe.board.service.api.member;
 
 import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.board.service.service.SystemInitializeService;
-import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -73,7 +72,7 @@ public class UpdateMemberInfoApi extends AbstractNoneOutputApi<UpdateMemberInfoA
                 String portStr = getMemberGatewayUri().split(":")[1];
                 Integer port = Convert.toInt(portStr);
                 if (port == null || port < 1 || port > 65535) {
-                    throw new StatusCodeWithException("Gateway Uri端口有误，端口范围：1~65535", StatusCode.PARAMETER_VALUE_INVALID);
+                    throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "Gateway Uri端口有误，端口范围：1~65535");
                 }
             }
 

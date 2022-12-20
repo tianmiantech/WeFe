@@ -57,7 +57,7 @@ public abstract class AbstractBloomFilterReader implements Closeable {
         try {
             list = doGetHeader();
         } catch (Exception e) {
-            throw new StatusCodeWithException("读取数据 header 信息失败：" + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "读取数据 header 信息失败：" + e.getMessage());
         }
 
         // trim column name
@@ -67,7 +67,7 @@ public abstract class AbstractBloomFilterReader implements Closeable {
                 .collect(Collectors.toList());
 
         if (list.stream().distinct().count() != list.size()) {
-            throw new StatusCodeWithException("数据包含重复的字段，请处理后重新上传。", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "数据包含重复的字段，请处理后重新上传。");
         }
 
         // Convert uppercase Y to lowercase y

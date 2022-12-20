@@ -56,11 +56,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import static com.welab.wefe.common.StatusCode.DATA_NOT_FOUND;
@@ -78,7 +74,7 @@ public class TaskService extends AbstractService {
             100L,
             TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>());
-    
+
     @Autowired
     TaskRepository taskRepository;
 
@@ -114,7 +110,7 @@ public class TaskService extends AbstractService {
     public void updateByBusinessId(String businessId, TaskStatus status, Integer fusionCount, Integer processedCount, long spend) throws StatusCodeWithException {
         TaskMySqlModel model = findByBusinessId(businessId);
         if (model == null) {
-            throw new StatusCodeWithException("任务不存在，检查参数businessId：" + businessId, StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "任务不存在，检查参数businessId：" + businessId);
         }
         model.setStatus(status);
         model.setUpdatedTime(new Date());
@@ -156,7 +152,7 @@ public class TaskService extends AbstractService {
 
         DataSetMySqlModel dataSet = dataSetRepository.findOne("id", input.getDataResourceId(), DataSetMySqlModel.class);
         if (dataSet == null) {
-            throw new StatusCodeWithException(DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
 
         if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm())) {
@@ -177,7 +173,7 @@ public class TaskService extends AbstractService {
         TaskMySqlModel task = taskRepository.findOne("id", input.getId(), TaskMySqlModel.class);
 
         if (task == null) {
-            throw new StatusCodeWithException("任务不存在！", DATA_NOT_FOUND);
+            throw new StatusCodeWithException(DATA_NOT_FOUND, "任务不存在！");
         }
 
         //The update task
@@ -195,7 +191,7 @@ public class TaskService extends AbstractService {
         DataSetMySqlModel dataSet = dataSetRepository.findOne("id", input.getDataResourceId(), DataSetMySqlModel.class);
 
         if (dataSet == null) {
-            throw new StatusCodeWithException(DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
 
         if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm())) {
@@ -211,18 +207,18 @@ public class TaskService extends AbstractService {
     @Transactional(rollbackFor = Exception.class)
     public void handle(HandleApi.Input input) throws StatusCodeWithException {
         if (ActuatorManager.size() > 0) {
-            throw new StatusCodeWithException("有正在运行的任务, 请等待任务完成后再尝试审核运行！", StatusCode.SYSTEM_BUSY);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "有正在运行的任务, 请等待任务完成后再尝试审核运行！");
         }
 
         TaskMySqlModel task = find(input.getId());
         if (task == null) {
-            throw new StatusCodeWithException("任务不存在！taskId:" + input.getId(), DATA_NOT_FOUND);
+            throw new StatusCodeWithException(DATA_NOT_FOUND, "任务不存在！taskId:" + input.getId());
         }
 
         //Find partner information
         PartnerMySqlModel partner = partnerService.findByPartnerId(task.getPartnerMemberId());
         if (partner == null) {
-            throw new StatusCodeWithException("未找到合作方！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未找到合作方！");
         }
 
 
@@ -259,12 +255,12 @@ public class TaskService extends AbstractService {
     private void psiClient(HandleApi.Input input, TaskMySqlModel task, PartnerMySqlModel partner) throws StatusCodeWithException {
         LOG.info("fusion task log , psiClient begin");
         if (StringUtil.isEmpty(input.getDataResourceId())) {
-            throw new StatusCodeWithException(input.getDataResourceId(), PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(PARAMETER_VALUE_INVALID, input.getDataResourceId());
         }
 
         DataSetMySqlModel dataSet = dataSetRepository.findOne("id", input.getDataResourceId(), DataSetMySqlModel.class);
         if (dataSet == null) {
-            throw new StatusCodeWithException("未查找到数据集", DATA_NOT_FOUND);
+            throw new StatusCodeWithException(DATA_NOT_FOUND, "未查找到数据集");
         }
 
         //Add fieldinfo
@@ -313,10 +309,10 @@ public class TaskService extends AbstractService {
          */
         BloomFilterMySqlModel bf = bloomFilterService.findById(input.getDataResourceId());
         if (bf == null) {
-            throw new StatusCodeWithException("未查找到布隆过滤器", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未查找到布隆过滤器");
         }
         if (StringUtils.isBlank(ActuatorManager.ip())) {
-            throw new StatusCodeWithException("socket.servier.ip 配置未找到", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "socket.servier.ip 配置未找到");
         }
         LOG.info("fusion task log , psiServer bf = " + JSONObject.toJSONString(bf));
         /**
@@ -345,7 +341,7 @@ public class TaskService extends AbstractService {
                 task.setRowCount(input.getRowCount());
                 task.setUpdatedTime(new Date());
                 taskRepository.save(task);
-                
+
                 JSONObject response = thirdPartyService.callback(partner.getBaseUrl(), task.getBusinessId(),
                         CallbackType.running, ActuatorManager.ip(), CacheObjects.getOpenSocketPort());
                 LOG.info("fusion task log , call " + partner.getBaseUrl() + ", response = "
@@ -363,7 +359,7 @@ public class TaskService extends AbstractService {
     public void alignByPartner(ReceiveApi.Input input) throws StatusCodeWithException {
 
         if (PSIActuatorRole.server.equals(input.getPsiActuatorRole()) && input.getDataCount() <= 0) {
-            throw new StatusCodeWithException("请求参数缺失", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "请求参数缺失");
         }
 
         //Add tasks
@@ -419,7 +415,7 @@ public class TaskService extends AbstractService {
 
         TaskOutput output = ModelMapper.map(model, TaskOutput.class);
         if (output == null) {
-            throw new StatusCodeWithException("数据不存在！", DATA_NOT_FOUND);
+            throw new StatusCodeWithException(DATA_NOT_FOUND, "数据不存在！");
         }
         setName(output);
         setDataResouceList(output);

@@ -206,7 +206,7 @@ public class ApiExecutor {
         // Checking token Validity
        /* String token = CurrentAccount.token();
         if (!Launcher.CHECK_SESSION_TOKEN_FUNCTION.check(api, annotation, token)) {
-            throw new StatusCodeWithException("请登录后访问", StatusCode.LOGIN_REQUIRED);
+            throw new StatusCodeWithException(StatusCode.LOGIN_REQUIRED, "请登录后访问");
         }*/
     }
 

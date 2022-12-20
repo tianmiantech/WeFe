@@ -90,7 +90,7 @@ public class CallbackService {
     private void running(AuditCallbackApi.Input input) throws StatusCodeWithException {
         FusionTaskMySqlModel task = fusionTaskService.findByBusinessIdAndStatus(input.getBusinessId(), FusionTaskStatus.Await);
         if (task == null) {
-            throw new StatusCodeWithException("businessId error:" + input.getBusinessId(), DATA_NOT_FOUND);
+            throw new StatusCodeWithException(DATA_NOT_FOUND, "businessId error:" + input.getBusinessId());
         }
         if (StringUtil.isNotEmpty(input.getPartnerHashFunction())) {
             task.setPartnerHashFunction(input.getPartnerHashFunction());
@@ -131,7 +131,7 @@ public class CallbackService {
 
         TableDataSetMysqlModel dataSet = tableDataSetService.findOneById(task.getDataResourceId());
         if (dataSet == null) {
-            throw new StatusCodeWithException("No corresponding dataset was found", DATA_NOT_FOUND);
+            throw new StatusCodeWithException(DATA_NOT_FOUND, "No corresponding dataset was found");
         }
 
         task.setStatus(FusionTaskStatus.Running);
@@ -167,7 +167,7 @@ public class CallbackService {
          */
         BloomFilterMysqlModel bf = bloomFilterService.findOne(task.getDataResourceId());
         if (bf == null) {
-            throw new StatusCodeWithException("Bloom filter not found", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "Bloom filter not found");
         }
 
         /**

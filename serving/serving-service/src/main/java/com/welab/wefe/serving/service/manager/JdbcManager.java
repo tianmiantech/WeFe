@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,598 +32,599 @@ import java.util.function.Consumer;
 /**
  * jdbc management tool
  *
- * @deprecated 建议使用 JdbcClient
  * @author Johnny.lin
+ * @deprecated 建议使用 JdbcClient
  */
 @Deprecated
 public class JdbcManager {
-	private static final Logger log = LoggerFactory.getLogger(JdbcManager.class);
+    private static final Logger log = LoggerFactory.getLogger(JdbcManager.class);
 
-	public JdbcManager() {
+    public JdbcManager() {
 
-	}
+    }
 
-	/**
-	 * Incoming IP port connection
-	 *
-	 * @param databaseType
-	 * @param host
-	 * @param port
-	 * @param userName
-	 * @param password
-	 * @param dbName
-	 * @return
-	 * @throws StatusCodeWithException
-	 */
-	public Connection getConnection(DatabaseType databaseType, String host, Integer port, String userName,
-			String password, String dbName) throws StatusCodeWithException {
+    /**
+     * Incoming IP port connection
+     *
+     * @param databaseType
+     * @param host
+     * @param port
+     * @param userName
+     * @param password
+     * @param dbName
+     * @return
+     * @throws StatusCodeWithException
+     */
+    public Connection getConnection(DatabaseType databaseType, String host, Integer port, String userName,
+                                    String password, String dbName) throws StatusCodeWithException {
 
-		Connection conn = null;
-		try {
-			String url = "";
-			switch (databaseType) {
-			case Hive:
-				url = String.format("jdbc:hive2://%s:%d/%s", host, port, dbName);
-				break;
-			case MySql:
-				url = String.format("jdbc:mysql://%s:%d/%s", host, port, dbName);
-				break;
-			case Impala:
-				url = String.format("jdbc:hive2://%s:%d/%s", host, port, dbName);
-				break;
-			default:
-				throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, databaseType.toString());
-			}
+        Connection conn = null;
+        try {
+            String url = "";
+            switch (databaseType) {
+                case Hive:
+                    url = String.format("jdbc:hive2://%s:%d/%s", host, port, dbName);
+                    break;
+                case MySql:
+                    url = String.format("jdbc:mysql://%s:%d/%s", host, port, dbName);
+                    break;
+                case Impala:
+                    url = String.format("jdbc:hive2://%s:%d/%s", host, port, dbName);
+                    break;
+                default:
+                    StatusCode.UNEXPECTED_ENUM_CASE.throwExWithFormatMsg(databaseType);
+            }
 
-			conn = getConnection(databaseType, url, userName, password);
-		} catch (Exception e) {
-			log.error("Database connection failure", e);
-			throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "Database connection failure");
-		}
+            conn = getConnection(databaseType, url, userName, password);
+        } catch (Exception e) {
+            log.error("Database connection failure", e);
+            throw StatusCodeWithException.of(StatusCode.DATABASE_LOST, "Database connection failure");
+        }
 
-		return conn;
-	}
+        return conn;
+    }
 
-	/**
-	 * Path connection
-	 *
-	 * @param databaseType
-	 * @param url
-	 * @param userName
-	 * @param password
-	 * @return
-	 * @throws StatusCodeWithException
-	 */
-	public Connection getConnection(DatabaseType databaseType, String url, String userName, String password)
-			throws StatusCodeWithException {
+    /**
+     * Path connection
+     *
+     * @param databaseType
+     * @param url
+     * @param userName
+     * @param password
+     * @return
+     * @throws StatusCodeWithException
+     */
+    public Connection getConnection(DatabaseType databaseType, String url, String userName, String password)
+            throws StatusCodeWithException {
 
-		Connection conn = null;
-		try {
-			switch (databaseType) {
-			case Hive:
-				Class.forName("org.apache.hive.jdbc.HiveDriver");
+        Connection conn = null;
+        try {
+            switch (databaseType) {
+                case Hive:
+                    Class.forName("org.apache.hive.jdbc.HiveDriver");
 
-				break;
-			case MySql:
-				Class.forName("com.mysql.jdbc.Driver");
+                    break;
+                case MySql:
+                    Class.forName("com.mysql.jdbc.Driver");
 
-				break;
-			case Impala:
-				Class.forName("org.apache.hive.jdbc.HiveDriver");
-				break;
-			default:
-				throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, databaseType.toString());
-			}
+                    break;
+                case Impala:
+                    Class.forName("org.apache.hive.jdbc.HiveDriver");
+                    break;
+                default:
+                    StatusCode.UNEXPECTED_ENUM_CASE.throwExWithFormatMsg(databaseType);
+            }
 
-			log.info("url: " + url);
-			conn = DriverManager.getConnection(url, userName, password);
-		} catch (Exception e) {
-			log.error("数据库连接失败", e);
-			throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "数据库连接失败");
-		}
+            log.info("url: " + url);
+            conn = DriverManager.getConnection(url, userName, password);
+        } catch (Exception e) {
+            log.error("数据库连接失败", e);
+            StatusCode.DATABASE_LOST.throwException("数据库连接失败：" + e.getMessage());
+        }
 
-		return conn;
-	}
+        return conn;
+    }
 
-	public List<String> queryTables(Connection conn) {
-	    long start = System.currentTimeMillis();
+    public List<String> queryTables(Connection conn) {
+        long start = System.currentTimeMillis();
         log.info("JdbcManager queryTables start: " + start);
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		List<String> tables = new ArrayList<>();
-		try {
-			ps = conn.prepareStatement("show tables");
-			rs = ps.executeQuery();
-			while (rs.next()) {
-				String tableName = rs.getString(1);
-				tables.add(tableName);
-			}
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        List<String> tables = new ArrayList<>();
+        try {
+            ps = conn.prepareStatement("show tables");
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                String tableName = rs.getString(1);
+                tables.add(tableName);
+            }
 
-		} catch (SQLException e) {
-			log.error("queryTables error", e);
-			return tables;
-		} finally {
-			close(conn, ps, rs);
-			long duration = System.currentTimeMillis() - start;
-			log.info("JdbcManager queryTables duration: " + duration);
-		}
-		return tables;
-	}
+        } catch (SQLException e) {
+            log.error("queryTables error", e);
+            return tables;
+        } finally {
+            close(conn, ps, rs);
+            long duration = System.currentTimeMillis() - start;
+            log.info("JdbcManager queryTables duration: " + duration);
+        }
+        return tables;
+    }
 
-	public Map<String, String> query(Connection conn, String sql, List<String> returnFields) {
-	    long start = System.currentTimeMillis();
+    public Map<String, String> query(Connection conn, String sql, List<String> returnFields) {
+        long start = System.currentTimeMillis();
         log.info("JdbcManager query start: " + start);
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		Map<String, String> fieldMap = new LinkedHashMap<>();
-		try {
-			ps = conn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			while (rs.next()) {
-				for (String field : returnFields) {
-					String value = rs.getString(field);
-					fieldMap.put(field, value);
-				}
-			}
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Map<String, String> fieldMap = new LinkedHashMap<>();
+        try {
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                for (String field : returnFields) {
+                    String value = rs.getString(field);
+                    fieldMap.put(field, value);
+                }
+            }
 
-		} catch (SQLException e) {
-			log.error("query error", e);
-			return fieldMap;
-		} finally {
-			close(conn, ps, rs);
-			long duration = System.currentTimeMillis() - start;
+        } catch (SQLException e) {
+            log.error("query error", e);
+            return fieldMap;
+        } finally {
+            close(conn, ps, rs);
+            long duration = System.currentTimeMillis() - start;
             log.info("JdbcManager query duration: " + duration);
-		}
-		return fieldMap;
-	}
+        }
+        return fieldMap;
+    }
 
-	public List<Map<String, String>> queryList(Connection conn, String sql, List<String> returnFields) {
-	    long start = System.currentTimeMillis();
+    public List<Map<String, String>> queryList(Connection conn, String sql, List<String> returnFields) {
+        long start = System.currentTimeMillis();
         log.info("JdbcManager queryList start: " + start);
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		List<Map<String, String>> result = new ArrayList<>();
-		try {
-			ps = conn.prepareStatement(sql);
-		    // 使用流式获取数据
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        List<Map<String, String>> result = new ArrayList<>();
+        try {
+            ps = conn.prepareStatement(sql);
+            // 使用流式获取数据
 //            ps = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 //            ps.setFetchSize(Integer.MIN_VALUE);
 //            ps.setLargeMaxRows(50000000);
-			rs = ps.executeQuery();
-			while (rs.next()) {
-				Map<String, String> fieldMap = new LinkedHashMap<>();
-				for (String field : returnFields) {
-					String value = rs.getString(field);
-					fieldMap.put(field, value);
-				}
-				result.add(fieldMap);
-			}
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Map<String, String> fieldMap = new LinkedHashMap<>();
+                for (String field : returnFields) {
+                    String value = rs.getString(field);
+                    fieldMap.put(field, value);
+                }
+                result.add(fieldMap);
+            }
 
-		} catch (SQLException e) {
-			log.error("queryList error", e);
-			return result;
-		} finally {
-			close(conn, ps, rs);
-			long duration = System.currentTimeMillis() - start;
+        } catch (SQLException e) {
+            log.error("queryList error", e);
+            return result;
+        } finally {
+            close(conn, ps, rs);
+            long duration = System.currentTimeMillis() - start;
             log.info("JdbcManager queryList duration: " + duration);
-		}
-		return result;
-	}
+        }
+        return result;
+    }
 
-	public Map<String, String> queryTableFields(Connection conn, String tableName) {
-	    long start = System.currentTimeMillis();
+    public Map<String, String> queryTableFields(Connection conn, String tableName) {
+        long start = System.currentTimeMillis();
         log.info("JdbcManager queryTableFields start: " + start);
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		Map<String, String> fieldMap = new LinkedHashMap<>();
-		try {
-			ps = conn.prepareStatement("desc " + tableName);
-			rs = ps.executeQuery();
-			while (rs.next()) {
-				String fieldName = rs.getString(1);
-				String fieldType = rs.getString(2);
-				fieldMap.put(fieldName, fieldType);
-			}
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Map<String, String> fieldMap = new LinkedHashMap<>();
+        try {
+            ps = conn.prepareStatement("desc " + tableName);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                String fieldName = rs.getString(1);
+                String fieldType = rs.getString(2);
+                fieldMap.put(fieldName, fieldType);
+            }
 
-		} catch (SQLException e) {
-			log.error("queryTableFields error", e);
-			return fieldMap;
-		} finally {
-			close(conn, ps, rs);
-			long duration = System.currentTimeMillis() - start;
+        } catch (SQLException e) {
+            log.error("queryTableFields error", e);
+            return fieldMap;
+        } finally {
+            close(conn, ps, rs);
+            long duration = System.currentTimeMillis() - start;
             log.info("JdbcManager queryTableFields duration: " + duration);
-		}
-		return fieldMap;
-	}
+        }
+        return fieldMap;
+    }
 
-	public boolean execute(Connection conn, String sql) throws StatusCodeWithException {
-	    long start = System.currentTimeMillis();
+    public boolean execute(Connection conn, String sql) throws StatusCodeWithException {
+        long start = System.currentTimeMillis();
         log.info("JdbcManager execute start: " + start);
-		PreparedStatement ps = null;
-		try {
-			ps = conn.prepareStatement(sql);
-			ps.execute();
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
-		} finally {
-			close(conn, ps, null);
-			long duration = System.currentTimeMillis() - start;
+        PreparedStatement ps = null;
+        try {
+            ps = conn.prepareStatement(sql);
+            ps.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            close(conn, ps, null);
+            long duration = System.currentTimeMillis() - start;
             log.info("JdbcManager execute duration: " + duration);
-		}
-		return true;
-	}
+        }
+        return true;
+    }
 
-	public void batchInsert(Connection conn, String sql, Set<String> ids) throws SQLException {
-	    long start = System.currentTimeMillis();
+    public void batchInsert(Connection conn, String sql, Set<String> ids) throws SQLException {
+        long start = System.currentTimeMillis();
         log.info("JdbcManager batchInsert start: " + start + ", ids size = " + ids.size());
-		conn.setAutoCommit(false);
-		PreparedStatement ps = null;
-		try {
-			ps = conn.prepareStatement(sql); // 批量插入时ps对象必须放到for循环外面
-			int count = 0;
-			for (String s : ids) {
-				ps.setString(1, s);
-				ps.addBatch();
-				count++;
-				// 每1000条记录插入一次
-				if (count % 100000 == 0) {
-					ps.executeBatch();
-					conn.commit();
-					ps.clearBatch();
-					log.info("JdbcManager batchInsert count: " + count + ", ids size = " + ids.size());
-				}
-			}
-			// 剩余数量不足1000
-			ps.executeBatch();
-			conn.commit();
-			ps.clearBatch();
-		} catch (SQLException e) {
-			log.error("batchInsert error", e);
-		} finally {
-			close(conn, ps, null);
-			long duration = System.currentTimeMillis() - start;
+        conn.setAutoCommit(false);
+        PreparedStatement ps = null;
+        try {
+            ps = conn.prepareStatement(sql); // 批量插入时ps对象必须放到for循环外面
+            int count = 0;
+            for (String s : ids) {
+                ps.setString(1, s);
+                ps.addBatch();
+                count++;
+                // 每1000条记录插入一次
+                if (count % 100000 == 0) {
+                    ps.executeBatch();
+                    conn.commit();
+                    ps.clearBatch();
+                    log.info("JdbcManager batchInsert count: " + count + ", ids size = " + ids.size());
+                }
+            }
+            // 剩余数量不足1000
+            ps.executeBatch();
+            conn.commit();
+            ps.clearBatch();
+        } catch (SQLException e) {
+            log.error("batchInsert error", e);
+        } finally {
+            close(conn, ps, null);
+            long duration = System.currentTimeMillis() - start;
             log.info("JdbcManager batchInsert duration: " + duration);
-		}
-	}
+        }
+    }
 
-	public boolean testQuery(Connection conn, String sql, boolean judgeFieldNum) throws StatusCodeWithException {
-	    long start = System.currentTimeMillis();
+    public boolean testQuery(Connection conn, String sql, boolean judgeFieldNum) throws StatusCodeWithException {
+        long start = System.currentTimeMillis();
         log.info("JdbcManager testQuery start: " + start);
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			ps = conn.prepareStatement(sql);
-			rs = ps.executeQuery();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
 
-			if (!rs.next()) {
-				return false;
-			}
+            if (!rs.next()) {
+                return false;
+            }
 
-			// Determine the number of column fields
-			if (judgeFieldNum) {
-				ResultSetMetaData metaData = rs.getMetaData();
-				int columnCount = metaData.getColumnCount();
+            // Determine the number of column fields
+            if (judgeFieldNum) {
+                ResultSetMetaData metaData = rs.getMetaData();
+                int columnCount = metaData.getColumnCount();
 
-				if (columnCount < 2) {
-					throw new StatusCodeWithException("The number of column fields must be greater than 1",
-							StatusCode.ILLEGAL_REQUEST);
-				}
-			}
-		} catch (SQLException e) {
-			log.error("testQuery error", e);
-			return false;
-		} finally {
-			close(conn, ps, rs);
-			long duration = System.currentTimeMillis() - start;
+                if (columnCount < 2) {
+                    throw new StatusCodeWithException(
+                            StatusCode.ILLEGAL_REQUEST,
+                            "The number of column fields must be greater than 1");
+                }
+            }
+        } catch (SQLException e) {
+            log.error("testQuery error", e);
+            return false;
+        } finally {
+            close(conn, ps, rs);
+            long duration = System.currentTimeMillis() - start;
             log.info("JdbcManager testQuery duration: " + duration);
-		}
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	/**
-	 * Iterate over the data read from the database
-	 */
-	public void readWithFieldRow(Connection conn, String sql, Consumer<List<String>> headRowConsumer,
-			Consumer<JSONObject> dataRowConsumer) {
-		readWithFieldRow(conn, sql, headRowConsumer, dataRowConsumer, -1);
-	}
+    /**
+     * Iterate over the data read from the database
+     */
+    public void readWithFieldRow(Connection conn, String sql, Consumer<List<String>> headRowConsumer,
+                                 Consumer<JSONObject> dataRowConsumer) {
+        readWithFieldRow(conn, sql, headRowConsumer, dataRowConsumer, -1);
+    }
 
-	/**
-	 * Iterate over the data read from the database
-	 */
-	public void readWithFieldRow(Connection conn, String sql, Consumer<Map<String, Object>> dataRowConsumer) {
-		readWithFieldRow(conn, sql, dataRowConsumer, -1);
-	}
+    /**
+     * Iterate over the data read from the database
+     */
+    public void readWithFieldRow(Connection conn, String sql, Consumer<Map<String, Object>> dataRowConsumer) {
+        readWithFieldRow(conn, sql, dataRowConsumer, -1);
+    }
 
-	/**
-	 * Traversal reads the specified column from the database
-	 */
-	public void readWithSelectRow(Connection conn, String sql, Consumer<Map<String, Object>> dataRowConsumer,
-			List<String> rows) {
-		readWithSelectRow(conn, sql, dataRowConsumer, -1, rows);
-	}
+    /**
+     * Traversal reads the specified column from the database
+     */
+    public void readWithSelectRow(Connection conn, String sql, Consumer<Map<String, Object>> dataRowConsumer,
+                                  List<String> rows) {
+        readWithSelectRow(conn, sql, dataRowConsumer, -1, rows);
+    }
 
-	/**
-	 * Iterate over the data read from the database
-	 */
-	public void readWithSelectRow(Connection conn, String sql, Consumer<Map<String, Object>> dataRowConsumer,
-			long maxReadLineCount, List<String> rows) {
-	    long start = System.currentTimeMillis();
+    /**
+     * Iterate over the data read from the database
+     */
+    public void readWithSelectRow(Connection conn, String sql, Consumer<Map<String, Object>> dataRowConsumer,
+                                  long maxReadLineCount, List<String> rows) {
+        long start = System.currentTimeMillis();
         log.info("JdbcManager readWithSelectRow4 start: " + start);
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		long readLineCount = 0;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        long readLineCount = 0;
 
-		try {
-			ps = conn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			ResultSetMetaData metaData = rs.getMetaData();
-			int columnCount = metaData.getColumnCount();
-			while (rs.next() & CommonThreadPool.TASK_SWITCH) {
-				// Data loading. One map corresponds to one row of data
-				LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-				for (int i = 1; i <= columnCount; i++) {
+        try {
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            while (rs.next() & CommonThreadPool.TASK_SWITCH) {
+                // Data loading. One map corresponds to one row of data
+                LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+                for (int i = 1; i <= columnCount; i++) {
 
-					if (rows.contains(metaData.getColumnName(i))) {
-						map.put(metaData.getColumnName(i), rs.getObject(i));
-					}
-				}
+                    if (rows.contains(metaData.getColumnName(i))) {
+                        map.put(metaData.getColumnName(i), rs.getObject(i));
+                    }
+                }
 
-				dataRowConsumer.accept(map);
-				readLineCount++;
-				// Completes the traversal after reading the specified number of rows
-				if (maxReadLineCount > 0 && readLineCount == maxReadLineCount) {
-					break;
-				}
-			}
-		} catch (SQLException e) {
-			log.error("readWithSelectRow error", e);
-		} finally {
-			close(conn, ps, rs);
-			long duration = System.currentTimeMillis() - start;
+                dataRowConsumer.accept(map);
+                readLineCount++;
+                // Completes the traversal after reading the specified number of rows
+                if (maxReadLineCount > 0 && readLineCount == maxReadLineCount) {
+                    break;
+                }
+            }
+        } catch (SQLException e) {
+            log.error("readWithSelectRow error", e);
+        } finally {
+            close(conn, ps, rs);
+            long duration = System.currentTimeMillis() - start;
             log.info("JdbcManager readWithSelectRow4 duration: " + duration);
-		}
-	}
+        }
+    }
 
-	/**
-	 * Iterate over the data read from the database
-	 */
-	public void readWithFieldRow(Connection conn, String sql, Consumer<List<String>> headRowConsumer,
-			Consumer<JSONObject> dataRowConsumer, long maxReadLineCount) {
-	    long start = System.currentTimeMillis();
+    /**
+     * Iterate over the data read from the database
+     */
+    public void readWithFieldRow(Connection conn, String sql, Consumer<List<String>> headRowConsumer,
+                                 Consumer<JSONObject> dataRowConsumer, long maxReadLineCount) {
+        long start = System.currentTimeMillis();
         log.info("JdbcManager readWithFieldRow3 start: " + start);
-		List<String> heads = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		long readLineCount = 0;
+        List<String> heads = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        long readLineCount = 0;
 
-		try {
-			ps = conn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			ResultSetMetaData metaData = rs.getMetaData();
-			int columnCount = metaData.getColumnCount();
+        try {
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnCount = metaData.getColumnCount();
 
-			while (rs.next()) {
-				// Gets all field names
-				if (heads == null) {
-					heads = new ArrayList<String>();
-					for (int i = 1; i <= columnCount; i++) {
-						heads.add(metaData.getColumnName(i));
-					}
+            while (rs.next()) {
+                // Gets all field names
+                if (heads == null) {
+                    heads = new ArrayList<String>();
+                    for (int i = 1; i <= columnCount; i++) {
+                        heads.add(metaData.getColumnName(i));
+                    }
 
-					headRowConsumer.accept(heads);
-				}
+                    headRowConsumer.accept(heads);
+                }
 
-				// Data loading, one item for each row of data
-				JSONObject item = new JSONObject(new LinkedHashMap<>());
-				for (int i = 1; i <= columnCount; i++) {
-					item.put(metaData.getColumnName(i), rs.getObject(i));
-				}
+                // Data loading, one item for each row of data
+                JSONObject item = new JSONObject(new LinkedHashMap<>());
+                for (int i = 1; i <= columnCount; i++) {
+                    item.put(metaData.getColumnName(i), rs.getObject(i));
+                }
 
-				dataRowConsumer.accept(item);
+                dataRowConsumer.accept(item);
 
-				readLineCount++;
-				// Completes the traversal after reading the specified number of rows
-				if (maxReadLineCount > 0 && readLineCount == maxReadLineCount) {
-					break;
-				}
-			}
-		} catch (SQLException e) {
-			log.error("readWithFieldRow error", e);
-		} finally {
-			close(conn, ps, rs);
-			long duration = System.currentTimeMillis() - start;
+                readLineCount++;
+                // Completes the traversal after reading the specified number of rows
+                if (maxReadLineCount > 0 && readLineCount == maxReadLineCount) {
+                    break;
+                }
+            }
+        } catch (SQLException e) {
+            log.error("readWithFieldRow error", e);
+        } finally {
+            close(conn, ps, rs);
+            long duration = System.currentTimeMillis() - start;
             log.info("JdbcManager readWithFieldRow3 duration: " + duration);
-		}
-	}
+        }
+    }
 
-	/**
-	 * Iterate over the data read from the database
-	 */
-	public void readWithFieldRow(Connection conn, String sql, Consumer<Map<String, Object>> dataRowConsumer,
-			long maxReadLineCount) {
-	    long start = System.currentTimeMillis();
+    /**
+     * Iterate over the data read from the database
+     */
+    public void readWithFieldRow(Connection conn, String sql, Consumer<Map<String, Object>> dataRowConsumer,
+                                 long maxReadLineCount) {
+        long start = System.currentTimeMillis();
         log.info("JdbcManager readWithFieldRow2 start: " + start);
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		long readLineCount = 0;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        long readLineCount = 0;
 
-		try {
-			ps = conn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			ResultSetMetaData metaData = rs.getMetaData();
-			int columnCount = metaData.getColumnCount();
+        try {
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnCount = metaData.getColumnCount();
 
-			while (rs.next()) {
-				// Data loading. One map corresponds to one row of data
-				LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-				for (int i = 1; i <= columnCount; i++) {
-					map.put(metaData.getColumnName(i), rs.getObject(i));
-				}
+            while (rs.next()) {
+                // Data loading. One map corresponds to one row of data
+                LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+                for (int i = 1; i <= columnCount; i++) {
+                    map.put(metaData.getColumnName(i), rs.getObject(i));
+                }
 
-				dataRowConsumer.accept(map);
+                dataRowConsumer.accept(map);
 
-				readLineCount++;
-				// Completes the traversal after reading the specified number of rows
-				if (maxReadLineCount > 0 && readLineCount == maxReadLineCount) {
-					break;
-				}
-			}
-		} catch (SQLException e) {
-			log.error("readWithFieldRow error", e);
-		} finally {
-			close(conn, ps, rs);
-			long duration = System.currentTimeMillis() - start;
+                readLineCount++;
+                // Completes the traversal after reading the specified number of rows
+                if (maxReadLineCount > 0 && readLineCount == maxReadLineCount) {
+                    break;
+                }
+            }
+        } catch (SQLException e) {
+            log.error("readWithFieldRow error", e);
+        } finally {
+            close(conn, ps, rs);
+            long duration = System.currentTimeMillis() - start;
             log.info("JdbcManager readWithFieldRow2 duration: " + duration);
-		}
-	}
+        }
+    }
 
-	/**
-	 * Iterate over the data read from the database
-	 */
-	public void readWithFieldRow(Connection conn, String sql, Consumer<Map<String, Object>> dataRowConsumer,
-			long maxReadLineCount, List<String> rowsList) {
-	    long start = System.currentTimeMillis();
+    /**
+     * Iterate over the data read from the database
+     */
+    public void readWithFieldRow(Connection conn, String sql, Consumer<Map<String, Object>> dataRowConsumer,
+                                 long maxReadLineCount, List<String> rowsList) {
+        long start = System.currentTimeMillis();
         log.info("JdbcManager readWithFieldRow1 start: " + start);
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		long readLineCount = 0;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        long readLineCount = 0;
 
-		try {
-			ps = conn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			ResultSetMetaData metaData = rs.getMetaData();
-			int columnCount = metaData.getColumnCount();
+        try {
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnCount = metaData.getColumnCount();
 
-			while (rs.next()) {
-				// Data loading. One map corresponds to one row of data
-				LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-				for (String row : rowsList) {
-					map.put(row, rs.getObject(row));
-				}
+            while (rs.next()) {
+                // Data loading. One map corresponds to one row of data
+                LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+                for (String row : rowsList) {
+                    map.put(row, rs.getObject(row));
+                }
 
-				dataRowConsumer.accept(map);
+                dataRowConsumer.accept(map);
 
-				readLineCount++;
-				// Completes the traversal after reading the specified number of rows
-				if (maxReadLineCount > 0 && readLineCount == maxReadLineCount) {
-					break;
-				}
-			}
-		} catch (SQLException e) {
-			log.error("readWithFieldRow error", e);
-		} finally {
-			close(conn, ps, rs);
-			long duration = System.currentTimeMillis() - start;
+                readLineCount++;
+                // Completes the traversal after reading the specified number of rows
+                if (maxReadLineCount > 0 && readLineCount == maxReadLineCount) {
+                    break;
+                }
+            }
+        } catch (SQLException e) {
+            log.error("readWithFieldRow error", e);
+        } finally {
+            close(conn, ps, rs);
+            long duration = System.currentTimeMillis() - start;
             log.info("JdbcManager readWithFieldRow1 duration: " + duration);
-		}
-	}
+        }
+    }
 
-	/**
-	 * 获取查询数据的总记录数
-	 */
-	public long count(Connection conn, String sql) {
-	    long start = System.currentTimeMillis();
+    /**
+     * 获取查询数据的总记录数
+     */
+    public long count(Connection conn, String sql) {
+        long start = System.currentTimeMillis();
         log.info("JdbcManager count start: " + start);
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		long totalCount = 0;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        long totalCount = 0;
 
-		try {
-			String s = sql.replace("*", "count(*)");
-			ps = conn.prepareStatement(s);
-			rs = ps.executeQuery();
-			while (rs.next()) {
-				totalCount = rs.getLong(1);
-			}
-		} catch (SQLException e) {
-			log.error("count error", e);
-		} finally {
-			close(ps, rs);
-			long duration = System.currentTimeMillis() - start;
+        try {
+            String s = sql.replace("*", "count(*)");
+            ps = conn.prepareStatement(s);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                totalCount = rs.getLong(1);
+            }
+        } catch (SQLException e) {
+            log.error("count error", e);
+        } finally {
+            close(ps, rs);
+            long duration = System.currentTimeMillis() - start;
             log.info("JdbcManager count duration: " + duration);
-		}
+        }
 
-		return totalCount;
-	}
+        return totalCount;
+    }
 
-	/**
-	 * Gets the column header name for the query SQL data
-	 *
-	 * @param conn
-	 * @param sql
-	 * @return
-	 */
-	public List<String> getRowHeaders(Connection conn, String sql) {
-	    long start = System.currentTimeMillis();
+    /**
+     * Gets the column header name for the query SQL data
+     *
+     * @param conn
+     * @param sql
+     * @return
+     */
+    public List<String> getRowHeaders(Connection conn, String sql) {
+        long start = System.currentTimeMillis();
         log.info("JdbcManager getRowHeaders start: " + start);
-		List<String> headers = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
+        List<String> headers = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
-		try {
-			ps = conn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			ResultSetMetaData metaData = rs.getMetaData();
-			int columnCount = metaData.getColumnCount();
+        try {
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnCount = metaData.getColumnCount();
 
-			if (rs.next()) {
-				// Gets all field names
-				if (headers == null) {
-					headers = new ArrayList<String>();
-					for (int i = 1; i <= columnCount; i++) {
-						headers.add(metaData.getColumnName(i));
-					}
-				}
-			}
-		} catch (SQLException e) {
-			log.error("getRowHeaders error", e);
-		} finally {
-			close(ps, rs);
-			long duration = System.currentTimeMillis() - start;
+            if (rs.next()) {
+                // Gets all field names
+                if (headers == null) {
+                    headers = new ArrayList<String>();
+                    for (int i = 1; i <= columnCount; i++) {
+                        headers.add(metaData.getColumnName(i));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            log.error("getRowHeaders error", e);
+        } finally {
+            close(ps, rs);
+            long duration = System.currentTimeMillis() - start;
             log.info("JdbcManager getRowHeaders duration: " + duration);
-		}
+        }
 
-		return headers;
-	}
+        return headers;
+    }
 
-	public void close(Connection conn, PreparedStatement ps, ResultSet rs) {
-		if (rs != null)
-			try {
-				rs.close();
-			} catch (SQLException e) {
-				log.error("rs.close error", e);
-			}
-		if (ps != null)
-			try {
-				ps.close();
-			} catch (SQLException e) {
-				log.error("ps.close error", e);
-			}
-		if (conn != null)
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				log.error("conn.close error", e);
-			}
-	}
+    public void close(Connection conn, PreparedStatement ps, ResultSet rs) {
+        if (rs != null)
+            try {
+                rs.close();
+            } catch (SQLException e) {
+                log.error("rs.close error", e);
+            }
+        if (ps != null)
+            try {
+                ps.close();
+            } catch (SQLException e) {
+                log.error("ps.close error", e);
+            }
+        if (conn != null)
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                log.error("conn.close error", e);
+            }
+    }
 
-	public void close(PreparedStatement ps, ResultSet rs) {
-		if (rs != null) {
-			try {
-				rs.close();
-			} catch (SQLException e) {
-				log.error("rs close error", e);
-			}
-		}
-		if (ps != null) {
-			try {
-				ps.close();
-			} catch (SQLException e) {
-				log.error("ps close error", e);
-			}
-		}
-	}
+    public void close(PreparedStatement ps, ResultSet rs) {
+        if (rs != null) {
+            try {
+                rs.close();
+            } catch (SQLException e) {
+                log.error("rs close error", e);
+            }
+        }
+        if (ps != null) {
+            try {
+                ps.close();
+            } catch (SQLException e) {
+                log.error("ps close error", e);
+            }
+        }
+    }
 }

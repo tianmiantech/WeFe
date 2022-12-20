@@ -42,7 +42,7 @@ public class ApiRsaVerifyTest {
         RSAPublicKey publicKey = RSAUtil.getPublicKey(publicKeyStr);
         boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(StandardCharsets.UTF_8), publicKey , signedApiInput.getSign());
         if (!verified) {
-            throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "Wrong signature");
         }
 
         params.putAll(JSONObject.parseObject(signedApiInput.getData()));

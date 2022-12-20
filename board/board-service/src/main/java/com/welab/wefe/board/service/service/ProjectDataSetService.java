@@ -19,7 +19,6 @@ package com.welab.wefe.board.service.service;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.gateway.GetDerivedDataSetDetailApi;
 import com.welab.wefe.board.service.api.project.dataset.QueryDerivedDataSetApi;
-import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectDataSetMySqlModel;
 import com.welab.wefe.board.service.database.repository.ProjectDataSetRepository;
@@ -83,7 +82,7 @@ public class ProjectDataSetService extends AbstractService {
         }
 
         if (projectDataSet.getSourceType() == null) {
-            throw new StatusCodeWithException("拒绝查询原始数据集信息", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "拒绝查询原始数据集信息");
         }
 
         List<JobMemberWithDataSetOutputModel> members = ModelMapper.maps(jobMemberService.list(dataSet.getDerivedFromJobId(), false), JobMemberWithDataSetOutputModel.class);

@@ -235,7 +235,7 @@ public class ClientServiceService {
                 throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
             }
         } else {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
     }
 
@@ -294,7 +294,7 @@ public class ClientServiceService {
                 feeConfigRepository.save(feeConfigMysqlModel);
             }
         } else {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
     }
 
@@ -316,7 +316,7 @@ public class ClientServiceService {
             model.setUpdatedTime(new Date());
             clientServiceRepository.save(model);
         } else {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
     }
 
