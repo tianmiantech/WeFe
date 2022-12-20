@@ -53,7 +53,7 @@ public class FusionResultService extends AbstractService {
 
         FusionTaskMySqlModel taskMySqlModel = fusionTaskService.findByBusinessId(input.getBusinessId());
         if (taskMySqlModel == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
 
         //table header
@@ -116,7 +116,7 @@ public class FusionResultService extends AbstractService {
             client.execute(sql);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new StatusCodeWithException(StatusCode.SQL_ERROR, "create table error:" + e.getMessage());
+            throw new StatusCodeWithException("create table error:" + e.getMessage(), StatusCode.SQL_ERROR);
         }
     }
 

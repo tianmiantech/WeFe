@@ -143,7 +143,7 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
                     : new ExcelBloomfilterReader(input.getMetadataList(), file);
 
         } catch (IOException e) {
-            StatusCode.FILE_IO_ERROR.throwException(e);
+            StatusCode.FILE_IO_READ_ERROR.throwException(e);
             return null;
         }
     }

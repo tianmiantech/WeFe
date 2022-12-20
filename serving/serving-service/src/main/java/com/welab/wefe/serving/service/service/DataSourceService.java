@@ -80,7 +80,7 @@ public class DataSourceService {
             throws StatusCodeWithException {
         DataSourceMySqlModel model = dataSourceRepo.findById(input.getId()).orElse(null);
         if (model == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
         // Test the connection
         testDBConnect(input.getDatabaseType(), input.getHost(), input.getPort(), input.getUserName(),
@@ -160,7 +160,7 @@ public class DataSourceService {
         if (conn != null) {
             boolean success = jdbcManager.testQuery(conn, "select 1", false);
             if (!success) {
-                throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "数据库连接失败");
+                StatusCode.DATABASE_LOST.throwException("数据库连接失败");
             }
         }
 
@@ -176,7 +176,7 @@ public class DataSourceService {
         if (conn != null) {
             boolean success = jdbcManager.execute(conn, sql);
             if (!success) {
-                throw new StatusCodeWithException(StatusCode.SQL_ERROR, "SQL 执行报错");
+                StatusCode.SQL_ERROR.throwException();
             }
         }
     }
@@ -193,7 +193,7 @@ public class DataSourceService {
             }
             return;
         }
-        throw new StatusCodeWithException(StatusCode.SQL_ERROR, "SQL 执行报错");
+        StatusCode.SQL_ERROR.throwException();
     }
 
     /**

@@ -74,7 +74,7 @@ public class MemberServiceService {
             );
         } catch (Exception e) {
             LOG.error("Failed to query member information in pagination:", e);
-            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to query member information in pagination");
+            throw StatusCodeWithException.of(StatusCode.SYSTEM_ERROR, "Failed to query member information in pagination");
         }
     }
 }

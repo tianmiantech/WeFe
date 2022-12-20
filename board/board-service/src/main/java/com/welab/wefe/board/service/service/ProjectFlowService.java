@@ -414,12 +414,12 @@ public class ProjectFlowService extends AbstractService {
                 .orElse(null);
 
         if (targetPromoterProjectMember == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到promoter成员信息");
+            throw new StatusCodeWithException("找不到promoter成员信息", StatusCode.DATA_NOT_FOUND);
         }
 
         ProjectMySqlModel targetProjectMySqlModel = projectService.findByProjectId(input.getTargetProjectId());
         if (null == targetProjectMySqlModel) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到目标项目信息");
+            throw new StatusCodeWithException("找不到目标项目信息", StatusCode.DATA_NOT_FOUND);
         }
 
         ProjectFlowMySqlModel sourceProjectFlow = findOne(input.getSourceFlowId());
@@ -435,7 +435,7 @@ public class ProjectFlowService extends AbstractService {
             );
         }
         if (sourceProjectFlow == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到原流程信息：" + input.getSourceFlowId());
+            throw new StatusCodeWithException("找不到原流程信息：" + input.getSourceFlowId(), StatusCode.DATA_NOT_FOUND);
         }
 
         // Get the node information of the original process
@@ -447,7 +447,7 @@ public class ProjectFlowService extends AbstractService {
         );
         List<ProjectFlowNodeOutputModel> sourceProjectFlowNodeList = output.getList();
         if (CollectionUtils.isEmpty(sourceProjectFlowNodeList)) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到原流程节点信息：" + input.getSourceFlowId());
+            throw new StatusCodeWithException("找不到原流程节点信息：" + input.getSourceFlowId(), StatusCode.DATA_NOT_FOUND);
         }
 
         // Create target flow

@@ -56,11 +56,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import static com.welab.wefe.common.StatusCode.DATA_NOT_FOUND;
@@ -156,7 +152,7 @@ public class TaskService extends AbstractService {
 
         DataSetMySqlModel dataSet = dataSetRepository.findOne("id", input.getDataResourceId(), DataSetMySqlModel.class);
         if (dataSet == null) {
-            throw new StatusCodeWithException(DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
 
         if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm())) {
@@ -195,7 +191,7 @@ public class TaskService extends AbstractService {
         DataSetMySqlModel dataSet = dataSetRepository.findOne("id", input.getDataResourceId(), DataSetMySqlModel.class);
 
         if (dataSet == null) {
-            throw new StatusCodeWithException(DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
 
         if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm())) {

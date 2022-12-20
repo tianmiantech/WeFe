@@ -180,7 +180,7 @@ public class FusionTaskService extends AbstractService {
 
             BloomFilterMysqlModel bloomFilterMysqlModel = bloomFilterService.findOne(input.getDataResourceId());
             if (bloomFilterMysqlModel == null) {
-                throw new StatusCodeWithException(DATA_NOT_FOUND);
+                StatusCode.DATA_NOT_FOUND.throwException();
             }
 
             task.setPsiActuatorRole(PSIActuatorRole.server);
@@ -196,7 +196,7 @@ public class FusionTaskService extends AbstractService {
 
         TableDataSetMysqlModel dataSet = tableDataSetService.findOneById(input.getDataResourceId());
         if (dataSet == null) {
-            throw new StatusCodeWithException(DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
 
         JSONObject jsonObject = unionService.getDataResourceDetail(input.getPartnerDataResourceId(), input.getPartnerDataResourceType(), JSONObject.class);
@@ -237,7 +237,7 @@ public class FusionTaskService extends AbstractService {
         TableDataSetMysqlModel dataSet = tableDataSetService.findOneById(input.getDataResourceId());
 
         if (dataSet == null) {
-            throw new StatusCodeWithException(DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
 
         if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm())) {

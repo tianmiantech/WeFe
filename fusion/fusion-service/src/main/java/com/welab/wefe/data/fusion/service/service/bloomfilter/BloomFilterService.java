@@ -16,21 +16,6 @@
 
 package com.welab.wefe.data.fusion.service.service.bloomfilter;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -48,8 +33,18 @@ import com.welab.wefe.data.fusion.service.dto.entity.dataset.DataSetPreviewOutpu
 import com.welab.wefe.data.fusion.service.enums.DataResourceSource;
 import com.welab.wefe.data.fusion.service.service.AbstractService;
 import com.welab.wefe.data.fusion.service.service.DataSourceService;
-import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 import com.welab.wefe.data.fusion.service.utils.dataresouce.DataResouceHelper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author hunter.zhao
@@ -156,7 +151,7 @@ public class BloomFilterService extends AbstractService {
         if (dataResourceSource == null) {
             BloomFilterMySqlModel bloomFilterMySqlModel = findById(input.getId());
             if (bloomFilterMySqlModel == null) {
-                throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "Filter not found");
+                StatusCode.FILE_DOES_NOT_EXIST.throwException("Filter not found");
             }
 
             String rows = input.getRows();
@@ -175,7 +170,7 @@ public class BloomFilterService extends AbstractService {
                     output = DataResouceHelper.readFile(file, rowsList);
                 } catch (IOException e) {
                     LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                    throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "文件读取失败");
+                    StatusCode.FILE_IO_READ_ERROR.throwException();
                 }
             }
         } else if (DataResourceSource.Sql.equals(dataResourceSource)) {
@@ -187,7 +182,7 @@ public class BloomFilterService extends AbstractService {
                 output = DataResouceHelper.readFile(file);
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "文件读取失败");
+                StatusCode.FILE_IO_READ_ERROR.throwException();
             }
         }
 

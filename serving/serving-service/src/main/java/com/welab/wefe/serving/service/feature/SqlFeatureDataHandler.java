@@ -126,7 +126,9 @@ public class SqlFeatureDataHandler extends AbstractFeatureDataHandler {
         GenerateTemplateFunction func = SQL_TEMPLATE.get(dataSource.getDatabaseType());
 
         if (func == null) {
-            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "DatabaseType", dataSource.getDatabaseType().name());
+            StatusCode
+                    .PARAMETER_VALUE_INVALID
+                    .throwExWithFormatMsg("DatabaseType", dataSource.getDatabaseType().name());
         }
 
         AbstractTemplate template = func.generate(
@@ -166,7 +168,8 @@ public class SqlFeatureDataHandler extends AbstractFeatureDataHandler {
 
         GenerateTemplateFunction func = SQL_TEMPLATE.get(dataSource.getDatabaseType());
         if (func == null) {
-            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "DatabaseType", dataSource.getDatabaseType().name());
+            StatusCode.PARAMETER_VALUE_INVALID
+                    .throwExWithFormatMsg("DatabaseType", dataSource.getDatabaseType().name());
         }
 
         AbstractTemplate template = func.generate(

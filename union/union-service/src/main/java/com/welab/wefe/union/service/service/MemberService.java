@@ -154,7 +154,7 @@ public class MemberService {
             );
         } catch (Exception e) {
             LOG.error("Failed to query member information in pagination:", e);
-            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to query member information in pagination");
+            throw StatusCodeWithException.of(StatusCode.SYSTEM_ERROR, "Failed to query member information in pagination");
         }
     }
 
@@ -196,7 +196,7 @@ public class MemberService {
             RealnameAuthFileInfo realNameAuthFileInfo = new RealnameAuthFileInfo();
             GridFSFile gridFSFile = gridFsTemplate.findOne(new QueryBuilder().append("_id", fileId).build());
             if (gridFSFile == null) {
-                throw new StatusCodeWithException(StatusCode.FILE_DOES_NOT_EXIST, fileId);
+                StatusCode.FILE_DOES_NOT_EXIST.throwExWithFormatMsg(fileId);
             }
 
             realNameAuthFileInfo.setFilename(gridFSFile.getFilename());
@@ -216,7 +216,7 @@ public class MemberService {
     public UploadFileApiOutput fileUpload(FileUploadApi.Input input) throws StatusCodeWithException {
         try {
             if (FileRurpose.RealnameAuth != input.getPurpose()) {
-                throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "purpose");
+                throw StatusCodeWithException.of(StatusCode.INVALID_PARAMETER, "purpose");
             }
 
             String fileName = input.getFilename();
@@ -225,7 +225,7 @@ public class MemberService {
             try {
                 FileCheckerUtil.checkIsAllowFileType(fileName);
             } catch (Exception e) {
-                throw new StatusCodeWithException(e.getMessage(), StatusCode.FILE_IO_ERROR);
+                StatusCode.PARAMETER_VALUE_INVALID.throwException(e);
             }
 
             String sign = Md5.of(input.getFirstFile().getInputStream());
@@ -318,7 +318,7 @@ public class MemberService {
             return realNameAuthInfoQueryOutput;
         } catch (Exception e) {
             LOG.error("Failed to query RealNameAuthInfo information in pagination:", e);
-            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to query RealNameAuthInfo information in pagination");
+            throw StatusCodeWithException.of(StatusCode.SYSTEM_ERROR, "Failed to query RealNameAuthInfo information in pagination");
         }
     }
 
@@ -408,7 +408,7 @@ public class MemberService {
                 fileStreamBodyMap.put(item.getKey(), streamBody);
             } catch (IOException e) {
                 LOG.error("File read / write failed", e);
-                throw new StatusCodeWithException(StatusCode.FILE_IO_ERROR);
+                StatusCode.SYSTEM_ERROR.throwException(e);
             }
         }
         return fileStreamBodyMap;

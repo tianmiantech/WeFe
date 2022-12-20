@@ -15,14 +15,6 @@
  */
 package com.welab.wefe.serving.service.service_processor;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
@@ -39,6 +31,9 @@ import com.welab.wefe.mpc.pir.server.service.naor.NaorPinkasRandomService;
 import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
 import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
 import com.welab.wefe.serving.service.utils.ServiceUtil;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.*;
 
 /**
  * @author hunter.zhao
@@ -70,7 +65,7 @@ public class PirServiceProcessor extends AbstractServiceProcessor<TableServiceMy
                 response = JObject.create(resp);
             } catch (Exception e) {
                 LOG.error("HUACK_OT handle error", e);
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员, " + e.getMessage());
+                throw new StatusCodeWithException("系统异常，请联系管理员, " + e.getMessage(), StatusCode.SYSTEM_ERROR);
             }
         } else {
             NaorPinkasRandomService service = new NaorPinkasRandomService();
@@ -86,7 +81,7 @@ public class PirServiceProcessor extends AbstractServiceProcessor<TableServiceMy
                 response = JObject.create(resp);
             } catch (Exception e) {
                 LOG.error("NAORPINKAS_OT service handle error", e);
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
+                throw StatusCodeWithException.of(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
             }
         }
         LOG.info("begin query data from datasource");

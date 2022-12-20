@@ -47,7 +47,7 @@ public class EnableApi extends AbstractApi<UnionNodeEnableInput, AbstractApiOutp
         try {
             UnionNode node = unionNodeMongoRepo.findByNodeId(input.getNodeId());
             if (node == null) {
-                throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "nodeId");
+                throw StatusCodeWithException.of(StatusCode.INVALID_PARAMETER, "nodeId");
             }
 
             if (StringUtil.isEmpty(node.getBaseUrl())) {

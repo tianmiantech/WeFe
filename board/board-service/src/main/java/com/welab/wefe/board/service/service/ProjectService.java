@@ -958,7 +958,7 @@ public class ProjectService extends AbstractService {
         ProjectMySqlModel project = findByProjectId(projectId);
 
         if (promoterProjectMember == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到promoter成员信息");
+            throw StatusCodeWithException.of(StatusCode.DATA_NOT_FOUND, "找不到promoter成员信息");
         }
 
         DataInfoApi.Output dataInfoOutput = gatewayService.callOtherMemberBoard(
@@ -1197,7 +1197,7 @@ public class ProjectService extends AbstractService {
                 .orElse(null);
 
         if (promoterMember == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到promoter方");
+            throw StatusCodeWithException.of(StatusCode.DATA_NOT_FOUND, "找不到promoter方");
         }
 
         String promoterMemberId = promoterMember.getMemberId();
@@ -1220,7 +1220,7 @@ public class ProjectService extends AbstractService {
 
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到对应的项目。");
+            throw StatusCodeWithException.of(StatusCode.DATA_NOT_FOUND, "找不到对应的项目。");
         }
 
 
@@ -1271,7 +1271,7 @@ public class ProjectService extends AbstractService {
 
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到对应的项目。");
+            throw StatusCodeWithException.of(StatusCode.DATA_NOT_FOUND, "找不到对应的项目。");
         }
 
         if (!input.fromGateway()) {

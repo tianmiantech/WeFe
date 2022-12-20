@@ -134,10 +134,10 @@ public class DataSetContractService extends AbstractContractService {
                 dataResourceModel = bloomFilterMongoReop.findByDataResourceId(input.getDataResourceId());
                 break;
             default:
-                throw new StatusCodeWithException(StatusCode.INVALID_DATASET, "非法的数据源类型：" + input.getDataResourceType());
+                throw new StatusCodeWithException("非法的数据源类型：" + input.getDataResourceType(), StatusCode.INVALID_DATASET);
         }
         if (null == dataResourceModel) {
-            throw new StatusCodeWithException(StatusCode.INVALID_DATASET, input.getDataResourceId());
+            throw new StatusCodeWithException("非法的数据集：" + input.getDataResourceId(), StatusCode.INVALID_DATASET);
         }
         DataResourceLazyUpdateModel dataResourceLazyUpdateModel = dataResourceLazyUpdateModelMongoReop.findByDataResourceId(input.getDataResourceId());
         dataResourceLazyUpdateModel = (null == dataResourceLazyUpdateModel ? new DataResourceLazyUpdateModel() : dataResourceLazyUpdateModel);

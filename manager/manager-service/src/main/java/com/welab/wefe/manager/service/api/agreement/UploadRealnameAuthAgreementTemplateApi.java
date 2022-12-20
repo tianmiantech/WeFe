@@ -130,7 +130,7 @@ public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFi
                 fileStreamBodyMap.put(item.getKey(), streamBody);
             } catch (IOException e) {
                 LOG.error("File read / write failed", e);
-                throw new StatusCodeWithException(StatusCode.FILE_IO_ERROR);
+                throw new StatusCodeWithException(StatusCode.FILE_IO_READ_ERROR);
             }
         }
         return fileStreamBodyMap;

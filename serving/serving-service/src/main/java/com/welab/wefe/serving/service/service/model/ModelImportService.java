@@ -34,6 +34,8 @@ import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelService;
 import com.welab.wefe.serving.service.utils.ServingFileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +49,7 @@ import java.util.List;
  */
 @Service
 public class ModelImportService {
-
+    protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private ModelService modelService;
@@ -68,8 +70,9 @@ public class ModelImportService {
             SaveModelApi.Input modelContent = buildModelParam(jObject);
             return modelService.save(modelContent);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new StatusCodeWithException("导入模型失败,确认是否已加入联邦且未更改联邦密钥!", StatusCode.FILE_IO_ERROR);
+            LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+            StatusCode.FILE_IO_READ_ERROR.throwException("导入模型失败,确认是否已加入联邦且未更改联邦密钥!");
+            return null;
         }
     }
 

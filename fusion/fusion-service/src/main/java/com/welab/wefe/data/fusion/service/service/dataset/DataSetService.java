@@ -282,7 +282,7 @@ public class DataSetService extends AbstractService {
         if (dataResourceSource == null) {
             DataSetMySqlModel dataSetMySqlModel = findById(input.getId());
             if (dataSetMySqlModel == null) {
-                throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "Data not available");
+                StatusCode.DATA_NOT_FOUND.throwException();
             }
 
             String rows = input.getRows();
@@ -302,7 +302,7 @@ public class DataSetService extends AbstractService {
                     output = DataResouceHelper.readFile(file, rowsList);
                 } catch (IOException e) {
                     LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                    throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "文件读取失败");
+                    StatusCode.FILE_IO_READ_ERROR.throwException();
                 }
             }
         } else if (dataResourceSource.equals(DataResourceSource.UploadFile) || dataResourceSource.equals(DataResourceSource.LocalFile)) {
@@ -312,7 +312,7 @@ public class DataSetService extends AbstractService {
                 output = DataResouceHelper.readFile(file);
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "File reading failure");
+                StatusCode.FILE_IO_READ_ERROR.throwException();
             }
         } else if (dataResourceSource.equals(DataResourceSource.Sql)) {
             // Test whether SQL can be queried normally

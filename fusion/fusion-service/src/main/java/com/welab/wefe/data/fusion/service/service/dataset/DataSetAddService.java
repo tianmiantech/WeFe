@@ -96,7 +96,7 @@ public class DataSetAddService extends AbstractService {
                 readAndSaveFromFile(model, file, input.getRows(), input.isDeduplication());
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "File reading failure");
+                StatusCode.FILE_IO_READ_ERROR.throwException();
             }
         }
 

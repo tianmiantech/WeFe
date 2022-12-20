@@ -151,7 +151,7 @@ public class DataSourceService extends AbstractService {
         if (conn != null) {
             boolean success = jdbcManager.testQuery(conn);
             if (!success) {
-                throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "数据库连接失败");
+                StatusCode.DATABASE_LOST.throwException("数据库连接失败");
             }
         }
 

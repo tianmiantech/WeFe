@@ -154,7 +154,7 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
                     : new ExcelTableDataSetReader(input.getMetadataList(), file);
 
         } catch (IOException e) {
-            StatusCode.FILE_IO_ERROR.throwException(e);
+            StatusCode.FILE_IO_READ_ERROR.throwException(e);
             return null;
         }
     }

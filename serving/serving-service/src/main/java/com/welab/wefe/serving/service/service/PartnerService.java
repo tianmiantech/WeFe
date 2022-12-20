@@ -193,7 +193,7 @@ public class PartnerService {
             throws StatusCodeWithException {
         PartnerMysqlModel model = partnerRepository.findOne("id", input.getId(), PartnerMysqlModel.class);
         if (null == model) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
         model.setName(input.getName());
         model.setEmail(input.getEmail());

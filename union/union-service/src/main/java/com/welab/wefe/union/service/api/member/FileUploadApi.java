@@ -44,7 +44,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
         try {
             return success(memberService.fileUpload(input));
         } catch (StatusCodeWithException e) {
-            if (StatusCode.FILE_IO_ERROR.equals(e.getStatusCode())) {
+            if (StatusCode.FILE_IO_READ_ERROR.equals(e.getStatusCode())) {
                 return fail(e).setHttpCode(599);
             }
             throw e;

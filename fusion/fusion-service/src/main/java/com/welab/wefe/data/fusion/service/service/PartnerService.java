@@ -74,7 +74,7 @@ public class PartnerService extends AbstractService {
         PartnerMySqlModel partnerMySqlModel = partnerRepository.findOne("id", input.getId(), PartnerMySqlModel.class);
         if (partnerMySqlModel == null) {
             LOG.error("未找到对应合作伙伴");
-            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, input.getId());
+            StatusCode.PARAMETER_VALUE_INVALID.throwExWithFormatMsg("未找到对应合作伙伴：" + input.getId());
         }
 
         if (existByPartnerIdNotEqId(input.getMemberId(), input.getId())) {

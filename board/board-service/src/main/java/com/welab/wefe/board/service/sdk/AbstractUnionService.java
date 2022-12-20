@@ -352,7 +352,7 @@ public abstract class AbstractUnionService extends AbstractService {
 
                     request.appendParameter(item.getKey(), streamBody);
                 } catch (IOException e) {
-                    StatusCode.FILE_IO_ERROR.throwException(e);
+                    StatusCode.FILE_IO_READ_ERROR.throwException(e);
                 }
             }
 

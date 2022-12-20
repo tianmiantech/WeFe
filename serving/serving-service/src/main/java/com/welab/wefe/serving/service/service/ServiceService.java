@@ -469,7 +469,7 @@ public class ServiceService {
             throws StatusCodeWithException {
         TableServiceMySqlModel model = serviceRepository.findOne("id", input.getId(), TableServiceMySqlModel.class);
         if (model == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
         if (model.getStatus() == ServiceStatusEnum.USED.getCode()) {
             throw new StatusCodeWithException("上线的服务不允许更新", StatusCode.ILLEGAL_REQUEST);
@@ -544,7 +544,7 @@ public class ServiceService {
     public void offlineService(String id) throws StatusCodeWithException {
         BaseServiceMySqlModel model = baseServiceRepository.findOne("id", id, BaseServiceMySqlModel.class);
         if (model == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
         if (model.getStatus() == 0) {
             throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
@@ -562,7 +562,7 @@ public class ServiceService {
     public void onlineService(String id) throws StatusCodeWithException {
         BaseServiceMySqlModel model = baseServiceRepository.findOne("id", id, BaseServiceMySqlModel.class);
         if (model == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
         if (model.getStatus() == 1) {
             throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
@@ -739,7 +739,7 @@ public class ServiceService {
         BaseServiceMySqlModel model = baseServiceRepository.findOne("serviceId", serviceId, BaseServiceMySqlModel.class);
 
         if (model == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
 
         if (model.getServiceType() == 7) {
@@ -757,7 +757,7 @@ public class ServiceService {
 
         TableModelMySqlModel model = modelRepository.findOne("serviceId", serviceId, TableModelMySqlModel.class);
         if (model == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
 
 
@@ -789,7 +789,7 @@ public class ServiceService {
     private File mpcServiceSdk(String serviceId) throws StatusCodeWithException, IOException {
         TableServiceMySqlModel model = serviceRepository.findOne("id", serviceId, TableServiceMySqlModel.class);
         if (model == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
         int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
         Path basePath = Paths.get(config.getFileBasePath());
