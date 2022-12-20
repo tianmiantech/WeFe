@@ -54,18 +54,14 @@
                         <p>{{ dateFormat(scope.row.create_time) }}</p>
                     </template>
                 </el-table-column>
-                <el-table-column label="状态" width="100">
+                <el-table-column label="状态" width="90">
                     <template v-slot="scope">
                         <el-tag :type="scope.row.status ? 'success' : 'danger'">
                             {{ scope.row.status ? '已启用' : '已禁用' }}
                         </el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column
-                    label="操作"
-                    fixed="right"
-                    width="150"
-                >
+                <el-table-column label="操作" fixed="right" width="145">
                     <template v-slot="scope">
     <!--                    <template v-if="scope.row.status === 0 && !scope.row.is_ca_cert">-->
     <!--                        <el-button-->
