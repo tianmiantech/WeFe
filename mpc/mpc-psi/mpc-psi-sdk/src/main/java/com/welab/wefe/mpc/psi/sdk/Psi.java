@@ -20,6 +20,8 @@ import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -35,6 +37,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
+import com.welab.wefe.mpc.psi.sdk.model.ConfuseData;
 import com.welab.wefe.mpc.psi.sdk.service.PrivateSetIntersectionService;
 
 import cn.hutool.core.io.FileUtil;
@@ -53,7 +56,7 @@ public abstract class Psi {
     public static final String SAVE_RESULT_DIR = System.getProperty("user.dir"); // 当前目录
 
     protected Map<String, String> clientDatasetMap = new LinkedHashMap<>();
-    protected List<String> confuseData = new ArrayList<>();
+    protected ConfuseData confuseData = new ConfuseData();
 
     /**
      * 查询本文id集与服务器id集的集合操作
@@ -82,7 +85,18 @@ public abstract class Psi {
         QueryPrivateSetIntersectionRequest request = new QueryPrivateSetIntersectionRequest();
         request.setRequestId(config.getRequestId());
         request.setType(Psi.PSI_RESULT);
-        request.setClientIds(readPsiResult(config.getRequestId()));
+        List<String> psiResult = readPsiResult(config.getRequestId());
+        logger.info("psiResult size = " + psiResult.size());
+        ConfuseData confuseData = getConfuseData();
+        List<String> clientIds = new ArrayList<>();
+        if (confuseData != null && !confuseData.isEmpty()) {
+            clientIds.addAll(confuseData.getData());
+            logger.info("confuseData size = " + confuseData.size());
+        }
+        clientIds.addAll(psiResult);
+        Collections.shuffle(clientIds);
+        request.setClientIds(clientIds);
+        logger.info("clientIds size = " + clientIds.size());
         PrivateSetIntersectionService privateSetIntersectionService = new PrivateSetIntersectionService();
         logger.info("psi result request = " + request);
         QueryPrivateSetIntersectionResponse response = privateSetIntersectionService.handle(config, request);
@@ -90,9 +104,51 @@ public abstract class Psi {
             logger.info("psi result response = " + response);
             throw new Exception(response.getMessage());
         }
-        saveFieldResult(new HashSet<>(response.getFieldResults()), config.getRequestId());
+        // TODO 需要根据psiResult 过滤掉 混淆数据结果，如果confuseData不为空的话
+        Set<String> fieldResult = filterConfuseData(response.getFieldResults(), psiResult, confuseData);
+        saveFieldResult(fieldResult, config.getRequestId());
         config.setNeedReturnFields(false);
         return response.getFieldResults();
+    }
+
+    private Set<String> filterConfuseData(List<String> responseFieldResults, List<String> psiResults,
+            ConfuseData confuseData) {
+        if (confuseData == null || confuseData.isEmpty()) {
+            return new HashSet<>(responseFieldResults);
+        }
+        Set<String> set = new HashSet<>();
+        if (confuseData.isJson()) {
+            Map<String, String> data1 = new HashMap<>();
+            List<String> fieldNames = confuseData.getMixFieldNames();
+            for (String psiResult : psiResults) {
+                JSONObject json = JSONObject.parseObject(psiResult);
+                StringBuilder sb = new StringBuilder();
+                for (String fieldName : fieldNames) {
+                    sb.append(json.getString(fieldName));
+                }
+                data1.put(sb.toString(), psiResult);
+            }
+            for (String responseFieldResult : responseFieldResults) {
+                JSONObject json = JSONObject.parseObject(responseFieldResult);
+                StringBuilder sb = new StringBuilder();
+                for (String fieldName : fieldNames) {
+                    sb.append(json.getString(fieldName));
+                }
+                if (data1.containsKey(sb.toString())) {
+                    set.add(responseFieldResult);
+                }
+            }
+            return set;
+        } else {
+            for (String responseFieldResult : responseFieldResults) {
+                JSONObject json = JSONObject.parseObject(responseFieldResult);
+                String value = json.getString(confuseData.getSingleFieldName());
+                if (psiResults.contains(value)) {
+                    set.add(responseFieldResult);
+                }
+            }
+            return set;
+        }
     }
 
     public int[] readLastCurrentBatchAndSize(String requestId) throws Exception {
@@ -159,21 +215,17 @@ public abstract class Psi {
     public List<String> readPsiResult(String requestId) {
         List<String> result = FileUtil.readLines(Paths.get(SAVE_RESULT_DIR, requestId).toFile(),
                 Charset.forName("utf-8").toString());
-        List<String> confuseData = getConfuseData();
-        if (confuseData != null && !confuseData.isEmpty()) {
-            result.addAll(confuseData);
-        }
         return new ArrayList<>(new HashSet<>(result));
     }
 
-    public List<String> getConfuseData() {
+    public ConfuseData getConfuseData() {
         return confuseData;
     }
 
     /**
      * 设置混淆数据 格式与{{requestId}}文件一致
      */
-    public void setConfuseData(List<String> confuseData) {
+    public void setConfuseData(ConfuseData confuseData) {
         this.confuseData = confuseData;
     }
 

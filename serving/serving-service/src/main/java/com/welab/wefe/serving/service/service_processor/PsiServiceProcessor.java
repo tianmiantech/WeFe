@@ -91,6 +91,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         if (CollectionUtils.isEmpty(clientIds)) {
             clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
         }
+        LOG.info("clientIds size = " + clientIds.size());
         JSONObject dataSource = JObject.parseObject(model.getDataSource());
         DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
         if (dataSourceModel == null) {
@@ -189,6 +190,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         }
         List<String> doubleEncryptedClientDataset = null;
         if (!CollectionUtils.isEmpty(clientIds)) {
+            LOG.info("clientIds size = " + clientIds.size());
             Map<Long, String> clientEncryptedDatasetMap = EcdhUtil.convert2Map(clientIds);
             // 对客户端数据进行加密
             Map<Long, String> doubleEncryptedClientDatasetMap = server
@@ -223,6 +225,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
         }
         if (!CollectionUtils.isEmpty(clientIds)) {
+            LOG.info("clientIds size = " + clientIds.size());
             Map<Long, String> clientEncryptedDatasetMap = EcdhUtil.convert2Map(clientIds);
             // 对客户端数据进行二次加密
             doubleEncryptedClientDatasetMap = server.encryptDatasetMap(clientEncryptedDatasetMap);
@@ -292,6 +295,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
                 + ", numPartitions=" + numPartitions + ", serverDataSet size = " + queue.size());
         return new ArrayList<>(queue);
     }
+
     private List<String> getMysqlData(TableServiceMySqlModel model, DataSourceMySqlModel dataSourceModel,
             JSONObject dataSource, int currentBatch) throws StatusCodeWithException {
         List<String> needFields = new ArrayList<>(Arrays.asList("id"));
