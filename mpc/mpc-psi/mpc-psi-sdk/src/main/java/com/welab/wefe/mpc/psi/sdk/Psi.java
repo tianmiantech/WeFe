@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,6 +39,7 @@ import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
 import com.welab.wefe.mpc.psi.sdk.model.ConfuseData;
+import com.welab.wefe.mpc.psi.sdk.pir.PirQuery;
 import com.welab.wefe.mpc.psi.sdk.service.PrivateSetIntersectionService;
 
 import cn.hutool.core.io.FileUtil;
@@ -49,6 +51,7 @@ public abstract class Psi {
     public static final String ECDH_PSI = "ECDH_PSI";
     public static final String DH_PSI = "DH_PSI";
     public static final String PSI_RESULT = "PSI_RESULT";
+    public static final String PSI_RESULT_BY_PIR = "PSI_RESULT_BY_PIR";
 
     public static final int DEFAULT_CURRENT_BATCH = 0; // 第一页
     public static final int DEFAULT_BATCH_SIZE = -1; // 默认不用配置，以服务端为准
@@ -56,7 +59,20 @@ public abstract class Psi {
     public static final String SAVE_RESULT_DIR = System.getProperty("user.dir"); // 当前目录
 
     protected Map<String, String> clientDatasetMap = new LinkedHashMap<>();
-    protected ConfuseData confuseData = new ConfuseData();
+    protected ConfuseData confuseData;
+
+    /**
+     * 是否要返回结果标签
+     */
+    private boolean needReturnFields = false;
+    /**
+     * 是否使用匿踪查询返回标签，会很慢
+     */
+    private boolean usePirToReturnFields = false;
+    /**
+     * 是否续跑
+     */
+    private boolean isContinue;
 
     /**
      * 查询本文id集与服务器id集的集合操作
@@ -72,28 +88,80 @@ public abstract class Psi {
     }
 
     public List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch) throws Exception {
-        return query(config, clientIds, currentBatch, DEFAULT_BATCH_SIZE);
+        List<String> result = query(config, clientIds, currentBatch, DEFAULT_BATCH_SIZE);
+        returnFields(config);
+        return result;
+    }
+
+    private void returnFields(CommunicationConfig config) throws Exception {
+        // 使用匿踪查询
+        if (isUsePirToReturnFields()) {
+            returnFieldsByPir(config);
+        } else {
+            returnFieldsByCommon(config);
+        }
     }
 
     public abstract List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch,
             int batchSize) throws Exception;
 
-    public List<String> returnFields(CommunicationConfig config) throws Exception {
-        if (!config.isNeedReturnFields()) {
+    public List<String> returnFieldsByPir(CommunicationConfig config) throws Exception {
+        if (!this.isNeedReturnFields()) {
+            return new ArrayList<>();
+        }
+        List<String> psiResults = readPsiResult(config.getRequestId());
+        logger.info("psiResults size = " + psiResults.size());
+        if (confuseData == null || confuseData.getGenerateDataFunc() == null) {
+            throw new Exception("confusedata func is null");
+        }
+        for (String psiResult : psiResults) {
+            List<String> ids = new LinkedList<>();
+            ids.add(psiResult);
+            ids.addAll(confuseData.generateConfuseData(psiResult));
+            if (ids.size() == 1) {
+                throw new Exception("generateConfuseData error");
+            }
+            List<JSONObject> params = new LinkedList<>();
+            if (!confuseData.isJson()) {
+                for (String id : ids) {
+                    JSONObject idJson = new JSONObject();
+                    idJson.put(confuseData.getSingleFieldName(), id);
+                    params.add(idJson);
+                }
+            } else {
+                for (String id : ids) {
+                    JSONObject idJson = JSONObject.parseObject(id);
+                    params.add(idJson);
+                }
+            }
+            int targetIndex = 0;
+            System.out.println(params);
+            // pir请求
+            String str = PirQuery.query(targetIndex, (List) params, config);
+            System.out.println(str);
+        }
+        return new ArrayList<>();
+    }
+
+    public List<String> returnFieldsByCommon(CommunicationConfig config) throws Exception {
+        if (!this.isNeedReturnFields()) {
             return new ArrayList<>();
         }
         QueryPrivateSetIntersectionRequest request = new QueryPrivateSetIntersectionRequest();
         request.setRequestId(config.getRequestId());
         request.setType(Psi.PSI_RESULT);
-        List<String> psiResult = readPsiResult(config.getRequestId());
-        logger.info("psiResult size = " + psiResult.size());
-        ConfuseData confuseData = getConfuseData();
-        List<String> clientIds = new ArrayList<>();
-        if (confuseData != null && !confuseData.isEmpty()) {
-            clientIds.addAll(confuseData.getData());
-            logger.info("confuseData size = " + confuseData.size());
+        List<String> psiResults = readPsiResult(config.getRequestId());
+        logger.info("psiResults size = " + psiResults.size());
+        List<String> confuseDataList = new ArrayList<>();
+        if (confuseData != null) {
+            for (String psiResult : psiResults) {
+                confuseDataList.addAll(confuseData.generateConfuseData(psiResult));
+            }
         }
-        clientIds.addAll(psiResult);
+        logger.info("confuseData size = " + confuseDataList.size());
+        List<String> clientIds = new ArrayList<>();
+        clientIds.addAll(confuseDataList);
+        clientIds.addAll(psiResults);
         Collections.shuffle(clientIds);
         request.setClientIds(clientIds);
         logger.info("clientIds size = " + clientIds.size());
@@ -105,15 +173,14 @@ public abstract class Psi {
             throw new Exception(response.getMessage());
         }
         // 根据psiResult 过滤掉 混淆数据结果，如果confuseData不为空的话
-        Set<String> fieldResult = filterConfuseData(response.getFieldResults(), psiResult, confuseData);
+        Set<String> fieldResult = filterConfuseData(response.getFieldResults(), psiResults);
         saveFieldResult(fieldResult, config.getRequestId());
-        config.setNeedReturnFields(false);
+        this.setNeedReturnFields(false);
         return response.getFieldResults();
     }
 
-    private Set<String> filterConfuseData(List<String> responseFieldResults, List<String> psiResults,
-            ConfuseData confuseData) {
-        if (confuseData == null || confuseData.isEmpty()) {
+    private Set<String> filterConfuseData(List<String> responseFieldResults, List<String> psiResults) {
+        if (confuseData == null) {
             return new HashSet<>(responseFieldResults);
         }
         Set<String> set = new HashSet<>();
@@ -236,4 +303,29 @@ public abstract class Psi {
     public void setClientDatasetMap(Map<String, String> clientDatasetMap) {
         this.clientDatasetMap = clientDatasetMap;
     }
+
+    public boolean isNeedReturnFields() {
+        return needReturnFields;
+    }
+
+    public void setNeedReturnFields(boolean needReturnFields) {
+        this.needReturnFields = needReturnFields;
+    }
+
+    public boolean isContinue() {
+        return isContinue;
+    }
+
+    public void setContinue(boolean isContinue) {
+        this.isContinue = isContinue;
+    }
+
+    public boolean isUsePirToReturnFields() {
+        return usePirToReturnFields;
+    }
+
+    public void setUsePirToReturnFields(boolean usePirToReturnFields) {
+        this.usePirToReturnFields = usePirToReturnFields;
+    }
+
 }

@@ -63,7 +63,7 @@ public class PrivateSetIntersection extends Psi {
     @Override
     public List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch, int batchSize)
             throws Exception {
-        if (config.isContinue()) {
+        if (isContinue()) {
             int arr[] = readLastCurrentBatchAndSize(config.getRequestId());
             currentBatch = arr[0] + 1;
             batchSize = arr[1];
@@ -136,12 +136,11 @@ public class PrivateSetIntersection extends Psi {
                 }
                 result.addAll(batchResult);
             }
-            logger.info("dh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
-                    + result.size() + ", hasNext = " + hasNext + ",duration = " + (System.currentTimeMillis() - start));
             saveLastCurrentBatchAndSize(request.getRequestId(), request.getCurrentBatch(), request.getBatchSize());
             savePsiResult(batchResult, request.getRequestId());
+            logger.info("dh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
+                    + result.size() + ", hasNext = " + hasNext + ",duration = " + (System.currentTimeMillis() - start));
         }
-        returnFields(config);
         return result;
     }
 }

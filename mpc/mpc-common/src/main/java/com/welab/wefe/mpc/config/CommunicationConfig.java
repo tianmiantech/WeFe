@@ -46,22 +46,12 @@ public class CommunicationConfig {
      * 签名私钥
      */
     private String signPrivateKey;
-    
-    /**
-     * 是否要返回结果标签
-     * */
-    private boolean needReturnFields = false;
-
-    /**
-     * 是否续跑
-     */
-    private boolean isContinue;
 
     /**
      * 是否需要签名
      */
     private boolean needSign = true;
-
+    
     public String getApiName() {
         return apiName;
     }
@@ -108,21 +98,5 @@ public class CommunicationConfig {
 
     public void setRequestId(String requestId) {
         this.requestId = requestId;
-    }
-
-    public boolean isContinue() {
-        return isContinue;
-    }
-
-    public void setContinue(boolean isContinue) {
-        this.isContinue = isContinue;
-    }
-
-    public boolean isNeedReturnFields() {
-        return needReturnFields;
-    }
-
-    public void setNeedReturnFields(boolean needReturnFields) {
-        this.needReturnFields = needReturnFields;
     }
 }

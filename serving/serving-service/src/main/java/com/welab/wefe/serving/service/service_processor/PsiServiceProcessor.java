@@ -17,11 +17,13 @@ package com.welab.wefe.serving.service.service_processor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -34,11 +36,18 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.jdbc.base.DatabaseType;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
+import com.welab.wefe.mpc.commom.Constants;
+import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
+import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasRandomResponse;
+import com.welab.wefe.mpc.pir.server.service.naor.NaorPinkasRandomService;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
 import com.welab.wefe.mpc.psi.sdk.Psi;
 import com.welab.wefe.mpc.psi.sdk.dh.DhPsiServer;
@@ -71,8 +80,10 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             return processDH(data, model);
         } else if (Psi.ECDH_PSI.equalsIgnoreCase(type)) { // default ECDH
             return processECDH(data, model);
-        } else {
+        } else if (Psi.PSI_RESULT.equalsIgnoreCase(type)) {
             return processPSIResult(data, model);
+        } else {
+            return processPSIResultByPir(data, model);
         }
     }
 
@@ -86,20 +97,98 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         }
     }
 
+    private JObject processPSIResultByPir(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {
+        List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        JObject response = JObject.create();
+        QueryKeysRequest request = new QueryKeysRequest();
+        NaorPinkasRandomService service = new NaorPinkasRandomService();
+        request.setIds((List) ids);
+        request.setMethod("plain");
+        request.setOtMethod(Constants.PIR.NAORPINKAS_OT);
+        QueryNaorPinkasRandomResponse resp = null;
+        try {
+            LOG.info("begin NAORPINKAS_OT service handle");
+            resp = service.handle(request, uuid);
+            // 3 取出 QueryKeysResponse 的uuid
+            // 将uuid传入QueryResult
+            response = JObject.create(resp);
+        } catch (Exception e) {
+            LOG.error("NAORPINKAS_OT service handle error", e);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
+        }
+        LOG.info("begin query data from datasource");
+        CommonThreadPool.run(() -> {
+            JSONObject dataSource = JObject.parseObject(model.getDataSource());
+            DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
+            if (dataSourceModel == null) {
+                LOG.error("datasource not found");
+                return;
+            }
+            Map<String, String> result = new HashMap<>();
+            // 0 根据ID查询对应的数据
+            for (String idJson : ids) {// params
+                JSONObject idObj = JSONObject.parseObject(idJson);
+                String fieldStr = ServiceUtil.parseReturnFields(dataSource);
+                List<String> resultFields = new ArrayList<>(Arrays.asList(fieldStr.split(",")));
+                List<String> conditions = new ArrayList<>();
+                JSONArray keyCalcRules = dataSource.getJSONArray("key_calc_rules");
+                for (int i = 0; i < keyCalcRules.size(); i++) {
+                    JSONObject item = keyCalcRules.getJSONObject(i);
+                    String[] fields = item.getString("field").split(",");
+                    for (String f : fields) {
+                        conditions.add(f + " = " + idObj.get(f));
+                        if (!resultFields.contains(f)) {
+                            resultFields.add(f);
+                        }
+                    }
+                }
+                String tableName = dataSourceModel.getDatabaseName() + "." + dataSource.getString("table");
+                String sql = "SELECT " + StringUtils.join(resultFields, ",") + " FROM " + tableName + " WHERE "
+                        + StringUtils.join(conditions, " and ") + " limit 1";
+                LOG.info("sql is " + sql);
+                try {
+                    Map<String, String> resultMap = dataSourceService.queryOne(dataSourceModel, sql, resultFields);
+                    if (resultMap == null || resultMap.isEmpty()) {
+                        resultMap = new HashMap<>();
+                        resultMap.put("rand", "thisisemptyresult");
+                    }
+                    String resultStr = JObject.toJSONString(resultMap);
+                    LOG.info("pir datasource result : " + idJson + "\t " + resultStr);
+                    result.put(idJson, resultStr);
+                } catch (StatusCodeWithException e) {
+                    LOG.error("pir query data error", e);
+                }
+            }
+            // 将 0 步骤查询的数据 保存到 CacheOperation
+            CacheOperation<Map<String, String>> queryResult = CacheOperationFactory.getCacheOperation();
+            LOG.info("save service handle result");
+            queryResult.save(uuid, Constants.RESULT, result);
+        });
+        LOG.info("finished query data from datasource");
+        return response;
+    }
+
     private JObject processPSIResult(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {
         List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
         if (CollectionUtils.isEmpty(clientIds)) {
             clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
         }
         LOG.info("clientIds size = " + clientIds.size());
+        QueryPrivateSetIntersectionResponse response = new QueryPrivateSetIntersectionResponse();
+        response.setRequestId(this.requestId);
+        response.setFieldResults(queryFieldResults(clientIds, model));
+        return JObject.create(response);
+    }
+
+    private List<String> queryFieldResults(List<String> clientIds, TableServiceMySqlModel model)
+            throws StatusCodeWithException {
         JSONObject dataSource = JObject.parseObject(model.getDataSource());
         DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
         if (dataSourceModel == null) {
             throw new StatusCodeWithException("datasource not found", StatusCode.DATA_NOT_FOUND);
         }
         String tempId = clientIds.get(0);
-        QueryPrivateSetIntersectionResponse response = new QueryPrivateSetIntersectionResponse();
-        response.setRequestId(this.requestId);
         List<String> result = new ArrayList<>();
         // 这种情况 单个clientId 为json ,包含多个字段
         if (JObject.isValidObject(tempId)) { // id is json
@@ -170,8 +259,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
                 result.add(JObject.toJSONString(s));
             });
         }
-        response.setFieldResults(result);
-        return JObject.create(response);
+        return result;
     }
 
     private JObject processDH(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {

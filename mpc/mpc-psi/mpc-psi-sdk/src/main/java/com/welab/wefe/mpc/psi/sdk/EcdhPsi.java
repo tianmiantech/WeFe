@@ -72,7 +72,7 @@ public class EcdhPsi extends Psi {
     @Override
     public List<String> query(CommunicationConfig config, List<String> ids, int currentBatch, int batchSize)
             throws Exception {
-        if (config.isContinue()) {
+        if (isContinue()) {
             int arr[] = readLastCurrentBatchAndSize(config.getRequestId());
             currentBatch = arr[0] + 1;
             batchSize = arr[1];
@@ -150,7 +150,6 @@ public class EcdhPsi extends Psi {
             logger.info("ecdh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
                     + result.size() + ", hasNext = " + hasNext + ",duration = " + (System.currentTimeMillis() - start));
         }
-        returnFields(config);
         return result;
     }
 }
