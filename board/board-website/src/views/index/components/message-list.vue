@@ -472,9 +472,10 @@
                 }
                 .time{
                     font-weight: 100;
-                    position: absolute;
+                    // position: absolute;
                     right: 40px;
                     color: #999;
+                    margin: 0 10px;
                 }
             }
             .board-tag{
