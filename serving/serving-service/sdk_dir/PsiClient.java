@@ -18,6 +18,7 @@ import java.io.File;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,11 +26,10 @@ import java.util.Map;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.mpc.config.CommunicationConfig;
-import com.welab.wefe.mpc.psi.sdk.Psi;
-import com.welab.wefe.mpc.psi.sdk.PsiFactory;
 import com.welab.wefe.mpc.psi.sdk.excel.AbstractDataSetReader;
 import com.welab.wefe.mpc.psi.sdk.excel.CsvDataSetReader;
 import com.welab.wefe.mpc.psi.sdk.excel.ExcelDataSetReader;
+import com.welab.wefe.mpc.psi.sdk.model.ConfuseData;
 
 /**
  * 两方交集查询 客户端 <br>
@@ -69,15 +69,61 @@ public class PsiClient {
         config.setApiName(apiName);
         // 是否要返回结果标签
         // config.setNeedReturnFields(true);
+        // 设置混淆数据
+        // psi.setConfuseData(generateConfuseData());
         // 如果是续跑 需要带上下面两个参数
         // config.setRequestId("xxx");
         // config.setContinue(true);
+
         List<String> result = psi.query(config, new ArrayList<>(clientDatasetMap.keySet()));
         System.out.println("client size = " + clientDatasetMap.size() + ", result size = " + result.size()
                 + ", duration = " + (System.currentTimeMillis() - start));
-        // psi.setConfuseData(null); // 混淆数据
         // config.setRequestId("xxx");
         // psi.returnFields(config); // 主动调用返回标签结果
+    }
+
+    /**
+     * 生成混淆数据
+     */
+    private static ConfuseData generateConfuseData() {
+        List<String> fieldNames = parseFieldsByParams();
+        if (fieldNames == null || fieldNames.isEmpty()) {
+            return new ConfuseData();
+        }
+        ConfuseData data = new ConfuseData();
+        List<String> list = new ArrayList<>();
+        if (fieldNames.size() == 1) { // 单值
+            data.setJson(false);
+            data.setSingleFieldName(fieldNames.get(0)); // 字段名
+            // TODO
+            // list.add(xxxx);
+            // list.add(xxxx);
+            data.setData(list);
+        } else {// json格式数据
+            data.setJson(true);
+            data.setMixFieldNames(fieldNames);
+            // TODO
+            for (int i = 0; i < 10000; i++) {
+                JSONObject obj = new JSONObject();
+                // TODO generate json by fieldNames
+                // obj.put("xxx", xxx);
+                list.add(obj.toJSONString());
+            }
+            data.setData(list);
+        }
+        return data;
+    }
+
+    private static List<String> parseFieldsByParams() {
+        List<String> fields = new ArrayList<>();
+        JSONArray keyCalcRules = JSONArray.parseArray(params);
+        int size = keyCalcRules.size();
+        for (int i = 0; i < size; i++) {
+            JSONObject item = keyCalcRules.getJSONObject(i);
+            String[] fieldArr = item.getString("field").split(",");
+            fields.addAll(Arrays.asList(fieldArr));
+        }
+        return fields;
     }
 
     private static void init(String[] args) throws Exception {
