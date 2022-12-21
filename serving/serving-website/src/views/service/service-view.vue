@@ -1262,7 +1262,7 @@
             <!-- <el-divider content-position="center">配置说明</el-divider> -->
             <h3
                 v-if="form.service_type"
-                class="f16"
+                class="f16 mb10"
             >
                 服务配置说明
             </h3>
@@ -2681,7 +2681,7 @@ export default {
             }
             .service_desc {
                 font-size: 13px;
-                line-height: 18px;
+                line-height: 22px;
                 text-align: justify;
                 text-indent: 14px;
                 color: #5a5a5a;
