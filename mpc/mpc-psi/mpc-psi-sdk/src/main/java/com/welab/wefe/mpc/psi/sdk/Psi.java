@@ -104,7 +104,7 @@ public abstract class Psi {
             logger.info("psi result response = " + response);
             throw new Exception(response.getMessage());
         }
-        // TODO 需要根据psiResult 过滤掉 混淆数据结果，如果confuseData不为空的话
+        // 根据psiResult 过滤掉 混淆数据结果，如果confuseData不为空的话
         Set<String> fieldResult = filterConfuseData(response.getFieldResults(), psiResult, confuseData);
         saveFieldResult(fieldResult, config.getRequestId());
         config.setNeedReturnFields(false);
