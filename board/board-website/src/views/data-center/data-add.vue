@@ -1209,7 +1209,7 @@
                 this.loading = false;
             },
 
-            async getAddTask(id, opt = { requestFromRefresh: false }) {
+            async getAddTask(id, opt = { requestFromRefresh: true }) {
                 const { code, data } = await this.$http.get({
                     url:    '/data_resource/upload_task/detail',
                     params: {
@@ -1272,7 +1272,7 @@
                                 } else {
                                     this.$message.error(error_message);
                                 }
-                            }, 1000);
+                            }, 3000);
                         }
                     }
                 } else {
