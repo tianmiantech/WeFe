@@ -28,6 +28,9 @@ import com.welab.wefe.mpc.pir.protocol.se.aes.AESEncryptKey;
 import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasResultRequest;
 import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasResultResponse;
 import com.welab.wefe.mpc.util.DiffieHellmanUtil;
+
+import cn.hutool.core.collection.ConcurrentHashSet;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +38,12 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class NaorPinkasResultService {
     private static final Logger LOGGER = LoggerFactory.getLogger(NaorPinkasResultService.class);
@@ -68,24 +76,44 @@ public class NaorPinkasResultService {
 
         HashFunction hash = new Sha256();
 
-        CompletableFuture[] futures = randoms.stream().map(e -> CompletableFuture.supplyAsync(() -> {
-            BigInteger r = DiffieHellmanUtil.hexStringToBigInteger(e);
-            BigInteger key = DiffieHellmanUtil.modDivide(r, enPk, p);
-            return new AESEncryptKey(hash.digest(key.toByteArray()));
-        })).toArray(CompletableFuture[]::new);
+        ExecutorService executorService = Executors.newFixedThreadPool(4);
+        Set<AESEncryptKey> keySet = ConcurrentHashMap.newKeySet();
+        for (String e : randoms) {
+            executorService.submit(() -> {
+                BigInteger r = DiffieHellmanUtil.hexStringToBigInteger(e);
+                BigInteger key = DiffieHellmanUtil.modDivide(r, enPk, p);
+                keySet.add(new AESEncryptKey(hash.digest(key.toByteArray())));
+            });
+        }
+        executorService.shutdown();
+        try {
+            while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                // pass
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            executorService.shutdown();
+        }
+        
+//        CompletableFuture[] futures = randoms.stream().map(e -> CompletableFuture.supplyAsync(() -> {
+//            BigInteger r = DiffieHellmanUtil.hexStringToBigInteger(e);
+//            BigInteger key = DiffieHellmanUtil.modDivide(r, enPk, p);
+//            return new AESEncryptKey(hash.digest(key.toByteArray()));
+//        })).toArray(CompletableFuture[]::new);
 
         SymmetricKey k0 = new AESEncryptKey(hash.digest(enPk.toByteArray()));
         List<SymmetricKey> keys = new ArrayList<>(randoms.size() + 1);
         keys.add(k0);
-
-        CompletableFuture.allOf(futures).join();
-        for (CompletableFuture future : futures) {
-            try {
-                keys.add((SymmetricKey) future.get());
-            } catch (Exception e) {
-                LOGGER.error(e.getMessage(), e);
-            }
-        }
+        keys.addAll(keySet);
+//        CompletableFuture.allOf(futures).join();
+//        for (CompletableFuture future : futures) {
+//            try {
+//                keys.add((SymmetricKey) future.get());
+//            } catch (Exception e) {
+//                LOGGER.error(e.getMessage(), e);
+//            }
+//        }
 
         CompletableFuture.allOf(queryResult).join();
         Map<String, String> results = null;
