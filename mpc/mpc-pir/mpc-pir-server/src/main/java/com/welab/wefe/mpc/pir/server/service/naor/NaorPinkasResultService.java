@@ -16,6 +16,15 @@
 
 package com.welab.wefe.mpc.pir.server.service.naor;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
 import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
 import com.welab.wefe.mpc.cache.intermediate.CacheUtil;
@@ -29,28 +38,12 @@ import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasResultRequest;
 import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasResultResponse;
 import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 
-import cn.hutool.core.collection.ConcurrentHashSet;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
 public class NaorPinkasResultService {
     private static final Logger LOGGER = LoggerFactory.getLogger(NaorPinkasResultService.class);
 
     public QueryNaorPinkasResultResponse handle(QueryNaorPinkasResultRequest request) {
         String uuid = request.getUuid();
-        LOGGER.info("uuid={} start NP second step", uuid);
+
         QueryNaorPinkasResultResponse response = new QueryNaorPinkasResultResponse();
         response.setUuid(uuid);
         response.setEncryptResults(process(uuid, request.getPk()));
@@ -58,7 +51,6 @@ public class NaorPinkasResultService {
     }
 
     private List<String> process(String uuid, String pkHexString) {
-        LOGGER.info("uuid={} second NP process", uuid);
         CompletableFuture<Map<String, String>> queryResult = CompletableFuture.supplyAsync(() -> queryResult(uuid));
 
         CacheOperation<String> cacheOperation = CacheOperationFactory.getCacheOperation();
@@ -73,31 +65,27 @@ public class NaorPinkasResultService {
         CacheOperation<List<String>> operation = CacheOperationFactory.getCacheOperation();
         List<String> randoms = CacheUtil.get(uuid, Constants.PIR.NAORPINKAS_RANDOM, operation);
         List<String> conditions = CacheUtil.get(uuid, Constants.PIR.NAORPINKAS_CONDITION, operation);
+
         HashFunction hash = new Sha256();
-        Set<AESEncryptKey> keySet = ConcurrentHashMap.newKeySet();
-        for (String e : randoms) {
+
+        CompletableFuture[] futures = randoms.stream().map(e -> CompletableFuture.supplyAsync(() -> {
             BigInteger r = DiffieHellmanUtil.hexStringToBigInteger(e);
             BigInteger key = DiffieHellmanUtil.modDivide(r, enPk, p);
-            keySet.add(new AESEncryptKey(hash.digest(key.toByteArray())));
-        }
-//        CompletableFuture[] futures = randoms.stream().map(e -> CompletableFuture.supplyAsync(() -> {
-//            BigInteger r = DiffieHellmanUtil.hexStringToBigInteger(e);
-//            BigInteger key = DiffieHellmanUtil.modDivide(r, enPk, p);
-//            return new AESEncryptKey(hash.digest(key.toByteArray()));
-//        })).toArray(CompletableFuture[]::new);
+            return new AESEncryptKey(hash.digest(key.toByteArray()));
+        })).toArray(CompletableFuture[]::new);
 
         SymmetricKey k0 = new AESEncryptKey(hash.digest(enPk.toByteArray()));
         List<SymmetricKey> keys = new ArrayList<>(randoms.size() + 1);
         keys.add(k0);
-        keys.addAll(keySet);
-//        CompletableFuture.allOf(futures).join();
-//        for (CompletableFuture future : futures) {
-//            try {
-//                keys.add((SymmetricKey) future.get());
-//            } catch (Exception e) {
-//                LOGGER.error(e.getMessage(), e);
-//            }
-//        }
+
+        CompletableFuture.allOf(futures).join();
+        for (CompletableFuture future : futures) {
+            try {
+                keys.add((SymmetricKey) future.get());
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+        }
 
         CompletableFuture.allOf(queryResult).join();
         Map<String, String> results = null;
@@ -109,12 +97,12 @@ public class NaorPinkasResultService {
 
         List<String> enResults = new ArrayList<>(conditions.size());
         for (int i = 0; i < conditions.size(); i++) {
-            AESEncryptKey aesKey = (AESEncryptKey) keys.get(i);
+            SymmetricKey aesKey = keys.get(i);
+            // 如果这里报Illegal key size，参考 https://blog.csdn.net/lz65169317/article/details/126637852
             byte[] enResult = aesKey.encrypt(results.getOrDefault(conditions.get(i), "").getBytes());
             String value = Conversion.bytesToHexString(enResult) + "," + Conversion.bytesToHexString(aesKey.getIv());
             enResults.add(value);
         }
-        LOGGER.info("uuid={} return encrypt result", uuid);
         return enResults;
     }
 
