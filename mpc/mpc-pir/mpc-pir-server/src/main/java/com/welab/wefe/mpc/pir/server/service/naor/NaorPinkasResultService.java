@@ -98,7 +98,6 @@ public class NaorPinkasResultService {
         List<String> enResults = new ArrayList<>(conditions.size());
         for (int i = 0; i < conditions.size(); i++) {
             AESEncryptKey aesKey = (AESEncryptKey) keys.get(i);
-            aesKey.initCipher();
             byte[] enResult = aesKey.encrypt(results.getOrDefault(conditions.get(i), "").getBytes());
             String value = Conversion.bytesToHexString(enResult) + "," + Conversion.bytesToHexString(aesKey.getIv());
             enResults.add(value);
