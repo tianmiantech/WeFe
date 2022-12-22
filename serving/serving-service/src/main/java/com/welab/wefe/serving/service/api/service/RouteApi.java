@@ -36,13 +36,11 @@ public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
 
     @Override
     protected ApiResult<JObject> handle(Input input) {
-//        LOG.info("request =" + JObject.toJSONString(input));
         try {
             JObject result = serviceService.executeService(input);
-//            LOG.info("response =" + JObject.toJSONString(result));
             return success(result);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("executeService error, ", e);
             JObject res = new JObject();
             res.put("code", ServiceResultEnum.SERVICE_FAIL.getCode());
             res.put("message", e.getMessage());

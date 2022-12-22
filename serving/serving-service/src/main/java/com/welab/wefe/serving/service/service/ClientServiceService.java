@@ -418,6 +418,12 @@ public class ClientServiceService {
         }
     }
 
+    public ClientServiceMysqlModel queryByServiceIdAndClientId(String serviceId, String clientId) {
+        Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", serviceId)
+                .equal("clientId", clientId).build(ClientServiceMysqlModel.class);
+        return clientServiceRepository.findOne(where).orElse(null);
+    }
+    
     public List<ClientServiceMysqlModel> queryActivateListByServiceId(String serviceId) {
 
         Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", serviceId)

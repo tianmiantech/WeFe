@@ -66,6 +66,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
     private static final ConcurrentHashMap<String, EcdhPsiServer> ECDH_SERVER_MAP = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, DhPsiServer> DH_SERVER_MAP = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, Integer> SERVER_DATASET_SIZE = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, DataSourceMySqlModel> DATASOURCE_MAP = new ConcurrentHashMap<>();
 
     protected final Config config = Launcher.getBean(Config.class);
     private int batchSize;
@@ -98,6 +99,8 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
     }
 
     private JObject processPSIResultByPir(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {
+        long now = System.currentTimeMillis();
+        LOG.info("processPSIResultByPir begin");
         List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
         String uuid = UUID.randomUUID().toString().replace("-", "");
         JObject response = JObject.create();
@@ -108,7 +111,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         request.setOtMethod(Constants.PIR.NAORPINKAS_OT);
         QueryNaorPinkasRandomResponse resp = null;
         try {
-            LOG.info("begin NAORPINKAS_OT service handle");
+            LOG.debug("begin service handle");
             resp = service.handle(request, uuid);
             // 3 取出 QueryKeysResponse 的uuid
             // 将uuid传入QueryResult
@@ -117,20 +120,26 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             LOG.error("NAORPINKAS_OT service handle error", e);
             throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
         }
-        LOG.info("begin query data from datasource");
-        CommonThreadPool.run(() -> {
+        LOG.info("end service handle, duration = " + (System.currentTimeMillis() - now));
+        new Thread(() -> {
+            LOG.info("begin query data from datasource");
+            long start = System.currentTimeMillis();
             JSONObject dataSource = JObject.parseObject(model.getDataSource());
-            DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
+            DataSourceMySqlModel dataSourceModel = DATASOURCE_MAP.get(dataSource.getString("id"));
+            if (dataSourceModel == null) {
+                dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
+                DATASOURCE_MAP.putIfAbsent(dataSource.getString("id"), dataSourceModel);
+            }
             if (dataSourceModel == null) {
                 LOG.error("datasource not found");
                 return;
             }
-            Map<String, String> result = new HashMap<>();
+            Map<String, String> sqlMap = new HashMap<>();
+            String fieldStr = ServiceUtil.parseReturnFields(dataSource);
+            List<String> resultFields = new ArrayList<>(Arrays.asList(fieldStr.split(",")));
             // 0 根据ID查询对应的数据
             for (String idJson : ids) {// params
                 JSONObject idObj = JSONObject.parseObject(idJson);
-                String fieldStr = ServiceUtil.parseReturnFields(dataSource);
-                List<String> resultFields = new ArrayList<>(Arrays.asList(fieldStr.split(",")));
                 List<String> conditions = new ArrayList<>();
                 JSONArray keyCalcRules = dataSource.getJSONArray("key_calc_rules");
                 for (int i = 0; i < keyCalcRules.size(); i++) {
@@ -146,26 +155,23 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
                 String tableName = dataSourceModel.getDatabaseName() + "." + dataSource.getString("table");
                 String sql = "SELECT " + StringUtils.join(resultFields, ",") + " FROM " + tableName + " WHERE "
                         + StringUtils.join(conditions, " and ") + " limit 1";
-                LOG.info("sql is " + sql);
-                try {
-                    Map<String, String> resultMap = dataSourceService.queryOne(dataSourceModel, sql, resultFields);
-                    if (resultMap == null || resultMap.isEmpty()) {
-                        resultMap = new HashMap<>();
-                        resultMap.put("rand", "thisisemptyresult");
-                    }
-                    String resultStr = JObject.toJSONString(resultMap);
-                    LOG.info("pir datasource result : " + idJson + "\t " + resultStr);
-                    result.put(idJson, resultStr);
-                } catch (StatusCodeWithException e) {
-                    LOG.error("pir query data error", e);
-                }
+                LOG.debug("sql is " + sql);
+                sqlMap.put(idJson, sql);
             }
-            // 将 0 步骤查询的数据 保存到 CacheOperation
-            CacheOperation<Map<String, String>> queryResult = CacheOperationFactory.getCacheOperation();
-            LOG.info("save service handle result");
-            queryResult.save(uuid, Constants.RESULT, result);
-        });
-        LOG.info("finished query data from datasource");
+            try {
+                Map<String, String> resultMap = dataSourceService.batchQuerySql(dataSourceModel, sqlMap, resultFields);
+                LOG.info("result = " + resultMap);
+                // 将 0 步骤查询的数据 保存到 CacheOperation
+                CacheOperation<Map<String, String>> queryResult = CacheOperationFactory.getCacheOperation();
+                queryResult.save(uuid, Constants.RESULT, resultMap);
+                LOG.info("save result in cache success");
+            } catch (StatusCodeWithException e) {
+                LOG.error("pir query data error", e);
+            } finally {
+                LOG.info("finished query data from datasource, duration = " + (System.currentTimeMillis() - start));
+            }
+        }).start();
+        LOG.info("processPSIResultByPir finished");
         return response;
     }
 

@@ -58,6 +58,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
@@ -125,6 +127,9 @@ import com.welab.wefe.serving.service.utils.component.ScoreCardComponentUtil;
 @Service
 public class ServiceService {
 
+    private final static Cache<String, Object> caches = CacheBuilder.newBuilder()
+            .expireAfterAccess(10, TimeUnit.MINUTES).build();
+
     protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     public static final String SERVICE_PRE_URL = "api/";
@@ -185,7 +190,8 @@ public class ServiceService {
                 output.getAlgorithm() == Algorithm.XGBoost ? xgboost(output.getModelParam(), output.getFlType())
                         : null);
         output.setModelStatus(getModelStatus(model, output));
-        output.setScoreCardInfo(model.getScoreCardInfo() != null ? ScoreCardComponentUtil.scoreCardInfo(model) : JObject.create());
+        output.setScoreCardInfo(
+                model.getScoreCardInfo() != null ? ScoreCardComponentUtil.scoreCardInfo(model) : JObject.create());
 
         JSONObject preview = new JSONObject();
         preview.put("id", model.getServiceId());
@@ -199,7 +205,7 @@ public class ServiceService {
     private List<ModelStatusOutput> getModelStatus(TableModelMySqlModel model, DetailApi.Output output) {
         return output.getMyRole().contains(JobMemberRole.promoter)
                 && !FederatedLearningType.horizontal.equals(output.getFlType()) ? checkModelStatus(model.getServiceId())
-                : null;
+                        : null;
     }
 
     private com.welab.wefe.serving.service.api.service.DetailApi.Output detailService(
@@ -316,7 +322,8 @@ public class ServiceService {
                 data.setRightNode(xgboostNodeModel.getRightNodeId());
                 data.setSitename(xgboostNodeModel.getSitename().split(":", -1)[0]);
                 data.setWeight(xgboostNodeModel.getWeight());
-                data.setThreshold(splitMaskdict.get(xgboostNodeModel.getId()) != null ? splitMaskdict.get(xgboostNodeModel.getId())
+                data.setThreshold(splitMaskdict.get(xgboostNodeModel.getId()) != null
+                        ? splitMaskdict.get(xgboostNodeModel.getId())
                         : xgboostNodeModel.getBid());
 
                 map.put(xgboostNodeModel.getId(), node);
@@ -404,7 +411,7 @@ public class ServiceService {
         if (dataSourceModel.getDatabaseType().name().equalsIgnoreCase(DatabaseType.MySql.name())) {
             String oldIdsTableName = model.getIdsTableName();
             try {
-                if(StringUtils.isNotBlank(oldIdsTableName)) {
+                if (StringUtils.isNotBlank(oldIdsTableName)) {
                     dataSourceService.update(dataSourceModel, "drop table " + oldIdsTableName);
                 }
             } catch (StatusCodeWithException e) {
@@ -416,11 +423,12 @@ public class ServiceService {
         }
         return keysTableName;
     }
-    
 
-    private String generateMySqlIdsTable(final DataSourceMySqlModel oldDataSourceModel, JSONObject dataSource) throws StatusCodeWithException {
+    private String generateMySqlIdsTable(final DataSourceMySqlModel oldDataSourceModel, JSONObject dataSource)
+            throws StatusCodeWithException {
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-        DataSourceMySqlModel newDataSourceMySqlModel = (DataSourceMySqlModel) SerializationUtils.clone(oldDataSourceModel);
+        DataSourceMySqlModel newDataSourceMySqlModel = (DataSourceMySqlModel) SerializationUtils
+                .clone(oldDataSourceModel);
         String keysTableName = newDataSourceMySqlModel.getDatabaseName() + "_" + dataSource.getString("table");
         JSONArray keyCalcRules = dataSource.getJSONArray("key_calc_rules");
         List<String> needFields = new ArrayList<>();
@@ -430,9 +438,10 @@ public class ServiceService {
             needFields.addAll(Arrays.asList(fields));
         }
         keysTableName += ("_" + format.format(new Date()));
-        String sql = "SELECT " + StringUtils.join(needFields, ",") + " FROM " + newDataSourceMySqlModel.getDatabaseName() + "."
+        String sql = "SELECT " + StringUtils.join(needFields, ",") + " FROM "
+                + newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table");
+        String tmpSql = "SELECT * FROM " + newDataSourceMySqlModel.getDatabaseName() + "."
                 + dataSource.getString("table");
-        String tmpSql = "SELECT * FROM " + newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table");
         long count = dataSourceService.count(newDataSourceMySqlModel, tmpSql);
         if (count <= 0) {
             throw new StatusCodeWithException("数据源数据为空", StatusCode.DATA_NOT_FOUND);
@@ -445,8 +454,8 @@ public class ServiceService {
                         "CREATE TABLE `%s` (`id` varchar(100) NOT NULL ,PRIMARY KEY (`id`) USING BTREE ) ENGINE=InnoDB;",
                         keysTableNameTmp);
                 dataSourceService.createTable(createTableSql, DatabaseType.MySql, newDataSourceMySqlModel.getHost(),
-                        newDataSourceMySqlModel.getPort(), newDataSourceMySqlModel.getUserName(), newDataSourceMySqlModel.getPassword(),
-                        newDataSourceMySqlModel.getDatabaseName());
+                        newDataSourceMySqlModel.getPort(), newDataSourceMySqlModel.getUserName(),
+                        newDataSourceMySqlModel.getPassword(), newDataSourceMySqlModel.getDatabaseName());
                 List<Map<String, String>> result = dataSourceService.queryList(newDataSourceMySqlModel, sql,
                         needFields);
                 if (result == null || result.isEmpty()) {
@@ -454,9 +463,8 @@ public class ServiceService {
                 }
                 int partitionSize = 500000;
                 int taskNum = Math.max(result.size() / partitionSize, 1);
-                LOG.info(newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table")
-                        + " count = " + result.size() + ", taskNum = " + taskNum + ", threads size = "
-                        + this.threads);
+                LOG.info(newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table") + " count = "
+                        + result.size() + ", taskNum = " + taskNum + ", threads size = " + this.threads);
                 List<Queue<Map<String, String>>> partitionList = ServiceUtil.partitionList(result, taskNum);
                 result = null;
                 ExecutorService executorService1 = Executors.newFixedThreadPool(this.threads);
@@ -489,8 +497,7 @@ public class ServiceService {
                             try {
                                 dataSourceService.batchInsert(insertSql, DatabaseType.MySql,
                                         newDataSourceMySqlModel.getHost(), newDataSourceMySqlModel.getPort(),
-                                        newDataSourceMySqlModel.getUserName(),
-                                        newDataSourceMySqlModel.getPassword(),
+                                        newDataSourceMySqlModel.getUserName(), newDataSourceMySqlModel.getPassword(),
                                         newDataSourceMySqlModel.getDatabaseName(), new HashSet<>(queue));
                                 queue.clear();
                             } catch (StatusCodeWithException e) {
@@ -510,8 +517,7 @@ public class ServiceService {
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }
-                finally {
+                } finally {
                     executorService1.shutdown();
                     executorService1 = null;
                 }
@@ -708,22 +714,19 @@ public class ServiceService {
         return out;
     }
 
-    public JObject check(com.welab.wefe.serving.service.api.service.RouteApi.Input input) {
-
-        BaseServiceMySqlModel service = baseServiceRepository.findOne("serviceId", input.getServiceId(),
-                BaseServiceMySqlModel.class);
+    public JObject check(com.welab.wefe.serving.service.api.service.RouteApi.Input input,
+            BaseServiceMySqlModel service) {
         if (service.getStatus() != 1) {
             return JObject.create().append("code", ServiceResultEnum.SERVICE_NOT_AVALIABLE.getCode()).append("message",
                     "invalid request: url = " + service.getUrl());
         }
-
         PartnerMysqlModel client = partnerService.queryByCode(input.getPartnerCode());
         if (client.getStatus() != 1) {
             return JObject.create().append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode()).append("message",
                     "invalid request: url = " + service.getUrl() + ",partnerCode = " + input.getPartnerCode());
         }
 
-        ClientServiceMysqlModel clientServiceMysqlModel = partnerService
+        ClientServiceMysqlModel clientServiceMysqlModel = clientServiceService
                 .queryByServiceIdAndClientId(service.getServiceId(), client.getId());
         if (clientServiceMysqlModel.getStatus() != 1) {
             return JObject.create().append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode()).append("message",
@@ -741,40 +744,43 @@ public class ServiceService {
     private boolean isIpWhiteList(RouteApi.Input input, ClientServiceMysqlModel clientServiceMysqlModel) {
         String clientIp = ServiceUtil.getIpAddr(input.request);
 
-        return clientServiceMysqlModel.getIpAdd() != null && (Arrays.asList(clientServiceMysqlModel.getIpAdd().split(",|，")).contains(clientIp) || Arrays.asList(clientServiceMysqlModel.getIpAdd().split(",|，")).contains("*"));
+        return clientServiceMysqlModel.getIpAdd() != null
+                && (Arrays.asList(clientServiceMysqlModel.getIpAdd().split(",|，")).contains(clientIp)
+                        || Arrays.asList(clientServiceMysqlModel.getIpAdd().split(",|，")).contains("*"));
     }
 
     public TableServiceMySqlModel findById(String serviceId) {
         return serviceRepository.findOne("id", serviceId, TableServiceMySqlModel.class);
     }
 
-
     public JObject executeService(RouteApi.Input input) throws StatusCodeWithException {
-
         long beginTime = System.currentTimeMillis();
-
         BaseServiceMySqlModel service = baseServiceRepository.findOne("serviceId", input.getServiceId(),
                 BaseServiceMySqlModel.class);
-
         JObject result = JObject.create();
         ServiceResultEnum status = ServiceResultEnum.SUCCESS;
         AbstractServiceProcessor serviceProcessor = null;
         try {
             // check params
-            JObject res = check(input);
-            if (MapUtils.isNotEmpty(res)) {
-                result.putAll(res);
-                result.putAll(JObject.create(input.getData()));
-                status = ServiceResultEnum.SERVICE_FAIL;
-                return result;
+            LOG.info("check begin ... ");
+            long start = System.currentTimeMillis();
+            if (caches.getIfPresent(input.getRequestId()) == null) {
+                JObject res = check(input, service);
+                LOG.info("check end ..., duration =" + (System.currentTimeMillis() - start));
+                if (MapUtils.isNotEmpty(res)) {
+                    result.putAll(res);
+                    result.putAll(JObject.create(input.getData()));
+                    status = ServiceResultEnum.SERVICE_FAIL;
+                    return result;
+                }
+                caches.put(input.getRequestId(), Boolean.TRUE);
             }
             serviceProcessor = ServiceProcessorUtils.get(service.getServiceType());
             JObject serviceResult = serviceProcessor.process(JObject.create(input.getData()), service);
             result.putAll(serviceResult);
             return result;
-
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("executeService error, ", e);
             status = ServiceResultEnum.SERVICE_FAIL;
             result.append("message", "服务调用失败: url = " + service.getUrl() + ", message= " + e.getMessage());
             return result;
@@ -782,8 +788,8 @@ public class ServiceService {
             String responseId = UUID.randomUUID().toString().replaceAll("-", "");
             result.append("responseId", responseId);
             result.append("code", status.getCode());
-            JObject tmpResult = new JObject((JSONObject)result.clone());
-            if(serviceProcessor != null) {
+            JObject tmpResult = new JObject((JSONObject) result.clone());
+            if (serviceProcessor != null) {
                 tmpResult.put("subCalllogs", serviceProcessor.calllogs());
             }
             log(input, beginTime, service, tmpResult, status, responseId);
@@ -791,7 +797,7 @@ public class ServiceService {
     }
 
     private void log(RouteApi.Input input, long beginTime, BaseServiceMySqlModel service, JObject result,
-                     ServiceResultEnum status, String responseId) {
+            ServiceResultEnum status, String responseId) {
         ServiceOrderEnum orderStatus = ServiceResultEnum.SUCCESS.equals(status) ? ServiceOrderEnum.SUCCESS
                 : ServiceOrderEnum.FAILED;
         String serviceOrderId = createOrder(service, input, orderStatus);
@@ -811,7 +817,7 @@ public class ServiceService {
     }
 
     private void callLog(RouteApi.Input input, String orderId, String responseId, JObject result, Integer responseCode,
-                         String responseStatus, long beginTime) {
+            String responseStatus, long beginTime) {
         ServiceCallLogMysqlModel callLog = new ServiceCallLogMysqlModel();
         callLog.setServiceType(ServiceTypeEnum.MachineLearning.getCode());
         callLog.setOrderId(orderId);
@@ -836,7 +842,8 @@ public class ServiceService {
     }
 
     public File exportSdk(String serviceId) throws StatusCodeWithException, IOException {
-        BaseServiceMySqlModel model = baseServiceRepository.findOne("serviceId", serviceId, BaseServiceMySqlModel.class);
+        BaseServiceMySqlModel model = baseServiceRepository.findOne("serviceId", serviceId,
+                BaseServiceMySqlModel.class);
 
         if (model == null) {
             throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
@@ -860,14 +867,14 @@ public class ServiceService {
             throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
         }
 
-
         List<File> fileList = new ArrayList<>();
 
         Path path = Paths.get(config.getFileBasePath()).resolve(serviceId + ".java");
         File file = new File(path.toString());
 
         // 将需要提供的文件加到这个列表
-        List<String> stringList = FileUtil.readAllForLine(Paths.get(config.getFileBasePath()).resolve("ApiExample.java").toString(), "UTF-8");
+        List<String> stringList = FileUtil
+                .readAllForLine(Paths.get(config.getFileBasePath()).resolve("ApiExample.java").toString(), "UTF-8");
         stringList.stream().forEach(x -> {
             try {
                 FileUtil.writeTextToFile(String.format(x, serviceId) + System.lineSeparator(), path, true);
@@ -941,11 +948,9 @@ public class ServiceService {
             valuesMap.put("params", displayServiceQueryParams(model));
             valuesMap.put("desc", model.getName());
             valuesMap.put("method", "POST");
-            String templateString = "# serverUrl:\n" + "	${serverUrl}\n" + "	\n"
-                    + "# apiName:\n" + "	${apiName}\n" + "	\n"
-                    + "# method:\n" + " ${method}\n" + "    \n"
-                    + "# params:\n" + "	${params}\n" + "	\n"
-                    + "# desc\n" + "	${desc}";
+            String templateString = "# serverUrl:\n" + "	${serverUrl}\n" + "	\n" + "# apiName:\n"
+                    + "	${apiName}\n" + "	\n" + "# method:\n" + " ${method}\n" + "    \n" + "# params:\n"
+                    + "	${params}\n" + "	\n" + "# desc\n" + "	${desc}";
             LOG.info("displayServiceQueryParams result = " + valuesMap.get("params"));
             StringSubstitutor sub = new StringSubstitutor(valuesMap);
             String content = sub.replace(templateString);

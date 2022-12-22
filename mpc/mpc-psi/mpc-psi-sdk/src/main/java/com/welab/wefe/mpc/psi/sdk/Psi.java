@@ -29,6 +29,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -110,37 +114,60 @@ public abstract class Psi {
             return new ArrayList<>();
         }
         List<String> psiResults = readPsiResult(config.getRequestId());
-        logger.info("psiResults size = " + psiResults.size());
+        long start = System.currentTimeMillis();
+        logger.info("returnFieldsByPir begin, psiResults size = " + psiResults.size());
         if (confuseData == null || confuseData.getGenerateDataFunc() == null) {
             throw new Exception("confusedata func is null");
         }
-        for (String psiResult : psiResults) {
-            List<String> ids = new LinkedList<>();
-            ids.add(psiResult);
-            ids.addAll(confuseData.generateConfuseData(psiResult));
-            if (ids.size() == 1) {
-                throw new Exception("generateConfuseData error");
-            }
-            List<JSONObject> params = new LinkedList<>();
-            if (!confuseData.isJson()) {
-                for (String id : ids) {
-                    JSONObject idJson = new JSONObject();
-                    idJson.put(confuseData.getSingleFieldName(), id);
-                    params.add(idJson);
+        Set<String> resultSet = ConcurrentHashMap.newKeySet();
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        for (final String psiResult : psiResults) {
+            executorService.submit(() -> {
+                List<String> ids = new LinkedList<>();
+                ids.add(psiResult);
+                ids.addAll(confuseData.generateConfuseData(psiResult));
+                if (ids.size() == 1) {
+                    logger.error("generateConfuseData error");
+                    return;
                 }
-            } else {
-                for (String id : ids) {
-                    JSONObject idJson = JSONObject.parseObject(id);
-                    params.add(idJson);
+                List<JSONObject> params = new LinkedList<>();
+                if (!confuseData.isJson()) {
+                    for (String id : ids) {
+                        JSONObject idJson = new JSONObject();
+                        idJson.put(confuseData.getSingleFieldName(), id);
+                        params.add(idJson);
+                    }
+                } else {
+                    for (String id : ids) {
+                        JSONObject idJson = JSONObject.parseObject(id);
+                        params.add(idJson);
+                    }
                 }
-            }
-            int targetIndex = 0;
-            System.out.println(params);
-            // pir请求
-            String str = PirQuery.query(targetIndex, (List) params, config);
-            System.out.println(str);
+                int targetIndex = 0;
+                // pir请求
+                try {
+                    String str = PirQuery.query(targetIndex, (List) params, config);
+                    logger.info(params + ", result = " + str);
+                    resultSet.add(str);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
         }
-        return new ArrayList<>();
+        executorService.shutdown();
+        try {
+            while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                // pass
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            executorService.shutdown();
+        }
+        saveFieldResult(resultSet, config.getRequestId());
+        this.setNeedReturnFields(false);
+        logger.info("returnFieldsByPir end, duration = " + (System.currentTimeMillis() - start));
+        return new ArrayList<>(resultSet);
     }
 
     public List<String> returnFieldsByCommon(CommunicationConfig config) throws Exception {

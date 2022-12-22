@@ -20,12 +20,16 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.mpc.config.CommunicationConfig;
+import com.welab.wefe.mpc.psi.sdk.Psi;
+import com.welab.wefe.mpc.psi.sdk.PsiFactory;
 import com.welab.wefe.mpc.psi.sdk.excel.AbstractDataSetReader;
 import com.welab.wefe.mpc.psi.sdk.excel.CsvDataSetReader;
 import com.welab.wefe.mpc.psi.sdk.excel.ExcelDataSetReader;
@@ -60,21 +64,18 @@ public class PsiClient {
         Psi psi = PsiFactory.generatePsi();
         psi.setClientDatasetMap(clientDatasetMap);
         CommunicationConfig config = new CommunicationConfig();
-        // 私钥
-        config.setSignPrivateKey(Customer_privateKey);
-        // 客户code
-        config.setCommercialId(Customer_code);
+        config.setSignPrivateKey(测试客户1_privateKey);// 私钥
+        config.setCommercialId(测试客户1_code); // 客户ID
         // 服务地址
         config.setServerUrl(serverUrl);
         config.setApiName(apiName);
         // 是否要返回结果标签
-        // config.setNeedReturnFields(true);
-        // 设置混淆数据
-        // psi.setConfuseData(generateConfuseData());
+        psi.setNeedReturnFields(true);
         // 如果是续跑 需要带上下面两个参数
         // config.setRequestId("xxx");
-        // config.setContinue(true);
-
+        // psi.setContinue(true);
+        psi.setUsePirToReturnFields(true);
+        psi.setConfuseData(generateConfuseData());
         List<String> result = psi.query(config, new ArrayList<>(clientDatasetMap.keySet()));
         System.out.println("client size = " + clientDatasetMap.size() + ", result size = " + result.size()
                 + ", duration = " + (System.currentTimeMillis() - start));
@@ -90,27 +91,30 @@ public class PsiClient {
         if (fieldNames == null || fieldNames.isEmpty()) {
             return new ConfuseData();
         }
+        int base = 4; // 查一条混几条
         ConfuseData data = new ConfuseData();
-        List<String> list = new ArrayList<>();
-        if (fieldNames.size() == 1) { // 单值
-            data.setJson(false);
-            data.setSingleFieldName(fieldNames.get(0)); // 字段名
-            // TODO
-            // list.add(xxxx);
-            // list.add(xxxx);
-            data.setData(list);
-        } else {// json格式数据
-            data.setJson(true);
-            data.setMixFieldNames(fieldNames);
-            // TODO
-            for (int i = 0; i < 10000; i++) {
-                JSONObject obj = new JSONObject();
-                // TODO generate json by fieldNames
-                // obj.put("xxx", xxx);
-                list.add(obj.toJSONString());
+        data.setGenerateDataFunc(s -> {
+            // 根据s生成混淆数据
+            List<String> list = new LinkedList<>();
+            if (fieldNames.size() == 1) { // 单值
+                data.setJson(false);
+                data.setSingleFieldName(fieldNames.get(0)); // 字段名
+                // TODO
+                for (int i = 0; i < base; i++) {
+                    list.add(new Random().nextInt(20000) + 20000 + "");
+                }
+            } else {// json格式数据
+                data.setJson(true);
+                data.setMixFieldNames(fieldNames); // 字段名列表
+                for (int i = 0; i < base; i++) {
+                    JSONObject obj = new JSONObject();
+                    // TODO generate json by fieldNames
+                    // obj.put("xxx", xxx);
+                    list.add(obj.toJSONString());
+                }
             }
-            data.setData(list);
-        }
+            return list;
+        });
         return data;
     }
 

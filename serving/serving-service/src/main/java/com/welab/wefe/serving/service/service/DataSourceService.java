@@ -228,6 +228,18 @@ public class DataSourceService {
                 model.getUserName(), model.getPassword(), model.getDatabaseName());
         return jdbcManager.queryOne(conn, sql, returnFields);
     }
+    
+    public Map<String, String> batchQuerySql(DataSourceMySqlModel model, Map<String, String> sqlMap,
+            List<String> returnFields) throws StatusCodeWithException {
+        if (model == null) {
+            throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
+        }
+        LOG.debug("dataSourceModel = " + JSONObject.toJSONString(model));
+        JdbcManager jdbcManager = new JdbcManager();
+        Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
+                model.getUserName(), model.getPassword(), model.getDatabaseName());
+        return jdbcManager.batchQuerySql(conn, sqlMap, returnFields);
+    }
 
     public long count(DataSourceMySqlModel model, String sql) throws StatusCodeWithException {
         if (model == null) {

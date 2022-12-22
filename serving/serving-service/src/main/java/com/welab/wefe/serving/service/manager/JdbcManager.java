@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.nimbusds.jose.shaded.json.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.jdbc.base.DatabaseType;
@@ -160,6 +162,41 @@ public class JdbcManager {
         return tables;
     }
 
+    public Map<String, String> batchQuerySql(Connection conn, Map<String, String> sqlMap, List<String> returnFields) {
+        long start = System.currentTimeMillis();
+        log.info("JdbcManager query start: " + start);
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Map<String, String> resultMap = new LinkedHashMap<>();
+        try {
+            for (Map.Entry<String, String> sqlMapEntry : sqlMap.entrySet()) {
+                Map<String, String> fieldMap = new LinkedHashMap<>();
+                String key = sqlMapEntry.getKey();
+                ps = conn.prepareStatement(sqlMapEntry.getValue());
+                rs = ps.executeQuery();
+                while (rs.next()) {
+                    for (String field : returnFields) {
+                        String value = rs.getString(field);
+                        fieldMap.put(field, value);
+                    }
+                }
+                if (fieldMap == null || fieldMap.isEmpty()) {
+                    fieldMap = new HashMap<>();
+                    fieldMap.put("rand", "thisisemptyresult");
+                }
+                resultMap.put(key, JSONObject.toJSONString(fieldMap));
+            }
+        } catch (SQLException e) {
+            log.error("query error", e);
+            return resultMap;
+        } finally {
+            close(conn, ps, rs);
+            long duration = System.currentTimeMillis() - start;
+            log.info("JdbcManager query duration: " + duration);
+        }
+        return resultMap;
+    }
+    
     public Map<String, String> queryOne(Connection conn, String sql, List<String> returnFields) {
         long start = System.currentTimeMillis();
         log.info("JdbcManager query start: " + start);
