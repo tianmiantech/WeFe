@@ -120,7 +120,7 @@ public abstract class Psi {
             throw new Exception("confusedata func is null");
         }
         Set<String> resultSet = ConcurrentHashMap.newKeySet();
-        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
         for (final String psiResult : psiResults) {
             executorService.submit(() -> {
                 List<String> ids = new LinkedList<>();
