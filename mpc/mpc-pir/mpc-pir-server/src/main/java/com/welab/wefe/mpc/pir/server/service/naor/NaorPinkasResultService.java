@@ -73,29 +73,13 @@ public class NaorPinkasResultService {
         CacheOperation<List<String>> operation = CacheOperationFactory.getCacheOperation();
         List<String> randoms = CacheUtil.get(uuid, Constants.PIR.NAORPINKAS_RANDOM, operation);
         List<String> conditions = CacheUtil.get(uuid, Constants.PIR.NAORPINKAS_CONDITION, operation);
-
         HashFunction hash = new Sha256();
-
-        ExecutorService executorService = Executors.newFixedThreadPool(4);
         Set<AESEncryptKey> keySet = ConcurrentHashMap.newKeySet();
         for (String e : randoms) {
-            executorService.submit(() -> {
-                BigInteger r = DiffieHellmanUtil.hexStringToBigInteger(e);
-                BigInteger key = DiffieHellmanUtil.modDivide(r, enPk, p);
-                keySet.add(new AESEncryptKey(hash.digest(key.toByteArray())));
-            });
+            BigInteger r = DiffieHellmanUtil.hexStringToBigInteger(e);
+            BigInteger key = DiffieHellmanUtil.modDivide(r, enPk, p);
+            keySet.add(new AESEncryptKey(hash.digest(key.toByteArray())));
         }
-        executorService.shutdown();
-        try {
-            while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
-                // pass
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            executorService.shutdown();
-        }
-        
 //        CompletableFuture[] futures = randoms.stream().map(e -> CompletableFuture.supplyAsync(() -> {
 //            BigInteger r = DiffieHellmanUtil.hexStringToBigInteger(e);
 //            BigInteger key = DiffieHellmanUtil.modDivide(r, enPk, p);
@@ -126,7 +110,6 @@ public class NaorPinkasResultService {
         List<String> enResults = new ArrayList<>(conditions.size());
         for (int i = 0; i < conditions.size(); i++) {
             AESEncryptKey aesKey = (AESEncryptKey) keys.get(i);
-            aesKey.initCipher();
             byte[] enResult = aesKey.encrypt(results.getOrDefault(conditions.get(i), "").getBytes());
             String value = Conversion.bytesToHexString(enResult) + "," + Conversion.bytesToHexString(aesKey.getIv());
             enResults.add(value);

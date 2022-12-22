@@ -40,7 +40,7 @@ public abstract class AESKey {
         } else {
             System.arraycopy(iv, 0, this.iv, 0, 16);
         }
-//        initCipher();
+        initCipher();
     }
 
     public abstract void initCipher();

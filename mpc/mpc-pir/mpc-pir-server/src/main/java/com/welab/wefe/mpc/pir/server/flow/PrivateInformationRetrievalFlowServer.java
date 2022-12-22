@@ -91,7 +91,6 @@ public class PrivateInformationRetrievalFlowServer extends BasePrivateInformatio
         List<String> enResults = new ArrayList<>(ids.size());
         for (int i = 0; i < ids.size(); i++) {
             AESEncryptKey aesKey = new AESEncryptKey(keyList.get(i).key);
-            aesKey.initCipher();
             byte[] enResult = aesKey.encrypt(results.getOrDefault(ids.get(i), "").getBytes());
             String value = Conversion.bytesToHexString(enResult) + "," + Conversion.bytesToHexString(aesKey.getIv());
             enResults.add(value);
