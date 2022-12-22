@@ -462,7 +462,13 @@
                         if (ChartsWithTabsRef.value && ChartsWithTabsRef.value.length > 1) {
                             const idx = index === 0 ? 1 : 0;
 
-                            ChartsWithTabsRef.value[idx].tabName = ChartsWithTabsRef.value[index].tabName;
+                            ChartsWithTabsRef.value.forEach((item, ins) => {
+                                if(ins !== index && item ){
+                                     ChartsWithTabsRef.value[ins].tabName = ChartsWithTabsRef.value[index].tabName
+                                }
+                            })
+                            // ChartsWithTabsRef.value[idx].tabName = ChartsWithTabsRef.value[index].tabName;
+                            console.log("ChartsWithTabsRef.value",ChartsWithTabsRef.value)
                         }
                     });
                 },
