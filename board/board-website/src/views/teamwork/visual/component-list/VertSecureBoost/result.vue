@@ -204,13 +204,13 @@
                                 );
                             }
                         } else {
-                            const losses = data[0].result.train_loss.data;
+                            const lossData = result.train_loss.data.length ? result.train_loss.data : result.model_param.losses;
 
-                            losses.forEach((item, index) => {
+                            lossData.forEach((item, index) => {
                                 vData.loss.xAxis.push(index);
                                 vData.loss.series[0].push(dealNumPrecision(item));
                             });
-                            vData.loss.iters = losses.length;
+                            vData.loss.iters = lossData.length;
                         }
                     } else {
                         vData.result = false;

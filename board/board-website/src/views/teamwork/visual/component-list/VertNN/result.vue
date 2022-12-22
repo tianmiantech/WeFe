@@ -118,13 +118,15 @@
                     if(data[0].result && data[0].result.model_param) {
                         vData.result = true;
                         const { historyLoss, isConverged } = data[0].result.model_param;
+                        const { train_loss } = data[0].result;
 
-                        if(historyLoss && historyLoss.length) {
-                            historyLoss.forEach((item, index) => {
+                        const lossData = train_loss.data.length ? train_loss.data : historyLoss;
+                        if(lossData && lossData.length) {
+                            lossData.forEach((item, index) => {
                                 vData.loss.xAxis.push(index);
                                 vData.loss.series[0].push(dealNumPrecision(item));
                             });
-                            vData.loss.iters = historyLoss.length;
+                            vData.loss.iters = lossData.length;
                         }
                         vData.loss.isConverged = isConverged;
                         vData.loss.loading = false;

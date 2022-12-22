@@ -419,7 +419,7 @@
                     for (let i=0; i<scores_distribution.length; i++) {
                         xAxisData.push(scores_distribution[i][0]);
                         score_d_bar.push(scores_distribution[i][1]);
-                        score_d_line.push(scores_distribution[i][2]*100);
+                        score_d_line.push(Math.round(scores_distribution[i][2]*100));
                     }
                     xAxis = {
                         type:        'category',
@@ -462,7 +462,7 @@
                                 show:     true,
                                 position: 'top',
                                 formatter (value) {
-                                    return Number(value.data).toFixed(2) + '%';
+                                    return value.data + '%';
                                 },
                             },
                         },

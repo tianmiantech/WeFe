@@ -56,7 +56,7 @@
                                         prop="value"
                                     >
                                         <template v-slot="scope">
-                                            {{ dealNumPrecision(scope.row.value) }}
+                                            {{ scope.row.method == 'mean' ? dealNumPrecision(scope.row.value) : scope.row.value }}
                                         </template>
                                     </el-table-column>
                                 </el-table>
