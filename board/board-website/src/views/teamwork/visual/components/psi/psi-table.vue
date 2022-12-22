@@ -1,10 +1,10 @@
 <template>
     <div class="psi-table">
         <div v-if="judge">
-            特征过滤：<el-select 
-                multiple 
+            特征过滤：<el-select
+                multiple
                 filterable
-                collapse-tags 
+                collapse-tags
                 clearable
                 v-model="data.searchParams.feature">
                 <el-option
@@ -15,8 +15,8 @@
                 ></el-option>
             </el-select>
         </div>
-        <el-table 
-            :data="showTableData" 
+        <el-table
+            :data="showTableData"
             :max-height="500"
             :sort-method="sort-method"
             @sort-change="sortChange"
@@ -64,7 +64,7 @@
 
 <script setup>
     import { reactive, computed,toRaw,watch,ref,nextTick } from 'vue';
-    import { turnDemical } from '@src/utils/utils';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     // eslint-disable-next-line no-undef
     const props = defineProps({
@@ -88,20 +88,20 @@
         const data = toRaw(props.tableData);
 
         Reflect.ownKeys(data).forEach(feature => {
-            const { 
+            const {
                 train_feature_static ={},
                 test_feature_static= {},
                 feature_psi='',
                 bin_cal_results,
                 split_point = [],
             } = data[feature] || {};
-            const { 
+            const {
                 bin_ln_test_base_value = [],
                 bin_psi = [],
                 bin_sub_test_base_value = [],
             } = bin_cal_results || {};
 
-            const { 
+            const {
                 count_rate: testRate = [],
             } = test_feature_static;
             const { count_rate: trainRate = [] } = train_feature_static;
@@ -111,11 +111,11 @@
             if(split_point.length > 1){
                 split_point.forEach((item, index) => {
                     if(index === 0){
-                        tmp = [`<=${turnDemical(item, 2)}`];
+                        tmp = [`<=${dealNumPrecision(item, 4)}`];
                     } else if(index === split_point.length-1) {
-                        tmp.push(`>${turnDemical(split_point[index-1], 2)}`);
+                        tmp.push(`>${dealNumPrecision(split_point[index-1], 4)}`);
                     } else {
-                        tmp.push(`(${turnDemical(split_point[index-1],  2)} , ${turnDemical(item, 2)}]`);
+                        tmp.push(`(${dealNumPrecision(split_point[index-1],  4)} , ${dealNumPrecision(item, 4)}]`);
                     }
                 });
             }
@@ -127,10 +127,10 @@
                     return false;
                 }
             }
-            
+
             tableData.push({
                 feature,
-                psi:         judge(feature_psi) ? turnDemical((feature_psi || 0), 4) : 0,
+                psi:         judge(feature_psi) ? dealNumPrecision(feature_psi || 0) : 0,
                 key:         feature,
                 test:        '-',
                 train:       '-',
@@ -141,11 +141,11 @@
                     return {
                         key:         `${feature}-${index}`,
                         bin:         tmp[index] ,
-                        test:        `${turnDemical((testRate[index] || 0) * 100, 2)}`,
-                        train:       `${turnDemical((trainRate[index] || 0) * 100, 2)}`,
-                        testSubBase: `${turnDemical((bin_sub_test_base_value[index] || 0) * 100, 2)}%`,
-                        psi:         judge(bin_psi[index]) ? turnDemical((bin_psi[index] || 0), 4) : 0,
-                        lntestbase:  turnDemical((bin_ln_test_base_value[index] || 0), 4),
+                        test:        `${dealNumPrecision((testRate[index] || 0) * 100, 2)}`,
+                        train:       `${dealNumPrecision((trainRate[index] || 0) * 100, 2)}`,
+                        testSubBase: `${dealNumPrecision((bin_sub_test_base_value[index] || 0) * 100, 2)}%`,
+                        psi:         judge(bin_psi[index]) ? dealNumPrecision((bin_psi[index] || 0), 4) : 0,
+                        lntestbase:  dealNumPrecision((bin_ln_test_base_value[index] || 0), 4),
                     };
                 }),
             });
@@ -183,7 +183,7 @@
     /**
      * 过滤条件后所有的数据
      */
-    const showAllData = computed(() => {        
+    const showAllData = computed(() => {
         return toRaw(data.tableData)
             .filter(item => {
                 return Reflect.ownKeys(data.searchParams).every(key => {
@@ -194,7 +194,7 @@
                 });
             });
     });
-    
+
     /**
      * 前端分页，显示在表格中的数据
      */
@@ -263,7 +263,7 @@
   button{border: 1px solid #c4c4c4}
   .icon-collage::before{transform: rotate(90deg);}
   .icon-collage::after{transform: rotate(180deg);}
-  
+
   .psi-table .board-table .board-table__expand-icon{
     display: none;
   }

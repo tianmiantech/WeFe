@@ -30,7 +30,7 @@
                     label="正例比例"
                     width="120">
                     <template v-slot="scope">
-                        {{scope.row.TP / scope.row.total}}
+                        {{dealNumPrecision(scope.row.TP / scope.row.total)}}
                     </template>
                 </el-table-column>
             </el-table-column>
@@ -55,7 +55,7 @@
                     label="正例比例"
                     width="120">
                     <template v-slot="scope">
-                        {{scope.row.v_TP / scope.row.v_total}}
+                        {{dealNumPrecision(scope.row.v_TP / scope.row.v_total)}}
                     </template>
                 </el-table-column>
             </el-table-column>
@@ -65,6 +65,7 @@
 
 <script>
     import { reactive } from 'vue';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     export default {
         name:  'TopN',
@@ -94,10 +95,11 @@
                 vData.validate_topn = result?.validate_topn || [];
                 if(topnList && topnList.length) {
                     vData.tableData = topnList.map((item, i) => {
-                        /** 
+                        /**
                          * 存在train_topn 和 validate_topn 长度不对等的情况
                          */
-                        const {TP,cut_off,name,recall,total} = result?.validate_topn?.[i] || {};
+                        const { TP,cut_off,name,recall,total } = result?.validate_topn?.[i] || {};
+
                         return {
                             ...item,
                             v_TP:      TP,
@@ -114,6 +116,7 @@
                 vData,
                 methods,
                 renderTopnTable,
+                dealNumPrecision,
             };
         },
     };

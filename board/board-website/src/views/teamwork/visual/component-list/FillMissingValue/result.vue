@@ -54,7 +54,11 @@
                                     <el-table-column
                                         label="填充值"
                                         prop="value"
-                                    />
+                                    >
+                                        <template v-slot="scope">
+                                            {{ scope.row.method == 'mean' ? dealNumPrecision(scope.row.value) : scope.row.value }}
+                                        </template>
+                                    </el-table-column>
                                 </el-table>
                             </el-tab-pane>
                         </el-tabs>
@@ -76,6 +80,7 @@
     import { ref, reactive } from 'vue';
     import CommonResult from '../common/CommonResult';
     import resultMixin from '../result-mixin';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     const mixin = resultMixin();
 
@@ -166,6 +171,7 @@
                 vData,
                 activeName,
                 methods,
+                dealNumPrecision,
             };
         },
     };
