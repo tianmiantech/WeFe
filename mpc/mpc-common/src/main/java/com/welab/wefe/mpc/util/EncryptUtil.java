@@ -47,7 +47,8 @@ public class EncryptUtil {
         String[] realResult = enResults.split(",");
         byte[] enResult = Conversion.hexStringToBytes(realResult[0]);
         byte[] iv = Conversion.hexStringToBytes(realResult[1]);
-        SymmetricKey aesKey = new AESDecryptKey(key, iv);
+        AESDecryptKey aesKey = new AESDecryptKey(key, iv);
+        aesKey.initCipher();
         byte[] result = aesKey.encrypt(enResult);
         return new String(result, Charset.forName("utf-8"));
     }
