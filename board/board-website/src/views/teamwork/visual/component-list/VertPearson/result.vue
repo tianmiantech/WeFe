@@ -422,7 +422,7 @@
                                 if(rowIndex < maxFeatureNum) {
                                     rows.forEach((row, index) => {
                                         if(index < maxFeatureNum) {
-                                            vData.providerConfig.series.push([rowIndex, vData.providerConfig.yAxis.length - index - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
+                                            vData.providerConfig.series.push([index ,vData.providerConfig.yAxis.length - rowIndex - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
                                         }
                                     });
                                 }
@@ -555,8 +555,6 @@
                         chartData.yAxis.forEach(($row, rowIndex) => {
                             chartData.xAxis.forEach((column, columnIndex) => {
                                 const row = chartData.mixCorr[$row][column];
-                                console.log('$row, rowIndex',$row, column, rowIndex, columnIndex,row)
-
                                 chartData.series.push([columnIndex, rowIndex, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
                             });
                         });
