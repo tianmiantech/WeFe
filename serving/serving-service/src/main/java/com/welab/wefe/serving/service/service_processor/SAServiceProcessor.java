@@ -51,7 +51,7 @@ public class SAServiceProcessor extends AbstractServiceProcessor<TableServiceMyS
         JSONObject dataSource = JObject.parseObject(model.getDataSource());
         String dataSourceId = dataSource.getString("id");
         DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSourceId);
-        String sql = ServiceUtil.generateSQL(queryParams.toJSONString(), dataSource, dataSourceModel.getDatabaseName());
+        String sql = ServiceUtil.generateOneSQL(queryParams.toJSONString(), dataSource, dataSourceModel.getDatabaseName());
         String resultfields = ServiceUtil.parseReturnFields(dataSource);
         String resultStr = "";
         try {

@@ -16,12 +16,6 @@
 
 package com.welab.wefe.serving.service;
 
-import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
-import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
-import com.welab.wefe.serving.service.feature.CodeFeatureDataHandler;
-import com.welab.wefe.serving.service.operation.ServingApiLogger;
-import com.welab.wefe.serving.service.utils.sign.VerifySignUtil;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -29,6 +23,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
+
+import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
+import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
+import com.welab.wefe.serving.service.feature.CodeFeatureDataHandler;
+import com.welab.wefe.serving.service.utils.sign.VerifySignUtil;
 
 /**
  * @author hunter.zhao

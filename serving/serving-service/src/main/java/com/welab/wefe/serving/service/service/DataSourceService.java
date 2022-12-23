@@ -154,11 +154,11 @@ public class DataSourceService {
      * @throws StatusCodeWithException
      */
     public TestDBConnectApi.Output testDBConnect(DatabaseType databaseType, String host, int port, String userName,
-                                                 String password, String databaseName) throws StatusCodeWithException {
+            String password, String databaseName) throws StatusCodeWithException {
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(databaseType, host, port, userName, password, databaseName);
         if (conn != null) {
-            boolean success = jdbcManager.testQuery(conn, "select 1", false);
+            boolean success = jdbcManager.testQuery(conn, "select 1");
             if (!success) {
                 StatusCode.DATABASE_LOST.throwException("数据库连接失败");
             }
@@ -170,7 +170,7 @@ public class DataSourceService {
     }
 
     public void createTable(String sql, DatabaseType databaseType, String host, int port, String userName,
-                            String password, String databaseName) throws StatusCodeWithException {
+            String password, String databaseName) throws StatusCodeWithException {
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(databaseType, host, port, userName, password, databaseName);
         if (conn != null) {
@@ -182,7 +182,7 @@ public class DataSourceService {
     }
 
     public void batchInsert(String sql, DatabaseType databaseType, String host, int port, String userName,
-                            String password, String databaseName, Set<String> ids) throws StatusCodeWithException {
+            String password, String databaseName, Set<String> ids) throws StatusCodeWithException {
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(databaseType, host, port, userName, password, databaseName);
         if (conn != null) {
@@ -206,18 +206,14 @@ public class DataSourceService {
         return dataSourceRepo.findById(dataSourceId).orElse(null);
     }
 
-    /**
-     * Test whether SQL can be queried normally
-     */
-    public boolean testSqlQuery(DataSourceMySqlModel model, String sql) throws StatusCodeWithException {
+    public boolean update(DataSourceMySqlModel model, String sql) throws StatusCodeWithException {
         if (model == null) {
             throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据源不存在");
         }
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
                 model.getUserName(), model.getPassword(), model.getDatabaseName());
-        boolean result = jdbcManager.testQuery(conn, sql, true);
-
+        boolean result = jdbcManager.update(conn, sql);
         return result;
     }
 
@@ -230,7 +226,19 @@ public class DataSourceService {
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
                 model.getUserName(), model.getPassword(), model.getDatabaseName());
-        return jdbcManager.query(conn, sql, returnFields);
+        return jdbcManager.queryOne(conn, sql, returnFields);
+    }
+    
+    public Map<String, String> batchQuerySql(DataSourceMySqlModel model, Map<String, String> sqlMap,
+            List<String> returnFields) throws StatusCodeWithException {
+        if (model == null) {
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据源不存在");
+        }
+        LOG.debug("dataSourceModel = " + JSONObject.toJSONString(model));
+        JdbcManager jdbcManager = new JdbcManager();
+        Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
+                model.getUserName(), model.getPassword(), model.getDatabaseName());
+        return jdbcManager.batchQuerySql(conn, sqlMap, returnFields);
     }
 
     public long count(DataSourceMySqlModel model, String sql) throws StatusCodeWithException {
@@ -241,6 +249,28 @@ public class DataSourceService {
         Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
                 model.getUserName(), model.getPassword(), model.getDatabaseName());
         return jdbcManager.count(conn, sql);
+    }
+
+    public List<Map<String, String>> queryListByConditions(DataSourceMySqlModel model, String sql,
+            List<Map<String, Object>> conditionFieldValues, List<String> returnFields) throws StatusCodeWithException {
+        if (model == null) {
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据源不存在");
+        }
+        JdbcManager jdbcManager = new JdbcManager();
+        Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
+                model.getUserName(), model.getPassword(), model.getDatabaseName());
+        return jdbcManager.queryListByConditions(conn, sql, conditionFieldValues, returnFields);
+    }
+
+    public List<Map<String, String>> queryListByIds(DataSourceMySqlModel model, String sql, List<String> ids,
+            List<String> returnFields) throws StatusCodeWithException {
+        if (model == null) {
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据源不存在");
+        }
+        JdbcManager jdbcManager = new JdbcManager();
+        Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
+                model.getUserName(), model.getPassword(), model.getDatabaseName());
+        return jdbcManager.queryListByIds(conn, sql, ids, returnFields);
     }
 
     public List<Map<String, String>> queryList(DataSourceMySqlModel model, String sql, List<String> returnFields)
