@@ -243,7 +243,8 @@ class Evaluation(ModelBase):
                 eval_result = self.evaluate_metircs(mode, data)
                 self.eval_results[key].append(eval_result)
             scored_result = self.cal_scord_card_bin(eval_data_local)
-            self.eval_results[key].append(scored_result)
+            if scored_result:
+                self.eval_results[key].append(scored_result)
             pred_psi = self.evaluate_psi(split_data_with_label)
             if pred_psi:
                 self.eval_results[key].append(pred_psi)
@@ -922,23 +923,25 @@ class Evaluation(ModelBase):
             logging.warning("error:can not find classification type:".format(self.eval_type))
 
     def cal_scord_card_bin(self, eval_data_local):
-        score_result = self.tracker.get_score_result()
-        bins_result = None
-        if score_result is not None and len(eval_data_local[0][1])>=6 and self.model_param.score_param.prob_need_to_bin:
-            a_score, b_score= score_result['a_score'], score_result['b_score']
-            linear_scores = [data[1][4] for data in eval_data_local]
-            sample_scores = [a_score + b_score * linear_score for linear_score in linear_scores]
-            bins_result  = self.to_binning(sample_scores, self.model_param.score_param)
-        else:
-            classes = len(set([d[1][0] for d in eval_data_local]))
-            if classes < 3 and self.model_param.score_param.prob_need_to_bin:
-                sample_pro_result_list = []
-                for index, sample_pro_result in enumerate(eval_data_local):
-                    sample_pro_result_list.append(sample_pro_result[1][2])
-                bins_result = self.to_binning(sample_pro_result_list, self.model_param.score_param)
-        scored = defaultdict(list)
-        scored['scored'] = ['train_validate', bins_result]
-        return scored
+        if self.model_param.score_param.prob_need_to_bin:
+            score_result = self.tracker.get_score_result()
+            bins_result = None
+            if score_result is not None and len(eval_data_local[0][1])>=6:
+                a_score, b_score= score_result['a_score'], score_result['b_score']
+                linear_scores = [data[1][4] for data in eval_data_local]
+                sample_scores = [a_score + b_score * linear_score for linear_score in linear_scores]
+                bins_result  = self.to_binning(sample_scores, self.model_param.score_param)
+            else:
+                classes = len(set([d[1][0] for d in eval_data_local]))
+                if classes < 3 and self.model_param.score_param.prob_need_to_bin:
+                    sample_pro_result_list = []
+                    for index, sample_pro_result in enumerate(eval_data_local):
+                        sample_pro_result_list.append(sample_pro_result[1][2])
+                    bins_result = self.to_binning(sample_pro_result_list, self.model_param.score_param)
+            scored = defaultdict(list)
+            scored['scored'] = ['train_validate', bins_result]
+            return scored
+        return None
 
     def evaluate_psi(self, data):
         if self.model_param.psi_param.need_psi:
