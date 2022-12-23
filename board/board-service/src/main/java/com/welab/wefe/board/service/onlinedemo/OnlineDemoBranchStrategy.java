@@ -49,7 +49,7 @@ public class OnlineDemoBranchStrategy {
 
         // If the current data is not created by the current member, deletion is not allowed.
         if (!model.getCreatedBy().equals(CurrentAccountUtil.get().getId())) {
-            throw new StatusCodeWithException(message, StatusCode.UNSUPPORTED_HANDLE);
+            throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, message);
         }
     }
 }

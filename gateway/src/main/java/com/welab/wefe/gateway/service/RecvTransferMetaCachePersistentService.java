@@ -53,7 +53,7 @@ public class RecvTransferMetaCachePersistentService extends AbstractRecvTransfer
             return new StatusCodeWithException(StatusCode.SUCCESS);
         } catch (Exception e) {
             LOG.error("received transfer meta file system persistent fail：", e);
-            return new StatusCodeWithException("保存接收到的消息到本地文本系统失败, 请确保程序有自动创建目录的权限：" + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            return new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "保存接收到的消息到本地文本系统失败, 请确保程序有自动创建目录的权限：" + e.getMessage());
         }
     }
 

@@ -192,7 +192,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         JSONObject dataSource = JObject.parseObject(model.getDataSource());
         DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
         if (dataSourceModel == null) {
-            throw new StatusCodeWithException("datasource not found", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "datasource not found");
         }
         String tempId = clientIds.get(0);
         List<String> result = new ArrayList<>();
@@ -244,12 +244,12 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             List<String> resultFields = new ArrayList<>(Arrays.asList(fieldStr.split(",")));
             JSONArray keyCalcRules = dataSource.getJSONArray("key_calc_rules");
             if (keyCalcRules.size() != 1) {
-                throw new StatusCodeWithException("参数错误", StatusCode.ILLEGAL_REQUEST);
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "参数错误");
             }
             JSONObject item = keyCalcRules.getJSONObject(0);
             String[] fields = item.getString("field").split(",");
             if (fields.length != 1) {
-                throw new StatusCodeWithException("参数错误", StatusCode.ILLEGAL_REQUEST);
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "参数错误");
             }
             String keyField = fields[0];
             if (!resultFields.contains(keyField)) {
@@ -415,14 +415,13 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         JSONObject dataSource = JObject.parseObject(model.getDataSource());
         DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
         if (dataSourceModel == null) {
-            throw new StatusCodeWithException("datasource not found", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "datasource not found");
         }
         if (dataSourceModel.getDatabaseType() == DatabaseType.MySql) {
             return getMysqlData(model, dataSourceModel, dataSource, currentBatch);
         } else if (dataSourceModel.getDatabaseType() == DatabaseType.Doris) {
             return getDorisData(model, dataSourceModel, dataSource, currentBatch);
         }
-        throw new StatusCodeWithException("datasource type not support" + dataSourceModel.getDatabaseType(),
-                StatusCode.INVALID_DATASET);
+        throw new StatusCodeWithException(StatusCode.INVALID_DATASET, "datasource type not support" + dataSourceModel.getDatabaseType());
     }
 }

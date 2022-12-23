@@ -24,7 +24,11 @@
                             label="特征"
                             width="80"
                         />
-                        <el-table-column prop="weight" label="权重" />
+                        <el-table-column prop="weight" label="权重">
+                            <template v-slot="scope">
+                                {{ dealNumPrecision(scope.row.weight) }}
+                            </template>
+                        </el-table-column>
                     </el-table>
                 </el-collapse-item>
                 <el-collapse-item title="任务跟踪指标（LOSS）" name="3">
@@ -70,6 +74,7 @@
     import CommonResult from '../common/CommonResult';
     import resultMixin from '../result-mixin';
     import gridSearchParams from '../../../../../assets/js/const/gridSearchParams';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     const mixin = resultMixin();
 
@@ -151,7 +156,7 @@
                         } else {
                             train_loss.data.forEach((item, index) => {
                                 vData.train_loss.xAxis.push(index);
-                                vData.train_loss.series[0].push(item);
+                                vData.train_loss.series[0].push(dealNumPrecision(item));
                             });
                         }
                     } else {
@@ -197,6 +202,7 @@
                 activeName,
                 methods,
                 mapGridName,
+                dealNumPrecision,
             };
         },
     };

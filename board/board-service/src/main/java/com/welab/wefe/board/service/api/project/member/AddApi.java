@@ -76,12 +76,12 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
             super.checkAndStandardize();
 
             if (CollectionUtils.isEmpty(memberList)) {
-                throw new StatusCodeWithException("请选择成员！", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "请选择成员！");
             }
 
             for (ProjectMemberInput item : memberList) {
                 if (CacheObjects.getMemberName(item.getMemberId()) == null) {
-                    throw new StatusCodeWithException("错误的 memberId：" + item.getMemberId(), StatusCode.PARAMETER_VALUE_INVALID);
+                    throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "错误的 memberId：" + item.getMemberId());
                 }
             }
         }

@@ -56,17 +56,17 @@ public class TableDataSetAddInputModel extends TableDataSetUpdateInputModel {
         switch (dataSetAddMethod) {
             case Database:
                 if (StringUtils.isEmpty(dataSourceId)) {
-                    throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
+                    throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "dataSourceId在数据库不存在");
                 }
 
                 if (StringUtils.isEmpty(sql)) {
-                    throw new StatusCodeWithException("请填入sql查询语句", StatusCode.PARAMETER_CAN_NOT_BE_EMPTY);
+                    throw new StatusCodeWithException(StatusCode.PARAMETER_CAN_NOT_BE_EMPTY, "请填入sql查询语句");
                 }
                 break;
             case HttpUpload:
             case LocalFile:
                 if (StringUtils.isEmpty(filename)) {
-                    throw new StatusCodeWithException("请指定数据集文件", StatusCode.PARAMETER_CAN_NOT_BE_EMPTY);
+                    throw new StatusCodeWithException(StatusCode.PARAMETER_CAN_NOT_BE_EMPTY, "请指定数据集文件");
                 }
                 break;
             default:

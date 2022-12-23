@@ -45,12 +45,12 @@ public class UpdateApi extends AbstractApi<MemberAuthTypeUpdateInput, AbstractAp
         try {
             boolean isExist = memberAuthTypeMongoRepo.exists(input.getTypeName());
             if (isExist) {
-                throw new StatusCodeWithException("该类型已存在", StatusCode.DATA_EXISTED);
+                throw new StatusCodeWithException(StatusCode.DATA_EXISTED, "该类型已存在");
             }
 
             memberAuthTypeContractService.updateByTypeId(input);
         } catch (StatusCodeWithException e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
         return success();

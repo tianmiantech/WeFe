@@ -49,7 +49,7 @@ public class GetDataSetStateService extends AbstractService {
             processCount = DataSetStorageHelper.countDataSetRows(model);
         } catch (Exception e) {
             LOG.error("此id无数据");
-            throw new StatusCodeWithException("此id无数据", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "此id无数据");
         }
 
         int rowsCount = model.getRowCount();

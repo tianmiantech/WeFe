@@ -2,8 +2,8 @@
     <div v-loading="vData.loading" :disabled="disabled">
         <selectFeature title="发起方" :featureData="vData.promoter" :disabled="disabled" @selectFeature="methods.promoteFeature"></selectFeature>
         <selectFeature title="协作方" :featureData="vData.provider" :disabled="disabled" @selectFeature="methods.provideFeature"></selectFeature>
-        <psi-bin 
-            v-model:binValue="vData.binValue" 
+        <psi-bin
+            v-model:binValue="vData.binValue"
             title="分箱方式"
             :disabled="disabled"
             :filterMethod="['custom']" />
@@ -14,6 +14,7 @@
     import {
         ref,
         reactive,
+        getCurrentInstance,
     } from 'vue';
     import selectFeature from './components/selectFeature.vue';
     import psiBin from '../../components/psi/psi-bin.vue';
@@ -36,6 +37,8 @@
             class:        String,
         },
         setup(props, context) {
+            const { appContext } = getCurrentInstance();
+            const { $message } = appContext.config.globalProperties;
             const CheckFeatureDialogRef = ref();
 
             let vData = reactive({
@@ -68,6 +71,14 @@
                 checkParams: () => {
                     const { provider, promoter,binValue } = vData;
                     const { method, binNumber } = binValue;
+                    if (!provider.selectedFeature.length) {
+                        $message.error('请选择协作方特征!');
+                        return false;
+                    }
+                    if (!promoter.selectedFeature.length) {
+                        $message.error('请选择发起方特征!');
+                        return false;
+                    }
                     const $params = {
                         members: [{
                                       'memberId':   provider.member_id,
@@ -108,11 +119,11 @@
                         if(Array.isArray(members)){
                             members.forEach(item => {
                                 const { memberRole, features } = item;
-                                
+
                                 vData[memberRole].selectedFeature = features;
                             });
                         }
-                        
+
                     });
 
                     methods.getFlowNodeFeature(model);
@@ -161,7 +172,7 @@
                 CheckFeatureDialogRef,
             };
         },
-        
+
     };
 </script>
 

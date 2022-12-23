@@ -59,7 +59,7 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
                 mergedFile.delete();
                 System.out.println("删除成功");
             }
-            throw new StatusCodeWithException("该文件不为.csv,.xls,xlsx之一，禁止上传！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "该文件不为.csv,.xls,xlsx之一，禁止上传！");
         }
 
         try {
@@ -75,7 +75,7 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
             // Delete the shard
             FileUtils.deleteDirectory(dir);
         } catch (IOException e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
 

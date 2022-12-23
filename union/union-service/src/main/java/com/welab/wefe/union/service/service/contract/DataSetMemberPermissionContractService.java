@@ -80,11 +80,11 @@ public class DataSetMemberPermissionContractService extends AbstractContractServ
 
                 // Transaction execution failed
                 if (!transactionIsSuccess(transactionResponse.getValues())) {
-                    throw new StatusCodeWithException("data already exists", StatusCode.SYSTEM_BUSY);
+                    throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "data already exists");
                 }
             } catch (Exception e) {
                 LOG.error("update data set permissions error: ", e);
-                throw new StatusCodeWithException("update data set permissions error: ", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "update data set permissions error: ");
             }
         }
     }
@@ -93,7 +93,7 @@ public class DataSetMemberPermissionContractService extends AbstractContractServ
         try {
             dataSetMemberPermissionContract.deleteByDataSetId(dataSetId);
         } catch (Exception e) {
-            throw new StatusCodeWithException("deleteByDataSetId failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "deleteByDataSetId failed: " + e.getMessage());
         }
     }
 
@@ -102,14 +102,14 @@ public class DataSetMemberPermissionContractService extends AbstractContractServ
         boolean hasEmptyMemberId = Arrays.stream(memberIds).anyMatch(String::isEmpty);
 
         if (hasEmptyMemberId) {
-            throw new StatusCodeWithException("Included in the empty member ID", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "Included in the empty member ID");
         }
     }
 
     private void validateMembersRemote(String[] memberIds) throws StatusCodeWithException {
         for (String memberId : memberIds) {
             if (!memberContractService.isExist(memberId)) {
-                throw new StatusCodeWithException("Wrong member ID: " + memberId, StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "Wrong member ID: " + memberId);
             }
         }
     }

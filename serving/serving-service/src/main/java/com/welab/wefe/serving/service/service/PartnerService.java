@@ -96,7 +96,7 @@ public class PartnerService {
         if (StringUtils.isNotBlank(input.getCode())) {
             partnerMysqlModel = queryByCode(input.getCode());
             if (partnerMysqlModel != null) {
-                throw new StatusCodeWithException("code 【" + input.getCode() + "】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
+                throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, "code 【" + input.getCode() + "】已经存在");
             }
         }
 
@@ -194,7 +194,7 @@ public class PartnerService {
             throws StatusCodeWithException {
         PartnerMysqlModel model = partnerRepository.findOne("id", input.getId(), PartnerMysqlModel.class);
         if (null == model) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
         model.setName(input.getName());
         model.setEmail(input.getEmail());

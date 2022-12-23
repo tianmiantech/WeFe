@@ -23,7 +23,6 @@ import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.union.service.contract.TableDataSetContract;
-import com.welab.wefe.union.service.service.contract.AbstractContractService;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
@@ -60,7 +59,7 @@ public class TableDataSetContractService extends AbstractContractService {
             transactionIsSuccess(transactionResponse);
         } catch (
                 Exception e) {
-            throw new StatusCodeWithException("Failed to add TableDataSet information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to add TableDataSet information: " + e.getMessage());
         }
 
     }
@@ -81,7 +80,7 @@ public class TableDataSetContractService extends AbstractContractService {
             transactionIsSuccess(transactionResponse);
         } catch (
                 Exception e) {
-            throw new StatusCodeWithException("Failed to add TableDataSet information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to add TableDataSet information: " + e.getMessage());
         }
 
     }
@@ -99,7 +98,7 @@ public class TableDataSetContractService extends AbstractContractService {
 
         } catch (
                 Exception e) {
-            throw new StatusCodeWithException("Failed to update TableDataSet information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to update TableDataSet information: " + e.getMessage());
         }
     }
 

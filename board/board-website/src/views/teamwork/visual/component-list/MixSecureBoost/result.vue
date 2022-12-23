@@ -80,6 +80,7 @@
     import CommonResult from '../common/CommonResult';
     import resultMixin from '../result-mixin';
     import gridSearchParams from '../../../../../assets/js/const/gridSearchParams';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     const mixin = resultMixin();
 
@@ -119,16 +120,16 @@
                         if (data.result && data.result.model_param) {
                             const { losses, isConverged, lossHistory } =
                                 data.result.model_param;
-                            // const { train_best_parameters,
-                            // train_params_list } = data.result
+                            const { train_loss } = data.result;
+                            const lossData = train_loss.data.length ? train_loss.data : losses;
 
-                            losses.forEach((item, index) => {
+                            lossData.forEach((item, index) => {
                                 result.loss.xAxis.push(index);
-                                result.loss.series[0].push(item);
+                                result.loss.series[0].push(dealNumPrecision(item));
                             });
                             result.loss.isConverged = isConverged;
                             result.loss.lossHistory = lossHistory;
-                            result.loss.iters = losses.length;
+                            result.loss.iters = lossData.length;
                             result.loss.loading = false;
                         }
 

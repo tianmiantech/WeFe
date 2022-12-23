@@ -69,8 +69,11 @@ public class QueryApi extends AbstractApi<QueryApi.Input, JObject> {
             case ImageDataSet:
                 return DataResourceType.ImageDataSet.name();
             default:
-                throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "dataResourceType");
+                StatusCode
+                        .UNEXPECTED_ENUM_CASE
+                        .throwExWithFormatMsg(dataResourceType.name());
         }
+        return null;
     }
 
 
