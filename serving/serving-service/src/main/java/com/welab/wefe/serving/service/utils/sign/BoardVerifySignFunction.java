@@ -37,12 +37,12 @@ public class BoardVerifySignFunction extends AbstractVerifySignFunction {
         SignedApiInput signedApiInput = params.toJavaObject(SignedApiInput.class);
 
         if (!CacheObjects.getMemberId().equals(signedApiInput.getMemberId())) {
-            throw new StatusCodeWithException("board校验失败：" + signedApiInput.getMemberId(), StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "board校验失败：" + signedApiInput.getMemberId());
         }
 
         boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(), RSAUtil.getPublicKey(CacheObjects.getRsaPublicKey()), signedApiInput.getSign());
         if (!verified) {
-            throw new StatusCodeWithException("错误的签名", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "错误的签名");
         }
 
         params.putAll(JSONObject.parseObject(signedApiInput.getData()));

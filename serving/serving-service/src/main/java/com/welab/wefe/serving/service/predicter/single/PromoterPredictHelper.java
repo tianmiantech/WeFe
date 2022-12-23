@@ -37,7 +37,6 @@ import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ServiceCallLogService;
 import com.welab.wefe.serving.service.service.ServiceOrderService;
 import com.welab.wefe.serving.service.utils.ServiceUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +83,7 @@ public class PromoterPredictHelper {
     private static void check(ProviderParams obj) throws StatusCodeWithException {
         if (StringUtil.isEmpty(obj.getApi())) {
             LOG.error("未找到协作方的请求地址！");
-            throw new StatusCodeWithException("未找到协作方预测地址！请配置" + CacheObjects.getPartnerName(obj.getMemberId()) + " 协作方地址后再尝试重试", StatusCode.PARAMETER_CAN_NOT_BE_EMPTY);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_CAN_NOT_BE_EMPTY, "未找到协作方预测地址！请配置" + CacheObjects.getPartnerName(obj.getMemberId()) + " 协作方地址后再尝试重试");
         }
     }
 
@@ -117,7 +116,7 @@ public class PromoterPredictHelper {
             sign = RSAUtil.sign(data, Config.RSA_PRIVATE_KEY);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
         JSONObject body = new JSONObject();
@@ -156,7 +155,7 @@ public class PromoterPredictHelper {
             sign = RSAUtil.sign(data, Config.RSA_PRIVATE_KEY);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
         JSONObject body = new JSONObject();

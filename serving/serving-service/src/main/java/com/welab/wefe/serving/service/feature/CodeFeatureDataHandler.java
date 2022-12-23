@@ -20,7 +20,6 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.ReflectionsUtil;
 import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.FeatureDataModel;
 import com.welab.wefe.serving.service.feature.code.*;
 import org.slf4j.Logger;
@@ -137,7 +136,7 @@ public class CodeFeatureDataHandler extends AbstractFeatureDataHandler {
     public FeatureDataModel handle(String modelId, String userId) throws StatusCodeWithException {
         AbstractFeatureDataProcessor processor = get(modelId);
         if (processor == null) {
-            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "未找到特征处理器！");
+            StatusCode.SYSTEM_ERROR.throwException("未找到特征处理器！");
         }
         return processor.process(userId);
     }
@@ -153,7 +152,7 @@ public class CodeFeatureDataHandler extends AbstractFeatureDataHandler {
 //        //If no batch processor is set, a single processor is used
 //        AbstractFeatureDataProcessor processor = get(modelId);
 //        if (processor == null) {
-//            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "No corresponding processor was found");
+//            throw StatusCodeWithException.of(StatusCode.SYSTEM_ERROR, "No corresponding processor was found")
 //        }
 //        Map<String, Map<String, Object>> featureDataMap = new HashMap<>(16);
 //        predictParams.getUserIds().forEach(

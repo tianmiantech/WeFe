@@ -96,7 +96,7 @@ public abstract class AbstractDruidTemplate extends AbstractTemplate {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, e.getMessage());
         } finally {
             try {
                 if (connection != null) {
@@ -156,7 +156,7 @@ public abstract class AbstractDruidTemplate extends AbstractTemplate {
                     }
                 }
 
-                throw new StatusCodeWithException("connection error: " + url, StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "connection error: " + url);
             }
         }
 

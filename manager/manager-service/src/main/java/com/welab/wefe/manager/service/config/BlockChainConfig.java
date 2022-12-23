@@ -251,13 +251,13 @@ public class BlockChainConfig {
         } catch (Exception e) {
             String msg = contractName + ":Exception in obtaining contract CNS list";
             log.error(msg, e);
-            throw new StatusCodeWithException(msg, StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, msg);
         }
 
         if (CollectionUtils.isEmpty(cnsInfoList)) {
             String msg = contractName + ":Get contract CNS list is empty";
             log.error(msg);
-            throw new StatusCodeWithException(msg, StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, msg);
         }
         return cnsInfoList.get(cnsInfoList.size() - 1).getAddress();
     }

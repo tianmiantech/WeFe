@@ -57,12 +57,12 @@ public class ProjectDataSetAuditService extends AbstractService {
 
         ProjectMySqlModel project = projectService.findByProjectId(input.getProjectId());
         if (project == null) {
-            throw new StatusCodeWithException("未找到相应的项目！", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "未找到相应的项目！");
         }
 
         if (!input.fromGateway()) {
             if (project.getAuditStatus() != AuditStatus.agree || project.isExited()) {
-                throw new StatusCodeWithException("请在成为该项目的正式成员后再进行相关操作", StatusCode.ILLEGAL_REQUEST);
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "请在成为该项目的正式成员后再进行相关操作");
             }
         }
 
@@ -75,12 +75,12 @@ public class ProjectDataSetAuditService extends AbstractService {
                 .findFirst().orElse(null);
 
         if (dataSet == null || dataSet.getAuditStatus() != AuditStatus.auditing) {
-            throw new StatusCodeWithException("请勿重复审核！", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "请勿重复审核！");
         }
 
         if (!input.fromGateway()) {
             if (!CacheObjects.getMemberId().equals(dataSet.getMemberId())) {
-                throw new StatusCodeWithException("你不能审核别人的数据集", StatusCode.ILLEGAL_REQUEST);
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "你不能审核别人的数据集");
             }
 
             messageService.completeApplyDataResourceTodo(dataSet);

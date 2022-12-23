@@ -63,7 +63,7 @@ public class XgboostVertPromoterAlgorithm extends AbstractXgboostAlgorithm<BaseX
         Map<String, Object> remoteDecisionTreeMap = new HashMap<>();
 
         if (CollectionUtils.isEmpty(federatedResult)) {
-            throw new StatusCodeWithException("federatedResult is null", StatusCode.REMOTE_SERVICE_ERROR);
+            throw new StatusCodeWithException(StatusCode.REMOTE_SERVICE_ERROR, "federatedResult is null");
         }
 
         for (JObject remote : federatedResult) {

@@ -62,11 +62,11 @@ public class DataSetAddService extends AbstractService {
 
     public AddApi.DataSetAddOutput addDataSet(AddApi.Input input) throws Exception {
         if (input.getRows().size() > 5) {
-            throw new StatusCodeWithException("选择字段数量不宜超过5个", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "选择字段数量不宜超过5个");
         }
 
         if (dataSetRepository.countByName(input.getName()) > 0) {
-            throw new StatusCodeWithException("数据集名称已存在, 请更改其他名称再尝试提交！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "数据集名称已存在, 请更改其他名称再尝试提交！");
         }
 
         DataSetMySqlModel model = new DataSetMySqlModel();
@@ -96,7 +96,7 @@ public class DataSetAddService extends AbstractService {
                 readAndSaveFromFile(model, file, input.getRows(), input.isDeduplication());
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "File reading failure");
+                StatusCode.FILE_IO_READ_ERROR.throwException();
             }
         }
 
@@ -169,7 +169,7 @@ public class DataSetAddService extends AbstractService {
 
         DataSourceMySqlModel dsModel = dataSourceService.getDataSourceById(dataSourceId);
         if (dsModel == null) {
-            throw new StatusCodeWithException("数据不存在！", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据不存在！");
         }
 
         JdbcManager jdbcManager = new JdbcManager();

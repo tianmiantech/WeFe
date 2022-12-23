@@ -82,7 +82,7 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
             dataResourceUploadTaskService.updateProgress(model.getId(), sampleList.size(), 2, 0);
         } catch (Exception e) {
             super.log(e);
-            StatusCode.FILE_IO_ERROR.throwException(e);
+            StatusCode.FILE_IO_READ_ERROR.throwException(e);
         }
 
         // save models to database

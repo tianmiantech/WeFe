@@ -46,7 +46,7 @@ public class SignUtils {
             sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey());
         } catch (Exception e) {
             e.printStackTrace();
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
         JSONObject body = new JSONObject();

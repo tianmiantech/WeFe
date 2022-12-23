@@ -76,7 +76,7 @@ public class UnionNodeContractService extends AbstractContractService {
             throw e;
         } catch (Exception e) {
             LOG.error("add UnionNode error: ", e);
-            throw new StatusCodeWithException("add UnionNode error: ", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "add UnionNode error: ");
         }
     }
 
@@ -96,7 +96,7 @@ public class UnionNodeContractService extends AbstractContractService {
 
             transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
-            throw new StatusCodeWithException("update UnionNode failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "update UnionNode failed: " + e.getMessage());
         }
     }
 
@@ -116,7 +116,7 @@ public class UnionNodeContractService extends AbstractContractService {
 
             transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
-            throw new StatusCodeWithException("update UnionNode failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "update UnionNode failed: " + e.getMessage());
         }
     }
 
@@ -133,7 +133,7 @@ public class UnionNodeContractService extends AbstractContractService {
 
             transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
-            throw new StatusCodeWithException("deleteByUnionNodeId failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "deleteByUnionNodeId failed: " + e.getMessage());
         }
     }
 
