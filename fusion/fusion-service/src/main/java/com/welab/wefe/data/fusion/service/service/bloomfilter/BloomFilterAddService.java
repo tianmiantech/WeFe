@@ -43,6 +43,8 @@ import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
 import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,6 +84,17 @@ public class BloomFilterAddService extends AbstractService {
 
     @Transactional(rollbackFor = Exception.class)
     public AddApi.BloomfilterAddOutput addFilter(AddApi.Input input) throws Exception {
+        try {
+            if (StringUtils.isNotBlank(config.getBloomFilterDir())) {
+                File file = Paths.get(config.getBloomFilterDir()).toFile();
+                if (!file.exists()) {
+                    file.mkdirs();
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("mkdir " + config.getBloomFilterDir() + " error", e);
+        }
+        
         List<FieldInfo> fieldInfos = input.getFieldInfoList();
         int count = 0;
         for (FieldInfo info : fieldInfos) {
@@ -160,7 +173,6 @@ public class BloomFilterAddService extends AbstractService {
         File src = Paths.get(config.getBloomFilterDir()).resolve(model.getName()).toFile();
         model.setSrc(src.toString());
 
-
         BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model, file);
         // Read all rows of data
 
@@ -200,6 +212,11 @@ public class BloomFilterAddService extends AbstractService {
         bloomFilterRepository.updateById(model.getId(), "process", Progress.Ready, BloomFilterMySqlModel.class);
         bloomFilterRepository.updateById(model.getId(), "rowCount", rowCount, BloomFilterMySqlModel.class);
         model.setRowCount(rowCount);
+        File dir = Paths.get(config.getBloomFilterDir()).toFile();
+        if(!dir.exists()){
+            boolean result = dir.mkdirs();
+            LOG.info("mkdir " + dir.toString() + (result ? "success":"fail"));
+        }
         File src = Paths.get(config.getBloomFilterDir()).resolve(model.getName()).toFile();
         model.setSrc(src.toString());
         BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model, null);
