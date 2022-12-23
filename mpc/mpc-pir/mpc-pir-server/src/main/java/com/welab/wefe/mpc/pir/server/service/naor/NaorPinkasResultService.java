@@ -16,6 +16,15 @@
 
 package com.welab.wefe.mpc.pir.server.service.naor;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
 import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
 import com.welab.wefe.mpc.cache.intermediate.CacheUtil;
@@ -28,21 +37,13 @@ import com.welab.wefe.mpc.pir.protocol.se.aes.AESEncryptKey;
 import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasResultRequest;
 import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasResultResponse;
 import com.welab.wefe.mpc.util.DiffieHellmanUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 public class NaorPinkasResultService {
     private static final Logger LOGGER = LoggerFactory.getLogger(NaorPinkasResultService.class);
 
     public QueryNaorPinkasResultResponse handle(QueryNaorPinkasResultRequest request) {
         String uuid = request.getUuid();
-        LOGGER.info("uuid={} start NP second step", uuid);
+
         QueryNaorPinkasResultResponse response = new QueryNaorPinkasResultResponse();
         response.setUuid(uuid);
         response.setEncryptResults(process(uuid, request.getPk()));
@@ -50,7 +51,6 @@ public class NaorPinkasResultService {
     }
 
     private List<String> process(String uuid, String pkHexString) {
-        LOGGER.info("uuid={} second NP process", uuid);
         CompletableFuture<Map<String, String>> queryResult = CompletableFuture.supplyAsync(() -> queryResult(uuid));
 
         CacheOperation<String> cacheOperation = CacheOperationFactory.getCacheOperation();
@@ -98,11 +98,11 @@ public class NaorPinkasResultService {
         List<String> enResults = new ArrayList<>(conditions.size());
         for (int i = 0; i < conditions.size(); i++) {
             SymmetricKey aesKey = keys.get(i);
+            // 如果这里报Illegal key size，参考 https://blog.csdn.net/lz65169317/article/details/126637852
             byte[] enResult = aesKey.encrypt(results.getOrDefault(conditions.get(i), "").getBytes());
             String value = Conversion.bytesToHexString(enResult) + "," + Conversion.bytesToHexString(aesKey.getIv());
             enResults.add(value);
         }
-        LOGGER.info("uuid={} return encrypt result", uuid);
         return enResults;
     }
 

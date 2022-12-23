@@ -15,6 +15,11 @@
  */
 package com.welab.wefe.serving.service.utils.sign;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import com.welab.wefe.common.StatusCode;
@@ -32,17 +37,17 @@ import com.welab.wefe.serving.service.database.repository.TableServiceRepository
 import com.welab.wefe.serving.service.service.ClientServiceService;
 import com.welab.wefe.serving.service.service.PartnerService;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * @author hunter.zhao
  * @date 2022/6/27
  */
 public class PartnerVerifySignFunction extends AbstractVerifySignFunction {
 
+    protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
+    
     @Override
     protected void rsaVerify(HttpServletRequest request, JSONObject params) throws Exception {
-//        SignedApiInput signedApiInput = params.toJavaObject(SignedApiInput.class);
+        long start = System.currentTimeMillis();
         SignedApiInput signedApiInput = JSONObject.parseObject(params.toJSONString(), SignedApiInput.class, Feature.OrderedField);
         if (StringUtil.isNotEmpty(signedApiInput.getMemberId())) {
             signedApiInput.setPartnerCode(signedApiInput.getMemberId());
@@ -60,6 +65,7 @@ public class PartnerVerifySignFunction extends AbstractVerifySignFunction {
         verify(signedApiInput, partnerRsaKey);
 
         buildParams(request, params, signedApiInput, serviceId);
+        LOG.info("rsaVerify end, duration = " + (System.currentTimeMillis() - start));
     }
 
     private void buildParams(HttpServletRequest request, JSONObject params, SignedApiInput signedApiInput, String serviceId) {
