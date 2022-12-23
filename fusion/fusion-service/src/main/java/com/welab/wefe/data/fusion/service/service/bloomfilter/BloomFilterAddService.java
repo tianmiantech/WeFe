@@ -152,11 +152,12 @@ public class BloomFilterAddService extends AbstractService {
 
         AbstractDataSetReader dataSetReader = isCsv ? new CsvDataSetReader(file) : new ExcelDataSetReader(file);
         dataSetReader.getHeader();
-        File src = Paths.get(config.getBloomFilterDir()).toFile();
-        if(!src.exists()){
-            boolean result = src.mkdirs();
-            LOG.info("mkdir " + src.toString() + (result ? "success":"fail"));
+        File dir = Paths.get(config.getBloomFilterDir()).toFile();
+        if(!dir.exists()){
+            boolean result = dir.mkdirs();
+            LOG.info("mkdir " + dir.toString() + (result ? "success":"fail"));
         }
+        File src = Paths.get(config.getBloomFilterDir()).resolve(model.getName()).toFile();
         model.setSrc(src.toString());
 
 
