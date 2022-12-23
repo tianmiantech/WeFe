@@ -17,6 +17,19 @@
 package com.welab.wefe.data.fusion.service.service.dataset;
 
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.nio.file.Paths;
+import java.sql.Connection;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -24,6 +37,7 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.data.fusion.service.api.dataset.AddApi;
+import com.welab.wefe.data.fusion.service.config.Config;
 import com.welab.wefe.data.fusion.service.database.entity.DataSetMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.DataSourceMySqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.DataSetRepository;
@@ -35,16 +49,6 @@ import com.welab.wefe.data.fusion.service.service.DataSourceService;
 import com.welab.wefe.data.fusion.service.utils.AbstractDataSetReader;
 import com.welab.wefe.data.fusion.service.utils.CsvDataSetReader;
 import com.welab.wefe.data.fusion.service.utils.ExcelDataSetReader;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.LineNumberReader;
-import java.sql.Connection;
-import java.util.Date;
-import java.util.List;
 
 
 /**
@@ -59,8 +63,20 @@ public class DataSetAddService extends AbstractService {
     protected DataSetRepository dataSetRepository;
     @Autowired
     protected DataSourceService dataSourceService;
+    @Autowired
+    private Config config;
 
     public AddApi.DataSetAddOutput addDataSet(AddApi.Input input) throws Exception {
+        try {
+            if (StringUtils.isNotBlank(config.getSourceFilterDir())) {
+                File file = Paths.get(config.getSourceFilterDir()).toFile();
+                if (!file.exists()) {
+                    file.mkdirs();
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("mkdir " + config.getSourceFilterDir() + " error", e);
+        }
         if (input.getRows().size() > 5) {
             throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "选择字段数量不宜超过5个");
         }
@@ -68,9 +84,8 @@ public class DataSetAddService extends AbstractService {
         if (dataSetRepository.countByName(input.getName()) > 0) {
             throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "数据集名称已存在, 请更改其他名称再尝试提交！");
         }
-
+        
         DataSetMySqlModel model = new DataSetMySqlModel();
-
         model.setUpdatedBy(CurrentAccountUtil.get().getId());
         model.setCreatedBy(CurrentAccountUtil.get().getId());
         model.setDescription(input.getDescription());
