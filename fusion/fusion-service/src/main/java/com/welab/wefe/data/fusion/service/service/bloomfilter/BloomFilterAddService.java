@@ -153,17 +153,22 @@ public class BloomFilterAddService extends AbstractService {
      */
     private int readAndSaveFile(BloomFilterMySqlModel model, File file, List<String> idFeatureFields) throws IOException, StatusCodeWithException {
         LOG.info("Start parsing the data set：" + model.getId());
-        long fileLength = file.length();
-        LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(file));
-        lineNumberReader.skip(fileLength);
-        int rowCount = lineNumberReader.getLineNumber() - 1;
-        lineNumberReader.close();
+        boolean isCsv = file.getName().endsWith("csv");
+        int rowCount = 0;
+        AbstractDataSetReader dataSetReader = isCsv ? new CsvDataSetReader(file) : new ExcelDataSetReader(file);
+        if(isCsv) {
+            long fileLength = file.length();
+            LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(file));
+            lineNumberReader.skip(fileLength);
+            rowCount = lineNumberReader.getLineNumber() - 1; // 这个方法对于xlsx会有不准确
+            lineNumberReader.close();
+        }
+        else {
+            rowCount = (int) dataSetReader.getRowCount(0) - 1; // 去除header
+        }
         BloomFilterRepository bloomFilterRepository = Launcher.CONTEXT.getBean(BloomFilterRepository.class);
         bloomFilterRepository.updateById(model.getId(), "rowCount", rowCount, BloomFilterMySqlModel.class);
         model.setRowCount(rowCount);
-        boolean isCsv = file.getName().endsWith("csv");
-
-        AbstractDataSetReader dataSetReader = isCsv ? new CsvDataSetReader(file) : new ExcelDataSetReader(file);
         dataSetReader.getHeader();
         File dir = Paths.get(config.getBloomFilterDir()).toFile();
         if(!dir.exists()){
