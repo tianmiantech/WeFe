@@ -89,13 +89,11 @@ public class ClientActuator extends AbstractPsiClientActuator {
         if (isTrace) {
             columnList.add(traceColumn);
         }
-        LOG.info("columnList = " + JSONObject.toJSONString(columnList));
 
         /**
          * Find primary key composition fields
          */
         fieldInfoList = service.fieldInfoList(businessId);
-        LOG.info("fieldInfoList = " + JSONObject.toJSONString(fieldInfoList));
         /**
          * Initialize dataset header
          */
@@ -106,7 +104,6 @@ public class ClientActuator extends AbstractPsiClientActuator {
                 "header"
         );
         headers = model.getV().toString().replace("\"", "").split(",");
-        LOG.info("headers = " + JSONObject.toJSONString(headers));
     }
 
 
