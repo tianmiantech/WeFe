@@ -44,7 +44,6 @@ public class CsvDataSetReader extends AbstractDataSetReader {
     public CsvDataSetReader(File file) throws IOException {
         this.reader.setContainsHeader(false);
         this.reader.setSkipEmptyRows(true);
-
         this.parser = reader.parse(file, StandardCharsets.UTF_8);
     }
 
@@ -80,5 +79,12 @@ public class CsvDataSetReader extends AbstractDataSetReader {
     @Override
     public void close() throws IOException {
         parser.close();
+    }
+
+    @Deprecated
+    @Override
+    public long getRowCount(int sheetIndex) {
+        // 该reader不实现
+        return -1;
     }
 }

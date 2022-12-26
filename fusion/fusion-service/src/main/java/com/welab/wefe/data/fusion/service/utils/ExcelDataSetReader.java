@@ -67,4 +67,8 @@ public class ExcelDataSetReader extends AbstractDataSetReader {
     public void close() throws IOException {
         reader.close();
     }
+
+    public long getRowCount(int sheetIndex) {
+        return reader.getRowCount(sheetIndex);
+    }
 }
