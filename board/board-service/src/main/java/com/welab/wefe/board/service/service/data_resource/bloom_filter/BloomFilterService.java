@@ -152,7 +152,8 @@ public class BloomFilterService extends DataResourceService {
         repo.deleteById(model.getId());
 
         // delete bloom_filter from folder
-        bloomfilterStorageService.deleteBloomfilter(model.getId());
+        // 查看代码发现bloomfilterStorageService的save相关方法都没被调用过，因此不会保存到ck里面去，所以不需要调用这个方法
+//        bloomfilterStorageService.deleteBloomfilter(model.getId());
 
         // Notify the union to do not public the bloom_filter
         unionService.deleteDataResource(model);
