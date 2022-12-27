@@ -16,16 +16,22 @@
 
 package com.welab.wefe.serving.sdk.algorithm.xgboost;
 
-import com.alibaba.fastjson.util.TypeUtils;
-import com.welab.wefe.serving.sdk.enums.XgboostWorkMode;
-import com.welab.wefe.serving.sdk.model.xgboost.*;
-import org.apache.commons.collections4.MapUtils;
+import static java.lang.Math.exp;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.lang.Math.exp;
+import org.apache.commons.collections4.MapUtils;
+
+import com.alibaba.fastjson.util.TypeUtils;
+import com.welab.wefe.serving.sdk.enums.XgboostWorkMode;
+import com.welab.wefe.serving.sdk.model.xgboost.XgbProviderPredictResultModel;
+import com.welab.wefe.serving.sdk.model.xgboost.XgboostDecisionTreeModel;
+import com.welab.wefe.serving.sdk.model.xgboost.XgboostModel;
+import com.welab.wefe.serving.sdk.model.xgboost.XgboostNodeModel;
+import com.welab.wefe.serving.sdk.model.xgboost.XgboostPredictResultModel;
 
 /**
  * @author hunter.zhao
@@ -159,7 +165,7 @@ public class XgboostAlgorithmHelper {
     private static int nextTreeNodeIdByHorz(XgboostModel model, int treeId, int treeNodeId, Map<String, Object> featureDataMap) {
 
         int fid = model.getTrees().get(treeId).getTree(treeNodeId).getFid();
-        double bidValue = model.getTrees().get(treeId).getTree(treeNodeId).getBid();
+        BigDecimal bidValue = BigDecimal.valueOf(model.getTrees().get(treeId).getTree(treeNodeId).getBid());
         String fidStr = String.valueOf(fid);
 
         return getNextNodeId(model, treeId, treeNodeId, featureDataMap, bidValue, fidStr);
@@ -180,16 +186,16 @@ public class XgboostAlgorithmHelper {
         int fid = model.getTrees().get(treeId).getTree(treeNodeId).getFid();
         String fidStr = String.valueOf(fid);
 
-        double splitValue;
+        BigDecimal splitValue;
         if (MapUtils.isNotEmpty(model.getTrees().get(treeId).getSplitMaskdict())) {
-            splitValue = model.getTrees().get(treeId).getSplitMaskdict().get(treeNodeId);
+            splitValue = BigDecimal.valueOf(model.getTrees().get(treeId).getSplitMaskdict().get(treeNodeId));
         } else {
-            splitValue = model.getTrees().get(treeId).getTree(treeNodeId).getBid();
+            splitValue = BigDecimal.valueOf(model.getTrees().get(treeId).getTree(treeNodeId).getBid());
         }
         return getNextNodeId(model, treeId, treeNodeId, featureDataMap, splitValue, fidStr);
     }
 
-    private static final double COMPARING_VALUES = 1e-20;
+    private static final BigDecimal COMPARING_VALUES = BigDecimal.valueOf(1e-17);
 
     /**
      * Gets the next node
@@ -201,10 +207,10 @@ public class XgboostAlgorithmHelper {
      * @param splitValue     Node threshold
      * @param fidStr         Characteristics of the serial number
      */
-    private static int getNextNodeId(XgboostModel model, int treeId, int treeNodeId, Map<String, Object> featureDataMap, double splitValue, String fidStr) {
+    private static int getNextNodeId(XgboostModel model, int treeId, int treeNodeId, Map<String, Object> featureDataMap, BigDecimal splitValue, String fidStr) {
         if (featureDataMap.containsKey(fidStr)) {
             //Find the threshold by the number
-            if (TypeUtils.castToDouble(featureDataMap.get(fidStr)) <= splitValue + COMPARING_VALUES) {
+            if (TypeUtils.castToBigDecimal(featureDataMap.get(fidStr)).compareTo(splitValue.add(COMPARING_VALUES)) == -1) {
                 return model.getTrees().get(treeId).getTree().get(treeNodeId).getLeftNodeId();
             } else {
                 return model.getTrees().get(treeId).getTree().get(treeNodeId).getRightNodeId();
@@ -486,14 +492,13 @@ public class XgboostAlgorithmHelper {
 
                     if (featureDataMap.containsKey(Integer.toString(fid))) {
                         Object featVal = featureDataMap.get(Integer.toString(fid));
-                        double splitValue;
+                        BigDecimal splitValue;
                         if (MapUtils.isNotEmpty(decisionTree.getSplitMaskdict())) {
-                            splitValue = decisionTree.getSplitMaskdict().get(j);
+                            splitValue = BigDecimal.valueOf(decisionTree.getSplitMaskdict().get(j));
                         } else {
-                            splitValue = decisionTree.getTree(j).getBid();
+                            splitValue = BigDecimal.valueOf(decisionTree.getTree(j).getBid());
                         }
-                        direction = TypeUtils.castToDouble(featVal) <= splitValue + 1e-20;
-
+                        direction = TypeUtils.castToBigDecimal(featVal).compareTo(splitValue.add(COMPARING_VALUES)) == -1;
                     } else {
                         if (MapUtils.isNotEmpty(decisionTree.getMissingDirMaskdict()) && decisionTree.getMissingDirMaskdict().containsKey(Integer.toString(j))) {
                             int missingDir = decisionTree.getMissingDirMaskdict().get(Integer.toString(j));
