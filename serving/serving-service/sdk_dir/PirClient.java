@@ -21,53 +21,56 @@ import com.welab.wefe.mpc.pir.sdk.config.PrivateInformationRetrievalConfig;
 
 import java.util.List;
 
-// 两方匿踪查询 pir 
-// 配合 mpc-pir-sdk-1.0.0.jar使用
+/**
+ * 两方匿踪查询客户端 <br>
+ * 配合 mpc-pir-sdk-1.0.0.jar使用 <br>
+ * 编译 `javac -cp mpc-pir-sdk-1.0.0.jar:. PirClient.java` <br>
+ * 运行 `java -cp mpc-pir-sdk-1.0.0.jar:. PirClient`
+ */
 public class PirClient {
     // 私钥
-    private static final String 测试客户1_privateKey="***"; // TODO
+    private static final String customer_privateKey = "***"; // TODO
     // 公钥
-    private static final String 测试客户1_publicKey="***"; // TODO
+    private static final String customer_publicKey = "***"; // TODO
     // code
-    private static final String 测试客户1_code = "TEST***25"; // TODO
+    private static final String customer_code = "***"; // TODO
     // Serving服务地址
-    private static final String serverUrl = "https://****/serving-service-01/"; // TODO
+    private static final String serverUrl = "http://xxxxx.com/xxxx/"; // TODO 参考readme.md 的serverUrl
     // Service Api name
-    private static final String apiName = "api/*****"; // TODO
+    private static final String apiName = "api/*****"; // TODO 参考readme.md 的apiName
 
 	public static void main(String[] args) {
 		CommunicationConfig communicationConfig = new CommunicationConfig();
 		// 服务地址
 		communicationConfig.setServerUrl(serverUrl);
 		communicationConfig.setApiName(apiName);
-		communicationConfig.setNeedSign(true);  // 是否需要签名
-		communicationConfig.setCommercialId(测试客户1_code); // 客户code
-		communicationConfig.setSignPrivateKey(测试客户1_privateKey); // 客户私钥
+		communicationConfig.setCommercialId(customer_code); // 客户code
+		communicationConfig.setSignPrivateKey(customer_privateKey); // 客户私钥
 		// params
 		String idsStr = "[\n" +
 				"  {\n" +
-				"    \"member_id\": \"d0f47307804844898ecfc65b875abe87\",\n" +
-				"    \"model_id\": \"cee66626a97e42198bccb226dcd9743a_VertSecureBoost_16294251366419513\"\n" +
+				"    \"member_id\": \"****\",\n" +
+				"    \"model_id\": \"****\"\n" +
 				"  },\n" +
 				"  {\n" +
-				"    \"member_id\": \"1\",\n" +
-				"    \"model_id\": \"2\"\n" +
+				"    \"member_id\": \"asdf\",\n" +
+				"    \"model_id\": \"zxcvzxv\"\n" +
 				"  },\n" +
 				"  {\n" +
-				"    \"member_id\": \"1\",\n" +
-				"    \"model_id\": \"2\"\n" +
+				"    \"member_id\": \"asdfasdf\",\n" +
+				"    \"model_id\": \"dsfgsdfg\"\n" +
 				"  },\n" +
 				"  {\n" +
-				"    \"member_id\": \"1\",\n" +
-				"    \"model_id\": \"2\"\n" +
+				"    \"member_id\": \"asdfasq\",\n" +
+				"    \"model_id\": \"xbsdfg\"\n" +
 				"  },\n" +
 				"  {\n" +
-				"    \"member_id\": \"1\",\n" +
-				"    \"model_id\": \"2\"\n" +
+				"    \"member_id\": \"qwerqwe\",\n" +
+				"    \"model_id\": \"bdfgsd\"\n" +
 				"  },\n" +
 				"  {\n" +
-				"    \"member_id\": \"1\",\n" +
-				"    \"model_id\": \"2\"\n" +
+				"    \"member_id\": \"kjlkj\",\n" +
+				"    \"model_id\": \"asdfasdf\"\n" +
 				"  }\n" +
 				"]";
 		int targetIndex = 0; // 真实查询目标对应的数组下标

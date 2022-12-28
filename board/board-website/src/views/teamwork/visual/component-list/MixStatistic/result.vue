@@ -45,15 +45,27 @@
                                     <el-table-column
                                         label="最小值"
                                         prop="min"
-                                    />
+                                    >
+                                        <template v-slot="scope">
+                                            {{ dealNumPrecision(scope.row.min) }}
+                                        </template>
+                                    </el-table-column>
                                     <el-table-column
                                         label="最大值"
                                         prop="max"
-                                    />
+                                    >
+                                        <template v-slot="scope">
+                                            {{ dealNumPrecision(scope.row.max) }}
+                                        </template>
+                                    </el-table-column>
                                     <el-table-column
                                         label="平均值"
                                         prop="mean"
-                                    />
+                                    >
+                                        <template v-slot="scope">
+                                            {{ dealNumPrecision(scope.row.mean) }}
+                                        </template>
+                                    </el-table-column>
                                     <!-- <el-table-column
                                     label="众数"
                                     prop="mode"
@@ -88,6 +100,9 @@
                                                 </template>
                                             </el-popover>
                                         </template>
+                                        <template v-slot="scope">
+                                            {{ dealNumPrecision(scope.row.kurtosis) }}
+                                        </template>
                                     </el-table-column>
                                     <el-table-column
                                         label="偏态"
@@ -105,15 +120,26 @@
                                                 </template>
                                             </el-popover>
                                         </template>
+                                        <template v-slot="scope">
+                                            {{ dealNumPrecision(scope.row.skewness) }}
+                                        </template>
                                     </el-table-column>
                                     <el-table-column
                                         label="标准差"
                                         prop="std_variance"
-                                    />
+                                    >
+                                        <template v-slot="scope">
+                                            {{ dealNumPrecision(scope.row.std_variance) }}
+                                        </template>
+                                    </el-table-column>
                                     <el-table-column
                                         label="方差"
                                         prop="variance"
-                                    />
+                                    >
+                                        <template v-slot="scope">
+                                            {{ dealNumPrecision(scope.row.variance) }}
+                                        </template>
+                                    </el-table-column>
                                     <el-table-column
                                         label="唯一值"
                                         min-width="180"
@@ -175,6 +201,7 @@
     } from 'vue';
     import CommonResult from '../common/CommonResult';
     import resultMixin from '../result-mixin';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     const mixin = resultMixin();
 
@@ -246,7 +273,7 @@
 
                                         percentilexAxis.push(percent);
                                         percentileSeries.push(
-                                            percent === 0 ? min : (percent === 100 ? max : val),
+                                            dealNumPrecision(percent === 0 ? min : (percent === 100 ? max : val)),
                                         );
                                     });
 
@@ -302,6 +329,7 @@
                 vData,
                 activeName,
                 methods,
+                dealNumPrecision,
             };
         },
     };

@@ -57,7 +57,7 @@ public class RsaVerifyTest {
                 signedApiInput.getSign()
         );
         if (!verified) {
-            throw new StatusCodeWithException("错误的签名", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "错误的签名");
         }
 
         params.clear();

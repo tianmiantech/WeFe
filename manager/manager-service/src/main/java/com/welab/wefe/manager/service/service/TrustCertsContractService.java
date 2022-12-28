@@ -71,7 +71,7 @@ public class TrustCertsContractService extends AbstractContractService {
             throw e;
         } catch (Exception e) {
             LOG.error("add TrustCerts error: ", e);
-            throw new StatusCodeWithException("add TrustCerts error: ", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "add TrustCerts error: ");
         }
     }
 
@@ -87,7 +87,7 @@ public class TrustCertsContractService extends AbstractContractService {
 
             transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
-            throw new StatusCodeWithException("deleteBySerialNumber failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "deleteBySerialNumber failed: " + e.getMessage());
         }
     }
 
@@ -95,7 +95,7 @@ public class TrustCertsContractService extends AbstractContractService {
         try {
             return trustCertsContract.isExistBySerialNumber(serialNumber);
         } catch (Exception e) {
-            throw new StatusCodeWithException("isExistBySerialNumber failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "isExistBySerialNumber failed: " + e.getMessage());
         }
     }
 

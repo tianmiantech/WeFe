@@ -47,7 +47,7 @@ public class AddApi extends AbstractApi<DataResourceDefaultTagAddInput, Abstract
         try {
             boolean isExist = dataResourceDefaultTagMongoRepo.exists(input.getTagName());
             if (isExist) {
-                throw new StatusCodeWithException("该标签已存在",StatusCode.DATA_EXISTED);
+                throw new StatusCodeWithException(StatusCode.DATA_EXISTED, "该标签已存在：" + input.getTagName());
             }
 
             DataResourceDefaultTag dataResourceDefaultTag = new DataResourceDefaultTag();
@@ -55,7 +55,7 @@ public class AddApi extends AbstractApi<DataResourceDefaultTagAddInput, Abstract
             dataResourceDefaultTag.setDataResourceType(input.getDataResourceType());
             dataResourceDefaultTagContractService.add(dataResourceDefaultTag);
         } catch (StatusCodeWithException e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
         return success();

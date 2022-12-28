@@ -32,7 +32,10 @@ import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceDetailInput;
 import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
 import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryOutput;
 import com.welab.wefe.union.service.dto.dataresource.TagsDTO;
-import com.welab.wefe.union.service.service.contract.*;
+import com.welab.wefe.union.service.service.contract.BloomFilterContractService;
+import com.welab.wefe.union.service.service.contract.DataResourceContractService;
+import com.welab.wefe.union.service.service.contract.ImageDataSetContractService;
+import com.welab.wefe.union.service.service.contract.TableDataSetContractService;
 import com.welab.wefe.union.service.util.MapperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -95,7 +98,8 @@ public class DataResourceService {
                 break;
 
             default:
-                throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "dataResourceType");
+                StatusCode.UNEXPECTED_ENUM_CASE
+                        .throwExWithFormatMsg(input.getDataResourceType().name());
         }
         dataResourceQueryOutput = dataResourceMongoReop.findOneByDataResourceId(input.getDataResourceId(), targetTableName);
         if (dataResourceQueryOutput == null) {
@@ -119,7 +123,7 @@ public class DataResourceService {
     public void delete(DeleteApi.Input input) throws StatusCodeWithException {
         DataResource dataResource = dataResourceMongoReop.findByDataResourceId(input.getDataResourceId());
         if (null == dataResource) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "资源不存在");
+            throw StatusCodeWithException.of(StatusCode.DATA_NOT_FOUND, "资源不存在");
         }
         if (!dataResource.getMemberId().equals(input.curMemberId)) {
             throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
@@ -135,7 +139,7 @@ public class DataResourceService {
                 imageDataSetContractService.delete(input.getDataResourceId());
                 break;
             default:
-                throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "无效的资源类型");
+                throw StatusCodeWithException.of(StatusCode.INVALID_PARAMETER, "无效的资源类型");
         }
         dataResourceContractService.delete(input.getDataResourceId());
     }
@@ -146,7 +150,7 @@ public class DataResourceService {
     public void hidden(HiddenApi.Input input) throws StatusCodeWithException {
         DataResource dataResource = dataResourceMongoReop.find(input.getDataResourceId(), input.curMemberId);
         if (null == dataResource) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "资源不存在");
+            throw StatusCodeWithException.of(StatusCode.DATA_NOT_FOUND, "资源不存在");
         }
         dataResource.setPublicLevel(DataResourcePublicLevel.OnlyMyself.name());
         dataResourceContractService.update(dataResource);

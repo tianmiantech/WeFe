@@ -367,7 +367,7 @@ public class JdbcClient {
 
         Connection conn;
         try {
-            String url;
+            String url = null;
             switch (databaseType) {
                 case MySql:
                     Class.forName("com.mysql.jdbc.Driver");
@@ -389,13 +389,13 @@ public class JdbcClient {
                 case Cassandra:
                 case PgSql:
                 default:
-                    throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, databaseType.toString());
+                    StatusCode.UNEXPECTED_ENUM_CASE.throwExWithFormatMsg(databaseType);
             }
 
             conn = DriverManager.getConnection(url, userName, password);
         } catch (Exception e) {
             LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-            throw new StatusCodeWithException("创建链接失败：" + e.getMessage(), StatusCode.DATABASE_LOST);
+            throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "创建链接失败：" + e.getMessage());
         }
 
         return conn;

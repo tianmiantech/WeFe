@@ -187,7 +187,7 @@
         z-index: 20;
     }
     .chart {
-        width: 300px;
+        min-width: 300px;
         height: 400px;
         margin:0 auto;
     }

@@ -59,7 +59,7 @@ public class PartnerService extends AbstractService {
     public void add(AddApi.Input input) throws StatusCodeWithException {
         if (findByPartnerId(input.getMemberId()) != null) {
             LOG.error("该合作伙伴已存在，请检查后提交！");
-            throw new StatusCodeWithException("该合作伙伴已存在，请检查后提交！", StatusCode.DATA_EXISTED);
+            throw new StatusCodeWithException(StatusCode.DATA_EXISTED, "该合作伙伴已存在，请检查后提交！");
 
         }
 
@@ -74,12 +74,12 @@ public class PartnerService extends AbstractService {
         PartnerMySqlModel partnerMySqlModel = partnerRepository.findOne("id", input.getId(), PartnerMySqlModel.class);
         if (partnerMySqlModel == null) {
             LOG.error("未找到对应合作伙伴");
-            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, input.getId());
+            StatusCode.PARAMETER_VALUE_INVALID.throwExWithFormatMsg("未找到对应合作伙伴：" + input.getId());
         }
 
         if (existByPartnerIdNotEqId(input.getMemberId(), input.getId())) {
             LOG.error("partnerId已存在");
-            throw new StatusCodeWithException("该合作伙伴已存在，请检查后提交！", StatusCode.DATA_EXISTED);
+            throw new StatusCodeWithException(StatusCode.DATA_EXISTED, "该合作伙伴已存在，请检查后提交！");
         }
 
         PartnerMySqlModel partner = new PartnerMySqlModel();

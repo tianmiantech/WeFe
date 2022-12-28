@@ -87,7 +87,7 @@ public class TableDataSetService extends DataResourceService {
         }
 
         if (null == file || !file.exists()) {
-            throw new StatusCodeWithException("未找到文件：" + filename, StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未找到文件：" + filename);
         }
 
         return file;
@@ -166,11 +166,11 @@ public class TableDataSetService extends DataResourceService {
     public String testSqlQuery(String dataSourceId, String sql) throws StatusCodeWithException {
         DataSourceMysqlModel model = getDataSourceById(dataSourceId);
         if (model == null) {
-            throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "dataSourceId在数据库不存在");
         }
 
         if (StringUtils.isEmpty(sql)) {
-            throw new StatusCodeWithException("请填入sql查询语句", StatusCode.PARAMETER_CAN_NOT_BE_EMPTY);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_CAN_NOT_BE_EMPTY, "请填入sql查询语句");
         }
 
         JdbcClient client = JdbcClient.create(

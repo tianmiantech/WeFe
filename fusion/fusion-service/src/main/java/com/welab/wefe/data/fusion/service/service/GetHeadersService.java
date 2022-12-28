@@ -39,6 +39,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -58,7 +59,7 @@ public class GetHeadersService {
     private Config config;
 
     public List<String> getHeaders(GetHeadersApi.Input input) throws StatusCodeWithException {
-        List<String> headers;
+        List<String> headers = new ArrayList<>();
         DataSetMySqlModel model = ModelMapper.map(input, DataSetMySqlModel.class);
         model.setId(new DataSetMySqlModel().getId());
         model.setCreatedBy(CurrentAccountUtil.get().getId());
@@ -71,7 +72,7 @@ public class GetHeadersService {
                 headers = getHeadersFromFile(model, file);
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "File reading failure");
+                StatusCode.FILE_IO_READ_ERROR.throwException();
             }
         }
 
@@ -144,7 +145,7 @@ public class GetHeadersService {
         }
 
         if (null == file || !file.exists()) {
-            throw new StatusCodeWithException("未找到文件：" + file.getPath(), StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未找到文件：" + file.getPath());
         }
 
         return file;

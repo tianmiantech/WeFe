@@ -49,7 +49,7 @@ public class RealNameAuthInfoQueryApi extends AbstractApi<RealNameAuthInfoQueryI
         try {
             Member member = memberMongoReop.findMemberId(input.getId());
             if (member == null) {
-                throw new StatusCodeWithException("成员不存在", StatusCode.INVALID_MEMBER);
+                throw new StatusCodeWithException(StatusCode.INVALID_MEMBER, "成员不存在");
             }
             RealnameAuthInfoQueryOutput realNameAuthInfoQueryOutput = new RealnameAuthInfoQueryOutput();
             realNameAuthInfoQueryOutput.setAuthType(member.getExtJson().getAuthType());
@@ -83,7 +83,7 @@ public class RealNameAuthInfoQueryApi extends AbstractApi<RealNameAuthInfoQueryI
             return success(realNameAuthInfoQueryOutput);
         } catch (Exception e) {
             LOG.error("Failed to query RealNameAuthInfo information in pagination:", e);
-            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to query RealNameAuthInfo information in pagination");
+            throw StatusCodeWithException.of(StatusCode.SYSTEM_ERROR, "Failed to query RealNameAuthInfo information in pagination");
         }
     }
 }

@@ -42,7 +42,12 @@
 
                 this.loading = false;
                 if(res.code === 0) {
-                    this.exception = res.data.log;
+                    if(res.data.log){
+                        this.exception = res.data.log;
+                    }else{
+                        this.exception = "未在日志文件中发现异常堆栈块";
+                    }
+
                 }
             },
             copy() {

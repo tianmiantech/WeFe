@@ -108,7 +108,7 @@
                         <template v-if="!scope.row.label_species_count || (scope.row.label_species_count <=2)">
                             正例样本数量：{{ scope.row.y_positive_sample_count || 0 }}
                             <br>
-                            正例样本比例：{{(scope.row.y_positive_sample_ratio * 100).toFixed(1)}}%
+                            正例样本比例：{{(scope.row.y_positive_sample_ratio * 100).toFixed(2)}}%
                             <br>
                         </template>
                         <template v-else>
@@ -127,7 +127,7 @@
             width="100"
             align="center"
         >
-        <template v-slot="scope">
+            <template v-slot="scope">
                 <p>
                     {{(scope.row.label_species_count > 10000 ? '10000+' : scope.row.label_species_count)}}
                 </p>

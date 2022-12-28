@@ -320,7 +320,7 @@ public class ModelService {
 
         TableModelMySqlModel model = findOne(serviceId);
         if (model == null) {
-            throw new StatusCodeWithException("未查找到模型！" + serviceId, StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未查找到模型！" + serviceId);
         }
 
         if (featureSource.equals(PredictFeatureDataSource.sql)) {

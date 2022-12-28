@@ -84,25 +84,25 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
             super.checkAndStandardize();
 
             if (StringUtil.isEmpty(dataResourceId)) {
-                throw new StatusCodeWithException("请选择数据样本", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "请选择数据样本");
             }
 
             if (StringUtil.isEmpty(partnerMemberId)) {
-                throw new StatusCodeWithException("请选择合作方", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "请选择合作方");
             }
 
             if (DataResourceType.DataSet.equals(dataResourceType) && fieldInfoList.isEmpty()) {
-                throw new StatusCodeWithException("请设置主键", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "请设置主键");
             }
 
             if (isTrace && StringUtil.isEmpty(traceColumn)) {
-                throw new StatusCodeWithException("追溯字段不能为空", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "追溯字段不能为空");
             }
 
             if (isTrace && CollectionUtils.isNotEmpty(fieldInfoList)) {
                 for (int i = 0; i < fieldInfoList.size(); i++) {
                     if (fieldInfoList.get(i).getColumnList().contains(traceColumn)) {
-                        throw new StatusCodeWithException("追溯字段不能为融合主键组成字段", StatusCode.PARAMETER_VALUE_INVALID);
+                        throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "追溯字段不能为融合主键组成字段");
                     }
                 }
             }

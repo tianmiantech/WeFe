@@ -16,14 +16,6 @@
 
 package com.welab.wefe.data.fusion.service.api.task;
 
-import static com.welab.wefe.common.StatusCode.DATA_NOT_FOUND;
-
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -38,6 +30,13 @@ import com.welab.wefe.data.fusion.service.enums.PSIActuatorStatus;
 import com.welab.wefe.data.fusion.service.enums.TaskStatus;
 import com.welab.wefe.data.fusion.service.manager.ActuatorManager;
 import com.welab.wefe.data.fusion.service.service.TaskService;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+
+import static com.welab.wefe.common.StatusCode.DATA_NOT_FOUND;
 
 /**
  * @author hunter.zhao
@@ -51,7 +50,7 @@ public class StopTaskApi extends AbstractApi<StopTaskApi.Input, EnumSet<TaskStat
     protected ApiResult<EnumSet<TaskStatus>> handle(Input input) throws StatusCodeWithException {
         TaskMySqlModel task = taskService.findByBusinessId(input.getBusinessId());
         if (task == null) {
-            throw new StatusCodeWithException("任务不存在！", DATA_NOT_FOUND);
+            throw new StatusCodeWithException(DATA_NOT_FOUND, "任务不存在！");
         }
         if (PSIActuatorRole.client.equals(task.getPsiActuatorRole())) {
             PsiClientActuator act = (PsiClientActuator)ActuatorManager.get(input.getBusinessId()).actuator;

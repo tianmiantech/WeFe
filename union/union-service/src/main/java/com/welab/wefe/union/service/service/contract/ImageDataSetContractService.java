@@ -23,7 +23,6 @@ import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.union.service.contract.ImageDataSetContract;
-import com.welab.wefe.union.service.service.contract.AbstractContractService;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
@@ -64,7 +63,7 @@ public class ImageDataSetContractService extends AbstractContractService {
 
         } catch (
                 Exception e) {
-            throw new StatusCodeWithException("Failed to add ImageDataSet information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to add ImageDataSet information: " + e.getMessage());
         }
 
     }
@@ -86,7 +85,7 @@ public class ImageDataSetContractService extends AbstractContractService {
 
         } catch (
                 Exception e) {
-            throw new StatusCodeWithException("Failed to update ImageDataSet set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to update ImageDataSet set information: " + e.getMessage());
         }
 
     }
@@ -104,7 +103,7 @@ public class ImageDataSetContractService extends AbstractContractService {
 
         } catch (
                 Exception e) {
-            throw new StatusCodeWithException("Failed to update ImageDataSet information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to update ImageDataSet information: " + e.getMessage());
         }
     }
 

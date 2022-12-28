@@ -62,7 +62,7 @@ public abstract class AbstractVerificationCodeService {
         check(mobile);
         String cacheKey = buildCacheKey(mobile, businessType);
         if (VERIFICATION_CODE_CACHE.containsKey(cacheKey)) {
-            throw new StatusCodeWithException(VALID_DURATION_MINUTES + "分钟内禁止多次获取验证码", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, VALID_DURATION_MINUTES + "分钟内禁止多次获取验证码");
         }
         String verificationCode = generateVerificationCode();
         try {
@@ -73,7 +73,7 @@ public abstract class AbstractVerificationCodeService {
             // Persistence send record
             saveSendRecord(mobile, verificationCode, businessType, response);
             if (!response.success()) {
-                throw new StatusCodeWithException("发送验证码异常:" + response.getMessage(), StatusCode.SYSTEM_ERROR);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "发送验证码异常:" + response.getMessage());
             }
             VERIFICATION_CODE_CACHE.put(cacheKey, verificationCode);
         } catch (StatusCodeWithException e) {
@@ -81,7 +81,7 @@ public abstract class AbstractVerificationCodeService {
             throw e;
         } catch (Exception e) {
             LOG.error("Send verification code exception: ", e);
-            throw new StatusCodeWithException("发送验证码失败", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "发送验证码失败");
         }
     }
 
@@ -95,18 +95,18 @@ public abstract class AbstractVerificationCodeService {
      */
     public void checkVerificationCode(String mobile, String verificationCode, VerificationCodeBusinessType businessType) throws StatusCodeWithException {
         if (StringUtil.isEmpty(mobile)) {
-            throw new StatusCodeWithException("手机号不能为空。", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "手机号不能为空。");
         }
         if (StringUtil.isEmpty(verificationCode)) {
-            throw new StatusCodeWithException("验证码不能为空。", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "验证码不能为空。");
         }
         String cacheKey = buildCacheKey(mobile, businessType);
         String cacheVerificationCode = VERIFICATION_CODE_CACHE.get(cacheKey);
         if (StringUtil.isEmpty(cacheVerificationCode)) {
-            throw new StatusCodeWithException("验证码无效,请重新获取验证码。", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "验证码无效,请重新获取验证码。");
         }
         if (!cacheVerificationCode.equals(verificationCode)) {
-            throw new StatusCodeWithException("验证码不正确。", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "验证码不正确。");
         }
     }
 

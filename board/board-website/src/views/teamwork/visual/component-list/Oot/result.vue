@@ -19,10 +19,10 @@
                         <h4 class="mb10 pb5">测试结果:</h4>
                         <el-row class="mb20">
                             <el-col :span="12">
-                                auc：{{ vData.validate.auc }}
+                                auc：{{ dealNumPrecision(vData.validate.auc) }}
                             </el-col>
                             <el-col :span="12">
-                                ks：{{ vData.validate.ks }}
+                                ks：{{ dealNumPrecision(vData.validate.ks) }}
                             </el-col>
                         </el-row>
                     </el-form>
@@ -85,6 +85,7 @@
     import { getDataResult } from '@src/service';
     import { turnDemical } from '@src/utils/utils';
     import { appCode, baseURL } from '@src/utils/constant';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     const mixin = resultMixin();
 
@@ -292,6 +293,7 @@
                 activeName,
                 methods,
                 topnRef,
+                dealNumPrecision,
             };
         },
     };

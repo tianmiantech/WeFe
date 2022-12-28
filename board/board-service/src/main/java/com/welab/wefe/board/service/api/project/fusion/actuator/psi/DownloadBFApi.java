@@ -45,7 +45,7 @@ public class DownloadBFApi extends AbstractApi<DownloadBFApi.Input, PsiActuatorM
         ServerActuator actuator = (ServerActuator) ActuatorManager.get(input.getBusinessId());
         if (actuator == null) {
             LOG.error("Actuator not found,businessId is {}", input.getBusinessId());
-            throw new StatusCodeWithException("Actuator not found", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "Actuator not found");
         }
 
         return success(actuator.getActuatorParam());
