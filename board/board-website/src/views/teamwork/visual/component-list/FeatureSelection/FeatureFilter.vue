@@ -26,7 +26,7 @@
                         <div :style="{ width: '22px', height: '16px', backgroundColor: color }" />{{ member }}
                     </template>
                 </el-space>
-                <el-table :data="visibleFeatures" :style="{ height: '600px' }">
+                <Table :data="visibleFeatures" small max-height="400">
                     <el-table-column property="name" label="特征" width="150">
                         <template v-slot="scope">
                             <el-tag
@@ -76,8 +76,7 @@
                                 :type="
                                     campareItem(manulSelectData, row)
                                         ? 'danger'
-                                        : 'primary'
-                                "
+                                        : 'primary'"
                             >
                                 {{
                                     campareItem(manulSelectData, row)
@@ -87,7 +86,7 @@
                             </el-link>
                         </template>
                     </el-table-column>
-                </el-table>
+                </Table>
             </div>
             <div class="right">
                 <el-alert
@@ -104,7 +103,12 @@
                 />
                 <el-space>
                     <el-tag v-for="({ total, selected }, memeberName) in membersInfo"
-                        :type="selected ? 'success' : 'danger'" round>
+                        style="color: white"
+                        effect="plain"
+                        :color="calcColor({member_name: memeberName})"
+                        :type="selected ? 'info' : 'danger'"
+                        :key="memeberName"
+                        round>
                         {{ memeberName }}：{{ selected }}/{{ total }}
                     </el-tag>
                 </el-space>
@@ -153,7 +157,8 @@
                         :color="calcColor(item)"
                         @close="selectItemHandle(item)"
                         closable
-                        v-for="item in manulSelectData"
+                        v-for="(item, index) in manulSelectData"
+                        :key="`${item+index}`"
                     >
                         {{ item.name }}
                     </el-tag>
@@ -163,9 +168,10 @@
                 <el-space wrap v-if="allSelectData.length">
                     <el-tag
                         style="color: white"
-                        v-for="item in allSelectData"
+                        v-for="(item, index) in allSelectData"
                         type="info"
                         :color="calcColor(item)"
+                        :key="`${item+index}`"
                     >
                         {{ item.name }}
                     </el-tag>
@@ -184,9 +190,7 @@
         :visibleFeatureOptions="visibleFeatureOptions"
         :rangeOptions="rangeOptions"
         :frontStatus="frontStatus"
-        @addFeature="
-            (value) => (conditionList = [...conditionList, value])
-        "
+        @addFeature="(value) => (conditionList = [...conditionList, value])"
     />
 </template>
 <script setup>
@@ -194,6 +198,7 @@ import { ref, computed, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue';
 import AddFeatureDialogVue from './AddFeatureDialog.vue';
+import Table from './table.vue';
 const open = ref(false);
 const props = defineProps({
     allFeatures: Array,
@@ -402,11 +407,11 @@ defineExpose({
     flex-direction: row;
     column-gap: 40px;
     .table {
-        height: 600px;
+        // height: 600px;
         width: 500px;
     }
     .right {
-        margin-top: 70px;
+        // margin-top: 70px;
         flex: 1;
         h4.title {
             margin: 8px 0;
