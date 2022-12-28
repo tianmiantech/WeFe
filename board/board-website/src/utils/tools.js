@@ -24,8 +24,8 @@ function throttle(callback, delay = 300, duration = 200) {
 }
 
 const getTokenName = () => {
-    const qiankun_env = window?.$app?._QIANKUN_ENV;
-    const tokenName = `iam-${process.env.HOST_ENV || qiankun_env || 'dev'}-x-user-token`;
+    const { _QIANKUN_ENV: qiankun_env } = window.$app || {};
+    const tokenName = `iam-${ qiankun_env || process.env.HOST_ENV || 'dev'}-x-user-token`;
 
     return tokenName;
 };
