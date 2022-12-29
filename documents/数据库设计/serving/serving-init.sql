@@ -495,7 +495,7 @@ CREATE TABLE `partner` (
   `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
   `is_me` tinyint(1) NOT NULL COMMENT '是否是我自己',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4; COMMENT='合作者';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='合作者';
 
 
 CREATE TABLE `base_service`
