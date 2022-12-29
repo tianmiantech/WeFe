@@ -139,7 +139,13 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             List<String> resultFields = new ArrayList<>(Arrays.asList(fieldStr.split(",")));
             // 0 根据ID查询对应的数据
             for (String idJson : ids) {// params
+                if (StringUtils.isBlank(idJson)) {
+                    continue;
+                }
                 JSONObject idObj = JSONObject.parseObject(idJson);
+                if (idObj.isEmpty()) {
+                    continue;
+                }
                 List<String> conditions = new ArrayList<>();
                 JSONArray keyCalcRules = dataSource.getJSONArray("key_calc_rules");
                 for (int i = 0; i < keyCalcRules.size(); i++) {
@@ -422,6 +428,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         } else if (dataSourceModel.getDatabaseType() == DatabaseType.Doris) {
             return getDorisData(model, dataSourceModel, dataSource, currentBatch);
         }
-        throw new StatusCodeWithException(StatusCode.INVALID_DATASET, "datasource type not support" + dataSourceModel.getDatabaseType());
+        throw new StatusCodeWithException(StatusCode.INVALID_DATASET,
+                "datasource type not support" + dataSourceModel.getDatabaseType());
     }
 }
