@@ -16,7 +16,7 @@ const { welab } = pkg;
 let { contextPath: APP_CODE } = welab || {};
 const { HOST_ENV,SERVICE_NAME } = argv;
 
-APP_CODE = SERVICE_NAME || APP_CODE;
+APP_CODE = SERVICE_NAME !== 'nil' ?  SERVICE_NAME || APP_CODE : APP_CODE;
 console.log(HOST_ENV, APP_CODE);
 
 module.exports = {

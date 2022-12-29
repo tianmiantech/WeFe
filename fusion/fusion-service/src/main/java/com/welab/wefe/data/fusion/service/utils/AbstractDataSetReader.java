@@ -238,4 +238,6 @@ public abstract class AbstractDataSetReader implements Closeable {
      * Read data row
      */
     protected abstract LinkedHashMap<String, Object> readOneRow() throws StatusCodeWithException;
+    
+    public abstract long getRowCount(int sheetIndex);
 }
