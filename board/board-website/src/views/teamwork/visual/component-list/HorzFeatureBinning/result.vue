@@ -104,7 +104,7 @@
                                 <el-table-column label="特征名称" prop="column"></el-table-column>
                                 <el-table-column label="分箱方法" prop="paramsMethod"></el-table-column>
                                 <el-table-column label="分箱数量" prop="binNums"></el-table-column>
-                                <el-table-column label="总IV" prop="iv"></el-table-column>
+                                <el-table-column label="总IV" prop="iv" sortable></el-table-column>
                             </el-table>
 
                             
