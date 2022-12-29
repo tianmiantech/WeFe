@@ -66,7 +66,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
      */
     private final static List<ComponentType> EXCLUDE_COMPONENT_TYPE_LIST = Arrays.asList(ComponentType.FeatureStatistic,
             ComponentType.FeatureCalculation, ComponentType.MixStatistic,
-            ComponentType.Segment, ComponentType.VertPearson, ComponentType.Oot, ComponentType.VertFeaturePSI, ComponentType.VertFilter);
+            ComponentType.Segment, ComponentType.VertPearson, ComponentType.Oot, ComponentType.VertFeaturePSI, ComponentType.VertFilter, ComponentType.ScoreCard);
     /**
      * List of temporarily unsupported components
      */
@@ -268,6 +268,19 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
                 // Mark as modeling component
                 extendOotParams.put("is_model", true);
 
+            } else if (ComponentType.Evaluation.equals(taskType)) {
+                JObject paramsObj = taskConfigObj.getJObject("params");
+                JObject psiParam = paramsObj.getJObject("psi_param");
+                if (null != psiParam && !psiParam.isEmpty()) {
+                    psiParam.put("need_psi", false);
+                }
+                JObject scoreParam = paramsObj.getJObject("score_param");
+                if (null != scoreParam && !scoreParam.isEmpty()) {
+                    scoreParam.put("prob_need_to_bin", false);
+                }
+                paramsObj.put("psi_param", psiParam);
+                paramsObj.put("score_param", scoreParam);
+                taskConfigObj.put("params", paramsObj);
             }
             taskConfigObj.append("oot_params", extendOotParams);
             subTaskConfigMap.put(taskName, taskConfigObj);
@@ -279,7 +292,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
                 .append("task_id", node.createTaskId(graph.getJob()))
                 .append("sub_component_name_list", subTaskNameList)
                 .append("sub_component_task_config_dick", subTaskConfigMap)
-                .append("psi_param", createPsiParam(params));
+                .append("psi_param", createPsiParam(params, false));
     }
 
     @Override
@@ -611,7 +624,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         JObject evaluationParam = JObject.create();
         evaluationParam.append("eval_type", ootParams.evalType)
                 .append("pos_label", ootParams.posLabel)
-                .append("psi_param", createPsiParam(ootParams))
+                .append("psi_param", createPsiParam(ootParams, true))
                 .append("score_param", createScoreParam(ootParams));
         taskConfig.setParams(evaluationParam);
         evaluationTaskMySqlModel.setTaskConf(JSON.toJSONString(taskConfig));
@@ -670,9 +683,9 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         return "";
     }
 
-    private JObject createPsiParam(Params params) {
+    private JObject createPsiParam(Params params, boolean isEvaluationParam) {
         return JObject.create()
-                .append("need_psi", params.psiParam.getNeedPsi())
+                .append("need_psi", !isEvaluationParam && params.psiParam.getNeedPsi())
                 .append("bin_num", params.psiParam.getBinNum())
                 .append("bin_method", params.psiParam.getBinMethod())
                 .append("split_points", CollectionUtils.isEmpty(params.getPsiParam().getSplitPoints()) ? new ArrayList<>() : params.getPsiParam().getSplitPoints());
@@ -680,9 +693,9 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
 
     private JObject createScoreParam(Params params) {
         return JObject.create()
-                .append("bin_num", params.scoreParam.getBinNum())
-                .append("bin_method", params.scoreParam.getBinNum())
-                .append("prob_need_to_bin", params.scoreParam.isProbNeedToBin());
+                //.append("bin_num", params.scoreParam.getBinNum())
+                //.append("bin_method", params.scoreParam.getBinNum())
+                .append("prob_need_to_bin", false);
     }
 
     /**

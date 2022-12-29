@@ -66,7 +66,8 @@ public class ProjectDataSetService extends AbstractService {
     private BloomFilterService bloomFilterService;
     @Autowired
     private ProjectDataSetRepository projectDataSetRepo;
-
+    @Autowired
+    private JobMemberService jobMemberService;
 
     /**
      * Get the details of the derived data set
@@ -81,7 +82,7 @@ public class ProjectDataSetService extends AbstractService {
         }
 
         if (projectDataSet.getSourceType() == null) {
-            throw new StatusCodeWithException("拒绝查询原始数据集信息", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "拒绝查询原始数据集信息");
         }
 
         List<JobMemberWithDataSetOutputModel> members = ModelMapper.maps(jobMemberService.list(dataSet.getDerivedFromJobId(), false), JobMemberWithDataSetOutputModel.class);
@@ -189,8 +190,6 @@ public class ProjectDataSetService extends AbstractService {
         return derivedDataSet;
     }
 
-    @Autowired
-    private JobMemberService jobMemberService;
 
     public List<ProjectDataResourceOutputModel> listRawDataSet(String projectId, DataResourceType dataResourceType, String memberId, JobMemberRole memberRole, Boolean containsY) {
         return listRawDataSet(projectId, dataResourceType, null, memberId, memberRole, containsY, null);

@@ -17,15 +17,18 @@
 package com.welab.wefe.board.service.util;
 
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetColumnInputModel;
+import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.Validator;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.ColumnDataTypeInferrer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +66,7 @@ public abstract class AbstractTableDataSetReader implements Closeable {
         try {
             list = doGetHeader();
         } catch (Exception e) {
-            throw new StatusCodeWithException("读取数据集 header 信息失败：" + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "读取数据集 header 信息失败：" + e.getMessage());
         }
 
 
@@ -76,14 +79,14 @@ public abstract class AbstractTableDataSetReader implements Closeable {
         }
 
         if (list.stream().distinct().count() != list.size()) {
-            throw new StatusCodeWithException("数据集包含重复的字段，请处理后重新上传。", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "数据集包含重复的字段，请处理后重新上传。");
         }
 
         if (list.size() == 0) {
-            throw new StatusCodeWithException("数据集首行为空", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "数据集首行为空");
         }
         if (list.size() == 1) {
-            throw new StatusCodeWithException("数据集仅一列，不支持仅有 Id 列的数据集上传。", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "数据集仅一列，不支持仅有 Id 列的数据集上传。");
         }
 
         // Convert uppercase Y to lowercase y
@@ -187,10 +190,23 @@ public abstract class AbstractTableDataSetReader implements Closeable {
                     }
                     isValid = Validator.isInteger(value);
                     break;
+                case DateTime:
+                    Date date = Convert.toDate(value);
+                    // 这里的 value 一定不为空，所以当 date 为空说明字符串不是时间格式。
+                    if (date == null) {
+                        isValid = false;
+                    }
+                    // 对日期格式进行标准化，避免各种形状的日期格式对 kernel 造成困扰。
+                    else {
+                        isValid = true;
+                        entry.setValue(DateUtil.toString(date, "yyyy-MM-dd HH:mm:ss"));
+                    }
+                    break;
                 case Enum:
                 case String:
                 default:
-                    return;
+                    isValid = true;
+                    break;
             }
 
             if (!isValid) {

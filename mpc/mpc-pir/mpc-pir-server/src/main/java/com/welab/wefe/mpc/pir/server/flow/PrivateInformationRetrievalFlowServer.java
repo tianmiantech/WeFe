@@ -90,7 +90,7 @@ public class PrivateInformationRetrievalFlowServer extends BasePrivateInformatio
         LOG.info("uuid:{} encrypt results", uuid);
         List<String> enResults = new ArrayList<>(ids.size());
         for (int i = 0; i < ids.size(); i++) {
-            SymmetricKey aesKey = new AESEncryptKey(keyList.get(i).key);
+            AESEncryptKey aesKey = new AESEncryptKey(keyList.get(i).key);
             byte[] enResult = aesKey.encrypt(results.getOrDefault(ids.get(i), "").getBytes());
             String value = Conversion.bytesToHexString(enResult) + "," + Conversion.bytesToHexString(aesKey.getIv());
             enResults.add(value);

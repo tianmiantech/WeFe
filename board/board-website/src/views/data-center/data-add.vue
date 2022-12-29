@@ -168,7 +168,7 @@
                             />
                         </div>
                         <uploader
-                            v-if="form.data_set_add_method === 'HttpUpload'"
+                            v-show="form.data_set_add_method === 'HttpUpload'"
                             ref="uploaderRef"
                             :options="file_upload_options"
                             :file-status-text="fileStatusText"
@@ -178,7 +178,7 @@
                             @file-added="fileAdded"
                         >
                             <uploader-unsupport />
-                            <uploader-drop v-if="file_upload_options.files.length === 0">
+                            <uploader-drop v-show="file_upload_options.files.length === 0">
                                 <p class="mb10">将文件（.csv .xls .xlsx）拖到此处</p>或
                                 <uploader-btn
                                     :attrs="file_upload_attrs"
@@ -1209,7 +1209,7 @@
                 this.loading = false;
             },
 
-            async getAddTask(id, opt = { requestFromRefresh: false }) {
+            async getAddTask(id, opt = { requestFromRefresh: true }) {
                 const { code, data } = await this.$http.get({
                     url:    '/data_resource/upload_task/detail',
                     params: {
@@ -1272,7 +1272,7 @@
                                 } else {
                                     this.$message.error(error_message);
                                 }
-                            }, 1000);
+                            }, 3000);
                         }
                     }
                 } else {

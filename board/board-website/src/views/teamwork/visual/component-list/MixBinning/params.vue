@@ -77,6 +77,11 @@
                         label="特征"
                         width="150"
                     />
+                    <el-table-column
+                        prop="data_type"
+                        label="类型"
+                        width="70"
+                    />
                     <el-table-column label="分箱策略">
                         <template v-slot="scope">
                             {{ scope.row.method ? `${vData.methodObj[scope.row.method]} ${scope.row.count}箱` : '' }}

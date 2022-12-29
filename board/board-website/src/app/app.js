@@ -35,10 +35,10 @@ function render(props = {}) {
     // add router/vuex
     app.use(router()).use(store(app)).mount(container ? container.querySelector('#board-app') : '#board-app');
     // global error handler
-    app.config.errorHandler = ({ message }, vm, info) => {
-        console.log('error message', message);
-        // app.config.globalProperties.$message.error(`发生错误: ${message}, 请刷新重试`);
-    };
+    // app.config.errorHandler = ({ message }, vm, info) => {
+    //     console.log('error message', message);
+    //     // app.config.globalProperties.$message.error(`发生错误: ${message}, 请刷新重试`);
+    // };
     // add app to router
     router.$app = app;
     // 存储上级系统环境

@@ -78,8 +78,6 @@ public class ClientActuator extends AbstractPsiClientActuator {
         FieldInfoService service = Launcher.getBean(FieldInfoService.class);
 
         columnList = service.columnList(businessId);
-
-
         /**
          * Calculate the fragment size based on the number of fields
          */
@@ -96,7 +94,6 @@ public class ClientActuator extends AbstractPsiClientActuator {
          * Find primary key composition fields
          */
         fieldInfoList = service.fieldInfoList(businessId);
-
         /**
          * Initialize dataset header
          */

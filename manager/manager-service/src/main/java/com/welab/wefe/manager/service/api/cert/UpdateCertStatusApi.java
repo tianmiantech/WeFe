@@ -16,8 +16,6 @@
 
 package com.welab.wefe.manager.service.api.cert;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.webank.cert.mgr.model.vo.CertVO;
 import com.webank.cert.mgr.service.CertOperationService;
 import com.webank.cert.toolkit.enums.CertStatusEnums;
@@ -33,6 +31,7 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.manager.service.api.cert.UpdateCertStatusApi.CertDetailInput;
 import com.welab.wefe.manager.service.service.MemberContractService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 证书详情
@@ -53,22 +52,22 @@ public class UpdateCertStatusApi extends AbstractApi<CertDetailInput, CertVO> {
     protected ApiResult<CertVO> handle(CertDetailInput input) throws Exception {
         CertVO vo = certOperationService.queryCertInfoByCertId(input.getCertId());
         if (vo == null) {
-            throw new StatusCodeWithException("数据不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据不存在");
         }
         if (vo.getIsCACert() || vo.getIsRootCert()) {
-            throw new StatusCodeWithException("非法操作", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "非法操作");
         }
         
         // 不允许置为有效
         if (vo.getStatus() == input.getStatus() || input.getStatus() == CertStatusEnums.VALID.getCode()) {
-            throw new StatusCodeWithException("非法操作", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "非法操作");
         }
         vo.setStatus(input.getStatus());
         certOperationService.updateStatusBySerialNumber(vo.getSerialNumber(), input.getStatus(), "from cert/update_status, 界面操作");
         // 同步到区块链
         Member member = memberMongoReop.findMemberId(vo.getUserId());
         if (member == null) {
-            throw new StatusCodeWithException("成员不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "成员不存在");
         }
         MemberExtJSON memberExtJSON = member.getExtJson();
         memberExtJSON.setCertStatus(CertStatusEnums.getStatus(input.getStatus()).name());

@@ -24,10 +24,10 @@ import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilt
 import com.welab.wefe.board.service.util.AbstractTableDataSetReader;
 import com.welab.wefe.board.service.util.CsvTableDataSetReader;
 import com.welab.wefe.board.service.util.ExcelTableDataSetReader;
-import com.welab.wefe.board.service.util.JdbcManager;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.jdbc.JdbcClient;
 import com.welab.wefe.common.util.ListUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -40,7 +40,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -63,15 +62,17 @@ public class BloomFilterPreviewApi extends AbstractApi<BloomFilterPreviewApi.Inp
     BloomFilterService bloomfilterService;
 
     @Override
-    protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<Output> handle(Input input) throws Exception {
 
         Output output = new Output();
         // Read data from the database for preview
         if (BloomfilterAddMethod.Database.equals(input.getBloomfilterAddMethod())) {
             // Test whether SQL can be queried normally
-            boolean result = bloomfilterService.testSqlQuery(input.getDataSourceId(), input.getSql());
-            if (result) {
+            String message = bloomfilterService.testSqlQuery(input.getDataSourceId(), input.getSql());
+            if (message == null) {
                 output = readFromDatabase(input.getDataSourceId(), input.getSql());
+            } else {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("测试连接数据库失败：" + message);
             }
         } else {
             String filename = input.getFilename();
@@ -80,7 +81,7 @@ public class BloomFilterPreviewApi extends AbstractApi<BloomFilterPreviewApi.Inp
                 output = readFile(file);
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
             }
         }
 
@@ -208,13 +209,13 @@ public class BloomFilterPreviewApi extends AbstractApi<BloomFilterPreviewApi.Inp
         }
     }
 
-    private Output readFromDatabase(String dataSourceId, String sql) throws StatusCodeWithException {
+    private Output readFromDatabase(String dataSourceId, String sql) throws Exception {
         DataSourceMysqlModel model = bloomfilterService.getDataSourceById(dataSourceId);
         if (model == null) {
-            throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "dataSourceId在数据库不存在");
         }
 
-        Connection conn = JdbcManager.getConnection(
+        JdbcClient client = JdbcClient.create(
                 model.getDatabaseType(),
                 model.getHost(),
                 model.getPort(),
@@ -224,9 +225,9 @@ public class BloomFilterPreviewApi extends AbstractApi<BloomFilterPreviewApi.Inp
         );
 
         // Get the column header of the data set
-        List<String> header = JdbcManager.getRowHeaders(conn, sql);
+        List<String> header = client.getHeaders(sql);
         if (header.stream().distinct().count() != header.size()) {
-            throw new StatusCodeWithException("数据集包含重复的字段，请处理后重新上传。", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "数据集包含重复的字段，请处理后重新上传。");
         }
 
         // Convert uppercase Y to lowercase y
@@ -252,9 +253,7 @@ public class BloomFilterPreviewApi extends AbstractApi<BloomFilterPreviewApi.Inp
 
         // Data line consumer
         DataRowConsumer dataRowConsumer = new DataRowConsumer(metadata, output);
-
-        JdbcManager.readWithFieldRow(conn, sql, dataRowConsumer, 10);
-
+        client.scan(sql, dataRowConsumer, 10);
 
         output.setMetadataList(new ArrayList<>(metadata.values()));
 
@@ -283,11 +282,11 @@ public class BloomFilterPreviewApi extends AbstractApi<BloomFilterPreviewApi.Inp
             // If the source is a database, dataSourceId and sql must not be empty.
             if (DataSetAddMethod.Database.equals(bloomfilterAddMethod)) {
                 if (StringUtils.isEmpty(dataSourceId)) {
-                    throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
+                    throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "dataSourceId在数据库不存在");
                 }
 
                 if (StringUtils.isEmpty(sql)) {
-                    throw new StatusCodeWithException("请填入sql查询语句", StatusCode.PARAMETER_CAN_NOT_BE_EMPTY);
+                    throw new StatusCodeWithException(StatusCode.PARAMETER_CAN_NOT_BE_EMPTY, "请填入sql查询语句");
                 }
             }
         }

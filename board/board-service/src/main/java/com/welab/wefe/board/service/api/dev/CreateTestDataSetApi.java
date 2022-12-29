@@ -55,7 +55,7 @@ public class CreateTestDataSetApi extends AbstractApi<CreateTestDataSetApi.Input
             return success(new Output(file));
 
         } catch (IOException e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
 

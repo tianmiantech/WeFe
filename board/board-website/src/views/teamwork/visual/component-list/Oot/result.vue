@@ -19,10 +19,10 @@
                         <h4 class="mb10 pb5">测试结果:</h4>
                         <el-row class="mb20">
                             <el-col :span="12">
-                                auc：{{ vData.validate.auc }}
+                                auc：{{ dealNumPrecision(vData.validate.auc) }}
                             </el-col>
                             <el-col :span="12">
-                                ks：{{ vData.validate.ks }}
+                                ks：{{ dealNumPrecision(vData.validate.ks) }}
                             </el-col>
                         </el-row>
                     </el-form>
@@ -40,7 +40,7 @@
                             :flow-node-id="flowNodeId"
                         />
                     </el-collapse-item>
-                    <el-collapse-item :title="`预测概率/评分 PSI:${vData.featurePsi}`" name="4">
+                    <el-collapse-item v-if="vData.need_psi" :title="`预测概率/评分 PSI:${vData.featurePsi}`" name="4">
                         <psi-table :tableData="vData.tableData" type="Oot"/>
                     </el-collapse-item>
                 </template>
@@ -85,6 +85,7 @@
     import { getDataResult } from '@src/service';
     import { turnDemical } from '@src/utils/utils';
     import { appCode, baseURL } from '@src/utils/constant';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     const mixin = resultMixin();
 
@@ -122,6 +123,7 @@
                 tips:                '',
                 tableData:           {},
                 featurePsi:          '',
+                need_psi:            true,
             });
 
             vData.sqlStatement = `
@@ -213,14 +215,18 @@
                     getDataResult({
                         flowId: flow_id, flowNodeId: flow_node_id, jobId: job_id, type: 'psi',
                     }).then((data) => {
-                        const { psi= {} } = data;
+                        const { psi= {},task_config } = data;
                         const {
                             pred_label_psi = '',
                             train_pred_label_static,
                             test_pred_label_static ,
                             bin_cal_results = {},
                             split_point = [] } = psi;
+                        const { params } = task_config || {};
+                        const { psi_param } = params || {};
+                        const { need_psi } = psi_param || {};
 
+                        vData.need_psi = need_psi;
                         vData.featurePsi = turnDemical(pred_label_psi, 4);
                         vData.tableData = {
                             '预测概率/评分': {
@@ -287,6 +293,7 @@
                 activeName,
                 methods,
                 topnRef,
+                dealNumPrecision,
             };
         },
     };

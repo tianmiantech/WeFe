@@ -70,7 +70,9 @@ public class DetailApi extends AbstractApi<ApiDataResourceDetailInput, ApiDataRe
                 dataResourceQueryOutput = dataResourceMongoReop.findOneByDataResourceId(input.getDataResourceId(), MongodbTable.Union.IMAGE_DATASET);
                 break;
             default:
-                throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "dataResourceType");
+                StatusCode.UNEXPECTED_ENUM_CASE
+                        .throwExWithFormatMsg(input.getDataResourceType().name());
+                return null;
         }
 
         return success(getOutput(dataResourceQueryOutput));

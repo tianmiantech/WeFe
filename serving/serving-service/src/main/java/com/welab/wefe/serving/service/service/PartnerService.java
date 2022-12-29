@@ -16,6 +16,18 @@
 
 package com.welab.wefe.serving.service.service;
 
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -39,17 +51,6 @@ import com.welab.wefe.serving.service.database.repository.PartnerRepository;
 import com.welab.wefe.serving.service.dto.MemberParams;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.ClientStatusEnum;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class PartnerService {
@@ -64,7 +65,7 @@ public class PartnerService {
 
     @Autowired
     private ClientServiceRepository clientServiceRepository;
-
+    
     @Transactional(rollbackFor = Exception.class)
     public void init() {
         partnerRepository.deleteAll();
@@ -95,7 +96,7 @@ public class PartnerService {
         if (StringUtils.isNotBlank(input.getCode())) {
             partnerMysqlModel = queryByCode(input.getCode());
             if (partnerMysqlModel != null) {
-                throw new StatusCodeWithException("code 【" + input.getCode() + "】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
+                throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, "code 【" + input.getCode() + "】已经存在");
             }
         }
 
@@ -193,7 +194,7 @@ public class PartnerService {
             throws StatusCodeWithException {
         PartnerMysqlModel model = partnerRepository.findOne("id", input.getId(), PartnerMysqlModel.class);
         if (null == model) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
         model.setName(input.getName());
         model.setEmail(input.getEmail());
@@ -221,12 +222,6 @@ public class PartnerService {
 
             clientServiceRepository.saveAll(collect);
         }
-    }
-
-    public ClientServiceMysqlModel queryByServiceIdAndClientId(String serviceId, String clientId) {
-        Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", serviceId)
-                .equal("clientId", clientId).build(ClientServiceMysqlModel.class);
-        return clientServiceRepository.findOne(where).orElse(null);
     }
 
     public ClientMysqlModel queryByClientName(String name) {

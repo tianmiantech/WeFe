@@ -20,9 +20,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.jdbc.base.DatabaseType;
 import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.serving.service.api.datasource.*;
 import com.welab.wefe.serving.service.api.datasource.QueryTableFieldsApi.FieldOutput;
 import com.welab.wefe.serving.service.api.datasource.QueryTablesApi.Output;
@@ -57,7 +57,7 @@ public class DataSourceService {
     public AddApi.DataSourceAddOutput add(AddApi.DataSourceAddInput input) throws StatusCodeWithException {
 
         if (dataSourceRepo.countByName(input.getName()) > 0) {
-            throw new StatusCodeWithException("数据源名称已存在，请更改后再试", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "数据源名称已存在，请更改后再试");
         }
 
         // 测试连接
@@ -80,7 +80,7 @@ public class DataSourceService {
             throws StatusCodeWithException {
         DataSourceMySqlModel model = dataSourceRepo.findById(input.getId()).orElse(null);
         if (model == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
         // Test the connection
         testDBConnect(input.getDatabaseType(), input.getHost(), input.getPort(), input.getUserName(),
@@ -154,13 +154,13 @@ public class DataSourceService {
      * @throws StatusCodeWithException
      */
     public TestDBConnectApi.Output testDBConnect(DatabaseType databaseType, String host, int port, String userName,
-                                                 String password, String databaseName) throws StatusCodeWithException {
+            String password, String databaseName) throws StatusCodeWithException {
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(databaseType, host, port, userName, password, databaseName);
         if (conn != null) {
-            boolean success = jdbcManager.testQuery(conn, "select 1", false);
+            boolean success = jdbcManager.testQuery(conn, "select 1");
             if (!success) {
-                throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "数据库连接失败");
+                StatusCode.DATABASE_LOST.throwException("数据库连接失败");
             }
         }
 
@@ -170,19 +170,19 @@ public class DataSourceService {
     }
 
     public void createTable(String sql, DatabaseType databaseType, String host, int port, String userName,
-                            String password, String databaseName) throws StatusCodeWithException {
+            String password, String databaseName) throws StatusCodeWithException {
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(databaseType, host, port, userName, password, databaseName);
         if (conn != null) {
             boolean success = jdbcManager.execute(conn, sql);
             if (!success) {
-                throw new StatusCodeWithException(StatusCode.SQL_ERROR, "SQL 执行报错");
+                StatusCode.SQL_ERROR.throwException();
             }
         }
     }
 
     public void batchInsert(String sql, DatabaseType databaseType, String host, int port, String userName,
-                            String password, String databaseName, Set<String> ids) throws StatusCodeWithException {
+            String password, String databaseName, Set<String> ids) throws StatusCodeWithException {
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(databaseType, host, port, userName, password, databaseName);
         if (conn != null) {
@@ -193,7 +193,7 @@ public class DataSourceService {
             }
             return;
         }
-        throw new StatusCodeWithException(StatusCode.SQL_ERROR, "SQL 执行报错");
+        StatusCode.SQL_ERROR.throwException();
     }
 
     /**
@@ -206,36 +206,44 @@ public class DataSourceService {
         return dataSourceRepo.findById(dataSourceId).orElse(null);
     }
 
-    /**
-     * Test whether SQL can be queried normally
-     */
-    public boolean testSqlQuery(DataSourceMySqlModel model, String sql) throws StatusCodeWithException {
+    public boolean update(DataSourceMySqlModel model, String sql) throws StatusCodeWithException {
         if (model == null) {
-            throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据源不存在");
         }
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
                 model.getUserName(), model.getPassword(), model.getDatabaseName());
-        boolean result = jdbcManager.testQuery(conn, sql, true);
-
+        boolean result = jdbcManager.update(conn, sql);
         return result;
     }
 
     public Map<String, String> queryOne(DataSourceMySqlModel model, String sql, List<String> returnFields)
             throws StatusCodeWithException {
         if (model == null) {
-            throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据源不存在");
         }
         LOG.info("dataSourceModel = " + JSONObject.toJSONString(model));
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
                 model.getUserName(), model.getPassword(), model.getDatabaseName());
-        return jdbcManager.query(conn, sql, returnFields);
+        return jdbcManager.queryOne(conn, sql, returnFields);
+    }
+    
+    public Map<String, String> batchQuerySql(DataSourceMySqlModel model, Map<String, String> sqlMap,
+            List<String> returnFields) throws StatusCodeWithException {
+        if (model == null) {
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据源不存在");
+        }
+        LOG.debug("dataSourceModel = " + JSONObject.toJSONString(model));
+        JdbcManager jdbcManager = new JdbcManager();
+        Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
+                model.getUserName(), model.getPassword(), model.getDatabaseName());
+        return jdbcManager.batchQuerySql(conn, sqlMap, returnFields);
     }
 
     public long count(DataSourceMySqlModel model, String sql) throws StatusCodeWithException {
         if (model == null) {
-            throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据源不存在");
         }
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
@@ -243,10 +251,32 @@ public class DataSourceService {
         return jdbcManager.count(conn, sql);
     }
 
+    public List<Map<String, String>> queryListByConditions(DataSourceMySqlModel model, String sql,
+            List<Map<String, Object>> conditionFieldValues, List<String> returnFields) throws StatusCodeWithException {
+        if (model == null) {
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据源不存在");
+        }
+        JdbcManager jdbcManager = new JdbcManager();
+        Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
+                model.getUserName(), model.getPassword(), model.getDatabaseName());
+        return jdbcManager.queryListByConditions(conn, sql, conditionFieldValues, returnFields);
+    }
+
+    public List<Map<String, String>> queryListByIds(DataSourceMySqlModel model, String sql, List<String> ids,
+            List<String> returnFields) throws StatusCodeWithException {
+        if (model == null) {
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据源不存在");
+        }
+        JdbcManager jdbcManager = new JdbcManager();
+        Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
+                model.getUserName(), model.getPassword(), model.getDatabaseName());
+        return jdbcManager.queryListByIds(conn, sql, ids, returnFields);
+    }
+
     public List<Map<String, String>> queryList(DataSourceMySqlModel model, String sql, List<String> returnFields)
             throws StatusCodeWithException {
         if (model == null) {
-            throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据源不存在");
         }
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
@@ -258,7 +288,7 @@ public class DataSourceService {
         DataSourceMySqlModel model = getDataSourceById(dataSourceId);
         Output out = new Output();
         if (model == null) {
-            throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据源不存在");
         }
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
@@ -277,7 +307,7 @@ public class DataSourceService {
         com.welab.wefe.serving.service.api.datasource.QueryTableFieldsApi.Output out = new com.welab.wefe.serving.service.api.datasource.QueryTableFieldsApi.Output();
         DataSourceMySqlModel model = getDataSourceById(input.getId());
         if (model == null) {
-            throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据源不存在");
         }
         JdbcManager jdbcManager = new JdbcManager();
         Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),

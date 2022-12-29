@@ -30,7 +30,7 @@
                     label="正例比例"
                     width="120">
                     <template v-slot="scope">
-                        {{scope.row.TP / scope.row.total}}
+                        {{dealNumPrecision(scope.row.TP / scope.row.total)}}
                     </template>
                 </el-table-column>
             </el-table-column>
@@ -55,7 +55,7 @@
                     label="正例比例"
                     width="120">
                     <template v-slot="scope">
-                        {{scope.row.v_TP / scope.row.v_total}}
+                        {{dealNumPrecision(scope.row.v_TP / scope.row.v_total)}}
                     </template>
                 </el-table-column>
             </el-table-column>
@@ -65,6 +65,7 @@
 
 <script>
     import { reactive } from 'vue';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     export default {
         name:  'TopN',
@@ -89,18 +90,23 @@
             const methods = {};
 
             const renderTopnTable = (result) => {
-                const topnList = result.train_topn || result.validate_topn;
+                const topnList = result?.train_topn || result?.validate_topn || [];
 
-                vData.validate_topn = result.validate_topn;
+                vData.validate_topn = result?.validate_topn || [];
                 if(topnList && topnList.length) {
                     vData.tableData = topnList.map((item, i) => {
+                        /**
+                         * 存在train_topn 和 validate_topn 长度不对等的情况
+                         */
+                        const { TP,cut_off,name,recall,total } = result?.validate_topn?.[i] || {};
+
                         return {
                             ...item,
-                            v_TP:      vData.validate_topn[i].TP,
-                            v_cut_off: vData.validate_topn[i].cut_off,
-                            v_name:    vData.validate_topn[i].name,
-                            v_recall:  vData.validate_topn[i].recall,
-                            v_total:   vData.validate_topn[i].total,
+                            v_TP:      TP,
+                            v_cut_off: cut_off,
+                            v_name:    name,
+                            v_recall:  recall,
+                            v_total:   total,
                         };
                     });
                 }
@@ -110,6 +116,7 @@
                 vData,
                 methods,
                 renderTopnTable,
+                dealNumPrecision,
             };
         },
     };

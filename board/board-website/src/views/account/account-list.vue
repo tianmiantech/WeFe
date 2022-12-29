@@ -457,7 +457,7 @@
                     nickname:     '',
                     audit_status: '',
                 },
-                getListApi:     '/account/query',
+                getListApi:     '/account/list_all',
                 viewDataDialog: {
                     visible: false,
                     list:    [],

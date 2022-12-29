@@ -17,8 +17,10 @@
 package com.welab.wefe.board.service.component;
 
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.board.service.api.project.node.UpdateApi;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.component.base.io.*;
+import com.welab.wefe.board.service.component.enums.EvaluationType;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
@@ -53,6 +55,8 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
 
     @Autowired
     private TaskService taskService;
+    @Autowired
+    private UpdateApi updateApi;
 
     @Override
     protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
@@ -62,6 +66,8 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
         if (modelingNode == null) {
             throw new FlowNodeException(node, "评估之前必须有建模行为");
         }
+
+        updateApi.checkByEvaluationNode(graph, node);
     }
 
     @Override
@@ -174,9 +180,15 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
                 topn.putAll(parserTopN(trainObj, normalName, "train"));
                 topn.putAll(parserTopN(validateObj, normalName, "validate"));
                 return topn;
-            case "scored":
+            /*case "scores_distribution":
                 return JObject.create()
-                        .append("scored", JObject.create(scoreAndSpiObj.getJObjectByPath("train_validate_" + normalName + "_scored.data")));
+                        .append("scored", JObject.create(scoreAndSpiObj.getJObjectByPath("train_validate_" + normalName + "_scored.data")));*/
+
+            case "scores_distribution":
+                JObject scores_distribution = JObject.create();
+                scores_distribution.putAll(parserScoresDistributionCurveData(scoreAndSpiObj, normalName));
+                return scores_distribution;
+
             case "psi":
                 return JObject.create()
                         .append("psi", JObject.create(scoreAndSpiObj.getJObjectByPath("train_validate_" + normalName + "_psi.data")));
@@ -425,7 +437,7 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
 
     public static class Params extends AbstractCheckModel {
         @Check(require = true)
-        private String evalType;
+        private EvaluationType evalType;
 
         @Check(require = true)
         private int posLabel;
@@ -436,11 +448,11 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
         @Check(require = true)
         private ScoreParam scoreParam;
 
-        public String getEvalType() {
+        public EvaluationType getEvalType() {
             return evalType;
         }
 
-        public void setEvalType(String evalType) {
+        public void setEvalType(EvaluationType evalType) {
             this.evalType = evalType;
         }
 

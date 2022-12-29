@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,18 +15,6 @@
  */
 
 package com.welab.wefe.serving.service.service;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
@@ -43,14 +31,20 @@ import com.welab.wefe.serving.service.api.service.UnionServiceApi.Output;
 import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
-
 import net.jodah.expiringmap.ExpiringMap;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class UnionServiceService {
 
-	protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
-	
+    protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
+
     /**
      * cache
      */
@@ -98,57 +92,57 @@ public class UnionServiceService {
         return PagingOutput.of(0, list);
     }
 
-	public JSONObject query4Union(Input input) throws StatusCodeWithException {
-		JObject params = JObject.create().append("pageSize", input.getPageSize()).append("pageIndex",
-				input.getPageIndex());
-		if (input.getServiceType() != -1) {
-			params.append("serviceType", input.getServiceType());
-		}
-		if (StringUtils.isNotBlank(input.getMemberName())) {
-			params.append("memberName", input.getMemberName());
-		}
-		if (StringUtils.isNotBlank(input.getServiceName())) {
-			params.append("serviceName", input.getServiceName());
-		}
-		if(StringUtils.isNotBlank(input.getId())) {
-		    params.append("serviceId", input.getId());
-		}
-		LOG.info("union query params = " + JSONObject.toJSONString(params));
-		return request("member/service/query", params);
-	}
+    public JSONObject query4Union(Input input) throws StatusCodeWithException {
+        JObject params = JObject.create().append("pageSize", input.getPageSize()).append("pageIndex",
+                input.getPageIndex());
+        if (input.getServiceType() != -1) {
+            params.append("serviceType", input.getServiceType());
+        }
+        if (StringUtils.isNotBlank(input.getMemberName())) {
+            params.append("memberName", input.getMemberName());
+        }
+        if (StringUtils.isNotBlank(input.getServiceName())) {
+            params.append("serviceName", input.getServiceName());
+        }
+        if (StringUtils.isNotBlank(input.getId())) {
+            params.append("serviceId", input.getId());
+        }
+        LOG.info("union query params = " + JSONObject.toJSONString(params));
+        return request("member/service/query", params);
+    }
 
-	public JSONObject add2Union(TableServiceMySqlModel model) throws StatusCodeWithException {
-		JObject params = JObject.create().put("queryParams", model.getQueryParams())
-				.put("serviceType", model.getServiceType()).put("memberId", CacheObjects.getMemberId())
-				.append("baseUrl", CacheObjects.getServingBaseUrl())
-				.append("apiName", ServiceService.SERVICE_PRE_URL + model.getUrl()).append("serviceId", model.getId())
-				.append("name", model.getName()).append("serviceStatus", model.getStatus());
-		LOG.info("union add2union params = " + JSONObject.toJSONString(params));
-		JSONObject response = request("member/service/put", params);
-		LOG.info("union add2union response = " + JSONObject.toJSONString(response));
-		return response;
-	}
+    public JSONObject add2Union(TableServiceMySqlModel model) throws StatusCodeWithException {
+        JObject params = JObject.create().put("queryParams", model.getQueryParams())
+                .put("serviceType", model.getServiceType()).put("memberId", CacheObjects.getMemberId())
+                .append("baseUrl", CacheObjects.getServingBaseUrl())
+                .append("apiName", ServiceService.SERVICE_PRE_URL + model.getUrl()).append("serviceId", model.getId())
+                .append("name", model.getName()).append("serviceStatus", model.getStatus());
+        LOG.info("union add2union params = " + JSONObject.toJSONString(params));
+        JSONObject response = request("member/service/put", params);
+        LOG.info("union add2union response = " + JSONObject.toJSONString(response));
+        return response;
+    }
 
-	public JSONObject offline2Union(TableServiceMySqlModel model) throws StatusCodeWithException {
-		JObject params = JObject.create().put("queryParams", model.getQueryParams())
-				.put("serviceType", model.getServiceType()).put("memberId", CacheObjects.getMemberId())
-				.append("baseUrl", CacheObjects.getServingBaseUrl())
-				.append("apiName", ServiceService.SERVICE_PRE_URL + model.getUrl()).append("serviceId", model.getId())
-				.append("name", model.getName()).append("serviceStatus", model.getStatus());
-		LOG.info("union offline2Union params = " + JSONObject.toJSONString(params));
-		JSONObject response = request("member/service/put", params);
-		LOG.info("union offline2Union response = " + JSONObject.toJSONString(response));
-		return response;
-	}
-	
-	public JSONObject updateServingBaseUrlOnUnion(String servingBaseUrl) throws StatusCodeWithException {
-	    JObject params = JObject.create().put("servingBaseUrl", servingBaseUrl);
+    public JSONObject offline2Union(TableServiceMySqlModel model) throws StatusCodeWithException {
+        JObject params = JObject.create().put("queryParams", model.getQueryParams())
+                .put("serviceType", model.getServiceType()).put("memberId", CacheObjects.getMemberId())
+                .append("baseUrl", CacheObjects.getServingBaseUrl())
+                .append("apiName", ServiceService.SERVICE_PRE_URL + model.getUrl()).append("serviceId", model.getId())
+                .append("name", model.getName()).append("serviceStatus", model.getStatus());
+        LOG.info("union offline2Union params = " + JSONObject.toJSONString(params));
+        JSONObject response = request("member/service/put", params);
+        LOG.info("union offline2Union response = " + JSONObject.toJSONString(response));
+        return response;
+    }
+
+    public JSONObject updateServingBaseUrlOnUnion(String servingBaseUrl) throws StatusCodeWithException {
+        JObject params = JObject.create().put("servingBaseUrl", servingBaseUrl);
         LOG.info("union updateServingBaseUrlOnUnion params = " + JSONObject.toJSONString(params));
         JSONObject response = request("member/update_serving_base_url", params);
         LOG.info("union updateServingBaseUrlOnUnion response = " + JSONObject.toJSONString(response));
         return response;
-	}
-	
+    }
+
     public JSONObject memberQuery(String memberId) throws StatusCodeWithException {
         if (CACHE_MAP.containsKey(memberId)) {
             return JSONObject.parseObject(CACHE_MAP.get(memberId).toString());
@@ -173,54 +167,57 @@ public class UnionServiceService {
         return (JSONObject) CACHE_MAP.get(memberId);
     }
 
-	private JSONObject request(String api, JSONObject params) throws StatusCodeWithException {
-	    if (StringUtils.isBlank(CacheObjects.getUnionBaseUrl()) || !CacheObjects.isUnionModel()) {
-	        return new JSONObject();
-	    }
-		return request(api, params, true);
-	}
+    private JSONObject request(String api, JSONObject params) throws StatusCodeWithException {
+        if (StringUtils.isBlank(CacheObjects.getUnionBaseUrl()) || !CacheObjects.isUnionModel()) {
+            return new JSONObject();
+        }
+        return request(api, params, true);
+    }
 
-	private JSONObject request(String api, JSONObject params, boolean needSign) throws StatusCodeWithException {
-		params = new JSONObject(new TreeMap(params));
-		String data = params.toJSONString();
-		// rsa signature
-		if (needSign) {
-			String sign = null;
-			try {
-				sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
-			}
-			JSONObject body = new JSONObject();
-			body.put("member_id", CacheObjects.getMemberId());
-			body.put("sign", sign);
-			body.put("data", data);
-			data = body.toJSONString();
-		}
-		HttpResponse response = HttpRequest.create(CacheObjects.getUnionBaseUrl() + api).setBody(data).postJson();
-		if (!response.success()) {
-			throw new StatusCodeWithException(response.getMessage(), StatusCode.REMOTE_SERVICE_ERROR);
-		}
-		JSONObject json;
-		try {
-			json = response.getBodyAsJson();
-		} catch (JSONException e) {
-			throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(),
-					StatusCode.REMOTE_SERVICE_ERROR);
-		}
-		if (json == null) {
-			throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(),
-					StatusCode.REMOTE_SERVICE_ERROR);
-		}
-		Integer code = json.getInteger("code");
+    private JSONObject request(String api, JSONObject params, boolean needSign) throws StatusCodeWithException {
+        params = new JSONObject(new TreeMap(params));
+        String data = params.toJSONString();
+        // rsa signature
+        if (needSign) {
+            String sign = null;
+            try {
+                sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
+            }
+            JSONObject body = new JSONObject();
+            body.put("member_id", CacheObjects.getMemberId());
+            body.put("sign", sign);
+            body.put("data", data);
+            data = body.toJSONString();
+        }
+        HttpResponse response = HttpRequest.create(CacheObjects.getUnionBaseUrl() + api).setBody(data).postJson();
+        if (!response.success()) {
+            throw new StatusCodeWithException(StatusCode.REMOTE_SERVICE_ERROR, response.getMessage());
+        }
+        JSONObject json;
+        try {
+            json = response.getBodyAsJson();
+        } catch (JSONException e) {
+            throw new StatusCodeWithException(
+                    StatusCode.REMOTE_SERVICE_ERROR,
+                    "union 响应失败：" + response.getBodyAsString());
+        }
+        if (json == null) {
+            throw new StatusCodeWithException(
+                    StatusCode.REMOTE_SERVICE_ERROR,
+                    "union 响应失败：" + response.getBodyAsString());
+        }
+        Integer code = json.getInteger("code");
         if (code == null || !code.equals(0)) {
             if (code == 10031) {
-                throw new StatusCodeWithException("您尚未加入联邦：", StatusCode.PERMISSION_DENIED);
+                throw new StatusCodeWithException(StatusCode.PERMISSION_DENIED, "您尚未加入联邦：");
             }
-            throw new StatusCodeWithException("union 响应失败(" + code + ")：" + json.getString("message"),
-                    StatusCode.PERMISSION_DENIED);
+            throw new StatusCodeWithException(
+                    StatusCode.PERMISSION_DENIED,
+                    "union 响应失败(" + code + ")：" + json.getString("message"));
         }
-		return json;
-	}
+        return json;
+    }
 }

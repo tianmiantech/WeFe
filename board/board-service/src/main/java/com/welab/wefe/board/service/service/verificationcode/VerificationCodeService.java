@@ -68,19 +68,19 @@ public class VerificationCodeService extends AbstractVerificationCodeService {
     @Override
     public void check(String mobile) throws StatusCodeWithException {
         if (StringUtil.isEmpty(mobile)) {
-            throw new StatusCodeWithException("手机号不能为空", StatusCode.PARAMETER_CAN_NOT_BE_EMPTY);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_CAN_NOT_BE_EMPTY, "手机号不能为空");
         }
 
         if (!StringUtil.checkPhoneNumber(mobile)) {
-            throw new StatusCodeWithException("非法的手机号", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "非法的手机号");
         }
         AccountMysqlModel model = accountRepository.findOne("phoneNumber", DatabaseEncryptUtil.encrypt(mobile), AccountMysqlModel.class);
         // phone number error
         if (model == null) {
-            throw new StatusCodeWithException("手机号错误，该用户不存在", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "手机号错误，该用户不存在");
         }
         if (!model.getEnable()) {
-            throw new StatusCodeWithException("用户被禁用，请联系管理员", StatusCode.PERMISSION_DENIED);
+            throw new StatusCodeWithException(StatusCode.PERMISSION_DENIED, "用户被禁用，请联系管理员");
         }
 
         // check channel config
@@ -132,38 +132,38 @@ public class VerificationCodeService extends AbstractVerificationCodeService {
     private void checkEmailConfig() throws StatusCodeWithException {
         MailServerModel mailServerModel = globalConfigService.getModel(MailServerModel.class);
         if (null == mailServerModel) {
-            throw new StatusCodeWithException("邮件服务器未设置", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "邮件服务器未设置");
         }
         if (StringUtil.isEmpty(mailServerModel.getMailHost())) {
-            throw new StatusCodeWithException("邮件服务器地址未设置", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "邮件服务器地址未设置");
         }
         if (null == mailServerModel.getMailPort()) {
-            throw new StatusCodeWithException("邮件服务器端口未设置", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "邮件服务器端口未设置");
         }
         if (StringUtil.isEmpty(mailServerModel.getMailUsername())) {
-            throw new StatusCodeWithException("邮件用户名未设置", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "邮件用户名未设置");
         }
         if (StringUtil.isEmpty(mailServerModel.getMailPassword())) {
-            throw new StatusCodeWithException("邮件密码未设置", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "邮件密码未设置");
         }
     }
 
     private void checkSmsConfig() throws StatusCodeWithException {
         AliyunSmsChannelConfigModel aliyunSmsChannelConfigModel = globalConfigService.getModel(AliyunSmsChannelConfigModel.class);
         if (null == aliyunSmsChannelConfigModel) {
-            throw new StatusCodeWithException("阿里云短信通道未设置", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "阿里云短信通道未设置");
         }
         if (StringUtil.isEmpty(aliyunSmsChannelConfigModel.accessKeyId)) {
-            throw new StatusCodeWithException("阿里云短信通道AccessKeyId未设置", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "阿里云短信通道AccessKeyId未设置");
         }
         if (StringUtil.isEmpty(aliyunSmsChannelConfigModel.accessKeySecret)) {
-            throw new StatusCodeWithException("阿里云短信通道AccessKeySecret未设置", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "阿里云短信通道AccessKeySecret未设置");
         }
         if (StringUtil.isEmpty(aliyunSmsChannelConfigModel.signName)) {
-            throw new StatusCodeWithException("阿里云短信签名未设置", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "阿里云短信签名未设置");
         }
         if (StringUtil.isEmpty(aliyunSmsChannelConfigModel.retrievePasswordTemplateCode)) {
-            throw new StatusCodeWithException("阿里云短信模板码未设置", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "阿里云短信模板码未设置");
         }
     }
 

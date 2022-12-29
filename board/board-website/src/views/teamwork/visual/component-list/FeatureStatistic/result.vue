@@ -18,10 +18,26 @@
                                         >
                                             <el-tab-pane label="Overview">
                                                 <el-table :data="member.table[props.$index].overviewtable" stripe border>
-                                                    <el-table-column label="最小值" prop="min"/>
-                                                    <el-table-column label="最大值" prop="max"/>
-                                                    <el-table-column label="平均值" prop="mean"/>
-                                                    <el-table-column v-if="reference !== 'HorzStatistic'" label="众数" prop="mode"/>
+                                                    <el-table-column label="最小值" prop="min">
+                                                        <template v-slot="scope">
+                                                            {{ dealNumPrecision(scope.row.min) }}
+                                                        </template>
+                                                    </el-table-column>
+                                                    <el-table-column label="最大值" prop="max">
+                                                        <template v-slot="scope">
+                                                            {{ dealNumPrecision(scope.row.max) }}
+                                                        </template>
+                                                    </el-table-column>
+                                                    <el-table-column label="平均值" prop="mean">
+                                                        <template v-slot="scope">
+                                                            {{ dealNumPrecision(scope.row.mean) }}
+                                                        </template>
+                                                    </el-table-column>
+                                                    <el-table-column v-if="reference !== 'HorzStatistic'" label="众数" prop="mode">
+                                                        <template v-slot="scope">
+                                                            {{ dealNumPrecision(scope.row.mode) }}
+                                                        </template>
+                                                    </el-table-column>
                                                     <el-table-column label="非空值数量" prop="count" width="95px"/>
                                                     <el-table-column label="缺失数量" prop="missing_count" width="80px"/>
                                                     <el-table-column label="峰度" prop="kurtosis">
@@ -34,6 +50,9 @@
                                                                     </el-icon></p>
                                                             </el-tooltip>
                                                         </template>
+                                                        <template v-slot="scope">
+                                                            {{ dealNumPrecision(scope.row.kurtosis) }}
+                                                        </template>
                                                     </el-table-column>
                                                     <el-table-column label="偏态" prop="skewness">
                                                         <template v-slot:header>
@@ -44,30 +63,41 @@
                                                                 </el-icon></p>
                                                             </el-tooltip>
                                                         </template>
+                                                        <template v-slot="scope">
+                                                            {{ dealNumPrecision(scope.row.skewness) }}
+                                                        </template>
                                                     </el-table-column>
-                                                    <el-table-column label="标准差" prop="std_variance"/>
-                                                    <el-table-column label="方差" prop="variance"/>
+                                                    <el-table-column label="标准差" prop="std_variance">
+                                                        <template v-slot="scope">
+                                                            {{ dealNumPrecision(scope.row.std_variance) }}
+                                                        </template>
+                                                    </el-table-column>
+                                                    <el-table-column label="方差" prop="variance">
+                                                        <template v-slot="scope">
+                                                            {{ dealNumPrecision(scope.row.variance) }}
+                                                        </template>
+                                                    </el-table-column>
                                                 </el-table>
                                             </el-tab-pane>
                                             <!--Continuous type-->
                                             <el-tab-pane v-if="JSON.stringify(props.row.unique_count) === '{}'" label="Statistics" name="statistics">
                                                 <div class="flexbox">
                                                     <el-descriptions class="margin-top" title="Quantile statistics" :column="1" size="small" border style="flex: 1">
-                                                        <el-descriptions-item label="Minimum">{{props.row.min}}</el-descriptions-item>
-                                                        <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="5-th percentile">{{props.row.percentile[5]}}</el-descriptions-item>
-                                                        <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="Q1">{{props.row.percentile[25]}}</el-descriptions-item>
-                                                        <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="median">{{props.row.percentile[50]}}</el-descriptions-item>
-                                                        <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="Q3">{{props.row.percentile[75]}}</el-descriptions-item>
-                                                        <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="95-th percentile">{{props.row.percentile[95]}}</el-descriptions-item>
-                                                        <el-descriptions-item label="Maximum">{{props.row.max}}</el-descriptions-item>
-                                                        <el-descriptions-item label="Variance">{{props.row.variance}}</el-descriptions-item>
+                                                        <el-descriptions-item label="Minimum">{{dealNumPrecision(props.row.min)}}</el-descriptions-item>
+                                                        <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="5-th percentile">{{dealNumPrecision(props.row.percentile[5])}}</el-descriptions-item>
+                                                        <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="Q1">{{dealNumPrecision(props.row.percentile[25])}}</el-descriptions-item>
+                                                        <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="median">{{dealNumPrecision(props.row.percentile[50])}}</el-descriptions-item>
+                                                        <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="Q3">{{dealNumPrecision(props.row.percentile[75])}}</el-descriptions-item>
+                                                        <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="95-th percentile">{{dealNumPrecision(props.row.percentile[95])}}</el-descriptions-item>
+                                                        <el-descriptions-item label="Maximum">{{dealNumPrecision(props.row.max)}}</el-descriptions-item>
+                                                        <el-descriptions-item label="Variance">{{dealNumPrecision(props.row.variance)}}</el-descriptions-item>
                                                     </el-descriptions>
                                                     <el-descriptions class="margin-top" title="Descriptive statistics" :column="1" size="small" border style="flex: 1">
-                                                        <el-descriptions-item label="Standard deviation">{{props.row.std_variance}}</el-descriptions-item>
-                                                        <el-descriptions-item label="Coefficient of variation（CV）">{{props.row.cv}}</el-descriptions-item>
-                                                        <el-descriptions-item label="kurtosis">{{props.row.kurtosis}}</el-descriptions-item>
-                                                        <el-descriptions-item label="Mean">{{props.row.mean}}</el-descriptions-item>
-                                                        <el-descriptions-item label="Skewness">{{props.row.skewness}}</el-descriptions-item>
+                                                        <el-descriptions-item label="Standard deviation">{{dealNumPrecision(props.row.std_variance)}}</el-descriptions-item>
+                                                        <el-descriptions-item label="Coefficient of variation（CV）">{{dealNumPrecision(props.row.cv)}}</el-descriptions-item>
+                                                        <el-descriptions-item label="kurtosis">{{dealNumPrecision(props.row.kurtosis)}}</el-descriptions-item>
+                                                        <el-descriptions-item label="Mean">{{dealNumPrecision(props.row.mean)}}</el-descriptions-item>
+                                                        <el-descriptions-item label="Skewness">{{dealNumPrecision(props.row.skewness)}}</el-descriptions-item>
                                                     </el-descriptions>
                                                 </div>
                                             </el-tab-pane>
@@ -89,7 +119,11 @@
                                                         <el-table :data="member.table[props.$index].categoryTable" border style="flex: 1;max-height: 400px;overflow-y: auto;">
                                                             <el-table-column prop="category" label="category" width="180"></el-table-column>
                                                             <el-table-column prop="count" label="count" width="180"></el-table-column>
-                                                            <el-table-column prop="frequency" label="frequency"></el-table-column>
+                                                            <el-table-column prop="frequency" label="frequency">
+                                                                <template v-slot="scope">
+                                                                    {{ dealNumPrecision(scope.row.frequency) }}
+                                                                </template>
+                                                            </el-table-column>
                                                         </el-table>
                                                         <PieChart
                                                             v-if="member.table[props.$index].isPieChart"
@@ -133,6 +167,7 @@
     import { reactive, ref, onBeforeMount, getCurrentInstance, nextTick } from 'vue';
     import CommonResult from '../common/CommonResult';
     import resultMixin from '../result-mixin';
+    import { dealNumPrecision } from '@src/utils/utils.js';
 
     const mixin = resultMixin();
 
@@ -152,7 +187,7 @@
                 tabName:     '',
                 members:     [],
                 resultTypes: [],
-            })
+            });
             const BarChart = ref();
             const PieChart = ref();
             const { appContext, ctx } = getCurrentInstance();
@@ -342,7 +377,8 @@
                 activeName,
                 methods,
                 PieChartHandle: el => PieChart.value = el,
-                BarChartHandle: el => BarChart.value = el
+                BarChartHandle: el => BarChart.value = el,
+                dealNumPrecision,
             };
         },
     };
