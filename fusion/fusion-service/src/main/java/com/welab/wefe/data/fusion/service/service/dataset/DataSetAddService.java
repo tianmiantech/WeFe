@@ -130,22 +130,22 @@ public class DataSetAddService extends AbstractService {
     private int readAndSaveFromFile(DataSetMySqlModel model, File file, List<String> rows, boolean deduplication) throws IOException, StatusCodeWithException {
         long start = System.currentTimeMillis();
         LOG.info("Start parsing the data set：" + model.getId());
-
         boolean isCsv = file.getName().endsWith("csv");
-
-        FileReader in = new FileReader(file);
-        LineNumberReader reader = new LineNumberReader(in);
-        reader.skip(Long.MAX_VALUE);
-        int rowsCount = reader.getLineNumber() - 1;
+        int rowsCount = 0;
+        AbstractDataSetReader dataSetReader = isCsv ? new CsvDataSetReader(file) : new ExcelDataSetReader(file);
+        if (isCsv) {
+            long fileLength = file.length();
+            LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(file));
+            lineNumberReader.skip(fileLength);
+            rowsCount = lineNumberReader.getLineNumber() - 1; // 这个方法对于xlsx会有不准确
+            lineNumberReader.close();
+        } else {
+            rowsCount = (int) dataSetReader.getRowCount(0) - 1; // 去除header
+        }
         model.setRowCount(rowsCount);
         DataSetRepository dataSetRepository = Launcher.CONTEXT.getBean(DataSetRepository.class);
         dataSetRepository.updateById(model.getId(), "process", Progress.Ready, DataSetMySqlModel.class);
         dataSetRepository.updateById(model.getId(), "rowCount", rowsCount, DataSetMySqlModel.class);
-
-        AbstractDataSetReader dataSetReader = isCsv
-                ? new CsvDataSetReader(file)
-                : new ExcelDataSetReader(file);
-
         // Gets the data set column header
         List<String> headers = dataSetReader.getHeader();
 

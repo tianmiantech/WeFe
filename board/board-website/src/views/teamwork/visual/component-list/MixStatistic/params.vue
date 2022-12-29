@@ -116,7 +116,6 @@
                                     <span class="board-checkbox__inner"></span>
                                     <input :id="`label-${index * 5 + i - 1}`" class="board-checkbox__original" type="checkbox" />
                                 </span>
-                                <span class="board-checkbox__label">{{ list[index * 5 + i - 1] }}</span>
                                 <span class="board-checkbox__label">
                                     {{ list[index * 5 + i - 1] }}
                                     <FeatureTagVue :name="list[index * 5 + i - 1]" :data_set_id="vData.check_data_set_id" />

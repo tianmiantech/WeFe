@@ -34,7 +34,7 @@
         :frontStatus="frontStatus"
         @submit="submitHandle"
     />
-    <el-table :data="selectedFeature" v-loading="loading">
+    <Table :data="selectedFeature" small max-height="400" v-loading="loading">
         <el-table-column property="name" label="特征" width="150">
             <template v-slot="scope">
                 <el-tag
@@ -59,7 +59,7 @@
         />
         <el-table-column property="iv" label="IV" v-if="frontStatus.has_i_v" />
         <el-table-column property="cv" label="CV" v-if="frontStatus.has_c_v" />
-    </el-table>
+    </Table>
 </template>
 
 <script>
@@ -67,6 +67,7 @@
     import numeral from 'numeral';
     import FeatureFilter from './FeatureFilter.vue';
     import { useStore } from 'vuex';
+    import Table from './table.vue'
 
     const formatNumber = (num) =>
         num === null ? null : numeral(num).format('0.000');
@@ -76,6 +77,7 @@
         name:       'FeatureSelection',
         components: {
             FeatureFilter,
+            Table,
         },
         props: {
             projectId:    String,
