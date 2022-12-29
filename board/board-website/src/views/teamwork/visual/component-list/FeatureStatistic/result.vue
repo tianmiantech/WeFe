@@ -279,7 +279,7 @@
                                     median,
                                     q1,
                                     q95,
-                                    unique_count_sum: methods.numberSum(unique_count_values),
+                                    unique_count_sum: unique_count_values.length,
                                 });
                                 table[table.length-1].overviewtable.push(val);
                             }
