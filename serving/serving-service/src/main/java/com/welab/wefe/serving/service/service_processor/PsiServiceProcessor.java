@@ -139,7 +139,13 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             List<String> resultFields = new ArrayList<>(Arrays.asList(fieldStr.split(",")));
             // 0 根据ID查询对应的数据
             for (String idJson : ids) {// params
+                if (StringUtils.isBlank(idJson)) {
+                    continue;
+                }
                 JSONObject idObj = JSONObject.parseObject(idJson);
+                if (idObj.isEmpty()) {
+                    continue;
+                }
                 List<String> conditions = new ArrayList<>();
                 JSONArray keyCalcRules = dataSource.getJSONArray("key_calc_rules");
                 for (int i = 0; i < keyCalcRules.size(); i++) {
@@ -350,8 +356,13 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             String[] fields = item.getString("field").split(",");
             needFields.addAll(Arrays.asList(fields));
         }
-        String sql = "select " + StringUtils.join(needFields, ",") + " from " + tableName + " order by id limit "
-                + currentBatch * this.batchSize + ", " + this.batchSize;
+        String orderByField = "id";
+        if (dataSource.containsKey("order_by_field")
+                && StringUtils.isNotBlank(dataSource.getString("order_by_field"))) {
+            orderByField = dataSource.getString("order_by_field");
+        }
+        String sql = "select " + StringUtils.join(needFields, ",") + " from " + tableName + " order by "
+                + orderByField + " limit " + currentBatch * this.batchSize + ", " + this.batchSize;
         List<Map<String, String>> result = dataSourceService.queryList(dataSourceModel, sql, needFields);
         List<Queue<Map<String, String>>> partitionList = ServiceUtil.partitionList(result,
                 Math.max(this.batchSize / 100000, 1));
@@ -422,6 +433,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         } else if (dataSourceModel.getDatabaseType() == DatabaseType.Doris) {
             return getDorisData(model, dataSourceModel, dataSource, currentBatch);
         }
-        throw new StatusCodeWithException(StatusCode.INVALID_DATASET, "datasource type not support" + dataSourceModel.getDatabaseType());
+        throw new StatusCodeWithException(StatusCode.INVALID_DATASET,
+                "datasource type not support" + dataSourceModel.getDatabaseType());
     }
 }
