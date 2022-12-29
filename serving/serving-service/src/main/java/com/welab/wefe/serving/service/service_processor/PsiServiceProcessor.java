@@ -356,8 +356,13 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             String[] fields = item.getString("field").split(",");
             needFields.addAll(Arrays.asList(fields));
         }
-        String sql = "select " + StringUtils.join(needFields, ",") + " from " + tableName + " order by id limit "
-                + currentBatch * this.batchSize + ", " + this.batchSize;
+        String orderByField = "id";
+        if (dataSource.containsKey("order_by_field")
+                && StringUtils.isNotBlank(dataSource.getString("order_by_field"))) {
+            orderByField = dataSource.getString("order_by_field");
+        }
+        String sql = "select " + StringUtils.join(needFields, ",") + " from " + tableName + " order by "
+                + orderByField + " limit " + currentBatch * this.batchSize + ", " + this.batchSize;
         List<Map<String, String>> result = dataSourceService.queryList(dataSourceModel, sql, needFields);
         List<Queue<Map<String, String>>> partitionList = ServiceUtil.partitionList(result,
                 Math.max(this.batchSize / 100000, 1));
