@@ -271,7 +271,9 @@ public class PartnerService {
         partnerMysqlModel.setName(name);
         partnerMysqlModel.setEmail("");
         partnerMysqlModel.setRemark("");
-        partnerMysqlModel.setServingBaseUrl(url);
+        if(StringUtils.isNotBlank(url)) {
+            partnerMysqlModel.setServingBaseUrl(url);
+        }
         partnerMysqlModel.setCreatedBy(CurrentAccountUtil.get() == null ? "board推送" : CurrentAccountUtil.get().getId());
         partnerMysqlModel.setCode(code);
         partnerMysqlModel.setIsUnionMember(isUnionMember);

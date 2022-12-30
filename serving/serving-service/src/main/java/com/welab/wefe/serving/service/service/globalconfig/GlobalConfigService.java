@@ -125,6 +125,7 @@ public class GlobalConfigService extends BaseGlobalConfigService {
             AbstractConfigModel model = toModel(group.getKey(), group.getValue());
             put(model);
         }
+        CacheObjects.refreshGlobalConfig();
         ServiceCacheConfigModel cacheConfigModel = getModel(ServiceCacheConfigModel.class);
         if (cacheConfigModel == null) {
             return;

@@ -192,11 +192,6 @@ public class FileUtil {
         Files.copy(source, target, options);
     }
 
-    public static void main(String[] args) throws IOException {
-        String from = "/Users/zane/data/wefe_file_upload_dir/hello.zip";
-        String to = "/Users/zane/data/wefe_file_upload_dir/";
-        moveFile(new File(from), to);
-    }
 
     public static void moveFile(File file, String distDir) {
         moveFile(file, Paths.get(distDir));
@@ -244,5 +239,33 @@ public class FileUtil {
 
         }
         return lineList;
+    }
+
+    public static void saveJarResource2File(String resourcePath, File distFile) throws IOException {
+        if (distFile.exists()) {
+            distFile.delete();
+        }
+        InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourcePath);
+        FileOutputStream outputStream = new FileOutputStream(distFile);
+        byte[] bytes = new byte[1024];
+        while ((inputStream.read(bytes)) != -1) {
+            // 写入数据
+            outputStream.write(bytes);
+            outputStream.flush();
+        }
+        inputStream.close();
+        // 保存数据
+        outputStream.flush();
+        outputStream.close();
+
+    }
+
+    public static void main(String[] args) throws IOException {
+        // 文件储存路径
+        File file = new File("D://test.txt");
+        // 将 jar 包内的资源保存为文件
+        saveJarResource2File("test/pom.xml", file);
+
+        System.out.println(readAllText(file));
     }
 }
