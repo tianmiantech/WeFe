@@ -73,7 +73,7 @@ public class SocketUtils {
                     break;
                 }
             } catch (IOException e) {
-                LOG.warn("fusion task log , new socket error , ", e);
+                LOG.warn("fusion task log , new socket error , ip=" + ip + ", port=" + port, e);
             } finally {
                 if (retryDelay > 0) {
                     try {
