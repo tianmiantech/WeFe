@@ -74,7 +74,7 @@ public class DatSetDefaultTagContractService extends AbstractContractService {
             throw e;
         } catch (Exception e) {
             LOG.error("add dataSetDefaultTag error: ", e);
-            throw new StatusCodeWithException("add dataSetDefaultTag error: ", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "add dataSetDefaultTag error: ");
         }
     }
 
@@ -95,7 +95,7 @@ public class DatSetDefaultTagContractService extends AbstractContractService {
 
             transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
-            throw new StatusCodeWithException("updateByTagId failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "updateByTagId failed: " + e.getMessage());
         }
     }
 
@@ -111,7 +111,7 @@ public class DatSetDefaultTagContractService extends AbstractContractService {
 
             transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
-            throw new StatusCodeWithException("deleteByTagId failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "deleteByTagId failed: " + e.getMessage());
         }
     }
 

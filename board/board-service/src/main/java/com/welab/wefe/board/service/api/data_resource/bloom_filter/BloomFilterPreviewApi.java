@@ -81,7 +81,7 @@ public class BloomFilterPreviewApi extends AbstractApi<BloomFilterPreviewApi.Inp
                 output = readFile(file);
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
             }
         }
 
@@ -212,7 +212,7 @@ public class BloomFilterPreviewApi extends AbstractApi<BloomFilterPreviewApi.Inp
     private Output readFromDatabase(String dataSourceId, String sql) throws Exception {
         DataSourceMysqlModel model = bloomfilterService.getDataSourceById(dataSourceId);
         if (model == null) {
-            throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "dataSourceId在数据库不存在");
         }
 
         JdbcClient client = JdbcClient.create(
@@ -227,7 +227,7 @@ public class BloomFilterPreviewApi extends AbstractApi<BloomFilterPreviewApi.Inp
         // Get the column header of the data set
         List<String> header = client.getHeaders(sql);
         if (header.stream().distinct().count() != header.size()) {
-            throw new StatusCodeWithException("数据集包含重复的字段，请处理后重新上传。", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "数据集包含重复的字段，请处理后重新上传。");
         }
 
         // Convert uppercase Y to lowercase y
@@ -282,11 +282,11 @@ public class BloomFilterPreviewApi extends AbstractApi<BloomFilterPreviewApi.Inp
             // If the source is a database, dataSourceId and sql must not be empty.
             if (DataSetAddMethod.Database.equals(bloomfilterAddMethod)) {
                 if (StringUtils.isEmpty(dataSourceId)) {
-                    throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
+                    throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "dataSourceId在数据库不存在");
                 }
 
                 if (StringUtils.isEmpty(sql)) {
-                    throw new StatusCodeWithException("请填入sql查询语句", StatusCode.PARAMETER_CAN_NOT_BE_EMPTY);
+                    throw new StatusCodeWithException(StatusCode.PARAMETER_CAN_NOT_BE_EMPTY, "请填入sql查询语句");
                 }
             }
         }

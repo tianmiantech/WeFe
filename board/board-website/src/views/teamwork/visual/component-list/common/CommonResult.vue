@@ -95,7 +95,7 @@
     }
     .flex-form{
         .board-form-item{margin-bottom:5px;}
-        :deep(.board-form-item__label),
-        :deep(.board-form-item__content){line-height: 20px;}
+        // :deep(.board-form-item__label),
+        // :deep(.board-form-item__content){line-height: 20px;}
     }
 </style>

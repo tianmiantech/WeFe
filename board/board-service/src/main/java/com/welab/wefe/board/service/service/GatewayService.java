@@ -16,21 +16,11 @@
 
 package com.welab.wefe.board.service.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.api.project.flow.AddFlowApi;
-import com.welab.wefe.board.service.api.project.flow.CopyFlowApi;
-import com.welab.wefe.board.service.api.project.flow.DeleteApi;
-import com.welab.wefe.board.service.api.project.flow.UpdateFlowBaseInfoApi;
-import com.welab.wefe.board.service.api.project.flow.UpdateFlowGraphApi;
+import com.welab.wefe.board.service.api.project.flow.*;
 import com.welab.wefe.board.service.api.project.node.UpdateApi;
 import com.welab.wefe.board.service.api.project.project.AddApi;
+import com.welab.wefe.board.service.api.service.AliveApi;
 import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectFlowMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMemberMySqlModel;
@@ -50,6 +40,14 @@ import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import net.jodah.expiringmap.ExpiringMap;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author zane.luo
@@ -93,7 +91,7 @@ public class GatewayService extends BaseGatewayService {
             return;
         }
 
-        checkJobMemberList(members);
+        checkBeforeSyncToJobMembers(members);
         for (JobMemberMySqlModel member : members) {
             // Skip self
             if (CacheObjects.getMemberId().equals(member.getMemberId())) {
@@ -173,7 +171,7 @@ public class GatewayService extends BaseGatewayService {
             }
         }
 
-        checkProjectMemberList(members);
+        checkBeforeSyncToProjectMembers(members);
         for (ProjectMemberMySqlModel member : members) {
             // Skip self
             if (CacheObjects.getMemberId().equals(member.getMemberId())) {
@@ -202,32 +200,74 @@ public class GatewayService extends BaseGatewayService {
         }
     }
 
+    /**
+     * @see {{@link #checkBeforeSyncToOtherMembers(List)}}
+     */
+    private void checkBeforeSyncToProjectMembers(List<ProjectMemberMySqlModel> members) throws StatusCodeWithException {
+        List<String> ids = members
+                .stream()
+                .map(ProjectMemberMySqlModel::getMemberId)
+                .collect(Collectors.toList());
 
-    private void checkProjectMemberList(List<ProjectMemberMySqlModel> members) throws StatusCodeWithException {
-        List<String> ids = members.stream().map(x -> x.getMemberId()).collect(Collectors.toList());
-        checkMemberList(ids);
-    }
-
-    private void checkJobMemberList(List<JobMemberMySqlModel> members) throws StatusCodeWithException {
-        List<String> ids = members.stream().map(x -> x.getMemberId()).collect(Collectors.toList());
-        checkMemberList(ids);
+        checkBeforeSyncToOtherMembers(ids);
     }
 
     /**
-     * check member list, if any member in blacklist, throw exception.
+     * @see {{@link #checkBeforeSyncToOtherMembers(List)}}
      */
-    private void checkMemberList(List<String> ids) throws StatusCodeWithException {
-        List<String> blacklistMembers = ids.stream().filter(x -> CacheObjects.getMemberBlackList().contains(x)).collect(Collectors.toList());
-        if (!blacklistMembers.isEmpty()) {
-            String first = blacklistMembers.get(0);
-            StatusCode
-                    .ILLEGAL_REQUEST
-                    .throwException("成员 " + CacheObjects.getMemberName(first)
-                            + "（" + first
-                            + "）在我方黑名单中，无法向其发送消息，如有必要，请在黑名单中移除该成员后再进行操作。"
-                    );
+    private void checkBeforeSyncToJobMembers(List<JobMemberMySqlModel> members) throws StatusCodeWithException {
+        List<String> ids = members
+                .stream()
+                .map(JobMemberMySqlModel::getMemberId)
+                .collect(Collectors.toList());
+
+        checkBeforeSyncToOtherMembers(ids);
+    }
+
+    /**
+     * cache
+     */
+    protected static final ExpiringMap<String, Object> CACHE_MAP = ExpiringMap.builder().expiration(60, TimeUnit.SECONDS).maxSize(500).build();
+
+    /**
+     * 在将消息广播到其它成员之前的检查
+     * 1. 检查是否在黑名单中
+     * 2. 检查与之通信情况是否正常
+     */
+    private void checkBeforeSyncToOtherMembers(List<String> memberIds) throws StatusCodeWithException {
+        List<String> ids = memberIds
+                .stream()
+                // 剔除自己
+                .filter(x -> !CacheObjects.getMemberId().equals(x))
+                // 去重
+                .distinct()
+                .collect(Collectors.toList());
+
+        for (String memberId : ids) {
+            // 检查是否在黑名单中
+            if (CacheObjects.getMemberBlackList().contains(memberId)) {
+                StatusCode
+                        .ILLEGAL_REQUEST
+                        .throwException("成员 " + CacheObjects.getMemberName(memberId)
+                                + " 在我方黑名单中，无法向其发送消息，如有必要，请在黑名单中移除该成员后再进行操作。"
+                        );
+            }
+
+            // 检查通信是否正常，避免在多成员广播时，出现部分成员成功，部分失败的情况。
+            String key = memberId + "_call_board_alive";
+            // 使用缓存，避免高频请求。
+            if (!CACHE_MAP.containsKey(key)) {
+                try {
+                    callOtherMemberBoard(memberId, AliveApi.class, null, Object.class);
+                    CACHE_MAP.put(key, null);
+                } catch (StatusCodeWithException e) {
+                    throw e;
+                }
+            }
+
         }
     }
+
 
     /**
      * Get the member list in the project and de duplicate it.

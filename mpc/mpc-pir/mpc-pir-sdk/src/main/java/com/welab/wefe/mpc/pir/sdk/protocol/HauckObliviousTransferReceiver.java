@@ -17,7 +17,15 @@
 
 package com.welab.wefe.mpc.pir.sdk.protocol;
 
-import cn.hutool.core.util.StrUtil;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.welab.wefe.mpc.commom.Conversion;
 import com.welab.wefe.mpc.pir.protocol.nt.group.GroupArithmetic;
 import com.welab.wefe.mpc.pir.protocol.nt.group.GroupElement;
@@ -27,16 +35,10 @@ import com.welab.wefe.mpc.pir.protocol.ot.hauck.HauckObliviousTransfer;
 import com.welab.wefe.mpc.pir.request.QueryRandomLegalRequest;
 import com.welab.wefe.mpc.pir.request.QueryRandomLegalResponse;
 import com.welab.wefe.mpc.pir.request.QueryRandomRequest;
-import com.welab.wefe.mpc.pir.sdk.crypt.CryptUtil;
 import com.welab.wefe.mpc.pir.sdk.trasfer.PrivateInformationRetrievalTransferVariable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.welab.wefe.mpc.util.EncryptUtil;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import cn.hutool.core.util.StrUtil;
 
 /**
  * @author eval
@@ -127,7 +129,7 @@ public class HauckObliviousTransferReceiver extends HauckObliviousTransfer imple
             LOG.error("CompletableFuture Interrupted", e);
         }
         if (response.getResults() != null && !response.getResults().isEmpty()) {
-            String result = CryptUtil.decrypt(response.getResults().get(target), targetKey);
+            String result = EncryptUtil.decryptByAES(response.getResults().get(target), targetKey);
             key.setResult(result);
         }
 

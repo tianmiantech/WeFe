@@ -16,20 +16,20 @@
 
 package com.welab.wefe.mpc.psi.sdk;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import com.welab.wefe.mpc.config.CommunicationConfig;
-import com.welab.wefe.mpc.key.DiffieHellmanKey;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
-import com.welab.wefe.mpc.psi.sdk.operation.ListOperator;
-import com.welab.wefe.mpc.psi.sdk.operation.impl.IntersectionOperator;
+import com.welab.wefe.mpc.psi.sdk.dh.DhPsiClient;
 import com.welab.wefe.mpc.psi.sdk.service.PrivateSetIntersectionService;
-import com.welab.wefe.mpc.util.DiffieHellmanUtil;
+import com.welab.wefe.mpc.psi.sdk.util.EcdhUtil;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
@@ -38,14 +38,15 @@ import cn.hutool.core.util.StrUtil;
  * @Author: eval
  * @Date: 2021-12-23
  **/
-public class PrivateSetIntersection {
+public class PrivateSetIntersection extends Psi {
 
     /**
      * 多方求交集
+     * 
      * @param configs 服务器的通信配置信息列表
-     * @param ids 本方id集
+     * @param ids     本方id集
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     public List<String> query(List<CommunicationConfig> configs, List<String> ids) throws Exception {
         List<String> result = new ArrayList<>(ids);
@@ -59,61 +60,87 @@ public class PrivateSetIntersection {
         return result;
     }
 
-    public List<String> query(CommunicationConfig config, List<String> ids) throws Exception {
-        return query(config, ids, 1024);
-    }
-
-    public List<String> query(CommunicationConfig config, List<String> ids, int keySize) throws Exception {
-        return query(config, ids, keySize, new IntersectionOperator());
-    }
-
-    /**
-     * 查询本文id集与服务器id集的集合操作
-     *
-     * @param config   服务器的连接信息
-     * @param ids      本方id集
-     * @param keySize  密钥安全长度
-     * @param operator 自定义列表运算结果,默认求两个列表交集
-     * @return
-     * @throws Exception 
-     */
-    public List<String> query(CommunicationConfig config, List<String> ids, int keySize, ListOperator operator) throws Exception {
-        if (CollectionUtil.isEmpty(ids)) {
+    @Override
+    public List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch, int batchSize)
+            throws Exception {
+        if (isContinue()) {
+            int arr[] = readLastCurrentBatchAndSize(config.getRequestId());
+            currentBatch = arr[0] + 1;
+            batchSize = arr[1];
+        }
+        if (CollectionUtil.isEmpty(clientIds)) {
             throw new IllegalArgumentException("local id is empty");
         }
         if (config == null || StrUtil.isEmpty(config.getServerUrl())) {
             throw new IllegalArgumentException("server config missing");
         }
-        if (keySize < 1) {
-            keySize = 1024;
-        }
-        if (operator == null) {
-            operator = new IntersectionOperator();
-        }
-
-        DiffieHellmanKey diffieHellmanKey = DiffieHellmanUtil.generateKey(keySize);
-        BigInteger key = DiffieHellmanUtil.generateRandomKey(keySize);
-        List<String> encryptIds = new ArrayList<>(ids.size());
-        for (String id : ids) {
-            encryptIds.add(DiffieHellmanUtil.encrypt(id, key, diffieHellmanKey.getP()).toString(16));
-        }
+        long start = System.currentTimeMillis();
+        DhPsiClient client = new DhPsiClient();
+        // 加密我自己的数据
+        Map<Long, String> clientEncryptedDatasetMap = client.encryptClientOriginalDataset(clientIds);
         QueryPrivateSetIntersectionRequest request = new QueryPrivateSetIntersectionRequest();
-        request.setP(diffieHellmanKey.getP().toString(16));
-        request.setClientIds(encryptIds);
-        request.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
+        request.setP(client.getP().toString(16));
+        // 发给服务端
+        request.setClientIds(EcdhUtil.convert2List(clientEncryptedDatasetMap));
+        request.setRequestId(config.getRequestId());
+        request.setCurrentBatch(currentBatch);
+        request.setType(Psi.DH_PSI);
+        request.setBatchSize(batchSize);
         PrivateSetIntersectionService privateSetIntersectionService = new PrivateSetIntersectionService();
+        logger.info("dh psi request = " + request);
         QueryPrivateSetIntersectionResponse response = privateSetIntersectionService.handle(config, request);
-        if(response.getCode() != 0) {
+        if (response.getCode() != 0) {
             throw new Exception(response.getMessage());
         }
-        List<String> encryptServerIds = response.getServerEncryptIds();
-        List<String> encryptIdWithServerKeys = response.getClientIdByServerKeys();
-        List<String> serverIdWithClientKeys = new ArrayList<>(encryptServerIds.size());
-        for (String serverId : encryptServerIds) {
-            String encryptValue = DiffieHellmanUtil.encrypt(serverId, key, diffieHellmanKey.getP(), false).toString(16);
-            serverIdWithClientKeys.add(encryptValue);
+        boolean hasNext = response.isHasNext();
+        logger.info("dh psi response serverIds size = " + CollectionUtils.size(response.getServerEncryptIds())
+                + ", clientIds size = " + CollectionUtils.size(response.getClientIdByServerKeys()));
+        // 获取服务端id, 加密服务端ID
+        client.encryptServerDataset(response.getServerEncryptIds());
+        // 获取被服务端加密了的客户端ID
+        client.setClientIdByServerKeys(EcdhUtil.convert2Map(response.getClientIdByServerKeys()));
+        List<String> result = new ArrayList<>();
+        Set<String> batchResult = client.psi();
+        if (batchResult != null && !batchResult.isEmpty()) {
+            if (clientDatasetMap != null && !clientDatasetMap.isEmpty()) {
+                batchResult = batchResult.stream().map(s -> clientDatasetMap.get(s)).collect(Collectors.toSet());
+            }
+            result.addAll(batchResult);
         }
-
-        return operator.operator(ids, encryptIdWithServerKeys, serverIdWithClientKeys);
+        saveLastCurrentBatchAndSize(request.getRequestId(), request.getCurrentBatch(), request.getBatchSize());
+        savePsiResult(batchResult, request.getRequestId());
+        logger.info("dh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
+                + result.size() + ", hasNext = " + hasNext + ", duration = " + (System.currentTimeMillis() - start));
+        while (hasNext) {
+            start = System.currentTimeMillis();
+            // 发给服务端
+            request.setClientIds(null);// 只需要第一次传给服务端
+            request.setCurrentBatch(request.getCurrentBatch() + 1);
+            privateSetIntersectionService = new PrivateSetIntersectionService();
+            logger.info("dh psi request = " + request);
+            response = privateSetIntersectionService.handle(config, request);
+            if (response.getCode() != 0) {
+                throw new Exception(response.getMessage());
+            }
+            hasNext = response.isHasNext();
+            logger.info("dh psi response serverIds size = " + CollectionUtils.size(response.getServerEncryptIds())
+                    + ", clientIds size = " + CollectionUtils.size(response.getClientIdByServerKeys()));
+            // 获取服务端id, 加密服务端ID
+            client.encryptServerDataset(response.getServerEncryptIds());
+            // 获取被服务端加密了的客户端ID
+//            client.setClientIdByServerKeys(response.getClientIdByServerKeys());
+            batchResult = client.psi();
+            if (batchResult != null && !batchResult.isEmpty()) {
+                if (clientDatasetMap != null && !clientDatasetMap.isEmpty()) {
+                    batchResult = batchResult.stream().map(s -> clientDatasetMap.get(s)).collect(Collectors.toSet());
+                }
+                result.addAll(batchResult);
+            }
+            saveLastCurrentBatchAndSize(request.getRequestId(), request.getCurrentBatch(), request.getBatchSize());
+            savePsiResult(batchResult, request.getRequestId());
+            logger.info("dh psi result, currentBatch = " + request.getCurrentBatch() + ", all psi result size = "
+                    + result.size() + ", hasNext = " + hasNext + ",duration = " + (System.currentTimeMillis() - start));
+        }
+        return result;
     }
 }

@@ -82,7 +82,7 @@ public class AbstractDataResourceUpdateInputModel extends AbstractApiInput {
 
 
         if (publicLevel == DataResourcePublicLevel.PublicWithMemberList && StringUtils.isEmpty(publicMemberList)) {
-            throw new StatusCodeWithException("请指定可见成员", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "请指定可见成员");
         }
 
         int countByName = 0;
@@ -94,7 +94,7 @@ public class AbstractDataResourceUpdateInputModel extends AbstractApiInput {
         }
 
         if (countByName > 0) {
-            throw new StatusCodeWithException("此资源名称已存在，请换一个名称", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "此资源名称已存在，请换一个名称");
         }
     }
 

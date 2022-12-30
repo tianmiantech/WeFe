@@ -66,7 +66,7 @@ public class EnableApi extends AbstractApi<RealnameAuthAgreementTemplateEnableIn
                 }
             }
         } catch (StatusCodeWithException e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
         return success();

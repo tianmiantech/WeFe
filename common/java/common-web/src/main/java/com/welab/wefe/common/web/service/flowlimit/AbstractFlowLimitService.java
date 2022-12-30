@@ -59,7 +59,7 @@ public abstract class AbstractFlowLimitService {
             flowLimit = (null == flowLimit ? createFlowLimit() : flowLimit);
             if ((System.currentTimeMillis() - flowLimit.getStartVisitTime()) <= (getFlowLimitSecond() * 1000L)) {
                 if (flowLimit.getCount() >= getFlowLimitCount()) {
-                    throw new StatusCodeWithException(getFlowLimitExceptionTips(), StatusCode.PERMISSION_DENIED);
+                    throw new StatusCodeWithException(StatusCode.PERMISSION_DENIED, getFlowLimitExceptionTips());
                 }
                 flowLimit.setCount(flowLimit.getCount() + 1);
             } else {

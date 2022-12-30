@@ -60,7 +60,7 @@ public class AuditApi extends AbstractNoneOutputApi<AuditApi.Input> {
             if (auditResult == AuditStatus.disagree) {
                 // Non-empty check
                 if (StringUtil.isBlank(getAuditComment())) {
-                    throw new StatusCodeWithException("请填写审批意见", StatusCode.PARAMETER_VALUE_INVALID);
+                    throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "请填写审批意见");
                 }
             }
         }

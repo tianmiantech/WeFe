@@ -28,6 +28,7 @@
         reactive,
         onMounted,
         onBeforeUnmount,
+        nextTick,
     } from 'vue';
 
     use([
@@ -202,11 +203,10 @@
 
             onMounted(() => {
                 vData.loading = props.config.loading || false;
-
-                setTimeout(() => {
+                nextTick(() => {
                     initChart();
                     changeData();
-                }, 100);
+                });
             });
 
             onBeforeUnmount(() => {
@@ -238,5 +238,5 @@
         padding-top: 170px;
         z-index: 20;
     }
-    .chart {min-height: 400px;}
+    .chart {min-height: 400px;min-width: 200px;}
 </style>

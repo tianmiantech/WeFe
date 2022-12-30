@@ -28,7 +28,7 @@ public class MemberGatewayException extends StatusCodeWithException {
 
 
     public MemberGatewayException(String memberId, String message) {
-        super(message, StatusCode.REMOTE_SERVICE_ERROR);
+        super(StatusCode.REMOTE_SERVICE_ERROR, message);
         this.memberId = memberId;
     }
 

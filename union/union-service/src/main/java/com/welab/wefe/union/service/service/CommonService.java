@@ -73,16 +73,16 @@ public class CommonService {
             MemberFileInfo memberFileInfo = memberFileInfoMongoRepo.findByFileId(input.getFileId());
             RealnameAuthAgreementTemplate realnameAuthAgreementTemplate = realnameAuthAgreementTemplateMongoRepo.findByTemplateFileId(input.getFileId());
 
-            String fileUploadCurrentBlockchainNodeId;
+            String fileUploadCurrentBlockchainNodeId = null;
             if (memberFileInfo == null) {
                 if (realnameAuthAgreementTemplate == null) {
-                    throw new StatusCodeWithException(StatusCode.FILE_DOES_NOT_EXIST, input.getFileId());
+                    StatusCode.FILE_DOES_NOT_EXIST.throwExWithFormatMsg(input.getFileId());
                 } else {
                     fileUploadCurrentBlockchainNodeId = realnameAuthAgreementTemplate.getBlockchainNodeId();
                 }
             } else {
                 if (!memberFileInfo.getMemberId().equals(input.curMemberId) && FileRurpose.RealnameAuth.name().equals(memberFileInfo.getRurpose())) {
-                    throw new StatusCodeWithException("没有下载该文件的权限", StatusCode.ILLEGAL_REQUEST);
+                    throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "没有下载该文件的权限");
                 } else {
                     fileUploadCurrentBlockchainNodeId = memberFileInfo.getBlockchainNodeId();
                 }
@@ -131,7 +131,8 @@ public class CommonService {
         } catch (StatusCodeWithException e) {
             throw e;
         } catch (Exception e) {
-            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
+            StatusCode.SYSTEM_ERROR.throwException(e);
+            return null;
         }
     }
 
@@ -185,8 +186,9 @@ public class CommonService {
         } catch (StatusCodeWithException e) {
             throw e;
         } catch (Exception e) {
-            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
+            StatusCode.SYSTEM_ERROR.throwException(e);
         }
+        return null;
     }
 
 
@@ -248,7 +250,8 @@ public class CommonService {
         } catch (StatusCodeWithException e) {
             throw e;
         } catch (Exception e) {
-            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
+            StatusCode.SYSTEM_ERROR.throwException(e);
+            return null;
         }
     }
 

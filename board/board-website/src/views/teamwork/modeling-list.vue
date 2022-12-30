@@ -27,7 +27,7 @@
                         />
                     </el-select>
                 </el-form-item>
-                <el-form-item label="来源训练：">
+                <el-form-item label="训练来源：">
                     <el-select v-model="vData.search.flow_id" clearable>
                         <el-option
                             v-for="item in vData.flowList"
@@ -47,7 +47,7 @@
                 </el-form-item>
             </el-form>
             <div class="model-list-box">
-                <div class="model-check-tips f14">勾选列表进行对比（<span>{{vData.checkedModelList.length}}</span>/2）</div>
+                <div class="model-check-tips f14">勾选模型进行对比（<span>{{vData.checkedModelList.length}}</span>/3）</div>
                 <div v-if="vData.modelList.length" v-loading="vData.modelLoading">
                     <div v-infinite-scroll="methods.getSearchModelList" infinite-scroll-delay="100" class="model-scroll-box">
                         <div v-for="(item,index) in vData.modelList" :key="item.id" class="model-scroll-item">
@@ -96,7 +96,7 @@
                                     </div>
                                 </template>
                             </el-popover>
-                            <el-checkbox v-model="item.ischecked" :disabled="!item.job_id || (vData.checkedModelList.length === 2 && !item.ischecked)" @change="methods.modelCheckboxChange($event, item, index)" />
+                            <el-checkbox v-model="item.ischecked" :disabled="!item.job_id || (vData.checkedModelList.length === 3 && !item.ischecked)" @change="methods.modelCheckboxChange($event, item, index)" />
                         </div>
                     </div>
                 </div>
@@ -104,13 +104,13 @@
             </div>
         </div>
         <div class="model-compare-result-list">
-            <div v-if="vData.checkedModelList.length" id="result-box" class="result-box">
-                <div v-for="(item, index) in vData.checkedModelList" :key="item.id" class="result-item" :style="{'width': 100/vData.checkedModelList.length + '%'}">
+            <el-row v-if="vData.checkedModelList.length">
+                <el-col v-for="item in vData.checkedModelList" :key="item.id" :span="24/vData.checkedModelList.length">
                     <h4>{{ item.flow_name }}-{{ item.name }}</h4>
                     <div class="model-params-box">
                         <div class="mb20">
                             <div class="model-param">
-                                <el-descriptions title="模型参数" :column="2" border>
+                                <el-descriptions title="模型参数" :column="1" border>
                                     <!-- HorzSecureBoost -->
                                     <div v-if="item.component_type === 'HorzSecureBoost'">
                                         <!-- cv_param -->
@@ -246,20 +246,23 @@
                                         <el-descriptions-item label="顶层参数"> {{item.modeling_params.top_nn_define}} </el-descriptions-item>
                                     </div>
                                 </el-descriptions>
-                                <template v-if="item.modeling_params.grid_search_param.need_grid_search">
-                                    <el-descriptions title="网格搜索参数" :column="2" border>
-                                        <el-descriptions-item
-                                            v-for="(value, keyName) in item.modeling_params.grid_search_param.params_list"
-                                            :key="keyName"
-                                            :label="mapGridName(keyName)"
-                                        > {{ value
-                                        }} </el-descriptions-item>
-                                    </el-descriptions>
-                                </template>
                             </div>
                         </div>
-                        <el-divider />
                     </div>
+                </el-col>
+                <el-divider />
+                <el-col v-for="item in vData.checkedModelList" :key="item.id" :span="24/vData.checkedModelList.length">
+                    <el-descriptions title="网格搜索参数" :column="2" border v-if="item.modeling_params?.grid_search_param?.need_grid_search">
+                        <el-descriptions-item
+                            v-for="(value, keyName) in item.modeling_params.grid_search_param.params_list"
+                            :key="keyName"
+                            :label="mapGridName(keyName)"
+                        > {{ value
+                        }} </el-descriptions-item>
+                        <el-divider />
+                    </el-descriptions>
+                </el-col>
+                <el-col v-for="(item, index) in vData.checkedModelList" :key="item.id" :span="24/vData.checkedModelList.length">
                     <ChartsWithTabs
                         :ref="setChartsWithTabsRef"
                         result-api="/project/modeling/detail"
@@ -270,8 +273,8 @@
                         :is-tab-linkage="vData.isTabLinkage"
                         @change-tabname="methods.changeTabName($event, index)"
                     />
-                </div>
-            </div>
+                </el-col>
+            </el-row>
             <div v-else class="p10 model-result-empty"><EmptyData msg="勾选左侧模型进行对比吧～" /></div>
         </div>
     </el-card>
@@ -459,7 +462,13 @@
                         if (ChartsWithTabsRef.value && ChartsWithTabsRef.value.length > 1) {
                             const idx = index === 0 ? 1 : 0;
 
-                            ChartsWithTabsRef.value[idx].tabName = ChartsWithTabsRef.value[index].tabName;
+                            ChartsWithTabsRef.value.forEach((item, ins) => {
+                                if(ins !== index && item ){
+                                     ChartsWithTabsRef.value[ins].tabName = ChartsWithTabsRef.value[index].tabName
+                                }
+                            })
+                            // ChartsWithTabsRef.value[idx].tabName = ChartsWithTabsRef.value[index].tabName;
+                            console.log("ChartsWithTabsRef.value",ChartsWithTabsRef.value)
                         }
                     });
                 },

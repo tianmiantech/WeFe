@@ -71,7 +71,7 @@ public class XgboostVertPromoterBatchAlgorithm extends AbstractXgBoostBatchAlgor
     private void getFederatedPredict(List<JObject> federatedResult) throws StatusCodeWithException {
 
         if (CollectionUtils.isEmpty(federatedResult)) {
-            throw new StatusCodeWithException("协作方结果有误！", StatusCode.REMOTE_SERVICE_ERROR);
+            throw new StatusCodeWithException(StatusCode.REMOTE_SERVICE_ERROR, "协作方结果有误！");
         }
 
         /**
@@ -106,7 +106,7 @@ public class XgboostVertPromoterBatchAlgorithm extends AbstractXgBoostBatchAlgor
         }
 
         if (MapUtils.isEmpty(remoteResult)) {
-            throw new StatusCodeWithException("remoteResult is null", StatusCode.REMOTE_SERVICE_ERROR);
+            throw new StatusCodeWithException(StatusCode.REMOTE_SERVICE_ERROR, "remoteResult is null");
         }
     }
 

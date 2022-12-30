@@ -30,7 +30,7 @@
                             :key="key"
                             :name="index"
                             :label="key.split(':')[0]"
-                        >      
+                        >
                             <el-table
                                 :data="value"
                                 :default-sort="{
@@ -101,6 +101,7 @@
     import CommonResult from '../common/CommonResult';
     import resultMixin from '../result-mixin';
     import gridSearchParams from '../../../../../assets/js/const/gridSearchParams';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     const mixin = resultMixin();
 
@@ -129,7 +130,7 @@
                     isConverged: null,
                 },
                 pollingOnJobRunning: true,
-                role: ''
+                role:                '',
             });
 
             let methods = {
@@ -145,19 +146,21 @@
                         const { isConverged, featureImportances } = data[0].result.model_param;
                         const { train_best_parameters, train_params_list } =
                             data[0].result;
+
                         vData.role = data[0].role;
                         vData.loss.isConverged = isConverged;
                         vData.loss.loading = false;
                         vData.featureImportances = featureImportances.map((each) => ({
                             ...each,
                             importanceShow:
-                                Math.round(
+                                /* Math.round(
                                     each[
                                         each.main === 'split'
                                             ? 'importance2'
                                             : 'importance'
                                     ] * 1e2,
-                                ) / 1e2,
+                                ) / 1e2, */
+                                each.main === 'split' ? dealNumPrecision(each.importance2) : each.importance,
                         })).reduce(
                             (acc, cur) => ({
                                 ...acc,
@@ -195,19 +198,19 @@
                                         if(index === 'Best')
                                             return;
                                         vData.loss.xAxis.push(index);
-                                        vData.loss.series[0].push(item);
+                                        vData.loss.series[0].push(dealNumPrecision(item.value));
                                         vData.loss.iters += 1;
                                     },
                                 );
                             }
                         } else {
-                            const losses = data[0].result.train_loss.data;
+                            const lossData = result.train_loss.data.length ? result.train_loss.data : result.model_param.losses;
 
-                            losses.forEach((item, index) => {
+                            lossData.forEach((item, index) => {
                                 vData.loss.xAxis.push(index);
-                                vData.loss.series[0].push(item);
+                                vData.loss.series[0].push(dealNumPrecision(item));
                             });
-                            vData.loss.iters = losses.length;
+                            vData.loss.iters = lossData.length;
                         }
                     } else {
                         vData.result = false;

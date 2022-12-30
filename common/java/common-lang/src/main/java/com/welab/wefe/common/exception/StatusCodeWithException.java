@@ -23,14 +23,28 @@ import com.welab.wefe.common.StatusCode;
  * @author Zane
  */
 public class StatusCodeWithException extends Exception {
+    public static StatusCodeWithException of(StatusCode statusCode, String message) {
+        return new StatusCodeWithException(statusCode, message);
+    }
+
+    /**
+     * 意料之外的枚举项
+     */
+    public static StatusCodeWithException ofUnexpectedEnumCase(Enum aEnum) {
+        StatusCode code = StatusCode.UNEXPECTED_ENUM_CASE;
+        String message = code.getMessage(aEnum.name());
+        return new StatusCodeWithException(code, message);
+    }
+
+
     private StatusCode statusCode;
 
-    public StatusCodeWithException(StatusCode statusCode, String... args) {
-        super(statusCode.getMessage(args));
+    public StatusCodeWithException(StatusCode statusCode) {
+        super(statusCode.getMessage());
         this.statusCode = statusCode;
     }
 
-    public StatusCodeWithException(String message, StatusCode statusCode) {
+    public StatusCodeWithException(StatusCode statusCode, String message) {
         super(message);
         this.statusCode = statusCode;
     }

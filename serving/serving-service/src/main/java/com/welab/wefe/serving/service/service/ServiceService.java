@@ -16,9 +16,50 @@
 
 package com.welab.wefe.serving.service.service;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.TreeMap;
+import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringSubstitutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
@@ -37,47 +78,57 @@ import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostDecisionTreeModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostNodeModel;
-import com.welab.wefe.serving.service.api.service.*;
+import com.welab.wefe.serving.service.api.service.AddApi;
+import com.welab.wefe.serving.service.api.service.DetailApi;
+import com.welab.wefe.serving.service.api.service.QueryApi;
+import com.welab.wefe.serving.service.api.service.QueryOneApi;
+import com.welab.wefe.serving.service.api.service.RouteApi;
 import com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Output;
 import com.welab.wefe.serving.service.api.service.UpdateApi.Input;
 import com.welab.wefe.serving.service.config.Config;
-import com.welab.wefe.serving.service.database.entity.*;
-import com.welab.wefe.serving.service.database.repository.*;
-import com.welab.wefe.serving.service.dto.*;
-import com.welab.wefe.serving.service.enums.*;
+import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.serving.service.database.entity.BaseServiceMySqlModel;
+import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
+import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
+import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
+import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
+import com.welab.wefe.serving.service.database.entity.ServiceCallLogMysqlModel;
+import com.welab.wefe.serving.service.database.entity.ServiceOrderMysqlModel;
+import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
+import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
+import com.welab.wefe.serving.service.database.repository.AccountRepository;
+import com.welab.wefe.serving.service.database.repository.BaseServiceRepository;
+import com.welab.wefe.serving.service.database.repository.ModelMemberRepository;
+import com.welab.wefe.serving.service.database.repository.TableModelRepository;
+import com.welab.wefe.serving.service.database.repository.TableServiceRepository;
+import com.welab.wefe.serving.service.dto.ModelSqlConfigOutput;
+import com.welab.wefe.serving.service.dto.ModelStatusOutput;
+import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.dto.ServiceDetailOutput;
+import com.welab.wefe.serving.service.dto.TreeNode;
+import com.welab.wefe.serving.service.dto.TreeNodeData;
+import com.welab.wefe.serving.service.enums.CallByMeEnum;
+import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
+import com.welab.wefe.serving.service.enums.ServiceResultEnum;
+import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.service_processor.AbstractServiceProcessor;
 import com.welab.wefe.serving.service.service_processor.ServiceProcessorUtils;
-import com.welab.wefe.serving.service.utils.*;
+import com.welab.wefe.serving.service.utils.ServiceUtil;
+import com.welab.wefe.serving.service.utils.SignUtils;
+import com.welab.wefe.serving.service.utils.ZipUtils;
 import com.welab.wefe.serving.service.utils.component.ScoreCardComponentUtil;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringSubstitutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 服务 Service
  */
 @Service
 public class ServiceService {
+
+    private final static Cache<String, Object> caches = CacheBuilder.newBuilder()
+            .expireAfterAccess(10, TimeUnit.MINUTES).build();
 
     protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
@@ -108,6 +159,7 @@ public class ServiceService {
     private ModelMemberRepository modelMemberRepository;
     @Autowired
     private ModelMemberService modelMemberService;
+    private int threads = Math.max(Runtime.getRuntime().availableProcessors(), 4);
 
     public com.welab.wefe.serving.service.api.service.DetailApi.Output detail(
             com.welab.wefe.serving.service.api.service.DetailApi.Input input) throws Exception {
@@ -138,7 +190,8 @@ public class ServiceService {
                 output.getAlgorithm() == Algorithm.XGBoost ? xgboost(output.getModelParam(), output.getFlType())
                         : null);
         output.setModelStatus(getModelStatus(model, output));
-        output.setScoreCardInfo(model.getScoreCardInfo() != null ? ScoreCardComponentUtil.scoreCardInfo(model) : JObject.create());
+        output.setScoreCardInfo(
+                model.getScoreCardInfo() != null ? ScoreCardComponentUtil.scoreCardInfo(model) : JObject.create());
 
         JSONObject preview = new JSONObject();
         preview.put("id", model.getServiceId());
@@ -152,7 +205,7 @@ public class ServiceService {
     private List<ModelStatusOutput> getModelStatus(TableModelMySqlModel model, DetailApi.Output output) {
         return output.getMyRole().contains(JobMemberRole.promoter)
                 && !FederatedLearningType.horizontal.equals(output.getFlType()) ? checkModelStatus(model.getServiceId())
-                : null;
+                        : null;
     }
 
     private com.welab.wefe.serving.service.api.service.DetailApi.Output detailService(
@@ -174,33 +227,40 @@ public class ServiceService {
         }
         JSONObject preview = new JSONObject();
         preview.put("id", entity.getId());
-        preview.put("params", displayServiceQueryParams(entity.getQueryParams(), entity.getQueryParamsConfig()));
+        preview.put("params", displayServiceQueryParams(entity));
         preview.put("url", SERVICE_PRE_URL + entity.getUrl());
         preview.put("method", "POST");
         output.setPreview(preview);
         return output;
     }
 
-    public String displayServiceQueryParams(String queryParams, String queryParamsConfig) {
+    public String displayServiceQueryParams(TableServiceMySqlModel entity) {
         String result = "";
-        if (StringUtils.isNotBlank(queryParamsConfig)) {
-            List<JSONObject> params = new ArrayList<>();
-            JSONArray arr = JSONObject.parseArray(queryParamsConfig);
-            for (int i = 0; i < arr.size(); i++) {
-                JSONObject jo = arr.getJSONObject(i);
-                String name = jo.getString("name");
-                String desc = jo.getString("desc");
-                JSONObject j = new JSONObject();
-                j.put("参数名:", name);
-                j.put("描述:", desc);
-                params.add(j);
-            }
-            result = JSONObject.toJSONString(params);
+        if (entity.getServiceType() == ServiceTypeEnum.PSI.getCode()) {
+            JSONObject dataSource = JObject.parseObject(entity.getDataSource());
+            JSONArray keyCalcRules = dataSource.getJSONArray("key_calc_rules");
+            LOG.info("displayServiceQueryParams result = " + keyCalcRules.toJSONString());
+            return keyCalcRules.toJSONString();
         } else {
-            result = queryParams;
-        }
-        if (StringUtils.isBlank(result)) {
-            return "";
+            if (StringUtils.isNotBlank(entity.getQueryParamsConfig())) {
+                List<JSONObject> params = new ArrayList<>();
+                JSONArray arr = JSONObject.parseArray(entity.getQueryParamsConfig());
+                for (int i = 0; i < arr.size(); i++) {
+                    JSONObject jo = arr.getJSONObject(i);
+                    String name = jo.getString("name");
+                    String desc = jo.getString("desc");
+                    JSONObject j = new JSONObject();
+                    j.put("参数名:", name);
+                    j.put("描述:", desc);
+                    params.add(j);
+                }
+                result = JSONObject.toJSONString(params);
+            } else {
+                result = entity.getQueryParams();
+            }
+            if (StringUtils.isBlank(result)) {
+                return "";
+            }
         }
         return result;
     }
@@ -262,7 +322,8 @@ public class ServiceService {
                 data.setRightNode(xgboostNodeModel.getRightNodeId());
                 data.setSitename(xgboostNodeModel.getSitename().split(":", -1)[0]);
                 data.setWeight(xgboostNodeModel.getWeight());
-                data.setThreshold(splitMaskdict.get(xgboostNodeModel.getId()) != null ? splitMaskdict.get(xgboostNodeModel.getId())
+                data.setThreshold(splitMaskdict.get(xgboostNodeModel.getId()) != null
+                        ? splitMaskdict.get(xgboostNodeModel.getId())
                         : xgboostNodeModel.getBid());
 
                 map.put(xgboostNodeModel.getId(), node);
@@ -309,11 +370,11 @@ public class ServiceService {
         BaseServiceMySqlModel baseModel = baseServiceRepository.findOne("name", input.getName(),
                 BaseServiceMySqlModel.class);
         if (baseModel != null) {
-            throw new StatusCodeWithException("服务名称 【" + input.getName() + "】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
+            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, "服务名称 【" + input.getName() + "】已经存在");
         }
         TableServiceMySqlModel model = serviceRepository.findOne("url", input.getUrl(), TableServiceMySqlModel.class);
         if (model != null) {
-            throw new StatusCodeWithException("服务英文名称 【" + input.getUrl() + "】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
+            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, "服务英文名称 【" + input.getUrl() + "】已经存在");
         }
         model = ModelMapper.map(input, TableServiceMySqlModel.class);
         model.setCreatedBy(CurrentAccountUtil.get().getId());
@@ -331,24 +392,44 @@ public class ServiceService {
         serviceRepository.save(model);
         com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
         output.setId(model.getId());
-        output.setParams(displayServiceQueryParams(model.getQueryParams(), model.getQueryParamsConfig()));
+        output.setParams(displayServiceQueryParams(model));
         output.setUrl(SERVICE_PRE_URL + model.getUrl());
         return output;
     }
 
-    private String generateIdsTable(TableServiceMySqlModel model) {
+    private String generateIdsTable(TableServiceMySqlModel model) throws StatusCodeWithException {
         String keysTableName = "";
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
         if (model.getServiceType() != ServiceTypeEnum.PSI.getCode()) {// 对于 交集查询 需要额外生成对应的主键数据
             return keysTableName;
         }
         JSONObject dataSource = JObject.parseObject(model.getDataSource());
-        DataSourceMySqlModel oldDataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
-        if (oldDataSourceModel == null) {
+        DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
+        if (dataSourceModel == null) {
             return keysTableName;
         }
-        DataSourceMySqlModel newDataSourceMySqlModel = (DataSourceMySqlModel) SerializationUtils.clone(oldDataSourceModel);
-        keysTableName = newDataSourceMySqlModel.getDatabaseName() + "_" + dataSource.getString("table");
+        // 如果是mysql的数据源，则需要生成ID
+        if (dataSourceModel.getDatabaseType().name().equalsIgnoreCase(DatabaseType.MySql.name())) {
+            String oldIdsTableName = model.getIdsTableName();
+            try {
+                if (StringUtils.isNotBlank(oldIdsTableName)) {
+                    dataSourceService.update(dataSourceModel, "drop table " + oldIdsTableName);
+                }
+            } catch (StatusCodeWithException e) {
+                LOG.error("drop table error , tableName = " + oldIdsTableName);
+            }
+            keysTableName = generateMySqlIdsTable(dataSourceModel, dataSource);
+        } else { // 如果不是mysql的，则直接使用原数据源
+            keysTableName = dataSource.getString("table");
+        }
+        return keysTableName;
+    }
+
+    private String generateMySqlIdsTable(final DataSourceMySqlModel oldDataSourceModel, JSONObject dataSource)
+            throws StatusCodeWithException {
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+        DataSourceMySqlModel newDataSourceMySqlModel = (DataSourceMySqlModel) SerializationUtils
+                .clone(oldDataSourceModel);
+        String keysTableName = newDataSourceMySqlModel.getDatabaseName() + "_" + dataSource.getString("table");
         JSONArray keyCalcRules = dataSource.getJSONArray("key_calc_rules");
         List<String> needFields = new ArrayList<>();
         for (int i = 0; i < keyCalcRules.size(); i++) {
@@ -357,69 +438,95 @@ public class ServiceService {
             needFields.addAll(Arrays.asList(fields));
         }
         keysTableName += ("_" + format.format(new Date()));
-        String sql = "SELECT " + StringUtils.join(needFields, ",") + " FROM " + newDataSourceMySqlModel.getDatabaseName() + "."
+        String sql = "SELECT " + StringUtils.join(needFields, ",") + " FROM "
+                + newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table");
+        String tmpSql = "SELECT * FROM " + newDataSourceMySqlModel.getDatabaseName() + "."
                 + dataSource.getString("table");
-        Set<String> ids = new HashSet<>();
-        try {
-            String tmpSql = "SELECT * FROM " + newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table");
-            long count = dataSourceService.count(newDataSourceMySqlModel, tmpSql);
-            if (count <= 0) {
-                throw new StatusCodeWithException("数据源数据为空", StatusCode.DATA_NOT_FOUND);
-            }
-            // 异步
-            final String keysTableNameTmp = keysTableName;
-            CommonThreadPool.run(() -> {
-                try {
-                    List<Map<String, String>> result = dataSourceService.queryList(newDataSourceMySqlModel, sql, needFields);
-                    if (result == null || result.isEmpty()) {
-                        return;
-                    }
-                    LOG.info(newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table") + " count = "
-                            + result.size());
-                    for (Map<String, String> item : result) {
-                        String id = calcKey(keyCalcRules, item);
-                        ids.add(id);
-                    }
-                    String createTableSql = String.format(
-                            "CREATE TABLE `%s` (`id` varchar(100) NOT NULL ,PRIMARY KEY (`id`) USING BTREE ) ENGINE=InnoDB;",
-                            keysTableNameTmp);
-                    dataSourceService.createTable(createTableSql, DatabaseType.MySql, newDataSourceMySqlModel.getHost(),
-                            newDataSourceMySqlModel.getPort(), newDataSourceMySqlModel.getUserName(), newDataSourceMySqlModel.getPassword(),
-                            newDataSourceMySqlModel.getDatabaseName());
-                    String insertSql = String.format("insert into %s values (?)", keysTableNameTmp);
-                    dataSourceService.batchInsert(insertSql, DatabaseType.MySql, newDataSourceMySqlModel.getHost(),
-                            newDataSourceMySqlModel.getPort(), newDataSourceMySqlModel.getUserName(), newDataSourceMySqlModel.getPassword(),
-                            newDataSourceMySqlModel.getDatabaseName(), ids);
-                } catch (StatusCodeWithException e1) {
-                    e1.printStackTrace();
+        long count = dataSourceService.count(newDataSourceMySqlModel, tmpSql);
+        if (count <= 0) {
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据源为空");
+        }
+        // 异步
+        final String keysTableNameTmp = keysTableName;
+        CommonThreadPool.run(() -> {
+            try {
+                String createTableSql = String.format(
+                        "CREATE TABLE `%s` (`id` varchar(100) NOT NULL ,PRIMARY KEY (`id`) USING BTREE ) ENGINE=InnoDB;",
+                        keysTableNameTmp);
+                dataSourceService.createTable(createTableSql, DatabaseType.MySql, newDataSourceMySqlModel.getHost(),
+                        newDataSourceMySqlModel.getPort(), newDataSourceMySqlModel.getUserName(),
+                        newDataSourceMySqlModel.getPassword(), newDataSourceMySqlModel.getDatabaseName());
+                List<Map<String, String>> result = dataSourceService.queryList(newDataSourceMySqlModel, sql,
+                        needFields);
+                if (result == null || result.isEmpty()) {
+                    return;
                 }
-            });
-        } catch (StatusCodeWithException e) {
-            e.printStackTrace();
-        }
+                int partitionSize = 500000;
+                int taskNum = Math.max(result.size() / partitionSize, 1);
+                LOG.info(newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table") + " count = "
+                        + result.size() + ", taskNum = " + taskNum + ", threads size = " + this.threads);
+                List<Queue<Map<String, String>>> partitionList = ServiceUtil.partitionList(result, taskNum);
+                result = null;
+                ExecutorService executorService1 = Executors.newFixedThreadPool(this.threads);
+                Map<String, BlockingQueue<String>> queues = new ConcurrentHashMap<>();
+                for (int i = 0; i < partitionList.size(); i++) {
+                    final int finalI = i;
+                    Queue<Map<String, String>> partition = partitionList.get(i);
+                    executorService1.submit(() -> {
+                        LOG.info("calcKey begin index = " + finalI + ", partition size = " + partition.size());
+                        BlockingQueue<String> queue = new LinkedBlockingQueue<>();
+                        queues.put(finalI + "", queue);
+                        String insertSql = String.format("insert into %s values (?)", keysTableNameTmp);
+                        while (!partition.isEmpty()) {
+                            String id = ServiceUtil.calcKey(keyCalcRules, partition.poll());
+                            queue.add(id);
+                            if (queue.size() > 250000) {
+                                try {
+                                    dataSourceService.batchInsert(insertSql, DatabaseType.MySql,
+                                            newDataSourceMySqlModel.getHost(), newDataSourceMySqlModel.getPort(),
+                                            newDataSourceMySqlModel.getUserName(),
+                                            newDataSourceMySqlModel.getPassword(),
+                                            newDataSourceMySqlModel.getDatabaseName(), new HashSet<>(queue));
+                                    queue.clear();
+                                } catch (StatusCodeWithException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                        if (!queue.isEmpty()) {
+                            try {
+                                dataSourceService.batchInsert(insertSql, DatabaseType.MySql,
+                                        newDataSourceMySqlModel.getHost(), newDataSourceMySqlModel.getPort(),
+                                        newDataSourceMySqlModel.getUserName(), newDataSourceMySqlModel.getPassword(),
+                                        newDataSourceMySqlModel.getDatabaseName(), new HashSet<>(queue));
+                                queue.clear();
+                            } catch (StatusCodeWithException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        LOG.info("calcKey end index = " + finalI + ", queue size = " + queue.size());
+                    });
+                }
+                executorService1.shutdown();
+                try {
+                    while (!executorService1.awaitTermination(10, TimeUnit.SECONDS)) {
+                        int c = 0;
+                        for (Entry<String, BlockingQueue<String>> queue : queues.entrySet()) {
+                            LOG.info("index:" + (c++) + ", queue size =" + queue.getValue().size());
+                        }
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } finally {
+                    executorService1.shutdown();
+                    executorService1 = null;
+                }
+                LOG.info("end batchInsert");
+            } catch (StatusCodeWithException e1) {
+                e1.printStackTrace();
+            }
+        });
         return keysTableName;
-    }
-
-    private String calcKey(JSONArray keyCalcRules, Map<String, String> data) {
-        int size = keyCalcRules.size();
-        StringBuffer encodeValue = new StringBuffer("");
-        for (int i = 0; i < size; i++) {
-            JSONObject item = keyCalcRules.getJSONObject(i);
-            String operator = item.getString("operator");
-            String[] fields = item.getString("field").split(",");
-            StringBuffer value = new StringBuffer();
-
-            for (String field : fields) {
-                value.append(data.get(field));
-            }
-            if ("md5".equalsIgnoreCase(operator)) {
-                encodeValue.append(MD5Util.getMD5String(value.toString()));
-            } else if ("sha256".equalsIgnoreCase(operator)) {
-                encodeValue.append(SHA256Utils.getSHA256(value.toString()));
-            }
-        }
-        return encodeValue.toString();
-
     }
 
     /**
@@ -469,25 +576,27 @@ public class ServiceService {
             throws StatusCodeWithException {
         TableServiceMySqlModel model = serviceRepository.findOne("id", input.getId(), TableServiceMySqlModel.class);
         if (model == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
         if (model.getStatus() == ServiceStatusEnum.USED.getCode()) {
-            throw new StatusCodeWithException("上线的服务不允许更新", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "上线的服务不允许更新");
         }
         if (!model.getName().equalsIgnoreCase(input.getName())) {
             List<BaseServiceMySqlModel> baseModels = baseServiceRepository
                     .findAll(Where.create().equal("name", input.getName()).build(BaseServiceMySqlModel.class));
             if (baseModels.size() > 0) {
-                throw new StatusCodeWithException("服务名称 【" + input.getName() + "】已经存在",
-                        StatusCode.PRIMARY_KEY_CONFLICT);
+                throw new StatusCodeWithException(
+                        StatusCode.PRIMARY_KEY_CONFLICT,
+                        "服务名称 【" + input.getName() + "】已经存在");
             }
         }
         if (!model.getUrl().equalsIgnoreCase(input.getUrl())) {
             List<BaseServiceMySqlModel> baseModels = baseServiceRepository
                     .findAll(Where.create().equal("url", input.getUrl()).build(BaseServiceMySqlModel.class));
             if (baseModels.size() > 0) {
-                throw new StatusCodeWithException("服务英文名称 【" + input.getUrl() + "】已经存在",
-                        StatusCode.PRIMARY_KEY_CONFLICT);
+                throw new StatusCodeWithException(
+                        StatusCode.PRIMARY_KEY_CONFLICT,
+                        "服务英文名称 【" + input.getUrl() + "】已经存在");
             }
         }
 
@@ -524,7 +633,7 @@ public class ServiceService {
         serviceRepository.save(model);
         com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
         output.setId(model.getId());
-        output.setParams(displayServiceQueryParams(model.getQueryParams(), model.getQueryParamsConfig()));
+        output.setParams(displayServiceQueryParams(model));
         output.setUrl(SERVICE_PRE_URL + model.getUrl());
         if (model.getStatus() == 1) {
             if (model.getServiceType() == ServiceTypeEnum.PSI.getCode()) {
@@ -544,7 +653,7 @@ public class ServiceService {
     public void offlineService(String id) throws StatusCodeWithException {
         BaseServiceMySqlModel model = baseServiceRepository.findOne("id", id, BaseServiceMySqlModel.class);
         if (model == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
         if (model.getStatus() == 0) {
             throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
@@ -562,7 +671,7 @@ public class ServiceService {
     public void onlineService(String id) throws StatusCodeWithException {
         BaseServiceMySqlModel model = baseServiceRepository.findOne("id", id, BaseServiceMySqlModel.class);
         if (model == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
         if (model.getStatus() == 1) {
             throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
@@ -588,7 +697,7 @@ public class ServiceService {
         String resultfields = ServiceUtil.parseReturnFields(dataSource);
         String dataSourceId = dataSource.getString("id");
         DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSourceId);
-        String sql = ServiceUtil.generateSQL(input.getParams(), dataSource, dataSourceModel.getDatabaseName());
+        String sql = ServiceUtil.generateOneSQL(input.getParams(), dataSource, dataSourceModel.getDatabaseName());
         Map<String, String> result = dataSourceService.queryOne(dataSourceModel, sql,
                 Arrays.asList(resultfields.split(",")));
         Output out = new Output();
@@ -601,28 +710,25 @@ public class ServiceService {
         JSONObject dataSource = JObject.parseObject(input.getDataSource());
         String dataSourceId = dataSource.getString("id");
         DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSourceId);
-        String sql = ServiceUtil.generateSQL(input.getParams(), dataSource, dataSourceModel.getDatabaseName());
+        String sql = ServiceUtil.generateOneSQL(input.getParams(), dataSource, dataSourceModel.getDatabaseName());
         com.welab.wefe.serving.service.api.service.ServiceShowSQLApi.Output out = new com.welab.wefe.serving.service.api.service.ServiceShowSQLApi.Output();
         out.setResult(JObject.create("sql", sql));
         return out;
     }
 
-    public JObject check(com.welab.wefe.serving.service.api.service.RouteApi.Input input) {
-
-        BaseServiceMySqlModel service = baseServiceRepository.findOne("serviceId", input.getServiceId(),
-                BaseServiceMySqlModel.class);
+    public JObject check(com.welab.wefe.serving.service.api.service.RouteApi.Input input,
+            BaseServiceMySqlModel service) {
         if (service.getStatus() != 1) {
             return JObject.create().append("code", ServiceResultEnum.SERVICE_NOT_AVALIABLE.getCode()).append("message",
                     "invalid request: url = " + service.getUrl());
         }
-
         PartnerMysqlModel client = partnerService.queryByCode(input.getPartnerCode());
         if (client.getStatus() != 1) {
             return JObject.create().append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode()).append("message",
                     "invalid request: url = " + service.getUrl() + ",partnerCode = " + input.getPartnerCode());
         }
 
-        ClientServiceMysqlModel clientServiceMysqlModel = partnerService
+        ClientServiceMysqlModel clientServiceMysqlModel = clientServiceService
                 .queryByServiceIdAndClientId(service.getServiceId(), client.getId());
         if (clientServiceMysqlModel.getStatus() != 1) {
             return JObject.create().append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode()).append("message",
@@ -640,41 +746,43 @@ public class ServiceService {
     private boolean isIpWhiteList(RouteApi.Input input, ClientServiceMysqlModel clientServiceMysqlModel) {
         String clientIp = ServiceUtil.getIpAddr(input.request);
 
-        return clientServiceMysqlModel.getIpAdd() != null && (Arrays.asList(clientServiceMysqlModel.getIpAdd().split(",|，")).contains(clientIp) || Arrays.asList(clientServiceMysqlModel.getIpAdd().split(",|，")).contains("*"));
+        return clientServiceMysqlModel.getIpAdd() != null
+                && (Arrays.asList(clientServiceMysqlModel.getIpAdd().split(",|，")).contains(clientIp)
+                        || Arrays.asList(clientServiceMysqlModel.getIpAdd().split(",|，")).contains("*"));
     }
 
     public TableServiceMySqlModel findById(String serviceId) {
         return serviceRepository.findOne("id", serviceId, TableServiceMySqlModel.class);
     }
 
-
     public JObject executeService(RouteApi.Input input) throws StatusCodeWithException {
-
         long beginTime = System.currentTimeMillis();
-
         BaseServiceMySqlModel service = baseServiceRepository.findOne("serviceId", input.getServiceId(),
                 BaseServiceMySqlModel.class);
-
         JObject result = JObject.create();
         ServiceResultEnum status = ServiceResultEnum.SUCCESS;
         AbstractServiceProcessor serviceProcessor = null;
         try {
             // check params
-            JObject res = check(input);
-            if (MapUtils.isNotEmpty(res)) {
-                result.putAll(res);
-                result.putAll(JObject.create(input.getData()));
-                status = ServiceResultEnum.SERVICE_FAIL;
-                return result;
+            LOG.info("check begin ... ");
+            long start = System.currentTimeMillis();
+            if (caches.getIfPresent(input.getRequestId()) == null) {
+                JObject res = check(input, service);
+                LOG.info("check end ..., duration =" + (System.currentTimeMillis() - start));
+                if (MapUtils.isNotEmpty(res)) {
+                    result.putAll(res);
+                    result.putAll(JObject.create(input.getData()));
+                    status = ServiceResultEnum.SERVICE_FAIL;
+                    return result;
+                }
+                caches.put(input.getRequestId(), Boolean.TRUE);
             }
-
             serviceProcessor = ServiceProcessorUtils.get(service.getServiceType());
             JObject serviceResult = serviceProcessor.process(JObject.create(input.getData()), service);
             result.putAll(serviceResult);
             return result;
-
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("executeService error, ", e);
             status = ServiceResultEnum.SERVICE_FAIL;
             result.append("message", "服务调用失败: url = " + service.getUrl() + ", message= " + e.getMessage());
             return result;
@@ -682,8 +790,8 @@ public class ServiceService {
             String responseId = UUID.randomUUID().toString().replaceAll("-", "");
             result.append("responseId", responseId);
             result.append("code", status.getCode());
-            JObject tmpResult = new JObject((JSONObject)result.clone());
-            if(serviceProcessor != null) {
+            JObject tmpResult = new JObject((JSONObject) result.clone());
+            if (serviceProcessor != null) {
                 tmpResult.put("subCalllogs", serviceProcessor.calllogs());
             }
             log(input, beginTime, service, tmpResult, status, responseId);
@@ -691,7 +799,7 @@ public class ServiceService {
     }
 
     private void log(RouteApi.Input input, long beginTime, BaseServiceMySqlModel service, JObject result,
-                     ServiceResultEnum status, String responseId) {
+            ServiceResultEnum status, String responseId) {
         ServiceOrderEnum orderStatus = ServiceResultEnum.SUCCESS.equals(status) ? ServiceOrderEnum.SUCCESS
                 : ServiceOrderEnum.FAILED;
         String serviceOrderId = createOrder(service, input, orderStatus);
@@ -711,7 +819,7 @@ public class ServiceService {
     }
 
     private void callLog(RouteApi.Input input, String orderId, String responseId, JObject result, Integer responseCode,
-                         String responseStatus, long beginTime) {
+            String responseStatus, long beginTime) {
         ServiceCallLogMysqlModel callLog = new ServiceCallLogMysqlModel();
         callLog.setServiceType(ServiceTypeEnum.MachineLearning.getCode());
         callLog.setOrderId(orderId);
@@ -736,10 +844,11 @@ public class ServiceService {
     }
 
     public File exportSdk(String serviceId) throws StatusCodeWithException, IOException {
-        BaseServiceMySqlModel model = baseServiceRepository.findOne("serviceId", serviceId, BaseServiceMySqlModel.class);
+        BaseServiceMySqlModel model = baseServiceRepository.findOne("serviceId", serviceId,
+                BaseServiceMySqlModel.class);
 
         if (model == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
 
         if (model.getServiceType() == 7) {
@@ -757,9 +866,8 @@ public class ServiceService {
 
         TableModelMySqlModel model = modelRepository.findOne("serviceId", serviceId, TableModelMySqlModel.class);
         if (model == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
-
 
         List<File> fileList = new ArrayList<>();
 
@@ -767,7 +875,8 @@ public class ServiceService {
         File file = new File(path.toString());
 
         // 将需要提供的文件加到这个列表
-        List<String> stringList = FileUtil.readAllForLine(Paths.get(config.getFileBasePath()).resolve("ApiExample.java").toString(), "UTF-8");
+        List<String> stringList = FileUtil
+                .readAllForLine(Paths.get(config.getFileBasePath()).resolve("ApiExample.java").toString(), "UTF-8");
         stringList.stream().forEach(x -> {
             try {
                 FileUtil.writeTextToFile(String.format(x, serviceId) + System.lineSeparator(), path, true);
@@ -789,7 +898,7 @@ public class ServiceService {
     private File mpcServiceSdk(String serviceId) throws StatusCodeWithException, IOException {
         TableServiceMySqlModel model = serviceRepository.findOne("id", serviceId, TableServiceMySqlModel.class);
         if (model == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
         int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
         Path basePath = Paths.get(config.getFileBasePath());
@@ -838,14 +947,13 @@ public class ServiceService {
             valuesMap.put("url", CacheObjects.getServingBaseUrl() + SERVICE_PRE_URL + model.getUrl());
             valuesMap.put("serverUrl", CacheObjects.getServingBaseUrl());
             valuesMap.put("apiName", SERVICE_PRE_URL + model.getUrl());
-            valuesMap.put("params", displayServiceQueryParams(model.getQueryParams(), model.getQueryParamsConfig()));
+            valuesMap.put("params", displayServiceQueryParams(model));
             valuesMap.put("desc", model.getName());
             valuesMap.put("method", "POST");
-            String templateString = "# serverUrl:\n" + "	${serverUrl}\n" + "	\n"
-                    + "# apiName:\n" + "	${apiName}\n" + "	\n"
-                    + "# method:\n" + " ${method}\n" + "    \n"
-                    + "# params:\n" + "	${params}\n" + "	\n"
-                    + "# desc\n" + "	${desc}";
+            String templateString = "# serverUrl:\n" + "	${serverUrl}\n" + "	\n" + "# apiName:\n"
+                    + "	${apiName}\n" + "	\n" + "# method:\n" + " ${method}\n" + "    \n" + "# params:\n"
+                    + "	${params}\n" + "	\n" + "# desc\n" + "	${desc}";
+            LOG.info("displayServiceQueryParams result = " + valuesMap.get("params"));
             StringSubstitutor sub = new StringSubstitutor(valuesMap);
             String content = sub.replace(templateString);
             FileUtils.write(readme, content);

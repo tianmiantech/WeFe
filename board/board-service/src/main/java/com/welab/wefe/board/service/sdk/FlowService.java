@@ -76,12 +76,12 @@ public class FlowService extends AbstractService {
         try {
             json = new JObject(response.getBodyAsJson());
         } catch (JSONException e) {
-            throw new StatusCodeWithException("flow 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "flow 响应失败：" + response.getBodyAsString());
         }
 
         Integer code = json.getInteger("code");
         if (code == null || !code.equals(0)) {
-            throw new StatusCodeWithException("flow 响应失败(" + code + ")：" + json.getString("message"), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "flow 响应失败(" + code + ")：" + json.getString("message"));
         }
         return json.getJObject("data");
     }

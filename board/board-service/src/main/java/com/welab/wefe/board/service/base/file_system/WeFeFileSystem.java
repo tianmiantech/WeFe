@@ -188,7 +188,7 @@ public class WeFeFileSystem {
                 new Zip().compression(getImageSimpleDir(taskId, sessionId), zipFile);
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                StatusCode.FILE_IO_ERROR.throwException(e);
+                StatusCode.FILE_IO_READ_ERROR.throwException(e);
             }
             return zipFile;
         }
@@ -230,7 +230,7 @@ public class WeFeFileSystem {
                 result = SuperDecompressor.decompression(zipFile, distDir.toString(), true);
             } catch (Exception e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                StatusCode.FILE_IO_ERROR.throwException(e);
+                StatusCode.FILE_IO_READ_ERROR.throwException(e);
             }
 
             // 安全起见，把非图片文件删除掉。

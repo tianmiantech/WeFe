@@ -16,7 +16,6 @@
 
 package com.welab.wefe.union.service.service;
 
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.DataResourceDefaultTag;
 import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
 import com.welab.wefe.common.data.mongodb.repo.DataResourceDefaultTagMongoRepo;
@@ -70,7 +69,7 @@ public class DefaultTagService {
             case ImageDataSet:
                 return DataResourceType.ImageDataSet.name();
             default:
-                throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "dataResourceType");
+                throw StatusCodeWithException.ofUnexpectedEnumCase(dataResourceType);
         }
     }
 }

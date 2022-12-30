@@ -60,8 +60,6 @@ public class ServerActuator extends AbstractPsiServerActuator {
         }
 
         LOG.info("fruit insert end...");
-
-        System.out.println("测试结果：" + JSON.toJSONString(fruit));
     }
 
     @Override
