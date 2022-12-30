@@ -16,14 +16,13 @@
 
 package com.welab.wefe.union.service.api.common;
 
-import com.welab.wefe.common.data.mongodb.entity.union.RealnameAuthAgreementTemplate;
-import com.welab.wefe.common.data.mongodb.repo.RealnameAuthAgreementTemplateMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.common.RealnameAuthAgreementTemplateOutput;
+import com.welab.wefe.union.service.service.CommonService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -33,18 +32,13 @@ import java.io.IOException;
  **/
 @Api(path = "realname/auth/agreement/template/query", name = "available", allowAccessWithSign = true)
 public class QueryRealnameAuthAgreementTemplateApi extends AbstractApi<BaseInput, RealnameAuthAgreementTemplateOutput> {
+
     @Autowired
-    private RealnameAuthAgreementTemplateMongoRepo realnameAuthAgreementTemplateMongoRepo;
+    private CommonService commonService;
 
     @Override
     protected ApiResult<RealnameAuthAgreementTemplateOutput> handle(BaseInput input) throws StatusCodeWithException, IOException {
-        RealnameAuthAgreementTemplate realnameAuthAgreementTemplate = realnameAuthAgreementTemplateMongoRepo.findByEnable(true);
-        RealnameAuthAgreementTemplateOutput realnameAuthAgreementTemplateOutput = new RealnameAuthAgreementTemplateOutput();
-        if(realnameAuthAgreementTemplate != null) {
-            realnameAuthAgreementTemplateOutput.setTemplateFileId(realnameAuthAgreementTemplate.getTemplateFileId());
-            realnameAuthAgreementTemplateOutput.setFileName(realnameAuthAgreementTemplate.getFileName());
-        }
-        return success(realnameAuthAgreementTemplateOutput);
+        return success(commonService.queryRealNameAuthAgreementTemplate(input));
     }
 
 }

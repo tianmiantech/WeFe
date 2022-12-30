@@ -34,10 +34,10 @@ import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.DataSetColumnService;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
-import com.welab.wefe.board.service.util.JdbcManager;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.jdbc.JdbcClient;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.apache.commons.lang3.StringUtils;
@@ -46,7 +46,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.sql.Connection;
 import java.util.List;
 
 /**
@@ -88,7 +87,7 @@ public class TableDataSetService extends DataResourceService {
         }
 
         if (null == file || !file.exists()) {
-            throw new StatusCodeWithException("未找到文件：" + filename, StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未找到文件：" + filename);
         }
 
         return file;
@@ -164,17 +163,17 @@ public class TableDataSetService extends DataResourceService {
     /**
      * Test whether SQL can be queried normally
      */
-    public boolean testSqlQuery(String dataSourceId, String sql) throws StatusCodeWithException {
+    public String testSqlQuery(String dataSourceId, String sql) throws StatusCodeWithException {
         DataSourceMysqlModel model = getDataSourceById(dataSourceId);
         if (model == null) {
-            throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "dataSourceId在数据库不存在");
         }
 
         if (StringUtils.isEmpty(sql)) {
-            throw new StatusCodeWithException("请填入sql查询语句", StatusCode.PARAMETER_CAN_NOT_BE_EMPTY);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_CAN_NOT_BE_EMPTY, "请填入sql查询语句");
         }
 
-        Connection conn = JdbcManager.getConnection(
+        JdbcClient client = JdbcClient.create(
                 model.getDatabaseType(),
                 model.getHost(),
                 model.getPort(),
@@ -183,7 +182,7 @@ public class TableDataSetService extends DataResourceService {
                 model.getDatabaseName()
         );
 
-        return JdbcManager.testQuery(conn, sql, true);
+        return client.testSql(sql);
     }
 
     @Override
@@ -200,15 +199,19 @@ public class TableDataSetService extends DataResourceService {
 
 
     public TableDataSetMysqlModel query(String sourceJobId, ComponentType componentType) {
-        Specification<TableDataSetMysqlModel> where = Where.create().equal("derivedFromJobId", sourceJobId)
-                .equal("derivedFrom", componentType).build(TableDataSetMysqlModel.class);
+        Specification<TableDataSetMysqlModel> where = Where.create()
+                .equal("derivedFromJobId", sourceJobId)
+                .equal("derivedFrom", componentType)
+                .build();
 
         return tableDataSetRepository.findOne(where).orElse(null);
     }
 
 	public List<TableDataSetMysqlModel> queryAll(String sourceJobId, ComponentType componentType) {
-		Specification<TableDataSetMysqlModel> where = Where.create().equal("derivedFromJobId", sourceJobId)
-				.equal("derivedFrom", componentType).build(TableDataSetMysqlModel.class);
+		Specification<TableDataSetMysqlModel> where = Where.create()
+                .equal("derivedFromJobId", sourceJobId)
+				.equal("derivedFrom", componentType)
+                .build();
 		return tableDataSetRepository.findAll(where);
 	}
 

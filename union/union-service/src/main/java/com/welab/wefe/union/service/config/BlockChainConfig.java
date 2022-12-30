@@ -19,6 +19,7 @@ package com.welab.wefe.union.service.config;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.wefe.enums.ContractName;
 import com.welab.wefe.union.service.contract.*;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.commons.collections4.CollectionUtils;
@@ -59,19 +60,6 @@ public class BlockChainConfig {
     /* use String in java sdk*/
     private String ip = "127.0.0.1";
     private String channelPort = "20200";
-
-
-    private String memberContractName;
-    private String dataSetContractName;
-    private String dataSetMemberPermissionContractName;
-    private String unionNodeContractName;
-    private String memberFileInfoContractName;
-    private String imageDataSetContractName;
-    private String dataResourceContractName;
-    private String tableDataSetContractName;
-    private String bloomFilterContractName;
-    private String memberServiceContractName;
-
 
     // add channel disconnect
     public static boolean PEER_CONNECTED = true;
@@ -179,65 +167,65 @@ public class BlockChainConfig {
 
     @Bean
     public MemberContract getLatestVersionMemberContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, memberContractName);
+        String address = getLatestContractAddressByName(cnsService, ContractName.MEMBER_CONTRACT);
         return MemberContract.load(address, client, cryptoKeyPair);
     }
 
 
     @Bean
     public DataSetContract getLatestVersionDataSetContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, dataSetContractName);
+        String address = getLatestContractAddressByName(cnsService, ContractName.DATA_SET_CONTRACT);
         return DataSetContract.load(address, client, cryptoKeyPair);
     }
 
 
     @Bean
     public DataSetMemberPermissionContract getLatestVersionDataSetMemberPermissionContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, dataSetMemberPermissionContractName);
+        String address = getLatestContractAddressByName(cnsService, ContractName.DATA_SET_MEMBER_PERMISSION_CONTRACT);
         return DataSetMemberPermissionContract.load(address, client, cryptoKeyPair);
     }
 
 
     @Bean
     public UnionNodeContract getLatestVersionUnionNodeContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, unionNodeContractName);
+        String address = getLatestContractAddressByName(cnsService, ContractName.UNION_NODE_CONTRACT);
         return UnionNodeContract.load(address, client, cryptoKeyPair);
     }
 
 
     @Bean
     public MemberFileInfoContract getLatestVersionMemberFileInfoContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, memberFileInfoContractName);
+        String address = getLatestContractAddressByName(cnsService, ContractName.MEMBER_FILE_INFO_CONTRACT);
         return MemberFileInfoContract.load(address, client, cryptoKeyPair);
     }
 
     @Bean
     public ImageDataSetContract getLatestVersionImageDataSetContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, imageDataSetContractName);
+        String address = getLatestContractAddressByName(cnsService, ContractName.IMAGE_DATA_SET_CONTRACT);
         return ImageDataSetContract.load(address, client, cryptoKeyPair);
     }
 
     @Bean
     public DataResourceContract getLatestVersionDataResourceContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, dataResourceContractName);
+        String address = getLatestContractAddressByName(cnsService, ContractName.DATA_RESOURCE_CONTRACT);
         return DataResourceContract.load(address, client, cryptoKeyPair);
     }
 
     @Bean
     public TableDataSetContract getLatestVersionTableDataSetContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, tableDataSetContractName);
+        String address = getLatestContractAddressByName(cnsService, ContractName.TABLE_DATA_SET_CONTRACT);
         return TableDataSetContract.load(address, client, cryptoKeyPair);
     }
 
     @Bean
     public BloomFilterContract getLatestVersionBloomFilterContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, bloomFilterContractName);
+        String address = getLatestContractAddressByName(cnsService, ContractName.BLOOM_FILTER_CONTRACT);
         return BloomFilterContract.load(address, client, cryptoKeyPair);
     }
     
     @Bean
     public MemberServiceContract getLatestVersionMemberServiceContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
-        String address = getLatestContractAddressByName(cnsService, memberServiceContractName);
+        String address = getLatestContractAddressByName(cnsService, ContractName.MEMBER_SERVICE_CONTRACT);
         return MemberServiceContract.load(address, client, cryptoKeyPair);
     }
 
@@ -256,39 +244,15 @@ public class BlockChainConfig {
         } catch (Exception e) {
             String msg = contractName + ":Exception in obtaining contract CNS list";
             log.error(msg, e);
-            throw new StatusCodeWithException(msg, StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, msg);
         }
 
         if (CollectionUtils.isEmpty(cnsInfoList)) {
             String msg = contractName + ":Get contract CNS list is empty";
             log.error(msg);
-            throw new StatusCodeWithException(msg, StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, msg);
         }
         return cnsInfoList.get(cnsInfoList.size() - 1).getAddress();
-    }
-
-    public String getMemberContractName() {
-        return memberContractName;
-    }
-
-    public void setMemberContractName(String memberContractName) {
-        this.memberContractName = memberContractName;
-    }
-
-    public String getDataSetContractName() {
-        return dataSetContractName;
-    }
-
-    public void setDataSetContractName(String dataSetContractName) {
-        this.dataSetContractName = dataSetContractName;
-    }
-
-    public String getDataSetMemberPermissionContractName() {
-        return dataSetMemberPermissionContractName;
-    }
-
-    public void setDataSetMemberPermissionContractName(String dataSetMemberPermissionContractName) {
-        this.dataSetMemberPermissionContractName = dataSetMemberPermissionContractName;
     }
 
     public String getCertPath() {
@@ -345,61 +309,5 @@ public class BlockChainConfig {
 
     public void setChannelPort(String channelPort) {
         this.channelPort = channelPort;
-    }
-
-    public String getUnionNodeContractName() {
-        return unionNodeContractName;
-    }
-
-    public void setUnionNodeContractName(String unionNodeContractName) {
-        this.unionNodeContractName = unionNodeContractName;
-    }
-
-    public String getMemberFileInfoContractName() {
-        return memberFileInfoContractName;
-    }
-
-    public void setMemberFileInfoContractName(String memberFileInfoContractName) {
-        this.memberFileInfoContractName = memberFileInfoContractName;
-    }
-
-    public String getImageDataSetContractName() {
-        return imageDataSetContractName;
-    }
-
-    public void setImageDataSetContractName(String imageDataSetContractName) {
-        this.imageDataSetContractName = imageDataSetContractName;
-    }
-
-
-    public String getDataResourceContractName() {
-        return dataResourceContractName;
-    }
-
-    public void setDataResourceContractName(String dataResourceContractName) {
-        this.dataResourceContractName = dataResourceContractName;
-    }
-
-    public String getTableDataSetContractName() {
-        return tableDataSetContractName;
-    }
-
-    public void setTableDataSetContractName(String tableDataSetContractName) {
-        this.tableDataSetContractName = tableDataSetContractName;
-    }
-
-    public String getBloomFilterContractName() {
-        return bloomFilterContractName;
-    }
-
-    public void setBloomFilterContractName(String bloomFilterContractName) {
-        this.bloomFilterContractName = bloomFilterContractName;
-    }
-    public String getMemberServiceContractName() {
-        return memberServiceContractName;
-    }
-
-    public void setMemberServiceContractName(String memberServiceContractName) {
-        this.memberServiceContractName = memberServiceContractName;
     }
 }

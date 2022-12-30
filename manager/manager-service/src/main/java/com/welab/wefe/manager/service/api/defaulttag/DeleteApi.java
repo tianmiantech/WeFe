@@ -41,7 +41,7 @@ public class DeleteApi extends AbstractApi<DataResourceDefaultTagDeleteInput, Ab
         try {
             dataResourceDefaultTagContractService.deleteByTagId(input.getTagId());
         } catch (StatusCodeWithException e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
         return success();

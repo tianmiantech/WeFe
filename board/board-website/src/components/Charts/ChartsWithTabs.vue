@@ -26,11 +26,11 @@
                     <template #default="{ config }">
                         <div class="f13">
                             <template v-if="config.train.auc">
-                                训练结果: auc: {{ config.train.auc }} <span class="ml10">ks: {{ config.train.ks }}</span>
+                                训练结果: auc: {{ dealNumPrecision(config.train.auc) }} <span class="ml10">ks: {{ dealNumPrecision(config.train.ks) }}</span>
                                 <br />
                             </template>
                             <template v-if="config.validate.auc">
-                                验证结果: auc: {{ config.validate.auc }} <span class="ml10">ks: {{ config.validate.ks }}</span>
+                                验证结果: auc: {{ dealNumPrecision(config.validate.auc) }} <span class="ml10">ks: {{ dealNumPrecision(config.validate.ks) }}</span>
                             </template>
                         </div>
                     </template>
@@ -52,6 +52,7 @@
     // import { getCurrentInstance } from 'vue';
     import ChartsMap from './ChartTypesMap';
     import TopN from '@views/teamwork/visual/component-list/Evaluation/TopN.vue';
+    import { dealNumPrecision } from '@src/utils/utils';
     const orginChartsMap = JSON.parse(JSON.stringify(ChartsMap));
 
     export default {
@@ -74,12 +75,13 @@
                 charts:           {},
                 originChartsMap:  JSON.parse(JSON.stringify(ChartsMap)),
                 prob_need_to_bin: false,
+                dealNumPrecision,
             };
         },
         async created() {
             await this.readResult();
             // show topn or not for modeling-list
-            if (!this.showTopn && this.ChartsMap.Evaluation.tabs && this.ChartsMap.Evaluation.tabs.length) {
+            /* if (!this.showTopn && this.ChartsMap.Evaluation.tabs && this.ChartsMap.Evaluation.tabs.length) {
                 this.ChartsMap.Evaluation.tabs.forEach((item, idx) => {
                     if (item.name === 'topn') {
                         this.ChartsMap.Evaluation.tabs.splice(idx, 1);
@@ -105,7 +107,7 @@
                         },
                     });
                 }
-            }
+            } */
         },
         methods: {
             async readResult() {
@@ -130,19 +132,36 @@
 
                 if (code === 0 && data) {
                     const $data = Array.isArray(data) ? data[0] : data;
-                    const { result, component_type, task_config, prob_need_to_bin } = $data;
+                    const { result, component_type, task_config } = $data;
 
                     this.componentType = component_type;
-                    this.prob_need_to_bin =
-                        task_config && task_config.params && task_config.params.score_param.prob_need_to_bin
-                            ? task_config.params.prob_need_to_bin
-                            : prob_need_to_bin
-                                ? prob_need_to_bin
-                                : false;
+                    this.prob_need_to_bin = task_config?.params?.score_param?.prob_need_to_bin || task_config?.params?.prob_need_to_bin || false;
                     if (this.prob_need_to_bin) {
                         this.ChartsMap[this.componentType].tabs = orginChartsMap[this.componentType].tabs;
                     } else {
                         this.ChartsMap[this.componentType].tabs = this.ChartsMap[this.componentType].tabs.filter(item => item.name !== 'scoresDistribution');
+                    }
+                    if (this.componentType === 'Evaluation') {
+                        if (!this.showTopn) {
+                            const topnIdx = this.ChartsMap[this.componentType].tabs.findIndex(item => item.name === 'topn');
+
+                            if (topnIdx > -1) this.ChartsMap.Evaluation.tabs.splice(topnIdx, 1);
+                        } else {
+                            const topnIdx = this.ChartsMap[this.componentType].tabs.findIndex(item => item.name === 'topn');
+
+                            if (topnIdx === -1) {
+                                this.ChartsMap[this.componentType].tabs.push({
+                                    label: 'TOPN',
+                                    name:  'topn',
+                                    chart: {
+                                        type:   'table',
+                                        config: {
+                                            type: 'topn',
+                                        },
+                                    },
+                                });
+                            }
+                        }
                     }
 
                     if (result) {
@@ -256,8 +275,8 @@
                                 this.charts[tabName].config.legend = ['train_ks_fpr', 'train_ks_tpr'];
                                 train_ks_fpr.data.forEach((data, index) => {
                                     xAxis.push(data[0]);
-                                    train_ks_fpr_data.push(train_ks_fpr.data[index][1]);
-                                    train_ks_tpr_data.push(train_ks_tpr.data[index][1]);
+                                    train_ks_fpr_data.push(dealNumPrecision(train_ks_fpr.data[index][1]));
+                                    train_ks_tpr_data.push(dealNumPrecision(train_ks_tpr.data[index][1]));
                                 });
 
                                 train_ks_fpr.data.forEach((row, index) => {
@@ -291,8 +310,8 @@
                                 this.charts[tabName].config.legend.push('validate_ks_fpr', 'validate_ks_tpr');
                                 validate_ks_fpr.data.forEach((data, index) => {
                                     if(xAxis.length === 0 || this.componentType === 'Oot') xAxis.push(data[0]);
-                                    validate_ks_fpr_data.push(validate_ks_fpr.data[index][1]);
-                                    validate_ks_tpr_data.push(validate_ks_tpr.data[index][1]);
+                                    validate_ks_fpr_data.push(dealNumPrecision(validate_ks_fpr.data[index][1]));
+                                    validate_ks_tpr_data.push(dealNumPrecision(validate_ks_tpr.data[index][1]));
                                 });
 
                                 validate_ks_tpr.data.forEach((row, index) => {
@@ -344,10 +363,10 @@
                                     const data = train_precision.data[i];
 
                                     xAxis.push(data[0]);
-                                    train_precision_data.push(data[1]);
-                                    train_recall_data.push(train_recall.data[i][1]);
-                                    validate_precision_data.push(validate_precision.data[i][1]);
-                                    validate_recall_data.push(validate_recall.data[i][1]);
+                                    train_precision_data.push(dealNumPrecision(data[1]));
+                                    train_recall_data.push(dealNumPrecision(train_recall.data[i][1]));
+                                    validate_precision_data.push(dealNumPrecision(validate_precision.data[i][1]));
+                                    validate_recall_data.push(dealNumPrecision(validate_recall.data[i][1]));
                                 }
 
                                 this.charts[tabName].config.legend.unshift('train_precision', 'train_recall');
@@ -359,8 +378,8 @@
                                     const data = validate_precision.data[i];
 
                                     xAxis.push(data[0]);
-                                    validate_precision_data.push(validate_precision.data[i][1]);
-                                    validate_recall_data.push(validate_recall.data[i][1]);
+                                    validate_precision_data.push(dealNumPrecision(validate_precision.data[i][1]));
+                                    validate_recall_data.push(dealNumPrecision(validate_recall.data[i][1]));
                                 }
                                 this.charts[tabName].config.series = [validate_precision_data, validate_recall_data];
                             }
@@ -400,7 +419,7 @@
                     for (let i=0; i<scores_distribution.length; i++) {
                         xAxisData.push(scores_distribution[i][0]);
                         score_d_bar.push(scores_distribution[i][1]);
-                        score_d_line.push(scores_distribution[i][2]*100);
+                        score_d_line.push(Math.round(scores_distribution[i][2]*100));
                     }
                     xAxis = {
                         type:        'category',
@@ -443,7 +462,7 @@
                                 show:     true,
                                 position: 'top',
                                 formatter (value) {
-                                    return Number(value.data).toFixed(2) + '%';
+                                    return value.data + '%';
                                 },
                             },
                         },
@@ -471,7 +490,6 @@
                 this.charts[tabName].config.xAxis = xAxis;
                 this.charts[tabName].config.yAxis = yAxis;
                 this.charts[tabName].config.series = series;
-
             },
 
             renderRoc({ result }) {
@@ -498,7 +516,7 @@
                     legend.unshift('train_roc');
                     train_ks_fpr.data.forEach((row, index) => {
                         xAxis.push(row[0]);
-                        train_roc.push(train_ks_tpr.data[index][1]);
+                        train_roc.push(dealNumPrecision(train_ks_tpr.data[index][1]));
                     });
 
                     this.charts[tabName].config.train.auc = train.data.auc.value;
@@ -509,7 +527,7 @@
                 if (validate_ks_tpr) {
                     validate_ks_tpr.data.forEach((row, index) => {
                         if(xAxis.length === 0 || this.componentType === 'Oot') xAxis.push(row[0]);
-                        validate_roc.push(validate_ks_tpr.data[index][1]);
+                        validate_roc.push(dealNumPrecision(validate_ks_tpr.data[index][1]));
                     });
                 }
 
@@ -533,10 +551,10 @@
 
                         for (let j = 0; j < data.length; j++) {
                             if(i === 0) {
-                                xAxis.push(data[j][0]);
-                                train_data.push(data[j][1]);
+                                xAxis.push(dealNumPrecision(data[j][0]));
+                                train_data.push(dealNumPrecision(data[j][1]));
                             } else {
-                                validate_data.push(data[j][1]);
+                                validate_data.push(dealNumPrecision(data[j][1]));
                             }
                         }
                     }
@@ -552,8 +570,8 @@
                         const { data } = lines[i]; // data[0] fpr x, data[1] tpr y
 
                         for (let j = 0; j < data.length; j++) {
-                            xAxis.push(data[j][0]);
-                            validate_data.push(data[j][1]);
+                            xAxis.push(dealNumPrecision(data[j][0]));
+                            validate_data.push(dealNumPrecision(data[j][1]));
                         }
                     }
                     this.charts[tabName].config.xAxis = xAxis;
@@ -564,3 +582,9 @@
         },
     };
 </script>
+
+<style>
+.charts-group{
+    width: 100%;
+}
+</style>

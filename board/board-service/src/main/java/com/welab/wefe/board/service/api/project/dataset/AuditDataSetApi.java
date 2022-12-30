@@ -60,7 +60,7 @@ public class AuditDataSetApi extends AbstractNoneOutputApi<AuditDataSetApi.Input
         public void checkAndStandardize() throws StatusCodeWithException {
             super.checkAndStandardize();
             if (auditStatus == AuditStatus.disagree && StringUtil.isEmpty(auditComment)) {
-                throw new StatusCodeWithException("请填写拒绝原因哦~", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "请填写拒绝原因哦~");
             }
         }
 

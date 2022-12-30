@@ -21,7 +21,7 @@ import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.alibaba.druid.pool.DruidPooledConnection;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.wefe.enums.DatabaseType;
+import com.welab.wefe.common.jdbc.base.DatabaseType;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -96,7 +96,7 @@ public abstract class AbstractDruidTemplate extends AbstractTemplate {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, e.getMessage());
         } finally {
             try {
                 if (connection != null) {
@@ -156,7 +156,7 @@ public abstract class AbstractDruidTemplate extends AbstractTemplate {
                     }
                 }
 
-                throw new StatusCodeWithException("connection error: " + url, StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "connection error: " + url);
             }
         }
 

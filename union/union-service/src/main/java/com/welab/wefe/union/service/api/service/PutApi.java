@@ -16,7 +16,6 @@
 
 package com.welab.wefe.union.service.api.service;
 
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -24,9 +23,7 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
-import com.welab.wefe.union.service.mapper.MemberServiceMapper;
-import com.welab.wefe.union.service.service.MemberServiceContractService;
-import org.mapstruct.factory.Mappers;
+import com.welab.wefe.union.service.service.MemberServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -34,20 +31,13 @@ import org.springframework.beans.factory.annotation.Autowired;
  **/
 @Api(path = "member/service/put", name = "member_service_put", allowAccessWithSign = true)
 public class PutApi extends AbstractApi<PutApi.Input, AbstractApiOutput> {
-
     @Autowired
-    private MemberServiceContractService memberServiceContractService;
-    private MemberServiceMapper mMapper = Mappers.getMapper(MemberServiceMapper.class);
+    private MemberServiceService memberServiceService;
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
         LOG.info("PutApi handle..");
-        try {
-            memberServiceContractService.save(mMapper.transfer(input));
-        } catch (StatusCodeWithException e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
-        }
-
+        memberServiceService.add(input);
         return success();
     }
 

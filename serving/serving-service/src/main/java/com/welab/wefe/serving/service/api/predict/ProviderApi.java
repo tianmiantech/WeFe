@@ -107,7 +107,7 @@ public class ProviderApi extends AbstractApi<ProviderApi.Input, PredictResult> {
             super.checkAndStandardize();
             if (!isBatch) {
                 if (StringUtil.isEmpty(userId)) {
-                    throw new StatusCodeWithException("单条预测时，参数userId不能为空", StatusCode.PARAMETER_VALUE_INVALID);
+                    throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "单条预测时，参数userId不能为空");
                 }
             }
 

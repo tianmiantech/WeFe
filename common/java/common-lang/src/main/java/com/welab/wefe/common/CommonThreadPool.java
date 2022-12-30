@@ -76,4 +76,8 @@ public class CommonThreadPool {
     public static int actionThreadCount() {
         return THREAD_POOL.getActiveCount();
     }
+
+    public static int size() {
+        return THREAD_POOL.getQueue().size();
+    }
 }

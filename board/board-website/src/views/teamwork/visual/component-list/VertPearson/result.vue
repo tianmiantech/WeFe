@@ -266,7 +266,6 @@
                             remote_features_names,
                             num_local_features,
                         } = data[0].result.statistics_pearson.data.corr.value;
-
                         if(props.myRole === 'promoter') {
                             // promoter Multidimensional matrix thermodynamic diagram
                             // ---> mix_corr array to object mapping
@@ -290,24 +289,25 @@
                                 }
                             });
                             vData.promoterConfig.series = [];
+                            const length = vData.promoterConfig.yAxis.length;
                             mix_corr.forEach((rows, rowIndex) => {
                                 if(rowIndex < maxFeatureNum) {
                                     rows.forEach((row, index) => {
                                         if(index < maxFeatureNum) {
-                                            vData.promoterConfig.series.push([rowIndex, maxFeatureNum - index - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
+                                            vData.promoterConfig.series.push([rowIndex,  length - index - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
                                         }
                                     });
                                 }
                             });
 
-                            vData.promoterConfig.featureColumnCount = maxFeatureNum;
+                            vData.promoterConfig.featureColumnCount = mix_feature_names.length;
                             vData.promoterConfig.width = vData.promoterConfig.xAxis.length * (vData.promoterConfig.xAxis.length > 10 ? 60 : 100);
                             vData.promoterConfig.height = vData.promoterConfig.yAxis.length * 34 + (vData.promoterConfig.yAxis.length > 10 ? 50: 100);
 
                             const promoterCheckedFeatures = [];
                             const providerCheckedFeatures = [];
                             const array = features.map((feature, index) => {
-                                const key = `promoter_${feature}`;
+                                const key = features.length === mix_feature_names.length ? feature :`promoter_${feature}`;
 
                                 if(index < maxFeatureNum) {
                                     promoterCheckedFeatures.push(key);
@@ -409,7 +409,7 @@
 
                             corr_feature_names[0].forEach((item, index) => {
                                 if(index < maxFeatureNum) {
-                                    vData.providerConfig.yAxis.push(item);
+                                    vData.providerConfig.yAxis.unshift(item);
                                 }
                             });
                             corr_feature_names[1].forEach((item, index) => {
@@ -422,7 +422,7 @@
                                 if(rowIndex < maxFeatureNum) {
                                     rows.forEach((row, index) => {
                                         if(index < maxFeatureNum) {
-                                            vData.providerConfig.series.push([rowIndex, vData.providerConfig.yAxis.length - index - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
+                                            vData.providerConfig.series.push([index ,vData.providerConfig.yAxis.length - rowIndex - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
                                         }
                                     });
                                 }
@@ -534,12 +534,19 @@
                     chartData.yAxis = [];
                     chartData.featureColumnCount = 0;
 
+                    console.log('list', list,chartData.mixCorr)
                     if(role === 'provider') {
-                        chartData.xAxis.unshift(...list[1].$checkedColumnsArr);
-                        list[0].$checkedColumnsArr.forEach(name => {
-                            chartData.yAxis.push(name);
+                        /** 按顺序排列 */
+                        const {$checkedColumnsArr: secondArr,$feature_list: secondList} = list[1];
+                        const {$checkedColumnsArr: firstArr,$feature_list: firstList} = list[0];
+                        const firstFeature = firstList.map(item => item.name).filter(item => firstArr.includes(item));
+                        const secondFeature = secondList.map(item => item.name).filter(item => secondArr.includes(item));
+
+                        chartData.xAxis.push(...secondFeature);
+                        firstFeature.forEach(name => {
+                            chartData.yAxis.unshift(name);
                         });
-                        chartData.featureColumnCount += list[0].$checkedColumnsArr.length + list[1].$checkedColumnsArr.length;
+                        chartData.featureColumnCount += firstFeature.length + secondFeature.length;
 
                         // set rows
                         const { length } = chartData.yAxis;
@@ -548,19 +555,20 @@
                         chartData.yAxis.forEach(($row, rowIndex) => {
                             chartData.xAxis.forEach((column, columnIndex) => {
                                 const row = chartData.mixCorr[$row][column];
-
-                                chartData.series.push([rowIndex, length - columnIndex - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
+                                chartData.series.push([columnIndex, rowIndex, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
                             });
                         });
                     } else {
 
-                        list.forEach(({ $checkedColumnsArr }) => {
-                            chartData.xAxis.push(...$checkedColumnsArr);
-                            $checkedColumnsArr.forEach(name => {
+                        list.forEach(({ $checkedColumnsArr,$feature_list }) => {
+                            /** 按照正常顺序 */
+                            const allFeature = $feature_list.map(item => item.name).filter(item => $checkedColumnsArr.includes(item));
+                            chartData.xAxis.push(...allFeature);
+                            allFeature.forEach(name => {
                                 chartData.yAxis.unshift(name);
                             });
                             if(role !== 'local') {
-                                chartData.featureColumnCount += $checkedColumnsArr.length;
+                                chartData.featureColumnCount += allFeature.length;
                             }
                         });
 

@@ -168,7 +168,7 @@
                             />
                         </div>
                         <uploader
-                            v-if="form.data_set_add_method === 'HttpUpload'"
+                            v-show="form.data_set_add_method === 'HttpUpload'"
                             ref="uploaderRef"
                             :options="file_upload_options"
                             :file-status-text="fileStatusText"
@@ -178,7 +178,7 @@
                             @file-added="fileAdded"
                         >
                             <uploader-unsupport />
-                            <uploader-drop v-if="file_upload_options.files.length === 0">
+                            <uploader-drop v-show="file_upload_options.files.length === 0">
                                 <p class="mb10">将文件（.csv .xls .xlsx）拖到此处</p>或
                                 <uploader-btn
                                     :attrs="file_upload_attrs"
@@ -232,7 +232,8 @@
 
                         <ul v-if="addDataType !== 'img'" class="data-set-upload-tip">
                             <template v-if="addDataType === 'csv'">
-                                <li>主键字段必须是第一列，并且会被自动 hash</li>
+                                <!-- <li>主键字段必须是第一列，并且会被自动 hash</li> -->
+                                <li>主键字段必须是第一列</li>
                                 <li>主键重复的数据会被自动去重，仅保留第 1 条</li>
                                 <li>y 值列的列名必须为 y</li>
                             </template>
@@ -1208,7 +1209,7 @@
                 this.loading = false;
             },
 
-            async getAddTask(id, opt = { requestFromRefresh: false }) {
+            async getAddTask(id, opt = { requestFromRefresh: true }) {
                 const { code, data } = await this.$http.get({
                     url:    '/data_resource/upload_task/detail',
                     params: {
@@ -1271,7 +1272,7 @@
                                 } else {
                                     this.$message.error(error_message);
                                 }
-                            }, 1000);
+                            }, 3000);
                         }
                     }
                 } else {

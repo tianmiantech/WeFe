@@ -12,9 +12,11 @@ const isProd = process.env.NODE_ENV === 'production';
 const resolve = (dir) => path.resolve(__dirname, dir);
 const buildDate = '3.0.0';
 const { welab } = pkg;
-const { contextPath: APP_CODE } = welab || {};
-const { HOST_ENV } = argv;
 
+let { contextPath: APP_CODE } = welab || {};
+const { HOST_ENV,SERVICE_NAME } = argv;
+
+APP_CODE = SERVICE_NAME !== 'nil' ?  SERVICE_NAME || APP_CODE : APP_CODE;
 console.log(HOST_ENV, APP_CODE);
 
 module.exports = {

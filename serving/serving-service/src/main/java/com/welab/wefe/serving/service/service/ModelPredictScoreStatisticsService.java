@@ -122,15 +122,16 @@ public class ModelPredictScoreStatisticsService {
         return Double.valueOf(recordRepository.count(where)).intValue();
     }
 
-    private ModelPredictScoreStatisticsMySqlModel findByServiceIdAndDayAndBinning(String serviceId, Date day, Double splitPoints) {
-        Specification<ModelPredictScoreStatisticsMySqlModel> where = Where
-                .create()
-                .equal("serviceId", serviceId)
-                .equal("day", day)
-                .equal("splitPoint", splitPoints)
-                .build(ModelPredictScoreStatisticsMySqlModel.class);
+    private ModelPredictScoreStatisticsMySqlModel findByServiceIdAndDayAndBinning(String serviceId, Date day,
+            Double splitPoints) {
+        Specification<ModelPredictScoreStatisticsMySqlModel> where = Where.create().equal("serviceId", serviceId)
+                .equal("day", day).equal("splitPoint", splitPoints).build(ModelPredictScoreStatisticsMySqlModel.class);
 
-        return statisticsRepository.findOne(where).orElse(null);
+        List<ModelPredictScoreStatisticsMySqlModel> list = statisticsRepository.findAll(where);
+        if (list != null && !list.isEmpty()) {
+            return list.get(0);
+        }
+        return null;
     }
 
     private void addRecord(String serviceId, Double score) {

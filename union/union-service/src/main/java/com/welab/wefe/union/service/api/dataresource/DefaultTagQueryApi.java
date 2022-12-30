@@ -16,9 +16,6 @@
 
 package com.welab.wefe.union.service.api.dataresource;
 
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.entity.union.DataResourceDefaultTag;
-import com.welab.wefe.common.data.mongodb.repo.DataResourceDefaultTagMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
@@ -27,12 +24,10 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.union.service.dto.base.BaseInput;
-import com.welab.wefe.union.service.dto.dataresource.dataset.table.ApiDataSetDefaultTagOutput;
+import com.welab.wefe.union.service.service.DefaultTagService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author yuxin.zhang
@@ -40,32 +35,11 @@ import java.util.stream.Collectors;
 @Api(path = "data_resource/default_tag/query", name = "data_resource_default_tag_query", allowAccessWithSign = true)
 public class DefaultTagQueryApi extends AbstractApi<DefaultTagQueryApi.Input, JObject> {
     @Autowired
-    protected DataResourceDefaultTagMongoRepo dataResourceDefaultTagMongoRepo;
+    private DefaultTagService defaultTagService;
 
     @Override
     protected ApiResult<JObject> handle(Input input) throws StatusCodeWithException, IOException {
-        List<DataResourceDefaultTag> dataResourceDefaultTagList = dataResourceDefaultTagMongoRepo.findByDataResourceType(convertDataResourceType(input.dataResourceType));
-        List<ApiDataSetDefaultTagOutput> list = dataResourceDefaultTagList
-                .stream().map(x -> {
-                    ApiDataSetDefaultTagOutput apiDataSetDefaultTagOutput = new ApiDataSetDefaultTagOutput();
-                    apiDataSetDefaultTagOutput.setId(x.getTagId());
-                    apiDataSetDefaultTagOutput.setTagName(x.getTagName());
-                    return apiDataSetDefaultTagOutput;
-                }).collect(Collectors.toList());
-
-        return success(JObject.create("list", JObject.toJSON(list)));
-    }
-
-    private String convertDataResourceType(DataResourceType dataResourceType) throws StatusCodeWithException {
-        switch (dataResourceType) {
-            case BloomFilter:
-            case TableDataSet:
-                return DataResourceType.TableDataSet.name();
-            case ImageDataSet:
-                return DataResourceType.ImageDataSet.name();
-            default:
-                throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER,"dataResourceType");
-        }
+        return success(JObject.create("list", JObject.toJSON(defaultTagService.query(input))));
     }
 
     public static class Input extends BaseInput {

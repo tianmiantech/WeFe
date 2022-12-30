@@ -141,19 +141,31 @@
                         样本量：{{ scope.row.data_resource ? scope.row.data_resource.total_data_count : scope.row.total_data_count }}
                         <template v-if="scope.row.data_resource_type === 'TableDataSet'">
                             <br>
-                            <template v-if="(!scope.row.label_distribution || (scope.row.label_distribution && scope.row.label_distribution.label_species_count <=2)) && memberId === userInfo.member_id && (scope.row.data_resource && scope.row.data_resource.contains_y || scope.row.contains_y)">
+                            <template v-if="(!scope.row.label_species_count || (scope.row.label_species_count <=2)) && memberId === userInfo.member_id && (scope.row.data_resource && scope.row.data_resource.contains_y || scope.row.contains_y)">
                                 正例样本数量：{{ scope.row.data_resource ? scope.row.data_resource.y_positive_sample_count : scope.row.y_positive_sample_count }}
                                 <br>
                                 正例样本比例：{{((scope.row.data_resource ? scope.row.data_resource.y_positive_sample_ratio : scope.row.y_positive_sample_ratio) * 100).toFixed(1)}}%
                                 <br>
                             </template>
-                            <template v-if="scope.row.label_distribution && scope.row.label_distribution.label_species_count > 2">
-                                标签类别数量：{{ scope.row.label_distribution.label_species_count }}
+                            <template v-if="scope.row.label_species_count > 2">
+                                标签类别数量：{{ scope.row.label_species_count }}
                             </template>
                             <el-tag v-if="scope.row.data_resource && scope.row.data_resource.contains_y" type="success" class="mr5">包含Y</el-tag>
                             <el-tag v-else-if="scope.row.contains_y" type="success" class="mr5">包含Y</el-tag>
                             <el-tag v-else type="danger" class="mr5">不包含Y</el-tag>
                         </template>
+                    </p>
+                </template>
+            </el-table-column>
+            <el-table-column
+                label="分类数"
+                width="100"
+                align="center"
+                v-if="needClassify"
+            >
+            <template v-slot="scope">
+                    <p>
+                        {{(scope.row?.data_resource?.label_species_count > 10000 ? '10000+' : scope.row?.data_resource?.label_species_count)}}
                     </p>
                 </template>
             </el-table-column>
@@ -209,7 +221,7 @@
                             </el-tooltip>
                             <el-switch
                                 v-model="scope.row.$checked"
-                                :disabled="scope.row.deleted || scope.row.$unchanged || scope.row.audit_status === 'disagree' || scope.row.audit_status === 'auditing'"
+                                :disabled="scope.row?.data_resource?.deleted || scope.row.$unchanged || scope.row.audit_status === 'disagree' || scope.row.audit_status === 'auditing'"
                                 active-color="#35c895"
                                 @change="isFlow ? selectDataSet(scope.row, scope.$index) : selectMemberSwitch(scope.row, scope.$index)"
                             />
@@ -287,6 +299,7 @@
             isShow:        Boolean,
             projectType:   String,
             memberId:      String,
+            needClassify:  Boolean,
         },
         emits: ['list-loaded', 'close-dialog', 'selectDataSet', 'batchDataSet'],
         data() {

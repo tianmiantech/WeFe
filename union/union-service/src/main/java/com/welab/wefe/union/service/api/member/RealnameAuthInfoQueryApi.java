@@ -16,24 +16,14 @@
 
 package com.welab.wefe.union.service.api.member;
 
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.dto.member.RealnameAuthInfoQueryOutput;
-import com.welab.wefe.common.data.mongodb.entity.union.Member;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.RealnameAuthFileInfo;
-import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
-import com.welab.wefe.union.service.mapper.MemberMapper;
-import org.mapstruct.factory.Mappers;
+import com.welab.wefe.union.service.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author yuxin.zhang
@@ -41,54 +31,11 @@ import java.util.stream.Collectors;
 @Api(path = "member/realname/authInfo/query", name = "member/realname/authInfo/query", allowAccessWithSign = true)
 public class RealnameAuthInfoQueryApi extends AbstractApi<RealnameAuthInfoQueryApi.Input, RealnameAuthInfoQueryOutput> {
     @Autowired
-    protected MemberMongoReop memberMongoReop;
-
-    protected MemberMapper mMapper = Mappers.getMapper(MemberMapper.class);
+    private MemberService memberService;
 
     @Override
     protected ApiResult<RealnameAuthInfoQueryOutput> handle(RealnameAuthInfoQueryApi.Input input) throws StatusCodeWithException {
-        try {
-            Member member = memberMongoReop.findMemberId(input.curMemberId);
-            if (member == null) {
-                throw new StatusCodeWithException("Invalid member_id: " + input.curMemberId, StatusCode.INVALID_MEMBER);
-            }
-            RealnameAuthInfoQueryOutput realNameAuthInfoQueryOutput = new RealnameAuthInfoQueryOutput();
-            realNameAuthInfoQueryOutput.setAuthType(member.getExtJson().getAuthType());
-            realNameAuthInfoQueryOutput.setAuditComment(member.getExtJson().getAuditComment());
-            realNameAuthInfoQueryOutput.setDescription(member.getExtJson().getDescription());
-            realNameAuthInfoQueryOutput.setPrincipalName(member.getExtJson().getPrincipalName());
-            realNameAuthInfoQueryOutput.setRealNameAuthStatus(member.getExtJson().getRealNameAuthStatus());
-            // 证书相关内容
-            realNameAuthInfoQueryOutput.setCertPemContent(member.getExtJson().getCertPemContent());
-            realNameAuthInfoQueryOutput.setCertRequestContent(member.getExtJson().getCertRequestContent());
-            realNameAuthInfoQueryOutput.setCertRequestId(member.getExtJson().getCertRequestId());
-            realNameAuthInfoQueryOutput.setCertSerialNumber(member.getExtJson().getCertSerialNumber());
-            realNameAuthInfoQueryOutput.setCertStatus(member.getExtJson().getCertStatus());
-            realNameAuthInfoQueryOutput.setMemberGatewayTlsEnable(member.getExtJson().getMemberGatewayTlsEnable());
-            if(member.getExtJson().getRealNameAuthStatus() == 2) {
-                long realNameAuthTime = member.getExtJson().getRealNameAuthTime();
-                String realNameAuthUsefulLife = DateUtil.toStringYYYY_MM_DD(DateUtil.addYears(DateUtil.getDate(realNameAuthTime),1));
-                realNameAuthInfoQueryOutput.setRealNameAuthUsefulLife(realNameAuthUsefulLife);
-            }
-            List<RealnameAuthInfoQueryOutput.FileInfo> fileInfoList = new ArrayList<>();
-            List<RealnameAuthFileInfo> realnameAuthFileInfoList = member.getExtJson().getRealnameAuthFileInfoList();
-            if(realnameAuthFileInfoList != null && !realnameAuthFileInfoList.isEmpty()){
-                fileInfoList = realnameAuthFileInfoList
-                        .stream()
-                        .map(realnameAuthFileInfo -> {
-                            RealnameAuthInfoQueryOutput.FileInfo fileInfo = new RealnameAuthInfoQueryOutput.FileInfo();
-                            fileInfo.setFilename(realnameAuthFileInfo.getFilename());
-                            fileInfo.setFileId(realnameAuthFileInfo.getFileId());
-                            return fileInfo;
-                        })
-                        .collect(Collectors.toList());
-            }
-            realNameAuthInfoQueryOutput.setFileInfoList(fileInfoList);
-            return success(realNameAuthInfoQueryOutput);
-        } catch (Exception e) {
-            LOG.error("Failed to query RealNameAuthInfo information in pagination:", e);
-            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to query RealNameAuthInfo information in pagination");
-        }
+        return success(memberService.queryRealNameAuthInfo(input));
     }
 
     public static class Input extends BaseInput {

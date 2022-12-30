@@ -17,22 +17,6 @@
 package com.welab.wefe.data.fusion.service.service.bloomfilter;
 
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.LineNumberReader;
-import java.math.BigInteger;
-import java.nio.file.Paths;
-import java.security.SecureRandom;
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -60,6 +44,23 @@ import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.math.BigInteger;
+import java.nio.file.Paths;
+import java.security.SecureRandom;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 /**
  * Adding a Filter
  *
@@ -83,6 +84,17 @@ public class BloomFilterAddService extends AbstractService {
 
     @Transactional(rollbackFor = Exception.class)
     public AddApi.BloomfilterAddOutput addFilter(AddApi.Input input) throws Exception {
+        try {
+            if (StringUtils.isNotBlank(config.getBloomFilterDir())) {
+                File file = Paths.get(config.getBloomFilterDir()).toFile();
+                if (!file.exists()) {
+                    file.mkdirs();
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("mkdir " + config.getBloomFilterDir() + " error", e);
+        }
+        
         List<FieldInfo> fieldInfos = input.getFieldInfoList();
         int count = 0;
         for (FieldInfo info : fieldInfos) {
@@ -90,7 +102,7 @@ public class BloomFilterAddService extends AbstractService {
         }
 
         if (count > 5) {
-            throw new StatusCodeWithException("加密组合不宜过于复杂", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "加密组合不宜过于复杂");
         }
 
         BloomFilterMySqlModel model = new BloomFilterMySqlModel();
@@ -124,7 +136,7 @@ public class BloomFilterAddService extends AbstractService {
                 readAndSaveFile(model, file, input.getRows());
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "文件读取失败！");
+                StatusCode.FILE_IO_READ_ERROR.throwException();
             }
         }
 
@@ -141,25 +153,30 @@ public class BloomFilterAddService extends AbstractService {
      */
     private int readAndSaveFile(BloomFilterMySqlModel model, File file, List<String> idFeatureFields) throws IOException, StatusCodeWithException {
         LOG.info("Start parsing the data set：" + model.getId());
-        long fileLength = file.length();
-        LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(file));
-        lineNumberReader.skip(fileLength);
-        int rowCount = lineNumberReader.getLineNumber() - 1;
-        lineNumberReader.close();
+        boolean isCsv = file.getName().endsWith("csv");
+        int rowCount = 0;
+        AbstractDataSetReader dataSetReader = isCsv ? new CsvDataSetReader(file) : new ExcelDataSetReader(file);
+        if(isCsv) {
+            long fileLength = file.length();
+            LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(file));
+            lineNumberReader.skip(fileLength);
+            rowCount = lineNumberReader.getLineNumber() - 1; // 这个方法对于xlsx会有不准确
+            lineNumberReader.close();
+        }
+        else {
+            rowCount = (int) dataSetReader.getRowCount(0) - 1; // 去除header
+        }
         BloomFilterRepository bloomFilterRepository = Launcher.CONTEXT.getBean(BloomFilterRepository.class);
         bloomFilterRepository.updateById(model.getId(), "rowCount", rowCount, BloomFilterMySqlModel.class);
         model.setRowCount(rowCount);
-        boolean isCsv = file.getName().endsWith("csv");
-
-        AbstractDataSetReader dataSetReader = isCsv ? new CsvDataSetReader(file) : new ExcelDataSetReader(file);
         dataSetReader.getHeader();
-        File src = Paths.get(config.getBloomFilterDir()).resolve(model.getName()).toFile();
-        if(!src.exists()){
-            boolean result = src.mkdirs();
-            LOG.info("mkdir " + src.toString() + (result ? "success":"fail"));
+        File dir = Paths.get(config.getBloomFilterDir()).toFile();
+        if(!dir.exists()){
+            boolean result = dir.mkdirs();
+            LOG.info("mkdir " + dir.toString() + (result ? "success":"fail"));
         }
+        File src = Paths.get(config.getBloomFilterDir()).resolve(model.getName()).toFile();
         model.setSrc(src.toString());
-
 
         BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model, file);
         // Read all rows of data
@@ -190,7 +207,7 @@ public class BloomFilterAddService extends AbstractService {
 //        int processCount = bloomFilterMySqlModel.getProcessCount();
         DataSourceMySqlModel dsModel = dataSetService.getDataSourceById(model.getDataSourceId());
         if (dsModel == null) {
-            throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "dataSourceId在数据库不存在");
         }
         Connection conn = JdbcManager.getConnection(dsModel.getDatabaseType(), dsModel.getHost(), dsModel.getPort()
                 , dsModel.getUserName(), dsModel.getPassword(), dsModel.getDatabaseName());
@@ -200,6 +217,11 @@ public class BloomFilterAddService extends AbstractService {
         bloomFilterRepository.updateById(model.getId(), "process", Progress.Ready, BloomFilterMySqlModel.class);
         bloomFilterRepository.updateById(model.getId(), "rowCount", rowCount, BloomFilterMySqlModel.class);
         model.setRowCount(rowCount);
+        File dir = Paths.get(config.getBloomFilterDir()).toFile();
+        if(!dir.exists()){
+            boolean result = dir.mkdirs();
+            LOG.info("mkdir " + dir.toString() + (result ? "success":"fail"));
+        }
         File src = Paths.get(config.getBloomFilterDir()).resolve(model.getName()).toFile();
         model.setSrc(src.toString());
         BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model, null);

@@ -61,7 +61,10 @@
                     <el-descriptions-item label="正例样本数量：">
                         {{ dataInfo.y_positive_sample_count }}
                     </el-descriptions-item>
-                    <el-descriptions-item label="正例样本比例：">
+                    <el-descriptions-item label="分类数：" v-if="(dataInfo.label_species_count && dataInfo.label_species_count > 2)">
+                        {{ dataInfo.label_species_count }}
+                    </el-descriptions-item>
+                    <el-descriptions-item label="正例样本比例：" v-else>
                         {{ (dataInfo.y_positive_sample_ratio * 100).toFixed(1) }}%
                     </el-descriptions-item>
                 </template>
@@ -130,7 +133,7 @@
                 </el-tab-pane>
 
                 <el-tab-pane name="preview" label="数据预览">
-                    <h4 v-if="!dataInfo.derived_from" class="mb10">主键已被 hash</h4>
+                    <!-- <h4 v-if="!dataInfo.derived_from" class="mb10">主键已被 hash</h4> -->
                     <DataSetPreview ref="DataSetPreview" />
                 </el-tab-pane>
             </el-tabs>
@@ -234,7 +237,6 @@
                                 if(row.name === this.dataInfo.primary_key_column) {
                                     name = `${row.name}（主键）`;
                                 }
-
                                 return {
                                     ...row,
                                     特征名称: name,

@@ -75,6 +75,11 @@
                         label="特征"
                         width="150"
                     />
+                    <el-table-column
+                        prop="data_type"
+                        label="类型"
+                        width="70"
+                    />
                     <el-table-column label="策略">
                         <template v-slot="scope">
                             {{
@@ -165,10 +170,11 @@
 
             if(props.learningType === 'vertical') {
                 vData.methodList.push({ value: 'mode', label: '众数' });
-            }
-            if(props.learningType !== 'mix') {
                 vData.methodList.push({ value: 'median', label: '中位数' });
             }
+            // if(props.learningType !== 'mix') {
+            //     vData.methodList.push({ value: 'median', label: '中位数' });
+            // }
 
             let methods = {
                 addPolicy () {

@@ -288,8 +288,8 @@
         }
     }
     .create-button{
-        padding:0;
         cursor: default;
+        background: #f5f7fa;
         .guide{
             height: 62px;
             line-height: 62px;

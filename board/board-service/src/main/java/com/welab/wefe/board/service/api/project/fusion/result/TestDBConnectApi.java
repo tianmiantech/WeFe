@@ -16,18 +16,15 @@
 package com.welab.wefe.board.service.api.project.fusion.result;
 
 
-import com.welab.wefe.board.service.util.JdbcManager;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.jdbc.JdbcClient;
+import com.welab.wefe.common.jdbc.base.DatabaseType;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.wefe.enums.DatabaseType;
-
-import java.sql.Connection;
 
 /**
  * @author hunter.zhao
@@ -37,12 +34,17 @@ public class TestDBConnectApi extends AbstractApi<TestDBConnectApi.Input, TestDB
 
     @Override
     protected ApiResult<TestDBConnectApi.Output> handle(Input input) throws Exception {
-        Connection conn = JdbcManager.getConnection(input.getDatabaseType(), input.getHost(), input.getPort(), input.getUserName(), input.getPassword(), input.getDatabaseName());
-        if (conn != null) {
-            boolean success = JdbcManager.testQuery(conn);
-            if (!success) {
-                throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "测试连接数据库失败，请检查数据库是否正常或者账号密码是否填写错误");
-            }
+        JdbcClient client = JdbcClient.create(
+                input.getDatabaseType(),
+                input.getHost(),
+                input.getPort(),
+                input.getUserName(),
+                input.getPassword(),
+                input.getDatabaseName()
+        );
+        String message = client.test();
+        if (message != null) {
+            StatusCode.PARAMETER_VALUE_INVALID.throwException("测试连接数据库失败：" + message);
         }
 
         TestDBConnectApi.Output output = new TestDBConnectApi.Output();

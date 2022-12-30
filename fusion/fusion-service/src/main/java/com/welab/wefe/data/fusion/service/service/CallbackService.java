@@ -16,11 +16,6 @@
 
 package com.welab.wefe.data.fusion.service.service;
 
-import static com.welab.wefe.common.StatusCode.DATA_NOT_FOUND;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.util.ModelMapper;
@@ -36,6 +31,10 @@ import com.welab.wefe.data.fusion.service.manager.ActuatorManager;
 import com.welab.wefe.data.fusion.service.task.AbstractTask;
 import com.welab.wefe.data.fusion.service.task.PsiClientTask;
 import com.welab.wefe.data.fusion.service.task.PsiServerTask;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import static com.welab.wefe.common.StatusCode.DATA_NOT_FOUND;
 
 /**
  * @author hunter.zhao
@@ -98,7 +97,7 @@ public class CallbackService {
 
         TaskMySqlModel task = taskService.findByBusinessId(businessId);
         if (task == null) {
-            throw new StatusCodeWithException("该任务不存在，请检查入参:" + businessId, DATA_NOT_FOUND);
+            throw new StatusCodeWithException(DATA_NOT_FOUND, "该任务不存在，请检查入参:" + businessId);
         }
         task.setStatus(TaskStatus.Running);
         taskRepository.save(task);
@@ -131,7 +130,7 @@ public class CallbackService {
             serverTask.actuator.status = PSIActuatorStatus.exception;
             serverTask.close();
         } catch (Exception e) {
-            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
+            StatusCode.SYSTEM_ERROR.throwException(e);
         }
     }
 }

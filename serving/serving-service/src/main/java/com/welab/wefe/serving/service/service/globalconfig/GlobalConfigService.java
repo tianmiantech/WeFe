@@ -62,7 +62,7 @@ public class GlobalConfigService extends BaseGlobalConfigService {
      */
     private void checkInitialized() throws StatusCodeWithException {
         if (isInitialized()) {
-            throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "系统已初始化，无法重复操作。");
+            throw StatusCodeWithException.of(StatusCode.UNSUPPORTED_HANDLE, "系统已初始化，无法重复操作。");
         }
     }
 
@@ -125,6 +125,7 @@ public class GlobalConfigService extends BaseGlobalConfigService {
             AbstractConfigModel model = toModel(group.getKey(), group.getValue());
             put(model);
         }
+        CacheObjects.refreshGlobalConfig();
         ServiceCacheConfigModel cacheConfigModel = getModel(ServiceCacheConfigModel.class);
         if (cacheConfigModel == null) {
             return;
@@ -158,7 +159,7 @@ public class GlobalConfigService extends BaseGlobalConfigService {
 
         AccountMySqlModel account = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(CurrentAccountUtil.get().getPhoneNumber()));
         if (!account.getSuperAdminRole()) {
-            throw new StatusCodeWithException("您没有编辑权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
+            throw new StatusCodeWithException(StatusCode.INVALID_USER, "您没有编辑权限，请联系超级管理员（第一个注册的人）进行操作。");
         }
 
         IdentityInfoModel model = getModel(IdentityInfoModel.class);
@@ -168,7 +169,7 @@ public class GlobalConfigService extends BaseGlobalConfigService {
             model.setRsaPrivateKey(keyPair.privateKey);
             model.setRsaPublicKey(keyPair.publicKey);
         } catch (NoSuchAlgorithmException e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
         model.setMode(ServingModeEnum.standalone.name());

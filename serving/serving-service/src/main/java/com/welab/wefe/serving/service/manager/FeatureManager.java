@@ -62,7 +62,7 @@ public class FeatureManager {
         synchronized (modelService) {
             TableModelMySqlModel mysqlModel = modelService.findOne(modelId);
             if (mysqlModel == null) {
-                throw new StatusCodeWithException("modelId error: " + modelId, StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "modelId error: " + modelId);
             }
 
             FEATURE_SOURCE.put(modelId, mysqlModel.getFeatureSource());

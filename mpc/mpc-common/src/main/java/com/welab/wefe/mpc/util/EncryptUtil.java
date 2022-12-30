@@ -17,15 +17,12 @@
 package com.welab.wefe.mpc.util;
 
 
-import com.welab.wefe.mpc.commom.AccountEncryptionType;
-import com.welab.wefe.mpc.key.DiffieHellmanKey;
+import java.nio.charset.Charset;
 
-import javax.crypto.interfaces.DHPublicKey;
-import java.math.BigInteger;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.util.Random;
+import com.welab.wefe.mpc.commom.AccountEncryptionType;
+import com.welab.wefe.mpc.commom.Conversion;
+import com.welab.wefe.mpc.pir.protocol.se.SymmetricKey;
+import com.welab.wefe.mpc.pir.protocol.se.aes.AESDecryptKey;
 
 /**
  * @author eval
@@ -44,6 +41,15 @@ public class EncryptUtil {
             default:
                 return id;
         }
+    }
+    
+    public static String decryptByAES(String enResults, byte[] key) {
+        String[] realResult = enResults.split(",");
+        byte[] enResult = Conversion.hexStringToBytes(realResult[0]);
+        byte[] iv = Conversion.hexStringToBytes(realResult[1]);
+        AESDecryptKey aesKey = new AESDecryptKey(key, iv);
+        byte[] result = aesKey.encrypt(enResult);
+        return new String(result, Charset.forName("utf-8"));
     }
 
 }

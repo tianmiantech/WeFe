@@ -238,7 +238,7 @@ public class ProjectService extends AbstractService {
         ProjectMySqlModel project = projectRepo.findOne("projectId", input.getProjectId(), ProjectMySqlModel.class);
 
         if (project == null) {
-            throw new StatusCodeWithException("未找到相应的项目！", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "未找到相应的项目！");
         }
 
         List<ProjectMemberMySqlModel> projectMembers = projectMemberService.findListByProjectId(input.getProjectId());
@@ -282,7 +282,7 @@ public class ProjectService extends AbstractService {
     public ProjectOutputModel detail(String projectId) throws StatusCodeWithException {
         ProjectMySqlModel project = projectRepo.findOne("projectId", projectId, ProjectMySqlModel.class);
         if (project == null) {
-            throw new StatusCodeWithException("未找到相应的项目！", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "未找到相应的项目！");
         }
 
 
@@ -347,10 +347,10 @@ public class ProjectService extends AbstractService {
     public synchronized void removeMember(RemoveApi.Input input) throws StatusCodeWithException {
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
-            throw new StatusCodeWithException("未找到相应的项目！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未找到相应的项目！");
         }
         if (project.getMyRole() != JobMemberRole.promoter && !input.fromGateway()) {
-            throw new StatusCodeWithException("移除成员的操作只有 promoter 能发起", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "移除成员的操作只有 promoter 能发起");
         }
         ProjectMemberMySqlModel member = projectMemberService.findOneByMemberId(input.getProjectId(), input.getMemberId(), input.getMemberRole());
         if (member == null) {
@@ -464,24 +464,24 @@ public class ProjectService extends AbstractService {
     public synchronized ProjectMySqlModel addProjectDataSet(AddDataSetApi.Input input) throws StatusCodeWithException {
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
-            throw new StatusCodeWithException("未找到相应的项目！", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "未找到相应的项目！");
         }
 
         if (!input.fromGateway()) {
             if (project.getAuditStatus() != AuditStatus.agree || project.isExited()) {
-                throw new StatusCodeWithException("请在成为该项目的正式成员后再进行相关操作", StatusCode.ILLEGAL_REQUEST);
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "请在成为该项目的正式成员后再进行相关操作");
             }
         }
 
         if (CollectionUtils.isEmpty(input.getDataResourceList())) {
-            throw new StatusCodeWithException("数据集不能为空", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "数据集不能为空");
         }
 
         for (ProjectDataSetInput item : input.getDataResourceList()) {
             // Determine whether the member exists
             ProjectMemberMySqlModel member = projectMemberService.findOneByMemberId(input.getProjectId(), item.getMemberId(), item.getMemberRole());
             if (member == null) {
-                throw new StatusCodeWithException("该成员不存在", StatusCode.ILLEGAL_REQUEST);
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "该成员不存在");
             }
 
             // Add your own data set by yourself, the review status is agreed,
@@ -543,12 +543,12 @@ public class ProjectService extends AbstractService {
 
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
-            throw new StatusCodeWithException("未找到相应的项目！", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "未找到相应的项目！");
         }
 
         if (!input.fromGateway()) {
             if (project.getAuditStatus() != AuditStatus.agree || project.isExited()) {
-                throw new StatusCodeWithException("请在成为该项目的正式成员后再进行相关操作", StatusCode.ILLEGAL_REQUEST);
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "请在成为该项目的正式成员后再进行相关操作");
             }
         }
 
@@ -564,7 +564,7 @@ public class ProjectService extends AbstractService {
             if (projectDataSet.getSourceType() == null) {
                 // Not a promoter, you can't delete other people's data sets
                 if (project.getMyRole() != JobMemberRole.promoter && !CacheObjects.getMemberId().equals(projectDataSet.getMemberId())) {
-                    throw new StatusCodeWithException("不能删除别人的数据集", StatusCode.ILLEGAL_REQUEST);
+                    throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "不能删除别人的数据集");
                 }
 
                 OnlineDemoBranchStrategy.hackOnDelete(input, projectDataSet, "只能删除自己添加的数据集。");
@@ -572,7 +572,7 @@ public class ProjectService extends AbstractService {
             // If it is the derived data set
             else {
                 if (project.getMyRole() != JobMemberRole.promoter) {
-                    throw new StatusCodeWithException("只有 promoter 才能删除衍生数据集", StatusCode.ILLEGAL_REQUEST);
+                    throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "只有 promoter 才能删除衍生数据集");
                 }
                 dataResourceService.delete(projectDataSet.getDataSetId(), projectDataSet.getDataResourceType());
             }
@@ -765,13 +765,13 @@ public class ProjectService extends AbstractService {
     public synchronized void updateProject(UpdateProjectApi.Input input) throws StatusCodeWithException {
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
-            throw new StatusCodeWithException("未找到相应的项目！", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "未找到相应的项目！");
         }
 
         if (!input.fromGateway()) {
             if (project.getMyRole() != JobMemberRole.promoter
                     || !project.getMemberId().equals(CacheObjects.getMemberId())) {
-                throw new StatusCodeWithException("只有发起方才能更改项目！", StatusCode.ILLEGAL_REQUEST);
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "只有发起方才能更改项目！");
             }
         }
 
@@ -805,23 +805,23 @@ public class ProjectService extends AbstractService {
     public synchronized void auditProject(AuditApi.Input input) throws StatusCodeWithException {
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
-            throw new StatusCodeWithException("未找到相应的项目！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未找到相应的项目！");
         }
 
         if (!input.fromGateway() && project.getAuditStatus() != AuditStatus.auditing) {
-            throw new StatusCodeWithException("不能重复审核！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "不能重复审核！");
         }
 
         String auditorId = input.fromGateway() ? input.callerMemberInfo.getMemberId() : CacheObjects.getMemberId();
         List<ProjectMemberMySqlModel> list = projectMemberService.findListByMemberId(project.getProjectId(), auditorId);
         if (list == null || list.isEmpty()) {
-            throw new StatusCodeWithException("未找到项目关联的member！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未找到项目关联的member！");
         }
 
         ProjectMemberMySqlModel member = list.stream()
                 .filter(s -> s.getAuditStatus() == AuditStatus.auditing && !s.isExited()).findFirst().get();
         if (member == null) {
-            throw new StatusCodeWithException("未找到项目关联的member！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未找到项目关联的member！");
         }
         AuditStatus auditStatusFromMyself = input.getAuditResult();
         AuditStatus auditStatusFromOthers = null;
@@ -958,7 +958,7 @@ public class ProjectService extends AbstractService {
         ProjectMySqlModel project = findByProjectId(projectId);
 
         if (promoterProjectMember == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到promoter成员信息");
+            throw StatusCodeWithException.of(StatusCode.DATA_NOT_FOUND, "找不到promoter成员信息");
         }
 
         DataInfoApi.Output dataInfoOutput = gatewayService.callOtherMemberBoard(
@@ -1197,7 +1197,7 @@ public class ProjectService extends AbstractService {
                 .orElse(null);
 
         if (promoterMember == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到promoter方");
+            throw StatusCodeWithException.of(StatusCode.DATA_NOT_FOUND, "找不到promoter方");
         }
 
         String promoterMemberId = promoterMember.getMemberId();
@@ -1220,13 +1220,13 @@ public class ProjectService extends AbstractService {
 
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到对应的项目。");
+            throw StatusCodeWithException.of(StatusCode.DATA_NOT_FOUND, "找不到对应的项目。");
         }
 
 
         if (!input.fromGateway()) {
             if (project.getMyRole() == JobMemberRole.promoter) {
-                throw new StatusCodeWithException("promoter 不能退出项目", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "promoter 不能退出项目");
             }
 
 
@@ -1271,12 +1271,12 @@ public class ProjectService extends AbstractService {
 
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到对应的项目。");
+            throw StatusCodeWithException.of(StatusCode.DATA_NOT_FOUND, "找不到对应的项目。");
         }
 
         if (!input.fromGateway()) {
             if (project.getMyRole() != JobMemberRole.promoter || !project.getMemberId().equals(CacheObjects.getMemberId())) {
-                throw new StatusCodeWithException("非发起方无法关闭项目。", StatusCode.ILLEGAL_REQUEST);
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "非发起方无法关闭项目。");
             }
         }
 

@@ -16,7 +16,7 @@
 
 package com.welab.wefe.serving.service.feature.sql.mysql;
 
-import com.welab.wefe.common.wefe.enums.DatabaseType;
+import com.welab.wefe.common.jdbc.base.DatabaseType;
 import com.welab.wefe.serving.service.feature.sql.AbstractDruidTemplate;
 
 /**

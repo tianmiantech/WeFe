@@ -22,8 +22,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -110,14 +114,14 @@ public class ServiceUtil {
         return buffer;
     }
 
-    public static String generateSQL(String params, JSONObject dataSource, String dbName) {
+    public static String generateOneSQL(String idJson, JSONObject dataSource, String dbName) {
         String tableName = dbName + "." + dataSource.getString("table");
         String resultfields = parseReturnFields(dataSource);
-        String where = parseWhere(dataSource, JObject.create(params));
+        String where = parseWhere(dataSource, JObject.create(idJson));
         String sql = "SELECT " + resultfields + " FROM " + tableName + " WHERE " + where + " limit 1";
         return sql;
     }
-
+    
     public static String parseReturnFields(JSONObject dataSource) {
         JSONArray returnFields = dataSource.getJSONArray("return_fields");
         if (returnFields.isEmpty()) {
@@ -204,6 +208,60 @@ public class ServiceUtil {
         }
 
         return originStr.substring(0, maxSize) + StringUtils.defaultIfEmpty(abbrevMarker, defaultAbbrevMarker);
+    }
+
+    /**
+     * 分片
+     */
+    public static <T> List<Queue<T>> partitionList(List<T> list, int numPartitions) {
+        if (list == null) {
+            throw new NullPointerException("The set must not be null");
+        }
+
+        List<Queue<T>> partitions = new ArrayList<>(numPartitions);
+        for (int i = 0; i < numPartitions; i++)
+            partitions.add(i, new ArrayDeque<>());
+
+        int size = list.size();
+        int partitionSize = (int) Math.ceil((double) size / numPartitions);
+        if (numPartitions <= 0)
+            throw new IllegalArgumentException("'numPartitions' must be greater than 0");
+
+        Iterator<T> iterator = list.iterator();
+        int partitionToWrite = 0;
+        int cont = 0;
+        while (iterator.hasNext()) {
+            partitions.get(partitionToWrite).add(iterator.next());
+            cont++;
+            if (cont >= partitionSize) {
+                partitionToWrite++;
+                cont = 0;
+            }
+        }
+        return partitions;
+    }
+
+    public static String calcKey(JSONArray keyCalcRules, Map<String, String> data) {
+        int size = keyCalcRules.size();
+        StringBuilder encodeValue = new StringBuilder("");
+        for (int i = 0; i < size; i++) {
+            JSONObject item = keyCalcRules.getJSONObject(i);
+            String operator = item.getString("operator");
+            String[] fields = item.getString("field").split(",");
+            StringBuffer value = new StringBuffer();
+            for (String field : fields) {
+                value.append(data.get(field));
+            }
+            if ("md5".equalsIgnoreCase(operator)) {
+                encodeValue.append(MD5Util.getMD5String(value.toString()));
+            } else if ("sha256".equalsIgnoreCase(operator)) {
+                encodeValue.append(SHA256Utils.getSHA256(value.toString()));
+            } else { // 不作处理
+                encodeValue.append(value.toString());
+            }
+        }
+        return encodeValue.toString();
+
     }
 
 }

@@ -114,7 +114,10 @@
                                     <span class="board-checkbox__inner"></span>
                                     <input :id="`label-${index * 5 + i - 1}`" class="board-checkbox__original" type="checkbox" />
                                 </span>
-                                <span class="board-checkbox__label">{{ list[index * 5 + i - 1] }}</span>
+                                <span class="board-checkbox__label">
+                                    {{ list[index * 5 + i - 1] }}
+                                    <FeatureTagVue :name="list[index * 5 + i - 1]" :data_set_id="vData.check_data_set_id" />
+                                </span>
                             </label>
                         </template>
                     </template>
@@ -142,6 +145,7 @@
         reactive,
         getCurrentInstance,
     } from 'vue';
+    import FeatureTagVue from '../common/featureTag.vue';
 
     export default {
         name:  'HorzOneHot',
@@ -153,6 +157,9 @@
             currentObj:   Object,
             jobId:        String,
             class:        String,
+        },
+        components: {
+            FeatureTagVue,
         },
         setup(props, context) {
             const { appContext } = getCurrentInstance();
@@ -170,6 +177,7 @@
                 columnListLoading: false,
                 indeterminate:     false,
                 checkedAll:        false,
+                check_data_set_id: '',
             });
 
             const methods = {
@@ -234,6 +242,7 @@
                 },
 
                 checkColumns(row, index) {
+                    vData.check_data_set_id = row.data_set_id;
                     vData.row_index = index;
                     vData.checkedAll = false;
                     vData.indeterminate = false;
@@ -360,6 +369,7 @@
                         ...row,
                         features: vData.checkedColumnsArr,
                     };
+                    vData.check_data_set_id = '';
                     vData.showColumnList = false;
                 },
 

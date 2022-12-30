@@ -16,18 +16,14 @@
 
 package com.welab.wefe.union.service.api.dataresource;
 
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
-import com.welab.wefe.common.data.mongodb.repo.DataResourceMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.wefe.enums.DataResourcePublicLevel;
 import com.welab.wefe.union.service.dto.base.BaseInput;
-import com.welab.wefe.union.service.service.DataResourceContractService;
+import com.welab.wefe.union.service.service.DataResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -40,21 +36,11 @@ import java.io.IOException;
 @Api(path = "data_resource/hidden", name = "data_resource_hidden", allowAccessWithSign = true)
 public class HiddenApi extends AbstractApi<HiddenApi.Input, AbstractApiOutput> {
     @Autowired
-    private DataResourceContractService dataResourceContractService;
-
-    @Autowired
-    protected DataResourceMongoReop dataResourceMongoReop;
+    private DataResourceService dataResourceService;
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException, IOException {
-        DataResource dataResource = dataResourceMongoReop.find(input.getDataResourceId(), input.curMemberId);
-        if(dataResource != null) {
-            dataResource.setPublicLevel(DataResourcePublicLevel.OnlyMyself.name());
-            dataResourceContractService.update(dataResource);
-        } else {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND,"资源不存在");
-        }
-
+        dataResourceService.hidden(input);
         return success();
     }
 
