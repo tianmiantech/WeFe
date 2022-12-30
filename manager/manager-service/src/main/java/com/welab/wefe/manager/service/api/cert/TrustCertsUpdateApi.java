@@ -52,17 +52,17 @@ public class TrustCertsUpdateApi extends AbstractApi<TrustCertsUpdateApi.Input, 
         LOG.info("TrustCertsUpdateApi handle..");
         CertVO certVO = certService.queryCertInfoByCertId(input.getCertId());
         if (certVO == null) {
-            throw new StatusCodeWithException("证书不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "证书不存在");
         }
 
         if ("add".equalsIgnoreCase(input.getOp())) {
             if (certVO.getCanTrust() != null && certVO.getCanTrust().booleanValue()) {
-                throw new StatusCodeWithException("证书已存在信任库中", StatusCode.DATA_EXISTED);
+                throw new StatusCodeWithException(StatusCode.DATA_EXISTED, "证书已存在信任库中");
             }
             try {
                 boolean isExist = trustCertsContractService.isExistBySerialNumber(certVO.getSerialNumber());
                 if (isExist) {
-                    throw new StatusCodeWithException("证书已存在信任库中", StatusCode.DATA_EXISTED);
+                    throw new StatusCodeWithException(StatusCode.DATA_EXISTED, "证书已存在信任库中");
                 }
                 TrustCerts trustCerts = new TrustCerts();
                 BeanUtil.copyProperties(certVO, trustCerts);
@@ -77,7 +77,7 @@ public class TrustCertsUpdateApi extends AbstractApi<TrustCertsUpdateApi.Input, 
                 trustCertsContractService.add(trustCerts);
                 certService.updateCanTrust(certVO.getSerialNumber(), true);
             } catch (StatusCodeWithException e) {
-                throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
             }
         } else {
             trustCertsContractService.deleteBySerialNumber(certVO.getSerialNumber());

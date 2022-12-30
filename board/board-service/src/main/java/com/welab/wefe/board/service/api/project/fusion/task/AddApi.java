@@ -97,21 +97,21 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
 
             if (DataResourceType.TableDataSet.equals(dataResourceType)
                     && fieldInfoList.isEmpty()) {
-                throw new StatusCodeWithException("请设置主键", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "请设置主键");
             }
 
             if (isTrace && StringUtil.isEmpty(traceColumn)) {
-                throw new StatusCodeWithException("追溯字段不能为空", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "追溯字段不能为空");
             }
 
             if (AlgorithmType.RSA_PSI.equals(algorithm) && partnerDataResourceType.equals(dataResourceType)) {
-                throw new StatusCodeWithException(" RSA-PSI 算法要求至少一方需要选择布隆过滤器资源, 另一方则必须为数据资源资源！", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, " RSA-PSI 算法要求至少一方需要选择布隆过滤器资源, 另一方则必须为数据资源资源！");
             }
 
             if (isTrace && CollectionUtils.isNotEmpty(fieldInfoList)) {
                 for (int i = 0; i < fieldInfoList.size(); i++) {
                     if (fieldInfoList.get(i).getColumnList().contains(traceColumn)) {
-                        throw new StatusCodeWithException("追溯字段不能为融合主键组成字段", StatusCode.PARAMETER_VALUE_INVALID);
+                        throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "追溯字段不能为融合主键组成字段");
                     }
                 }
             }

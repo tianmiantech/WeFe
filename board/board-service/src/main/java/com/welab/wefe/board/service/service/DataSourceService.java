@@ -44,7 +44,7 @@ public class DataSourceService extends AbstractService {
     public AddApi.DataSourceAddOutput add(AddApi.DataSourceAddInput input) throws StatusCodeWithException {
 
         if (dataSourceRepo.countByName(input.getName()) > 0) {
-            throw new StatusCodeWithException("此数据源名称已存在，请换一个数据源名称", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "此数据源名称已存在，请换一个数据源名称");
         }
 
         // Test if the connection is available

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Tianmian Tech. All Rights Reserved.
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.mpc.psi.sdk.operation;
+package com.welab.wefe.mpc.psi.sdk;
 
-import java.util.List;
+public class PsiFactory {
 
-/**
- * @Author: eval
- * @Date: 2022-01-04
- **/
-public interface ListOperator<K, T> {
-    /**
-     * 返回两个列表的计算结果
-     *
-     * @param originIds        原始id列表
-     * @param encryptOriginIds 加密原始id列表，大小与原始id列表相同
-     * @param encryptServerIds 加密服务器id列表
-     * @return
-     */
-    List<K> operator(List<T> originIds, List<T> encryptOriginIds, List<T> encryptServerIds);
+    public static final Psi generatePsi() {
+        return new EcdhPsi();
+    }
+
+    public static final Psi generatePsi(String type) {
+        if (type == null || type.trim().equalsIgnoreCase("") || type.equalsIgnoreCase("ecdh")) {
+            return new EcdhPsi();
+        } else {
+            return new PrivateSetIntersection();
+        }
+    }
 }

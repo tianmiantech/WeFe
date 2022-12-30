@@ -67,6 +67,7 @@
     import { ref, reactive } from 'vue';
     import CommonResult from '../common/CommonResult';
     import resultMixin from '../result-mixin';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     const mixin = resultMixin();
 
@@ -99,7 +100,7 @@
                         mix_feature_names.forEach((name, index) => {
                             const item = {
                                 name,
-                                value: eig_values[index],
+                                value: dealNumPrecision(eig_values[index]),
                             };
 
                             if(~name.indexOf('promoter_')) {

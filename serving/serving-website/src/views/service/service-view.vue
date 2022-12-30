@@ -226,15 +226,6 @@
                                 @click="add_params"
                             />
                         </el-form-item>
-                        <!--                    <el-form-item>-->
-                        <!--                        <el-button-->
-                        <!--                            type="primary"-->
-                        <!--                            @click="add_params"-->
-                        <!--                            class="dashed-btn"-->
-                        <!--                        >-->
-                        <!--                            + 新增-->
-                        <!--                        </el-button>-->
-                        <!--                    </el-form-item>-->
                     </template>
 
                     <template
@@ -295,6 +286,31 @@
                             </el-select>
                         </el-form-item>
 
+                        <el-form-item
+                            label="返回字段:"
+                            label-width="100px"
+                        >
+                            <el-select
+                                v-model="form.data_source.return_fields"
+                                :placeholder="
+                                    [1, 2].includes(form.service_type)
+                                        ? '支持多选'
+                                        : '单选'
+                                "
+                                :multiple="[1, 2].includes(form.service_type)"
+                                value-key="value"
+                                clearable
+                                @change="sqlShow"
+                            >
+                                <el-option
+                                    v-for="item in data_fields"
+                                    :key="item.name"
+                                    :label="`${item.name} (${item.type})`"
+                                    :value="item.name"
+                                />
+                            </el-select>
+                        </el-form-item>
+
                         <template v-if="form.service_type === 2">
                             <el-form-item
                                 label="求交主键:"
@@ -312,32 +328,6 @@
                                 </p>
                             </el-form-item>
                         </template>
-
-                        <el-form-item
-                            v-else
-                            label="返回字段:"
-                            label-width="100px"
-                        >
-                            <el-select
-                                v-model="form.data_source.return_fields"
-                                :placeholder="
-                                    form.service_type === 1
-                                        ? '支持多选'
-                                        : '单选'
-                                "
-                                :multiple="form.service_type === 1"
-                                value-key="value"
-                                clearable
-                                @change="sqlShow"
-                            >
-                                <el-option
-                                    v-for="item in data_fields"
-                                    :key="item.name"
-                                    :label="`${item.name} (${item.type})`"
-                                    :value="item.name"
-                                />
-                            </el-select>
-                        </el-form-item>
 
                         <template
                             v-if="
@@ -1115,6 +1105,7 @@
                 :visible.sync="keyMaps.visible"
                 title="设置求交主键:"
                 width="500px"
+                :before-close="cancelKeyMaps"
             >
                 <p class="mb10">示例: md5(mobile+name) + sha256(cnid) </p>
                 <el-form>
@@ -1271,7 +1262,7 @@
             <!-- <el-divider content-position="center">配置说明</el-divider> -->
             <h3
                 v-if="form.service_type"
-                class="f16"
+                class="f16 mb10"
             >
                 服务配置说明
             </h3>
@@ -1478,7 +1469,7 @@ export default {
             },
             keyMaps: {
                 visible:        false,
-                encrypts:       ['md5', 'sha256'],
+                encrypts:       ['md5', 'sha256', 'none'],
                 key_calc_rules: [],
                 stringResult:   '',
             },
@@ -1489,8 +1480,10 @@ export default {
                 url:    '',
             },
             rules: {
-                name:         [{ required: true, message: '服务名称必填!' }],
-                url:          [{ required: true, message: '服务英文名必填!' }],
+                name: [{ required: true, message: '服务名称必填!' }],
+                url:  [{ required: true, message: '服务英文名必填!' }, {
+                    pattern: /^[\da-zA-Z-_/]+$/, message: '只支持数字，字母，-，_，/',
+                }],
                 service_type: [{ required: true, message: '服务类型必选!' }],
                 paramsArr:    [{ required: true, message: '查询参数不能为空!' }],
             },
@@ -1502,24 +1495,24 @@ export default {
                     value: 1,
                 },
                 {
+                    name:  '多方匿踪查询',
+                    value: 6,
+                },
+                {
                     name:  '两方交集查询',
                     value: 2,
-                },
-                {
-                    name:  '多方安全统计(被查询方)',
-                    value: 3,
-                },
-                {
-                    name:  '多方安全统计(查询方)',
-                    value: 4,
                 },
                 {
                     name:  '多方交集查询',
                     value: 5,
                 },
                 {
-                    name:  '多方匿踪查询',
-                    value: 6,
+                    name:  '多方安全统计(查询方)',
+                    value: 4,
+                },
+                {
+                    name:  '多方安全统计(被查询方)',
+                    value: 3,
                 },
                 {
                     name:  '机器学习模型服务',
@@ -2062,6 +2055,7 @@ export default {
                         await this.getTablesFields();
 
                         if (type === 2) {
+                            const { return_fields = [] } = data_source;
                             const rules = data_source.key_calc_rules;
 
                             if (rules) {
@@ -2075,6 +2069,7 @@ export default {
                                     this.form.stringResult += `${i > 0 ? ' + ' : ''}${x.operator}(${x.field.split(',').join('+')})`;
                                 });
                             }
+                            this.form.data_source.return_fields = return_fields.map(x => x.name);
                         } else if (type === 1 || type === 3) {
                             this.form.data_source.return_fields = data_source.return_fields.map(x => x.name);
                             this.form.data_source.condition_fields = data_source.condition_fields.map(x => {
@@ -2209,6 +2204,10 @@ export default {
             this.getDataTable();
         },
         async getDataTable() {
+            if(!this.form.data_source.id){
+                // this.$message.warning('缺少查询参数!');
+                return ;
+            }
             const { code, data } = await this.$http.post({
                 url:  '/data_source/query_tables',
                 data: {
@@ -2396,10 +2395,14 @@ export default {
         deleteKeyMaps(index) {
             this.keyMaps.key_calc_rules.splice(index, 1);
         },
-        cancelKeyMaps() {
+        cancelKeyMaps(done) {
             this.keyMaps.key_calc_rules = [];
             this.keyMaps.stringResult = '';
             this.keyMaps.visible = false;
+
+            if(typeof done === 'function'){
+                done();
+            }
         },
         calcKeyMaps(event, opt = { action: '' }) {
             const array = this.keyMaps.key_calc_rules;
@@ -2509,6 +2512,10 @@ export default {
                 this.$message.error('服务英文名称不能为空！');
                 return;
             }
+            if (!/^[\da-zA-Z-_/]+$/.test(this.form.url)) {
+                this.$message.error('服务英文名称只支持数字，字母，及符号-_/');
+                return;
+            }
             if (!this.form.service_type) {
                 this.$message.error('服务类型不能为空！');
                 return;
@@ -2531,13 +2538,9 @@ export default {
                 $params.data_source = {
                     id:             obj.id,
                     table:          obj.table,
-                    key_calc_rules: this.form.key_calc_rules.map(x => {
-                        return {
-                            ...x,
-                            field: x.field.join(','),
-                        };
-                    }),
-                    key_calc_rule: this.form.stringResult,
+                    key_calc_rules: this.form.key_calc_rules.map(x => ({ ...x, field: x.field.join(',') })),
+                    key_calc_rule:  this.form.stringResult,
+                    return_fields:  obj.return_fields.map(each => this.data_fields.find(y => y.name === each)).filter(each => each),
                 };
             } else {
                 if (type !== 5) {
@@ -2678,7 +2681,7 @@ export default {
             }
             .service_desc {
                 font-size: 13px;
-                line-height: 18px;
+                line-height: 22px;
                 text-align: justify;
                 text-indent: 14px;
                 color: #5a5a5a;

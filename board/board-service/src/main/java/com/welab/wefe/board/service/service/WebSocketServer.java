@@ -168,39 +168,39 @@ public class WebSocketServer {
 
             // Check the validity of the data
             if (StringUtil.isEmpty(fromAccountId)) {
-                throw new StatusCodeWithException("fromAccountId is empty", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "fromAccountId is empty");
             }
 
             if (StringUtil.isEmpty(toMemberId)) {
-                throw new StatusCodeWithException("toMemberId is empty", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "toMemberId is empty");
             }
             if (StringUtil.isEmpty(toAccountId)) {
-                throw new StatusCodeWithException("toAccountId is empty", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "toAccountId is empty");
             }
 
             if (StringUtil.isEmpty(toMemberName)) {
-                throw new StatusCodeWithException("toMemberName is empty", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "toMemberName is empty");
             }
 
             if (StringUtil.isEmpty(toAccountName)) {
-                throw new StatusCodeWithException("toAccountName is empty", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "toAccountName is empty");
             }
 
             if (StringUtil.isEmpty(content)) {
-                throw new StatusCodeWithException("content is empty", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "content is empty");
             }
 
             if (StringUtil.isEmpty(messageId)) {
-                throw new StatusCodeWithException("messageId is empty", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "messageId is empty");
             }
 
             if (fromAccountId.equals(toAccountId)) {
-                throw new StatusCodeWithException("自已不能发送消息给自己", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "自已不能发送消息给自己");
             }
 
             String nickName = CacheObjects.getAccountMap().get(fromAccountId);
             if (StringUtil.isEmpty(nickName)) {
-                throw new StatusCodeWithException("nickName is empty", StatusCode.INVALID_USER);
+                throw new StatusCodeWithException(StatusCode.INVALID_USER, "nickName is empty");
             }
 
             // send message

@@ -181,7 +181,7 @@ public class MemberChatService extends AbstractService {
 
         SsoAccountInfo info = LoginAccountInfo.getInstance().get(CurrentAccountUtil.get().getId());
         if (null == info) {
-            throw new StatusCodeWithException("请登录后访问", StatusCode.LOGIN_REQUIRED);
+            throw new StatusCodeWithException(StatusCode.LOGIN_REQUIRED, "请登录后访问");
         }
         String fromAccountId = info.getId();
         String fromAccountName = CacheObjects.getAccountMap().get(fromAccountId);
@@ -196,10 +196,10 @@ public class MemberChatService extends AbstractService {
     public void resendMessage(String memberChatId) throws StatusCodeWithException {
         MemberChatMySqlModel model = memberChatRepository.findById(memberChatId).orElse(null);
         if (null == model) {
-            throw new StatusCodeWithException("该消息无效", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "该消息无效");
         }
         if (null == model.getStatus() || ChatConstant.MESSAGE_STATUS_SEND_FAIL != model.getStatus()) {
-            throw new StatusCodeWithException("该消息为非发送失败状态，禁止重发", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "该消息为非发送失败状态，禁止重发");
         }
         // splicing messages
         String data = JObject.create(ChatConstant.KEY_FROM_MEMBER_ID, model.getFromMemberId())

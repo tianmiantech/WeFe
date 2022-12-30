@@ -53,7 +53,7 @@ public class FusionResultService extends AbstractService {
 
         FusionTaskMySqlModel taskMySqlModel = fusionTaskService.findByBusinessId(input.getBusinessId());
         if (taskMySqlModel == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
 
         //table header

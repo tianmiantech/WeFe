@@ -86,7 +86,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, FileUploadAp
             FileUtils.copyInputStreamToFile(inputStream, outFile);
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
         return success(new Output(inputFile.getSize()));

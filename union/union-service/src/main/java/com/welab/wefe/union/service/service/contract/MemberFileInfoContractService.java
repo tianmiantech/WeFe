@@ -72,7 +72,7 @@ public class MemberFileInfoContractService extends AbstractContractService {
             throw e;
         } catch (Exception e) {
             LOG.error("add memberFileInfo error: ", e);
-            throw new StatusCodeWithException("add memberFileInfo error: ", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "add memberFileInfo error: ");
         }
     }
 
@@ -88,7 +88,7 @@ public class MemberFileInfoContractService extends AbstractContractService {
             return (null != ret && ret);
         } catch (Exception e) {
             LOG.error("Check if the member file information exists failed: ", e);
-            throw new StatusCodeWithException("Check if the member file information exists failed: ", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Check if the member file information exists failed: ");
         }
     }
 

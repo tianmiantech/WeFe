@@ -17,7 +17,6 @@
 package com.welab.wefe.manager.service.api.dataresource;
 
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.repo.DataResourceMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -43,7 +42,7 @@ public class EnableApi extends AbstractApi<EnableApi.Input, AbstractApiOutput> {
         try {
             dataResourceContractService.enable(input.dataResourceId, input.enable);
         } catch (StatusCodeWithException e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
         return success();

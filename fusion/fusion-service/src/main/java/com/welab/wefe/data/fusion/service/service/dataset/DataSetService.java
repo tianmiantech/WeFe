@@ -116,7 +116,7 @@ public class DataSetService extends AbstractService {
     public boolean testSqlQuery(String dataSourceId, String sql) throws StatusCodeWithException {
         DataSourceMySqlModel model = getDataSourceById(dataSourceId);
         if (model == null) {
-            throw new StatusCodeWithException("数据不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据不存在");
         }
 
         JdbcManager jdbcManager = new JdbcManager();
@@ -146,7 +146,7 @@ public class DataSetService extends AbstractService {
         }
 
         if (null == file || !file.exists()) {
-            throw new StatusCodeWithException("未查找到文件：" + file.getPath(), StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未查找到文件：" + file.getPath());
         }
 
         return file;
@@ -207,7 +207,7 @@ public class DataSetService extends AbstractService {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, e.getMessage());
         } finally {
             jdbcManager.close(conn, statement, resultSet);
         }
@@ -233,7 +233,7 @@ public class DataSetService extends AbstractService {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, e.getMessage());
         } finally {
             JdbcManager.close(conn, statement, resultSet);
         }
@@ -269,7 +269,7 @@ public class DataSetService extends AbstractService {
     public DataSetOutputModel detail(String id) throws StatusCodeWithException {
         DataSetMySqlModel model = dataSetRepository.findById(id).orElse(null);
         if (model == null) {
-            throw new StatusCodeWithException("数据不存在！", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据不存在！");
         }
 
         DataSetOutputModel outputModel = ModelMapper.map(model, DataSetOutputModel.class);
@@ -282,7 +282,7 @@ public class DataSetService extends AbstractService {
         if (dataResourceSource == null) {
             DataSetMySqlModel dataSetMySqlModel = findById(input.getId());
             if (dataSetMySqlModel == null) {
-                throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "Data not available");
+                StatusCode.DATA_NOT_FOUND.throwException();
             }
 
             String rows = input.getRows();
@@ -302,7 +302,7 @@ public class DataSetService extends AbstractService {
                     output = DataResouceHelper.readFile(file, rowsList);
                 } catch (IOException e) {
                     LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                    throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "文件读取失败");
+                    StatusCode.FILE_IO_READ_ERROR.throwException();
                 }
             }
         } else if (dataResourceSource.equals(DataResourceSource.UploadFile) || dataResourceSource.equals(DataResourceSource.LocalFile)) {
@@ -312,7 +312,7 @@ public class DataSetService extends AbstractService {
                 output = DataResouceHelper.readFile(file);
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "File reading failure");
+                StatusCode.FILE_IO_READ_ERROR.throwException();
             }
         } else if (dataResourceSource.equals(DataResourceSource.Sql)) {
             // Test whether SQL can be queried normally
@@ -330,7 +330,7 @@ public class DataSetService extends AbstractService {
     public DataSetDetailOutputModel detailAndPreview(String id) throws Exception {
         DataSetMySqlModel model = dataSetRepository.findById(id).orElse(null);
         if (model == null) {
-            throw new StatusCodeWithException("数据不存在！", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据不存在！");
         }
 
         DataSetDetailOutputModel outputModel = ModelMapper.map(model, DataSetDetailOutputModel.class);

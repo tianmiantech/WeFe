@@ -28,13 +28,13 @@ import java.util.TreeMap;
 // 多方匿踪查询 用来生成http请求参数，然后自己通过http请求
 public class MultiPir {
     // 私钥
-    private static final String 测试客户1_privateKey = "***"; // TODO
+    private static final String customer_privateKey = "***"; // TODO
     // 公钥
-    private static final String 测试客户1_publicKey = "***"; // TODO
+    private static final String customer_publicKey = "***"; // TODO
     // 客户code
-    private static final String 测试客户1_code = "TEST***25"; // TODO
+    private static final String customer_code = "***"; // TODO
     // Serving服务地址
-    private static final String serverUrl = "https://****/serving-service-01/"; // TODO
+    private static final String serverUrl = "https://***/***/"; // TODO
     // Service Api name
     private static final String apiName = "api/*****"; // TODO
 
@@ -42,28 +42,28 @@ public class MultiPir {
         String dataStr = "{\n" +
                 "  \"ids\": [\n" +
                 "    {\n" +
-                "      \"member_id\": \"d0f47307804844898ecfc65b875abe87\",\n" +
-                "      \"model_id\": \"ccc\"\n" +
+                "      \"member_id\": \"*****\",\n" +
+                "      \"model_id\": \"****\"\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"member_id\": \"1\",\n" +
-                "      \"model_id\": \"2\"\n" +
+                "      \"member_id\": \"dsghsdfg\",\n" +
+                "      \"model_id\": \"qwer\"\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"member_id\": \"1\",\n" +
-                "      \"model_id\": \"2\"\n" +
+                "      \"member_id\": \"zsdfas\",\n" +
+                "      \"model_id\": \"zxgasdf\"\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"member_id\": \"1\",\n" +
-                "      \"model_id\": \"2\"\n" +
+                "      \"member_id\": \"zdfasf\",\n" +
+                "      \"model_id\": \"asdfaw\"\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"member_id\": \"1\",\n" +
-                "      \"model_id\": \"2\"\n" +
+                "      \"member_id\": \"zxcv\",\n" +
+                "      \"model_id\": \"qwer\"\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"member_id\": \"1\",\n" +
-                "      \"model_id\": \"2\"\n" +
+                "      \"member_id\": \"zxdvfasd\",\n" +
+                "      \"model_id\": \"asdf\"\n" +
                 "    }\n" +
                 "  ],\n" +
                 "  \"index\":0\n" +
@@ -81,17 +81,17 @@ public class MultiPir {
         String data = params.get("data").toString();
         String sign = "";
         try {
-            sign = RSAUtil.sign(data, 测试客户1_privateKey);
+            sign = RSAUtil.sign(data, customer_privateKey);
         } catch (Exception e) {
             e.printStackTrace();
         }
         JSONObject body = new JSONObject();
-        body.put("customer_id", 测试客户1_code);
+        body.put("customer_id", customer_code);
         body.put("sign", sign);
         body.put("data", JSONObject.parseObject(data));
         body.put("requestId", "xxx");
         boolean verified = RSAUtil.verify(params.get("data").toString().getBytes(),
-                RSAUtil.getPublicKey(测试客户1_publicKey), sign);
+                RSAUtil.getPublicKey(customer_publicKey), sign);
         if (verified) {
             return body.toJSONString();
         } else {

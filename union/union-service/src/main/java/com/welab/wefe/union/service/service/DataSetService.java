@@ -71,7 +71,7 @@ public class DataSetService {
             dataSet.setPublicLevel(input.getPublicLevel());
 
         } else {
-            throw new StatusCodeWithException("Invalid public level", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Invalid public level");
         }
 
         dataSetContractService.upsert(dataSet);

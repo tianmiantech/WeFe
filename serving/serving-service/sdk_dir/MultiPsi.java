@@ -29,19 +29,19 @@ import java.util.TreeMap;
 
 // 多方交集查询 用来生成http请求参数，然后自己通过http请求
 public class MultiPsi {
-    // 私钥
-    private static final String 测试客户1_privateKey = "***"; // TODO
+ // 私钥
+    private static final String customer_privateKey = "***"; // TODO
     // 公钥
-    private static final String 测试客户1_publicKey = "***"; // TODO
+    private static final String customer_publicKey = "***"; // TODO
     // 客户code
-    private static final String 测试客户1_code = "TEST***25"; // TODO
+    private static final String customer_code = "***"; // TODO
     // Serving服务地址
-    private static final String serverUrl = "https://****/serving-service-01/"; // TODO
+    private static final String serverUrl = "http://****/***/"; // TODO
     // Service Api name
     private static final String apiName = "api/*****"; // TODO
 
     public static void main(String[] args) throws Exception {
-        String dataStr = "{\n" + "        \"client_ids\": [\n" + "            \"3717c5dbe0b312401f0d07b96e988645\"\n"
+        String dataStr = "{\n" + "        \"client_ids\": [\n" + "            \"****\"\n"
                 + "        ]\n" + "    }";
         String params = request(dataStr);
         System.out.println("多方交集查询参数:\t" + params);
@@ -56,17 +56,17 @@ public class MultiPsi {
         String data = params.get("data").toString();
         String sign = "";
         try {
-            sign = RSAUtil.sign(data, 测试客户1_privateKey);
+            sign = RSAUtil.sign(data, customer_privateKey);
         } catch (Exception e) {
             e.printStackTrace();
         }
         JSONObject body = new JSONObject();
-        body.put("customer_id", 测试客户1_code);
+        body.put("customer_id", customer_code);
         body.put("sign", sign);
         body.put("data", JSONObject.parseObject(data));
         body.put("requestId", "xxx");
         boolean verified = RSAUtil.verify(params.get("data").toString().getBytes(),
-                RSAUtil.getPublicKey(测试客户1_publicKey), sign);
+                RSAUtil.getPublicKey(customer_publicKey), sign);
         if (verified) {
             return body.toJSONString();
         } else {

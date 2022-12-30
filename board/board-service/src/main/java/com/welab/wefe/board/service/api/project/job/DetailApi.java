@@ -140,11 +140,11 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
         public void checkAndStandardize() throws StatusCodeWithException {
             super.checkAndStandardize();
             if (StringUtil.isEmpty(flowId) && StringUtil.isEmpty(jobId)) {
-                throw new StatusCodeWithException("flowId 和 jobId 不能同时为空", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "flowId 和 jobId 不能同时为空");
             }
 
             if (StringUtil.isNotEmpty(jobId) && memberRole == null) {
-                throw new StatusCodeWithException("指定 jobId 时需要指定 memberRole", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "指定 jobId 时需要指定 memberRole");
             }
         }
 

@@ -46,7 +46,7 @@ public class FlowLimitByMobileService extends AbstractMemoryFlowLimitService {
     protected String getFlowLimitKey() throws StatusCodeWithException {
         String mobile = getMobile();
         if (StringUtil.isEmpty(mobile)) {
-            throw new StatusCodeWithException("手机号不能为空", StatusCode.PERMISSION_DENIED);
+            throw new StatusCodeWithException(StatusCode.PERMISSION_DENIED, "手机号不能为空");
         }
         String path = getApi().getClass().getAnnotation(Api.class).path();
         return path + "_" + FlowLimitStrategyTypeEnum.Mobile + "_" + mobile;
