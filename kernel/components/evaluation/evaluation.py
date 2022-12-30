@@ -933,7 +933,7 @@ class Evaluation(ModelBase):
                 bins_result  = self.to_binning(sample_scores, self.model_param.score_param)
             else:
                 classes = len(set([d[1][0] for d in eval_data_local]))
-                if classes < 3 and self.model_param.score_param.prob_need_to_bin:
+                if classes < 3:
                     sample_pro_result_list = []
                     for index, sample_pro_result in enumerate(eval_data_local):
                         sample_pro_result_list.append(sample_pro_result[1][2])
@@ -956,6 +956,8 @@ class Evaluation(ModelBase):
                 pred_result[mode] = pred_scores
             train_pred_score = pred_result.get('train')
             eval_pred_score = pred_result.get('validate')
+            if eval_pred_score is None:
+                raise ValueError("eval pred score is null")
             train_bin_values, train_split_point = self.get_bin_result(train_pred_score, self.model_param.psi_param)
             LOGGER.debug('train_bin_values and train_split_point'.format(train_bin_values, train_split_point))
             train_bin_results = self.cal_bin_rate(train_bin_values)
