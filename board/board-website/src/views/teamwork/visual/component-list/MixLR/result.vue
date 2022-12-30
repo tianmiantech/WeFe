@@ -4,7 +4,7 @@
         class="result"
     >
         <template v-if="vData.commonResultData.task">
-            <el-collapse v-model="activeName">
+            <el-collapse v-model="activeName" @change="methods.collapseChanged">
                 <el-collapse-item
                     title="基础信息"
                     name="1"
@@ -46,37 +46,25 @@
                             <el-table-column
                                 prop="weight"
                                 label="权重"
-                            />
+                            >
+                                <template v-slot="scope">
+                                    {{ dealNumPrecision(scope.row.weight) }}
+                                </template>
+                            </el-table-column>
                         </el-table>
                         <el-divider v-if="index === 0"></el-divider>
                     </template>
                 </el-collapse-item>
-                <!-- <el-collapse-item
-                    v-if="vData.gridParams"
-                    title="网格搜索结果"
-                    name="4"
+                <el-collapse-item
+                    v-if="vData.results.length"
+                    title="任务跟踪指标（LOSS）"
+                    name="3"
                 >
-                    <el-descriptions>
-                        <el-descriptions-item
-                            v-for="(values, key) in vData.gridParams"
-                            :key="key"
-                            :label="mapGridName(key)"
-                        >
-                            <el-tag
-                                v-for="item in values"
-                                :key="item"
-                                :style="{ margin: '8px' }"
-                            >{{ item.value }}
-                                <el-tooltip v-if="item.best">
-                                    <template #content> 最优参数 </template>
-                                    <el-icon color="gold"
-                                    ><elicon-trophy
-                                    /></el-icon>
-                                </el-tooltip>
-                            </el-tag>
-                        </el-descriptions-item>
-                    </el-descriptions>
-                </el-collapse-item> -->
+                    <LineChart
+                        v-if="vData.train_loss.show"
+                        :config="vData.train_loss"
+                    />
+                </el-collapse-item>
             </el-collapse>
         </template>
         <div
@@ -95,6 +83,7 @@
     import CommonResult from '../common/CommonResult';
     import resultMixin from '../result-mixin';
     import gridSearchParams from '../../../../../assets/js/const/gridSearchParams';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     const mixin = resultMixin();
 
@@ -112,6 +101,11 @@
             let vData = reactive({
                 results:             [],
                 pollingOnJobRunning: true,
+                train_loss:          {
+                    show:   false,
+                    xAxis:  [],
+                    series: [[]],
+                },
             });
 
             let methods = {
@@ -126,6 +120,9 @@
                                 intercept,
                                 weight,
                             },
+                            train_best_parameters,
+                            train_params_list,
+                            train_loss,
                         } = data.result;
 
                         for(const key in weight) {
@@ -139,8 +136,50 @@
                             weight:  intercept,
                         });
 
+                        if (train_params_list) {
+                            const gridParams =
+                                train_params_list.data.params_list.value;
+
+                            for (const key in gridParams) {
+                                const bestParam =
+                                    train_best_parameters.data.best_parameters
+                                        .value[key];
+
+                                gridParams[key] = gridParams[key].map((value) => ({
+                                    value,
+                                    best: value === bestParam,
+                                }));
+                            }
+                            vData.gridParams = gridParams;
+                            const bestLossItem =
+                                data[0].result[
+                                    `train_loss.${train_best_parameters.data.best_iter.value}`
+                                ];
+
+                            if (bestLossItem) {
+                                Object.entries(bestLossItem.data).forEach(
+                                    ([index, item]) => {
+                                        vData.train_loss.xAxis.push(index);
+                                        vData.train_loss.series[0].push(dealNumPrecision(item.value));
+                                    },
+                                );
+                            }
+                        } else {
+                            if (train_loss) {
+                                train_loss.data.forEach((item, index) => {
+                                    vData.train_loss.xAxis.push(index);
+                                    vData.train_loss.series[0].push(dealNumPrecision(item));
+                                });
+                            }
+                        }
+
                         return result;
                     });
+                },
+                collapseChanged(val) {
+                    if (val.includes('3')) {
+                        vData.train_loss.show = true;
+                    }
                 },
             };
 
@@ -176,6 +215,7 @@
                 activeName,
                 methods,
                 mapGridName,
+                dealNumPrecision,
             };
         },
     };

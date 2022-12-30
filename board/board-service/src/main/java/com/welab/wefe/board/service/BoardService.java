@@ -97,7 +97,7 @@ public class BoardService implements ApplicationContextAware {
                     if (onlineDemoApi != null) {
                         Config config = Launcher.getBean(Config.class);
                         if (!config.isOnlineDemo()) {
-                            throw new StatusCodeWithException("The current environment does not allow this API to be called", StatusCode.SYSTEM_ERROR);
+                            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "The current environment does not allow this API to be called");
                         }
                     }
 
@@ -132,7 +132,7 @@ public class BoardService implements ApplicationContextAware {
         String publicKey = CacheObjects.getRsaPublicKey();
 
         if (signedApiInput.getData() == null) {
-            //throw new StatusCodeWithException("非法请求", StatusCode.PARAMETER_VALUE_INVALID);
+            //throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "非法请求");
             return;
         }
 
@@ -143,7 +143,7 @@ public class BoardService implements ApplicationContextAware {
                 signedApiInput.getSign().replace(" ", "+")
         );
         if (!verified) {
-            throw new StatusCodeWithException("错误的签名", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "错误的签名");
         }
 
         params.clear();

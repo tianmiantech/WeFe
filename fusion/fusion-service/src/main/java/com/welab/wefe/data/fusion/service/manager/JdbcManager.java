@@ -74,13 +74,13 @@ public class JdbcManager {
                     url = String.format("jdbc:hive2://%s:%d/%s", host, port, dbName);
                     break;
                 default:
-                    throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, databaseType.toString());
+                    StatusCode.UNEXPECTED_ENUM_CASE.throwExWithFormatMsg(databaseType.name());
             }
 
             conn = getConnection(databaseType, url, userName, password);
         } catch (Exception e) {
             LOG.error("Database connection failure", e);
-            throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "Database connection failure");
+            throw StatusCodeWithException.of(StatusCode.DATABASE_LOST, "Database connection failure");
         }
 
         return conn;
@@ -115,14 +115,14 @@ public class JdbcManager {
                     Class.forName("org.apache.hive.jdbc.HiveDriver");
                     break;
                 default:
-                    throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, databaseType.toString());
+                    StatusCode.UNEXPECTED_ENUM_CASE.throwExWithFormatMsg(databaseType);
             }
 
             LOG.info("url: " + url);
             conn = DriverManager.getConnection(url, userName, password);
         } catch (Exception e) {
             LOG.error("数据库连接失败", e);
-            throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "数据库连接失败");
+            StatusCode.DATABASE_LOST.throwException("数据库连接失败：" + e.getMessage());
         }
 
         return conn;
@@ -153,7 +153,7 @@ public class JdbcManager {
                 int columnCount = metaData.getColumnCount();
 
                 if (columnCount < 2) {
-                    throw new StatusCodeWithException("列字段数必须大于1！", StatusCode.ILLEGAL_REQUEST);
+                    throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "列字段数必须大于1！");
                 }
             }
         } catch (SQLException e) {

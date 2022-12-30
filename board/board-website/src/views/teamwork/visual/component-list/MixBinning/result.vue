@@ -16,18 +16,18 @@
                     />
                 </el-collapse-item>
 
-                    <el-tabs
-                        v-if="vData.list.length"
-                        v-model="vData.tabName"
+                <el-tabs
+                    v-if="vData.list.length"
+                    v-model="vData.tabName"
+                >
+                    <el-tab-pane
+                        v-for="(row, index) in vData.list"
+                        :key="`${row.member_id}-${index}`"
+                        :name="`${row.member_id}-${index}`"
+                        :label="`${row.member_name} (${row.member_role === 'provider' ? '协作方' : '发起方'})`"
                     >
-                        <el-tab-pane
-                            v-for="(row, index) in vData.list"
-                            :key="`${row.member_id}-${index}`"
-                            :name="`${row.member_id}-${index}`"
-                            :label="`${row.member_name} (${row.member_role === 'provider' ? '协作方' : '发起方'})`"
-                        >
-                            <template v-if="row.dataList && row.dataList.length">
-                                <el-table
+                        <template v-if="row.dataList && row.dataList.length">
+                            <el-table
                                 :data="row.dataList"
                                 :stripe="true"
                                 :border="false"
@@ -36,7 +36,6 @@
                                 class="fold-table"
                                 :row-class-name="methods.tableRowClassName"
                                 row-key="Index"
-                                :expand-row-keys="vData.expandRowKeys"
                                 @expand-change="methods.expandChange"
                                 :fit="true"
                                 :cell-style="{borderColor: 'white'}"
@@ -48,13 +47,13 @@
 
                                         <el-table :data="row.dataList[props.$index].inline_table" :span-method="methods.arraySpanMethod" style="width: 100%; border: 1px solid lightgray; border-bottom: none;" :cell-style="{borderColor: 'white'}"  :header-cell-style="{borderColor: 'white'}">
 
-                                            <el-table-column v-if="row.dataList[props.$index].woeArray.length" label="WOE变化图" prop="weight" min-width="380%" align="center">
+                                            <el-table-column v-if="row.dataList[props.$index].woeArray.length" label="WOE变化图" prop="weight" min-width="330" align="center">
                                                 <template v-slot="scope">
                                                     <LineChart ref="LineChart" :config="scope.row.woeLineConfig" />
                                                 </template>
                                             </el-table-column>
 
-                                            <el-table-column v-if="row.member_role === 'promoter'" label="分布" min-width="550%" align="center" fixed="right">
+                                            <el-table-column v-if="row.member_role === 'promoter'" label="分布" min-width="330" align="center" fixed="right">
                                                 <template v-slot="scope">
                                                     <BarChartNew ref="BarChart" :config="scope.row.mapdata" />
                                                 </template>
@@ -63,19 +62,19 @@
 
                                         <div>
 
-                                                    <el-table :data="row.dataList[props.$index].inline_table" style="width: 100%; border: 1px solid lightgray; border-top: none; border-bottom: 1px solid lightgray;" :cell-style="{borderColor: 'white'}" :header-cell-style="{borderColor: 'white'}">
-                                                        <el-table-column label="箱号" width="55" type="index" align="center" />
-                                                        <el-table-column label="划分区间" prop="binning" align="center" width="110" />
-                                                        <el-table-column label="正样本数" prop="eventCountArray" align="center" />
-                                                        <el-table-column label="负样本数" prop="nonEventCountArray" align="center" />
-                                                        <el-table-column label="总样本数" prop="countArray" align="center" />
-                                                        <el-table-column label="正样本占总样本比例" prop="eventRateArray" align="center" />
-                                                        <el-table-column label="负样本占总样本比例" prop="nonEventRateArray" align="center" />
-                                                        <el-table-column label="总占比" prop="countRateArray" align="center" />
-                                                        <el-table-column label="WOE" prop="woeArray" align="center" />
-                                                        <el-table-column label="IV" prop="ivArray" align="center" />
+                                            <el-table :data="row.dataList[props.$index].inline_table" style="width: 100%; border: 1px solid lightgray; border-top: none; border-bottom: 1px solid lightgray;" :cell-style="{borderColor: 'white'}" :header-cell-style="{borderColor: 'white'}">
+                                                <el-table-column label="箱号" width="55" type="index" align="center" />
+                                                <el-table-column label="划分区间" prop="binning" align="center" width="110" />
+                                                <el-table-column label="正样本数" prop="eventCountArray" align="center" />
+                                                <el-table-column label="负样本数" prop="nonEventCountArray" align="center" />
+                                                <el-table-column label="总样本数" prop="countArray" align="center" />
+                                                <el-table-column label="正样本占总样本比例" prop="eventRateArray" align="center" />
+                                                <el-table-column label="负样本占总样本比例" prop="nonEventRateArray" align="center" />
+                                                <el-table-column label="总占比" prop="countRateArray" align="center" />
+                                                <el-table-column label="WOE" prop="woeArray" align="center" />
+                                                <el-table-column label="IV" prop="ivArray" align="center" />
 
-                                                    </el-table>
+                                            </el-table>
 
                                         </div><br>
 
@@ -85,11 +84,15 @@
                                 <el-table-column label="特征名称" prop="column"></el-table-column>
                                 <el-table-column label="分箱方法" prop="paramsMethod"></el-table-column>
                                 <el-table-column label="分箱数量" prop="binNums"></el-table-column>
-                                <el-table-column label="总IV" prop="iv"></el-table-column>
+                                <el-table-column label="总IV" prop="iv" sortable sort-by="iv">
+                                    <template v-slot="scope">
+                                        {{ dealNumPrecision(scope.row.iv) }}
+                                    </template>
+                                </el-table-column>
                             </el-table>
-                            </template>
-                        </el-tab-pane>
-                    </el-tabs>
+                        </template>
+                    </el-tab-pane>
+                </el-tabs>
 
             </el-collapse>
         </template>
@@ -108,6 +111,7 @@
     } from 'vue';
     import CommonResult from '../common/CommonResult';
     import resultMixin from '../result-mixin';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     const mixin = resultMixin();
 
@@ -125,17 +129,19 @@
             const LineChart = ref();
 
             let vData = reactive({
-                tabName:     '',
-                list:        [],
-                resultTypes: ['model_binning_model'],
-                expandRowKeys:[0],
+                tabName:       '',
+                list:          [],
+                resultTypes:   ['model_binning_model'],
+                expandRowKeys: [0],
             });
 
             let methods = {
                 expandChange(row) {
                     const tabIdx = vData.tabName.split('-')[1];
 
-                    vData.list[tabIdx].dataList[row.Index].isShowWOE = true;
+                    if (vData?.list[tabIdx]?.dataList[row.Index]?.isShowWOE) {
+                        vData.list[tabIdx].dataList[row.Index]['isShowWOE'] = true;
+                    }
                 },
                 tableRowClassName({ row, rowIndex }) {
                     row.Index = rowIndex;
@@ -213,17 +219,17 @@
                                             show:     true,
                                             position: 'top',
                                             formatter (value) {
-                                                return Number(value.data).toFixed(2);
+                                                return dealNumPrecision(value.data);
                                             },
                                         },
                                         tooltip: {
-                                            valueFormatter: (value) => value.toFixed(3),
+                                            valueFormatter: (value) => dealNumPrecision(value),
                                         },
                                     },
                                 );
                                 if (val.splitPoints.length) {
                                     for(let i=0; i<val.splitPoints.length; i++) {
-                                        xAxis.push(val.splitPoints[i].toFixed(3));
+                                        xAxis.push(dealNumPrecision(val.splitPoints[i]));
                                     }
                                 } else {
                                     for (let j=0; j<Number(val.binNums); j++) {
@@ -259,29 +265,33 @@
 
                                 for (let j=0; j<Number(val.binNums); j++) {
                                     woeData.xAxis.push(j+1);
-                                    woeData.series[0].push(val.woeArray[j]);
+                                    woeData.series[0].push(dealNumPrecision(val.woeArray[j]));
                                     let binningData = null;
 
                                     if (val.splitPoints.length) {
-                                        binningData = j === 0 ? `(${Number.NEGATIVE_INFINITY}, ${Number(val.splitPoints[j]).toFixed(2)}]` : j === Number(val.binNums)-1 ? `(${Number(val.splitPoints[j]).toFixed(2)}, ${Number.POSITIVE_INFINITY})` : `(${Number(val.splitPoints[j-1]).toFixed(2)}, ${Number(val.splitPoints[j]).toFixed(2)}]`;
+                                        binningData = j === 0 ?
+                                            `(${Number.NEGATIVE_INFINITY}, ${dealNumPrecision(val.splitPoints[j])}]` :
+                                            j === Number(val.binNums)-1 ?
+                                                `(${dealNumPrecision(val.splitPoints[j])}, ${Number.POSITIVE_INFINITY})` :
+                                                `(${dealNumPrecision(val.splitPoints[j-1])}, ${dealNumPrecision(val.splitPoints[j])}]`;
                                     } else {
                                         binningData = '-';
                                     }
                                     inline_table.push({
                                         column,
                                         countArray:         val.countArray[j],
-                                        countRateArray:     Number(val.countRateArray[j]).toFixed(2),
-                                        eventCountArray:    member_role === 'promoter' && props.myRole === 'promoter' ? Number(val.eventCountArray[j]).toFixed(2) : '-',
-                                        eventRateArray:     member_role === 'promoter' && props.myRole === 'promoter' ? Number(val.eventRateArray[j]).toFixed(2) : '-',
+                                        countRateArray:     dealNumPrecision(val.countRateArray[j]),
+                                        eventCountArray:    member_role === 'promoter' && props.myRole === 'promoter' ? val.eventCountArray[j] : '-',
+                                        eventRateArray:     member_role === 'promoter' && props.myRole === 'promoter' ? dealNumPrecision(val.eventRateArray[j]) : '-',
                                         nonEventCountArray: member_role === 'promoter' && props.myRole === 'promoter' ? val.nonEventCountArray[j] : '-',
-                                        nonEventRateArray:  member_role === 'promoter' && props.myRole === 'promoter' ? Number(val.nonEventRateArray[j]).toFixed(2): '-',
+                                        nonEventRateArray:  member_role === 'promoter' && props.myRole === 'promoter' ? dealNumPrecision(val.nonEventRateArray[j]) : '-',
                                         // eventCountArray:    Number(val.eventCountArray[j]).toFixed(2),
                                         // eventRateArray:     Number(val.eventRateArray[j]).toFixed(2),
                                         // nonEventCountArray: val.nonEventCountArray[j],
                                         // nonEventRateArray:  Number(val.nonEventRateArray[j]).toFixed(2),
-                                        ivArray:            Number(val.ivArray[j]).toFixed(2),
-                                        splitPoints:        val.splitPoints.length ? Number(val.splitPoints[j]).toFixed(2) : [],
-                                        woeArray:           Number(val.woeArray[j]).toFixed(2),
+                                        ivArray:            dealNumPrecision(val.ivArray[j]),
+                                        splitPoints:        val.splitPoints.length ? dealNumPrecision(val.splitPoints[j]) : [],
+                                        woeArray:           dealNumPrecision(val.woeArray[j]),
                                         binning:            binningData,
                                         woeLineConfig:      woeData,
                                         mapdata,
@@ -301,7 +311,11 @@
                                     isShowWOE:          false,
                                 });
                             }
-
+                            /** 
+                             * 后台返回的表格顺序是乱的，故在此稍微排序
+                             * 可能preview看到的是正的，但是response里面是乱的。
+                             *  */
+                             dataList.sort((a,b) => a.column> b.column ? 1 : -1)
                             list.push({
                                 member_id:   member.member_id,
                                 member_name: member.member_name,
@@ -334,6 +348,7 @@
                 activeDetails,
                 methods,
                 LineChart,
+                dealNumPrecision,
             };
         },
     };

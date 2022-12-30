@@ -76,13 +76,13 @@ public class MemberContractService extends AbstractContractService {
 
             String responseValues = transactionResponse.getValues();
             if (transactionException(responseValues)) {
-                throw new StatusCodeWithException("Failed to synchronize information，blockchain response error: " + transactionResponse.getReturnMessage(), StatusCode.SYSTEM_BUSY);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "Failed to synchronize information，blockchain response error: " + transactionResponse.getReturnMessage());
             }
             if (transactionDataIsExist(responseValues)) {
-                throw new StatusCodeWithException("Member already exists", StatusCode.SYSTEM_BUSY);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "Member already exists");
             }
             if (transactionInsertFail(responseValues)) {
-                throw new StatusCodeWithException("Member information failed", StatusCode.SYSTEM_BUSY);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "Member information failed");
             }
 
         } catch (StatusCodeWithException e) {
@@ -90,7 +90,7 @@ public class MemberContractService extends AbstractContractService {
             throw e;
         } catch (Exception e) {
             LOG.error("add member error: ", e);
-            throw new StatusCodeWithException("add member error: ", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "add member error: ");
         }
     }
 
@@ -116,15 +116,15 @@ public class MemberContractService extends AbstractContractService {
 
             String responseValues = transactionResponse.getValues();
             if (transactionException(responseValues)) {
-                throw new StatusCodeWithException("upsert failed,blockchain response error: " + transactionResponse.getReturnMessage(), StatusCode.SYSTEM_BUSY);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "upsert failed,blockchain response error: " + transactionResponse.getReturnMessage());
             }
             if (transactionDataNotFound(responseValues)) {
-                throw new StatusCodeWithException("upsert failed，Data is not exist", StatusCode.SYSTEM_BUSY);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "upsert failed，Data is not exist");
             }
 
         } catch (Exception e) {
             LOG.error("upsert member failed：", e);
-            throw new StatusCodeWithException("upsert member failed", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "upsert member failed");
         }
     }
 
@@ -163,16 +163,16 @@ public class MemberContractService extends AbstractContractService {
 
             String responseValues = transactionResponse.getValues();
             if (transactionException(responseValues)) {
-                throw new StatusCodeWithException("updateExcludeLogo failed,blockchain response error: " + transactionResponse.getReturnMessage(), StatusCode.SYSTEM_BUSY);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "updateExcludeLogo failed,blockchain response error: " + transactionResponse.getReturnMessage());
             }
             if (transactionDataNotFound(responseValues)) {
-                throw new StatusCodeWithException("updateExcludeLogo failed,Data is not exist", StatusCode.SYSTEM_BUSY);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "updateExcludeLogo failed,Data is not exist");
             }
         } catch (StatusCodeWithException e) {
             throw e;
         } catch (Exception e) {
             LOG.error("updateExcludeLogo failed: ", e);
-            throw new StatusCodeWithException("updateExcludeLogo failed", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "updateExcludeLogo failed");
         }
     }
 
@@ -205,17 +205,17 @@ public class MemberContractService extends AbstractContractService {
             LOG.info("updateLastActivityTimeById transaction , member id: {}, receipt response: {}, values: {}", id, transactionResponse, transactionResponse.getValues());
             String responseValues = transactionResponse.getValues();
             if (transactionException(responseValues)) {
-                throw new StatusCodeWithException("updateLastActivityTimeById failed，blockchain response error: " + transactionResponse.getReturnMessage(), StatusCode.SYSTEM_BUSY);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "updateLastActivityTimeById failed，blockchain response error: " + transactionResponse.getReturnMessage());
             }
             if (transactionDataNotFound(responseValues)) {
-                throw new StatusCodeWithException("updateLastActivityTimeById failed，Data is not exist", StatusCode.SYSTEM_BUSY);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "updateLastActivityTimeById failed，Data is not exist");
             }
 
         } catch (StatusCodeWithException e) {
             throw e;
         } catch (Exception e) {
             LOG.error("updateLastActivityTimeById failed: ", e);
-            throw new StatusCodeWithException("updateLastActivityTimeById failed", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "updateLastActivityTimeById failed");
         }
     }
 
@@ -237,17 +237,17 @@ public class MemberContractService extends AbstractContractService {
 
             String responseValues = transactionResponse.getValues();
             if (transactionException(responseValues)) {
-                throw new StatusCodeWithException("updateLogoById failed，blockchain response error: " + transactionResponse.getReturnMessage(), StatusCode.SYSTEM_BUSY);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "updateLogoById failed，blockchain response error: " + transactionResponse.getReturnMessage());
             }
             if (transactionDataNotFound(responseValues)) {
-                throw new StatusCodeWithException("updateLogoById failed，Data is not exist", StatusCode.SYSTEM_BUSY);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "updateLogoById failed，Data is not exist");
             }
 
         } catch (StatusCodeWithException e) {
             throw e;
         } catch (Exception e) {
             LOG.error("updateLogoById failed: ", e);
-            throw new StatusCodeWithException("updateLogoById failed", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "updateLogoById failed");
         }
     }
 
@@ -267,15 +267,15 @@ public class MemberContractService extends AbstractContractService {
 
             String responseValues = transactionResponse.getValues();
             if (transactionException(responseValues)) {
-                throw new StatusCodeWithException("updatePublicKey failed，blockchain response error: " + transactionResponse.getReturnMessage(), StatusCode.SYSTEM_BUSY);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "updatePublicKey failed，blockchain response error: " + transactionResponse.getReturnMessage());
             }
             if (transactionDataNotFound(responseValues)) {
-                throw new StatusCodeWithException("updatePublicKey failed，Data is not exist", StatusCode.SYSTEM_BUSY);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "updatePublicKey failed，Data is not exist");
             }
 
         } catch (Exception e) {
             LOG.error("updatePublicKey failed：", e);
-            throw new StatusCodeWithException("updatePublicKey failed", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "updatePublicKey failed");
         }
     }
 
@@ -291,7 +291,7 @@ public class MemberContractService extends AbstractContractService {
             return (null != ret && ret);
         } catch (Exception e) {
             LOG.error("Check if the member information exists failed: ", e);
-            throw new StatusCodeWithException("Check if the member information exists failed: ", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Check if the member information exists failed: ");
         }
     }
 
@@ -323,7 +323,7 @@ public class MemberContractService extends AbstractContractService {
             return dataStrListToMember(memberStrList);
         } catch (Exception e) {
             LOG.error("queryAll member failed: ", e);
-            throw new StatusCodeWithException("queryAll member failed", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "queryAll member failed");
         }
     }
 
@@ -418,7 +418,7 @@ public class MemberContractService extends AbstractContractService {
 
         } catch (
                 Exception e) {
-            throw new StatusCodeWithException("Failed to updateExtJson set information: " + e, StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to updateExtJson set information: " + e);
         }
     }
 

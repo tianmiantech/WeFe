@@ -19,6 +19,9 @@ public class Config extends CommonConfig {
 
     @Value("${email.account.forget.password.content:您正在执行忘记密码操作。您的验证码是#code#，2分钟内有效，请勿泄漏于他人!}")
     private String emailAccountForgetPasswordContent;
+    
+    @Value("${psi.batch.size:400000}")
+    private int psiBatchSize;
 
     public String getFileBasePath() {
         return fileBasePath;
@@ -42,6 +45,14 @@ public class Config extends CommonConfig {
 
     public void setEmailAccountForgetPasswordContent(String emailAccountForgetPasswordContent) {
         this.emailAccountForgetPasswordContent = emailAccountForgetPasswordContent;
+    }
+
+    public int getPsiBatchSize() {
+        return psiBatchSize;
+    }
+
+    public void setPsiBatchSize(int psiBatchSize) {
+        this.psiBatchSize = psiBatchSize;
     }
 
 }

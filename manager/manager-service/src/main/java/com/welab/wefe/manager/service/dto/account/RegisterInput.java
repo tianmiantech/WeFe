@@ -52,7 +52,7 @@ public class RegisterInput extends AbstractApiInput {
         super.checkAndStandardize();
         // Verification code verification
         if (!CaptchaService.verify(key, code)) {
-            throw new StatusCodeWithException("验证码错误！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "验证码错误！");
         }
 
     }

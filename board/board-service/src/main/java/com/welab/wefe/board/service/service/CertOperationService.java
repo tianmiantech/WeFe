@@ -81,7 +81,7 @@ public class CertOperationService {
     public void updateStatus(String serialNumber, String status) throws StatusCodeWithException {
         CertInfoMysqlModel certInfo = findBySerialNumber(serialNumber);
         if (certInfo == null) {
-            throw new StatusCodeWithException("数据不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据不存在");
         }
         certInfo.setStatus(status);
         certInfo.setUpdatedBy(CurrentAccountUtil.get().getId());
@@ -161,7 +161,7 @@ public class CertOperationService {
             }
 
         } catch (CertificateException e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, e.getMessage());
         }
     }
 
@@ -171,7 +171,7 @@ public class CertOperationService {
         if (model != null && !StringUtils.isEmpty(model.getCertContent())) {
             CertUtils.writeCrt(CertUtils.convertStrToCert(model.getCertContent()), filePath);
         } else {
-            throw new StatusCodeWithException("数据不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据不存在");
         }
     }
 
@@ -238,7 +238,7 @@ public class CertOperationService {
     private CertKeyInfoMysqlModel savePrivateKey(String memberId, String pemPrivateKey, String priAlg)
             throws Exception {
         if (StringUtils.isBlank(memberId)) {
-            throw new StatusCodeWithException("memberId is empty", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "memberId is empty");
         }
         try {
             KeyUtils.getRSAKeyPair(pemPrivateKey);
@@ -306,11 +306,11 @@ public class CertOperationService {
      */
     private CertDigestAlgEnums getCertDigestAlg(KeyAlgorithmEnums keyAlgorithm) throws StatusCodeWithException {
         if (keyAlgorithm == null) {
-            throw new StatusCodeWithException("key algorithms are not supported", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "key algorithms are not supported");
         }
         CertDigestAlgEnums certDigestAlgEnums = CertDigestAlgEnums.getByKeyAlg(keyAlgorithm.getKeyAlgorithm());
         if (certDigestAlgEnums == null) {
-            throw new StatusCodeWithException("key algorithms are not supported", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "key algorithms are not supported");
         }
         return certDigestAlgEnums;
     }
@@ -332,7 +332,7 @@ public class CertOperationService {
             keyPair = KeyUtils.getRSAKeyPair(pemPrivateKey);
         }
         if (keyPair == null) {
-            throw new StatusCodeWithException("key algorithms are not supported", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "key algorithms are not supported");
         }
         return keyPair;
     }

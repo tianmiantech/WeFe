@@ -16,6 +16,10 @@
 
 package com.welab.wefe.data.fusion.service.utils;
 
+import com.welab.wefe.common.CommonThreadPool;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,10 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
-import com.welab.wefe.common.CommonThreadPool;
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 
 /**
  * @author zane.luo
@@ -49,11 +49,11 @@ public abstract class AbstractDataSetReader implements Closeable {
         try {
             list = doGetHeader();
         } catch (Exception e) {
-            throw new StatusCodeWithException("读取数据集 header 信息失败：" + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "读取数据集 header 信息失败：" + e.getMessage());
         }
 
         if (list.stream().distinct().count() != list.size()) {
-            throw new StatusCodeWithException("数据集包含重复的字段。请处理并重新上传.", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "数据集包含重复的字段。请处理并重新上传.");
         }
 
         list = list.stream().map(x -> "Y".equals(x) ? "y" : x).collect(Collectors.toList());
@@ -74,11 +74,11 @@ public abstract class AbstractDataSetReader implements Closeable {
         try {
             list = doGetHeader();
         } catch (Exception e) {
-            throw new StatusCodeWithException("读取数据集 header 信息失败：" + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "读取数据集 header 信息失败：" + e.getMessage());
         }
 
         if (list.stream().distinct().count() != list.size()) {
-            throw new StatusCodeWithException("数据集包含重复的字段，请处理后重新上传。", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "数据集包含重复的字段，请处理后重新上传。");
         }
 
         header = rowsList;
@@ -238,4 +238,6 @@ public abstract class AbstractDataSetReader implements Closeable {
      * Read data row
      */
     protected abstract LinkedHashMap<String, Object> readOneRow() throws StatusCodeWithException;
+    
+    public abstract long getRowCount(int sheetIndex);
 }

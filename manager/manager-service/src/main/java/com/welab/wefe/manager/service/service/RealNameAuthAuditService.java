@@ -1,15 +1,5 @@
 package com.welab.wefe.manager.service.service;
 
-import java.util.List;
-
-import javax.transaction.Transactional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import com.webank.cert.mgr.model.vo.CertVO;
 import com.webank.cert.mgr.service.CertOperationService;
 import com.webank.cert.toolkit.enums.CertStatusEnums;
@@ -21,6 +11,14 @@ import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.manager.service.dto.member.RealNameAuthInput;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import javax.transaction.Transactional;
+import java.util.List;
 
 @Service
 public class RealNameAuthAuditService {
@@ -54,7 +52,7 @@ public class RealNameAuthAuditService {
         if (input.getRealNameAuthStatus() == 2) {
             Member member = memberMongoReop.findMemberId(input.getId());
             if (member == null) {
-                throw new StatusCodeWithException("成员不存在", StatusCode.DATA_NOT_FOUND);
+                throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "成员不存在");
             }
             memberExtJSON = member.getExtJson();
             memberExtJSON.setRealNameAuthStatus(input.getRealNameAuthStatus());
@@ -67,7 +65,7 @@ public class RealNameAuthAuditService {
             // 签发机构的证书ID
             PageOutput<CertInfo> results = certOperationService.findCertList(null, null, true, false, 2, 0, 10);
             if (CollectionUtils.isEmpty(results.getList())) {
-                throw new StatusCodeWithException("没有签发证书", StatusCode.DATA_NOT_FOUND);
+                throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "没有签发证书");
             }
             CertInfo issuerCert = results.getList().get(0);
             try {
@@ -78,7 +76,7 @@ public class RealNameAuthAuditService {
                 memberExtJSON.setCertPemContent(cert.getCertContent());
                 memberExtJSON.setCertSerialNumber(cert.getSerialNumber());
             } catch (Exception e) {
-                throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
             }
         } else if (input.getRealNameAuthStatus() == -1) { // -1认证失败 /0未认证 /1认证中 /2已认证
             memberExtJSON.setUpdatedTime(System.currentTimeMillis());

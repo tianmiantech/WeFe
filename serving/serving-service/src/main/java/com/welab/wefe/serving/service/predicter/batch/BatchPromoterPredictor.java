@@ -64,7 +64,7 @@ public class BatchPromoterPredictor extends AbstractBatchPredictor {
         List<ProviderParams> providerList = service.findProviderList(modelId);
 
         if (CollectionUtils.isEmpty(providerList)) {
-            throw new StatusCodeWithException("未找到纵向联邦的协作方！", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "未找到纵向联邦的协作方！");
         }
 
         List<JObject> federatedResult = new ArrayList<>();

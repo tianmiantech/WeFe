@@ -73,7 +73,7 @@ public class DataSetContractService extends AbstractContractService {
                 extJson = JSON.toJSONString(dataSetExtJSON);
             }
             if (!memberContractService.isExist(dataset.getMemberId())) {
-                throw new StatusCodeWithException("Member ID is not exist", StatusCode.INVALID_USER);
+                throw new StatusCodeWithException(StatusCode.INVALID_USER, "Member ID is not exist");
             }
 
             TransactionReceipt insertTransactionReceipt = dataSetContract.insert(generateParams(dataset),
@@ -93,12 +93,12 @@ public class DataSetContractService extends AbstractContractService {
                 TransactionResponse updateResponse = new TransactionDecoderService(cryptoSuite)
                         .decodeReceiptWithValues(DataSetContract.ABI, DataSetContract.FUNC_UPDATE, updateTransactionReceipt);
                 if (!transactionIsSuccess(updateResponse.getValues())) {
-                    throw new StatusCodeWithException("Failed to update data set information", StatusCode.SYSTEM_ERROR);
+                    throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to update data set information");
                 }
             }
         } catch (
                 Exception e) {
-            throw new StatusCodeWithException("Failed to add data set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to add data set information: " + e.getMessage());
         }
 
     }
@@ -113,11 +113,11 @@ public class DataSetContractService extends AbstractContractService {
                 TransactionResponse deleteResponse = new TransactionDecoderService(cryptoSuite)
                         .decodeReceiptWithValues(DataSetContract.ABI, DataSetContract.FUNC_DELETEBYDATASETID, transactionReceipt);
                 if (!transactionIsSuccess(deleteResponse.getValues())) {
-                    throw new StatusCodeWithException("transaction failed", StatusCode.SYSTEM_ERROR);
+                    throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "transaction failed");
                 }
             }
         } catch (Exception e) {
-            throw new StatusCodeWithException("Failed to delete data set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to delete data set information: " + e.getMessage());
         }
     }
 
@@ -137,7 +137,7 @@ public class DataSetContractService extends AbstractContractService {
                 throw new StatusCodeWithException(StatusCode.INVALID_DATASET, "非法的数据源类型：" + input.getDataResourceType());
         }
         if (null == dataResourceModel) {
-            throw new StatusCodeWithException(StatusCode.INVALID_DATASET, input.getDataResourceId());
+            throw new StatusCodeWithException(StatusCode.INVALID_DATASET, "非法的数据集：" + input.getDataResourceId());
         }
         DataResourceLazyUpdateModel dataResourceLazyUpdateModel = dataResourceLazyUpdateModelMongoReop.findByDataResourceId(input.getDataResourceId());
         dataResourceLazyUpdateModel = (null == dataResourceLazyUpdateModel ? new DataResourceLazyUpdateModel() : dataResourceLazyUpdateModel);

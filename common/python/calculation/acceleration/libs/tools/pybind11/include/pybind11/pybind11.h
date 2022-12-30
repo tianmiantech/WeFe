@@ -1777,7 +1777,7 @@ struct enum_base {
             PYBIND11_ENUM_OP_STRICT("__ne__", !int_(a).equal(int_(b)), return true);
 
             if (is_arithmetic) {
-                #define PYBIND11_THROW throw type_error("Expected an enumeration of matching type!");
+                #define PYBIND11_throw type_error("Expected an enumeration of matching type!");
                 PYBIND11_ENUM_OP_STRICT("__lt__", int_(a) <  int_(b), PYBIND11_THROW);
                 PYBIND11_ENUM_OP_STRICT("__gt__", int_(a) >  int_(b), PYBIND11_THROW);
                 PYBIND11_ENUM_OP_STRICT("__le__", int_(a) <= int_(b), PYBIND11_THROW);

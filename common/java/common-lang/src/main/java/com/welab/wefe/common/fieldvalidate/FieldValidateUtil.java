@@ -91,7 +91,7 @@ public class FieldValidateUtil {
                 if (StringUtil.isNotEmpty(check.messageOnEmpty())) {
                     message = check.messageOnEmpty();
                 }
-                throw new StatusCodeWithException(message, StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, message);
             }
 
             if (value == null || StringUtils.isEmpty(value.toString())) {
@@ -107,7 +107,7 @@ public class FieldValidateUtil {
 
                 StandardFieldType standardFieldType = check.type();
                 if (!standardFieldType.check(value)) {
-                    throw new StatusCodeWithException(getInvalidMessage(check, field, value), StatusCode.PARAMETER_VALUE_INVALID);
+                    throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, getInvalidMessage(check, field, value));
                 } else if (standardFieldType.needStandardize()) {
                     field.set(obj, standardFieldType.standardize(value));
                 }
@@ -118,7 +118,7 @@ public class FieldValidateUtil {
              */
             if (StringUtils.isNotEmpty(check.regex())) {
                 if (!Pattern.matches(check.regex(), value.toString())) {
-                    throw new StatusCodeWithException(getInvalidMessage(check, field, value), StatusCode.PARAMETER_VALUE_INVALID);
+                    throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, getInvalidMessage(check, field, value));
                 }
 
             }

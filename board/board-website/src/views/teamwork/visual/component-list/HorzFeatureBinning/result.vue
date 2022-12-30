@@ -84,7 +84,7 @@
 
                                         >
                                             <el-table-column label="箱号" width="55" type="index" align="center" />
-                                            <el-table-column label="划分区间" prop="binning" align="center" width="110" />
+                                            <el-table-column label="划分区间" prop="binning" align="center" width="115" />
                                             <el-table-column label="正样本数" prop="eventCountArray" align="center" />
                                             <el-table-column label="负样本数" prop="nonEventCountArray" align="center" />
                                             <el-table-column label="总样本数" prop="countArray" align="center" />
@@ -93,23 +93,20 @@
                                             <el-table-column label="总占比" prop="countRateArray" align="center" />
                                             <el-table-column label="WOE" prop="woeArray" align="center" />
                                             <el-table-column label="IV" prop="ivArray" align="center" />
-
                                         </el-table>
-
                                     </div><br>
-
                                 </template>
-
                             </el-table-column>
                             <el-table-column label="特征名称" prop="column"></el-table-column>
                             <el-table-column label="分箱方法" prop="paramsMethod"></el-table-column>
                             <el-table-column label="分箱数量" prop="binNums"></el-table-column>
-                            <el-table-column label="总IV" prop="iv"></el-table-column>
+                            <el-table-column label="总IV" prop="iv" sortable>
+                                <template v-slot="scope">
+                                    {{ dealNumPrecision(scope.row.iv) }}
+                                </template>
+                            </el-table-column>
                         </el-table>
-
-
                     </el-tab-pane>
-
                 </el-tabs>
 
             </el-collapse>
@@ -130,6 +127,7 @@
     } from 'vue';
     import CommonResult from '../common/CommonResult';
     import resultMixin from '../result-mixin';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     const mixin = resultMixin();
 
@@ -155,10 +153,10 @@
 
             let methods = {
                 expandChange(row) {
-                    const tabIdx = vData.tabName.split('-')[1];
+                    /* const tabIdx = vData.tabName.split('-')[1];
 
-                    /* if(!vData.list[tabIdx].dataList[row.Index]){
-                        console.log("row.Index:"+row.Index);
+                    if(!vData.list[tabIdx].dataList[row.Index]){
+                        console.log('row.Index:'+row.Index);
                         console.log(row);
                         console.log(vData.list);
                     } */
@@ -253,17 +251,18 @@
                                             show:     true,
                                             position: 'top',
                                             formatter (value) {
-                                                return Number(value.data).toFixed(2);
+                                                // return Number(value.data).toFixed(2);
+                                                return dealNumPrecision(value.data);
                                             },
                                         },
                                         tooltip: {
-                                            valueFormatter: (value) => value.toFixed(3),
+                                            valueFormatter: (value) => dealNumPrecision(value),
                                         },
                                     },
                                 );
                                 if (val.splitPoints.length) {
                                     for(let i=0; i<val.splitPoints.length; i++) {
-                                        xAxis.push(val.splitPoints[i].toFixed(3));
+                                        xAxis.push(dealNumPrecision(val.splitPoints[i]));
                                     }
                                 } else {
                                     for (let j=0; j<Number(val.binNums); j++) {
@@ -299,29 +298,33 @@
 
                                 for (let j=0; j<Number(val.binNums); j++) {
                                     woeData.xAxis.push(j+1);
-                                    woeData.series[0].push(val.woeArray[j]);
+                                    woeData.series[0].push(dealNumPrecision(val.woeArray[j]));
                                     let binningData = null;
 
                                     if (val.splitPoints.length) {
-                                        binningData = j === 0 ? `(${Number.NEGATIVE_INFINITY}, ${Number(val.splitPoints[j]).toFixed(2)}]` : j === Number(val.binNums)-1 ? `(${Number(val.splitPoints[j]).toFixed(2)}, ${Number.POSITIVE_INFINITY})` : `(${Number(val.splitPoints[j-1]).toFixed(2)}, ${Number(val.splitPoints[j]).toFixed(2)}]`;
+                                        binningData = j === 0 ?
+                                            `(${Number.NEGATIVE_INFINITY}, ${dealNumPrecision(val.splitPoints[j])}]` :
+                                            j === Number(val.binNums)-1 ?
+                                                `(${dealNumPrecision(val.splitPoints[j])}, ${Number.POSITIVE_INFINITY})` :
+                                                `(${dealNumPrecision(val.splitPoints[j-1])}, ${dealNumPrecision(val.splitPoints[j])}]`;
                                     } else {
                                         binningData = '-';
                                     }
                                     inline_table.push({
                                         column,
                                         countArray:         val.countArray[j],
-                                        countRateArray:     Number(val.countRateArray[j]).toFixed(2),
-                                        eventCountArray:    member_role === 'promoter' && props.myRole === 'promoter' ? Number(val.eventCountArray[j]).toFixed(2) : '-',
-                                        eventRateArray:     member_role === 'promoter' && props.myRole === 'promoter' ? Number(val.eventRateArray[j]).toFixed(2) : '-',
+                                        countRateArray:     dealNumPrecision(val.countRateArray[j]),
+                                        eventCountArray:    member_role === 'promoter' && props.myRole === 'promoter' ? val.eventCountArray[j] : '-',
+                                        eventRateArray:     member_role === 'promoter' && props.myRole === 'promoter' ? dealNumPrecision(val.eventRateArray[j]) : '-',
                                         nonEventCountArray: member_role === 'promoter' && props.myRole === 'promoter' ? val.nonEventCountArray[j] : '-',
-                                        nonEventRateArray:  member_role === 'promoter' && props.myRole === 'promoter' ? Number(val.nonEventRateArray[j]).toFixed(2): '-',
+                                        nonEventRateArray:  member_role === 'promoter' && props.myRole === 'promoter' ? dealNumPrecision(val.nonEventRateArray[j]) : '-',
                                         // eventCountArray:    Number(val.eventCountArray[j]).toFixed(2),
                                         // eventRateArray:     Number(val.eventRateArray[j]).toFixed(2),
                                         // nonEventCountArray: val.nonEventCountArray[j],
                                         // nonEventRateArray:  Number(val.nonEventRateArray[j]).toFixed(2),
-                                        ivArray:            Number(val.ivArray[j]).toFixed(2),
-                                        splitPoints:        Number(val.splitPoints[j]).toFixed(2),
-                                        woeArray:           Number(val.woeArray[j]).toFixed(2),
+                                        ivArray:            dealNumPrecision(val.ivArray[j]),
+                                        splitPoints:        dealNumPrecision(val.splitPoints[j]),
+                                        woeArray:           dealNumPrecision(val.woeArray[j]),
                                         binning:            binningData,
                                         woeLineConfig:      woeData,
                                         mapdata,
@@ -375,6 +378,7 @@
                 activeName,
                 activeDetails,
                 LineChart,
+                dealNumPrecision,
             };
         },
     };
