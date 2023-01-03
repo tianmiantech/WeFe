@@ -550,7 +550,7 @@ public class ServiceService {
         if (StringUtils.isNotBlank(input.getCreatedBy())) {
             where = where.equal("createdBy", input.getCreatedBy());
         }
-        Specification<BaseServiceMySqlModel> condition = where.orderBy("id", OrderBy.asc).build();
+        Specification<BaseServiceMySqlModel> condition = where.orderBy("updatedTime", OrderBy.desc).build();
 
         PagingOutput<BaseServiceMySqlModel> page = baseServiceRepository.paging(condition, input);
         List<AccountMySqlModel> accounts = accountRepository.findAll();
