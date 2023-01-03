@@ -24,7 +24,6 @@ from playhouse.pool import PooledMySQLDatabase
 from common.python.common import consts
 from common.python.utils import log_utils, sqlite_utils
 from common.python.utils.conf_utils import get_comm_config, get_env_config, get_value_by_enable
-from flow.web.utils.const import SecretKeyType
 
 stat_logger = log_utils.get_logger("wefe_flow_stat")
 
@@ -137,6 +136,7 @@ class GlobalSetting(object):
     @staticmethod
     def get_secret_key_type():
         from common.python.db.global_config_dao import GlobalConfigDao
+        from flow.web.utils.const import SecretKeyType
         secret_key_type = GlobalConfigDao.getMemberInfo().secret_key_type
         return secret_key_type if secret_key_type else SecretKeyType.RSA
 
