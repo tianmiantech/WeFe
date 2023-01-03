@@ -387,7 +387,6 @@ public class ServingService extends AbstractService {
                                 getJSONObject(0).
                                 getJSONObject("ext_json").
                                 getString("serving_base_url"));
-                        LOG.info("fillPublicKey member = " + json.toJSONString());
                     } catch (StatusCodeWithException e) {
                         super.log(e);
                     }
