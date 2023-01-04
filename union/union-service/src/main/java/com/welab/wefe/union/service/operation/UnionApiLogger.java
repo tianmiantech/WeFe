@@ -26,10 +26,10 @@ import com.welab.wefe.common.web.delegate.api_log.AbstractApiLogger;
 import com.welab.wefe.common.web.delegate.api_log.ApiLog;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.service.account.AccountInfo;
-import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.union.service.api.common.MemberFileUploadSyncApi;
 import com.welab.wefe.union.service.api.common.RealnameAuthAgreementTemplateSyncApi;
 import com.welab.wefe.union.service.api.member.FileUploadApi;
+import com.welab.wefe.union.service.util.ModelMapper;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
