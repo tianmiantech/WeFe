@@ -875,7 +875,7 @@ public class ServiceService {
 
         // 将需要提供的文件加到这个列表
         List<String> stringList = FileUtil
-                .readAllForLine(Paths.get(config.getFileBasePath()).resolve("ApiExample.java").toString(), "UTF-8");
+                .readAllForLine(Paths.get(config.getFileBasePath()).resolve("ModelPredictClient.java").toString(), "UTF-8");
         stringList.stream().forEach(x -> {
             try {
                 FileUtil.writeTextToFile(String.format(x, serviceId) + System.lineSeparator(), path, true);

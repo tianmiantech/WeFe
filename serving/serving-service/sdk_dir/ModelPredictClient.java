@@ -14,91 +14,97 @@
  * limitations under the License.
  */
 
-import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.mpc.util.RSAUtil;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.KeyFactory;
+import java.security.Signature;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TreeMap;
+import java.util.UUID;
 
-// 多方匿踪查询 用来生成http请求参数，然后自己通过http请求
-public class MultiPir {
+import com.alibaba.fastjson.JSONObject;
+
+/**
+ * @author hunter.zhao
+ */
+public class ModelPredictClient {
+
     // 私钥
     private static final String customer_privateKey = "***"; // TODO
     // 公钥
     private static final String customer_publicKey = "***"; // TODO
     // 客户code
     private static final String customer_code = "***"; // TODO
-    // Serving服务地址
-    private static final String serverUrl = "https://***/***/"; // TODO
-    // Service Api name
-    private static final String apiName = "api/*****"; // TODO
+
+    private static final String api = "{{baseUrl}}/api/predict/%s"; // TODO
+
+    private static final String serviceId = "xxxx"; // TODO
 
     public static void main(String[] args) throws Exception {
-        String dataStr = "{\n" +
-                "  \"ids\": [\n" +
-                "    {\n" +
-                "      \"member_id\": \"*****\",\n" +
-                "      \"model_id\": \"****\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"member_id\": \"dsghsdfg\",\n" +
-                "      \"model_id\": \"qwer\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"member_id\": \"zsdfas\",\n" +
-                "      \"model_id\": \"zxgasdf\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"member_id\": \"zdfasf\",\n" +
-                "      \"model_id\": \"asdfaw\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"member_id\": \"zxcv\",\n" +
-                "      \"model_id\": \"qwer\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"member_id\": \"zxdvfasd\",\n" +
-                "      \"model_id\": \"asdf\"\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"index\":0\n" +
-                "}";
-        String params = request(dataStr);
-        System.out.println("多方匿踪查询参数 naorpinkas_ot方式:\t" + params);
-        // 服务地址
-        System.out.println("多方匿踪查询参数 url:" + serverUrl + apiName);
-        System.out.println("响应结果：" + sendPost(serverUrl + apiName, params));
+        String params = setFederatedPredictBody();
+        System.out.println("api = " + api);
+        System.out.println("params = " + params);
+        System.out.println("result = " + sendPost(api, params));
     }
 
-    protected static String request(String dataStr) throws Exception {
+    protected static String setFederatedPredictBody() throws Exception {
+        // params 请求入参
         TreeMap<String, Object> params = new TreeMap<>();
-        params.put("data", JSONObject.parseObject(dataStr));
-        String data = params.get("data").toString();
-        String sign = "";
+        Map<String, Object> map1 = new HashMap<>();
+        // TODO 添加特征值到map
+        map1.put("特征1", 0.1223213);
+
+        params.put("featureData", map1);
+        params.put("userId", "1"); // TODO 传给协作方查找特征使用
+
+        params.put("serviceId", serviceId);
+        params.put("partnerCode", customer_code);
+        params.put("requestId", UUID.randomUUID().toString().replace("-", ""));
+
+        /**
+         * Prevent map disorder, resulting in signature verification failure
+         */
+        String data = new JSONObject(params).toJSONString();
+        /**
+         * sign
+         */
+        String sign;
         try {
-            sign = RSAUtil.sign(data, customer_privateKey);
+            sign = sign(data, customer_privateKey);
         } catch (Exception e) {
             e.printStackTrace();
+            throw e;
         }
         JSONObject body = new JSONObject();
-        body.put("customer_id", customer_code);
+        body.put("partnerCode", customer_code);
         body.put("sign", sign);
-        body.put("data", JSONObject.parseObject(data));
-        body.put("requestId", "xxx");
-        boolean verified = RSAUtil.verify(params.get("data").toString().getBytes(),
-                RSAUtil.getPublicKey(customer_publicKey), sign);
-        if (verified) {
-            return body.toJSONString();
-        } else {
-            return "";
-        }
+        body.put("data", data);
+        return body.toJSONString();
     }
-    
+
+    private static final String SIGN_ALGORITHM = "SHA1withRSA";
+
+    /**
+     * The private key signature
+     */
+    public static String sign(String data, String privateKeyStr) throws Exception {
+        Signature sigEng = Signature.getInstance(SIGN_ALGORITHM);
+        byte[] priByte = Base64.getDecoder().decode(privateKeyStr);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(priByte);
+        KeyFactory fac = KeyFactory.getInstance("RSA");
+        RSAPrivateKey privateKey = (RSAPrivateKey) fac.generatePrivate(keySpec);
+        sigEng.initSign(privateKey);
+        sigEng.update(data.getBytes());
+        return Base64.getEncoder().encodeToString(sigEng.sign());
+    }
 
     /**
      * 向指定 URL 发送POST方法的请求
@@ -153,5 +159,4 @@ public class MultiPir {
         }
         return result;
     }
-
 }
