@@ -64,8 +64,8 @@ public class PsiClient {
         Psi psi = PsiFactory.generatePsi();
         psi.setClientDatasetMap(clientDatasetMap);
         CommunicationConfig config = new CommunicationConfig();
-        config.setSignPrivateKey(测试客户1_privateKey);// 私钥
-        config.setCommercialId(测试客户1_code); // 客户ID
+        config.setSignPrivateKey(Customer_privateKey);// 私钥
+        config.setCommercialId(Customer_code); // 客户ID
         // 服务地址
         config.setServerUrl(serverUrl);
         config.setApiName(apiName);
