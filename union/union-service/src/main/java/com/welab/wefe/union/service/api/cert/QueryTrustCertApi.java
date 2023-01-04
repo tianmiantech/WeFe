@@ -23,8 +23,8 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.union.service.dto.cert.TrustCertsQueryOutput;
+import com.welab.wefe.union.service.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
