@@ -25,6 +25,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -136,12 +137,13 @@ public class BoardService implements ApplicationContextAware {
             return;
         }
 
-        boolean verified = RSAUtil.verify(
+        /*boolean verified = RSAUtil.verify(
                 signedApiInput.getData().getBytes(StandardCharsets.UTF_8),
                 RSAUtil.getPublicKey(publicKey),
                 // 在 get 请求时，即便是对参数做了转义，也不能正确处理+号，加号总是被decode为空格，所以这里将空格还原为加号。
                 signedApiInput.getSign().replace(" ", "+")
-        );
+        );*/
+        boolean verified = SignUtil.verify(signedApiInput.getData().getBytes(StandardCharsets.UTF_8), publicKey, signedApiInput.getSign().replace(" ", "+"), CacheObjects.getSecretKeyType());
         if (!verified) {
             throw new StatusCodeWithException("错误的签名", StatusCode.PARAMETER_VALUE_INVALID);
         }
