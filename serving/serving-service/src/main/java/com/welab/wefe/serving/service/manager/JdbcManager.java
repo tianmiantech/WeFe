@@ -301,7 +301,7 @@ public class JdbcManager {
         return result;
     }
 
-    public List<Map<String, String>> queryList(Connection conn, String sql, List<String> returnFields) {
+    public List<Map<String, String>> queryList(Connection conn, String sql, List<String> returnFields) throws StatusCodeWithException {
         long start = System.currentTimeMillis();
         log.info("JdbcManager queryList sql: " + sql);
         PreparedStatement ps = null;
@@ -323,7 +323,7 @@ public class JdbcManager {
             }
         } catch (SQLException e) {
             log.error("queryList error", e);
-            return result;
+            throw new StatusCodeWithException(StatusCode.SQL_ERROR, e.getMessage());
         } finally {
             close(conn, ps, rs);
             long duration = System.currentTimeMillis() - start;
