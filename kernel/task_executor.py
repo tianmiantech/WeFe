@@ -30,6 +30,7 @@
 import argparse
 import importlib
 import json
+import math
 import os
 import pickle
 import re
@@ -382,6 +383,7 @@ class TaskExecutor(object):
             default_size = FunctionConfig.FC_PARTITION_DATA_SIZE
 
             max_rows = 0
+            min_rows = 0
             features_count = 0
             for component_dataset in data_sets:
                 if component_dataset["component_type"] in (ComponentName.DATA_IO, ComponentName.OOT):
@@ -390,19 +392,22 @@ class TaskExecutor(object):
                         features_count += member["data_set_features"] if "data_set_features" in member else 0
                         if member_dataset_row > max_rows:
                             max_rows = member_dataset_row
+                        if member_dataset_row < min_rows or min_rows == 0:
+                            min_rows = member_dataset_row
 
-            fc_partitions = int(
-                max_rows / default_size if max_rows % default_size == 0 else max_rows / default_size + 1)
+            partitions_by_max_row = math.ceil(max_rows / default_size)
             options[features_count_key] = features_count
+            partition_by_row_and_features = math.ceil((min_rows / default_size) * (features_count / 100))
+            partitions = max(partitions_by_max_row, partition_by_row_and_features)
 
-            if fc_partitions > max_partitions:
+            if partitions > max_partitions:
                 options[fc_partition_key] = max_partitions
-            elif fc_partitions > 0:
-                options[fc_partition_key] = fc_partitions
+            elif partitions > 0:
+                options[fc_partition_key] = partitions
 
             options[spark_partition_key] = FunctionConfig.SPARK_MAX_PARTITION \
-                if fc_partitions > FunctionConfig.SPARK_MAX_PARTITION \
-                else fc_partitions
+                if partitions > FunctionConfig.SPARK_MAX_PARTITION \
+                else partitions
 
         # members_backend
         options[RuntimeOptionKey.MEMBERS_BACKEND] = TaskExecutor.parse_members_backend(task_config)
