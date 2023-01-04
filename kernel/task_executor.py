@@ -397,7 +397,7 @@ class TaskExecutor(object):
 
             partitions_by_max_row = math.ceil(max_rows / default_size)
             options[features_count_key] = features_count
-            partition_by_row_and_features = math.ceil((min_rows / default_size) * (features_count / 100))
+            partition_by_row_and_features = math.ceil((min_rows / default_size) * (features_count / 200))
             partitions = max(partitions_by_max_row, partition_by_row_and_features)
 
             if partitions > max_partitions:
