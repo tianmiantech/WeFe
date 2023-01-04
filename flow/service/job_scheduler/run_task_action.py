@@ -228,7 +228,7 @@ class RunTaskAction:
             '-t', self.task.task_id,
             '-r', self.task.role,
             '-m', MEMBER_ID,
-            '-c', self.task.task_conf,
+            # '-c', self.task.task_conf,
             '-s', self.build_federation_session_id()
         ]
 

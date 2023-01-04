@@ -68,7 +68,7 @@ class TaskExecutor(object):
             parser.add_argument('-t', '--task_id', required=True, type=str, help="task id")
             parser.add_argument('-r', '--role', required=True, type=str, help="role")
             parser.add_argument('-m', '--member_id', required=True, type=str, help="member id")
-            parser.add_argument('-c', '--config', required=True, type=str, help="task config")
+            parser.add_argument('-c', '--config', required=False, type=str, help="task config")
             parser.add_argument('-s', '--federation_session_id', required=False, type=str, help="federation_session_id")
             parser.add_argument('-e', '--environment', required=False, type=str, help="running environment")
             args = parser.parse_args()

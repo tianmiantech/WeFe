@@ -31,10 +31,14 @@ from functools import wraps
 
 from common.python.common.consts import ENV
 from common.python.common.global_config import global_config
+from common.python.db.task_dao import TaskDao
 from common.python.utils import file_utils
 
 
 def load_config(args) -> object:
+    if not args.config:
+        task = TaskDao.find_one_by_task_id(args.task_id)
+        return json.loads(task.task_conf)
     if global_config.ENV == ENV.ENV_LOCAL:
         return file_utils.load_json_conf(args.config)
     else:
