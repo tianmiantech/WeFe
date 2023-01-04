@@ -36,7 +36,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.jdbc.base.DatabaseType;
@@ -277,6 +276,9 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
     private JObject processDH(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {
         // 当前批次
         int currentBatch = data.getIntValue("currentBatch");
+        if (currentBatch < 0) {
+            currentBatch = 0;
+        }
         String p = data.getString("p");
         DhPsiServer server = DH_SERVER_MAP.get(requestId);
         if (server == null) {
@@ -312,6 +314,9 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
     private JObject processECDH(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {
         // 当前批次
         int currentBatch = data.getIntValue("currentBatch");
+        if (currentBatch < 0) {
+            currentBatch = 0;
+        }
         Map<Long, String> doubleEncryptedClientDatasetMap = null;
         List<String> doubleEncryptedClientDataset = null;
         EcdhPsiServer server = ECDH_SERVER_MAP.get(requestId);
@@ -361,8 +366,8 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
                 && StringUtils.isNotBlank(dataSource.getString("order_by_field"))) {
             orderByField = dataSource.getString("order_by_field");
         }
-        String sql = "select " + StringUtils.join(needFields, ",") + " from " + tableName + " order by "
-                + orderByField + " limit " + currentBatch * this.batchSize + ", " + this.batchSize;
+        String sql = "select " + StringUtils.join(needFields, ",") + " from " + tableName + " order by " + orderByField
+                + " limit " + currentBatch * this.batchSize + ", " + this.batchSize;
         List<Map<String, String>> result = dataSourceService.queryList(dataSourceModel, sql, needFields);
         List<Queue<Map<String, String>>> partitionList = ServiceUtil.partitionList(result,
                 Math.max(this.batchSize / 100000, 1));
