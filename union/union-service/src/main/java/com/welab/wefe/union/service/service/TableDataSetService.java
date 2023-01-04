@@ -21,9 +21,9 @@ import com.welab.wefe.common.data.mongodb.entity.union.TableDataSet;
 import com.welab.wefe.common.data.mongodb.repo.TableDataSetMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
-import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.union.service.api.dataresource.dataset.table.PutApi;
 import com.welab.wefe.union.service.service.contract.TableDataSetContractService;
+import com.welab.wefe.union.service.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
