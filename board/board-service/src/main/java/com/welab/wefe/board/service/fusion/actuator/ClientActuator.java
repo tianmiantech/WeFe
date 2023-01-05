@@ -254,7 +254,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
                 JSONObject.class
         );
 
-        LOG.info("downloadBloomFilter end {} ", result);
+        LOG.info("downloadBloomFilter end");
 
         PsiActuatorMeta meta = JObject.toJavaObject(result, PsiActuatorMeta.class);
         meta.setBfByDto(meta.getBfDto());
