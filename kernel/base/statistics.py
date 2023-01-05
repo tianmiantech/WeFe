@@ -735,6 +735,8 @@ class MultivariateStatistical(object):
         for data_instance in self.data_instances.collect():
             features = data_instance[1].features
             for col_name, col_index in cols_dict.items():
+                if np.isnan(features[col_index]):
+                    continue
                 if features[col_index] not in col_dict[col_name].keys():
                     col_dict[col_name][features[col_index]] = 1
                 else:
