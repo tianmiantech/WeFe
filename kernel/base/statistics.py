@@ -705,7 +705,7 @@ class MultivariateStatistical(object):
 
         if cols_dict is None:
             cols_dict = self.cols_dict
-        self.mode = self._get_mode(cols_dict)
+        self.mode = self._get_mode2(cols_dict)
         for col_name, col_index in cols_dict.items():
             if col_name not in self.mode:
                 LOGGER.warning("The column {}, has not set in selection parameters."
@@ -741,6 +741,73 @@ class MultivariateStatistical(object):
                     col_dict[col_name][features[col_index]] = 1
                 else:
                     col_dict[col_name][features[col_index]] += 1
+
+        mode = {}
+        for col_name in col_dict.keys():
+            mode[col_name] = max(col_dict[col_name], key=col_dict[col_name].get)
+
+        return mode
+
+    @staticmethod
+    def mode_in_partition(data_instance, cols_dict):
+        col_dict = {}
+        # init col_dict
+        for col_name, col_index in cols_dict.items():
+            col_dict[col_name] = {}
+
+        for data in data_instance:
+            features = data[1].features
+            for col_name, col_index in cols_dict.items():
+                if np.isnan(features[col_index]):
+                    continue
+                if features[col_index] not in col_dict[col_name].keys():
+                    col_dict[col_name][features[col_index]] = 1
+                else:
+                    col_dict[col_name][features[col_index]] += 1
+
+        return col_dict
+
+    @staticmethod
+    def mode_reduce(mode_dict1, mode_dict2):
+        if mode_dict1 is None and mode_dict2 is None:
+            return None
+        if mode_dict1 is None:
+            return mode_dict2
+        if mode_dict2 is None:
+            return mode_dict1
+
+        new_dict = {}
+        for col_name, static_1 in mode_dict1.items():
+            value_dict1 = static_1
+            value_dict2 = mode_dict2[col_name]
+            for value, count in value_dict2.items():
+                if value in value_dict1:
+                    value_dict1[value] = value_dict1[value] + count
+                else:
+                    value_dict1[value] = count
+            new_dict[col_name] = value_dict1
+
+        return new_dict
+
+    def _get_mode2(self, cols_dict):
+        """
+            Moore voting method to calculate the mode
+        Parameters
+        ----------
+        cols_dict : dict
+           cols_dict = {
+               'x0': 0,
+               'x1': 1,
+               'x3': 3
+           }
+        Returns
+        -------
+
+        """
+        partition_cal = functools.partial(self.mode_in_partition,
+                                          cols_dict=cols_dict)
+        mode_dict = self.data_instances.mapPartitions(partition_cal)
+        col_dict = mode_dict.reduce(self.mode_reduce)
 
         mode = {}
         for col_name in col_dict.keys():
