@@ -399,19 +399,15 @@ public class FusionTaskService extends AbstractService {
         /**
          * Generate the corresponding task handler
          */
-        new ServerActuator(
-                task.getBusinessId(),
-                BloomFilterUtils.readFrom(
-                        Paths.get(bf.getStorageNamespace(), bf.getStorageResourceName()).toString()
-                ),
-                new BigInteger(bf.getRsaN()),
-                new BigInteger(bf.getRsaE()),
-                new BigInteger(bf.getRsaD()),
-                new BigInteger(bf.getRsaP()),
-                new BigInteger(bf.getRsaQ()),
-                DataResourceType.TableDataSet.equals(task.getDataResourceType()) ?
-                        task.getRowCount() : task.getPartnerRowCount()
-        ).run();
+        new Thread(() -> {
+            new ServerActuator(task.getBusinessId(),
+                    BloomFilterUtils
+                            .readFrom(Paths.get(bf.getStorageNamespace(), bf.getStorageResourceName()).toString()),
+                    new BigInteger(bf.getRsaN()), new BigInteger(bf.getRsaE()), new BigInteger(bf.getRsaD()),
+                    new BigInteger(bf.getRsaP()), new BigInteger(bf.getRsaQ()),
+                    DataResourceType.TableDataSet.equals(task.getDataResourceType()) ? task.getRowCount()
+                            : task.getPartnerRowCount()).run();
+        }).start();
     }
 
     /**
