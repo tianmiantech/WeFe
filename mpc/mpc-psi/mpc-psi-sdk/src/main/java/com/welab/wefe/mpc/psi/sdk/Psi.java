@@ -256,7 +256,7 @@ public abstract class Psi {
         } else {
             try {
                 String[] arr = content.split("###");
-                return new int[] { Integer.valueOf(arr[0]), Integer.valueOf(arr[1]) };
+                return new int[] { Integer.valueOf(arr[0].trim()), Integer.valueOf(arr[1].trim()) };
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new Exception(requestId + "_currentBatch" + " content error : " + content);
