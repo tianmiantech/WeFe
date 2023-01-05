@@ -132,7 +132,14 @@ public class PsiClient {
 
     private static void init(String[] args) throws Exception {
         if (args == null || args.length == 0) {
-            throw new Exception("file is empty");
+            File file = new File("data.csv");
+            if(file.exists()){
+                args = new String[1];
+                args[0] = "data.csv";
+            }
+            else {
+                throw new Exception("data.csv not exists");
+            }
         }
         initClientDatasetByFile(args[0]);
         System.out.println("get client size = " + clientDatasetMap.size());
