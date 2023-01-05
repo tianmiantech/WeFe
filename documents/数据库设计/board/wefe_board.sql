@@ -91,49 +91,6 @@ CREATE TABLE `cur_best_model`
   DEFAULT CHARSET = utf8mb4 COMMENT ='当前最优模型';
 
 -- ----------------------------
--- Table structure for data_set
--- ----------------------------
-DROP TABLE IF EXISTS `data_set`;
-CREATE TABLE `data_set`
-(
-    `id`                       varchar(32)   NOT NULL COMMENT '全局唯一标识',
-    `created_by`               varchar(32) COMMENT '创建人',
-    `created_time`             datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
-    `updated_by`               varchar(32) COMMENT '更新人',
-    `updated_time`             datetime(6) COMMENT '更新时间',
-    `name`                     varchar(128)  NOT NULL COMMENT '数据集名称',
-    `tags`                     varchar(128) COMMENT '标签',
-    `description`              varchar(3072) COMMENT '描述',
-    `storage_type`             varchar(32) COMMENT '存储类型',
-    `namespace`                varchar(1000) NOT NULL COMMENT '命名空间',
-    `table_name`               varchar(1000) NOT NULL COMMENT '表名',
-    `row_count`                bigint(20) NOT NULL COMMENT '数据行数',
-    `primary_key_column`       varchar(32)   NOT NULL COMMENT '主键字段',
-    `column_count`             int(11) NOT NULL COMMENT '数据集列数',
-    `column_name_list`         text          NOT NULL COMMENT '数据集字段列表',
-    `feature_count`            int(11) NOT NULL COMMENT '特征数量',
-    `feature_name_list`        text COMMENT '特征列表',
-    `contains_y`               tinyint(1) NOT NULL COMMENT '是否包含 Y 值',
-    `y_count`                  int(11) NOT NULL COMMENT 'y列的数量',
-    `y_name_list`              text COMMENT 'y列名称列表',
-    `public_level`             varchar(32) COMMENT '数据集的可见性',
-    `public_member_list`       varchar(3072) COMMENT '可见成员列表 只有在列表中的联邦成员才可以看到该数据集的基本信息',
-    `usage_count_in_job`       int(11) NOT NULL DEFAULT '0' COMMENT '使用次数',
-    `usage_count_in_flow`      int(11) NOT NULL DEFAULT '0' COMMENT '使用次数',
-    `usage_count_in_project`   int(11) NOT NULL DEFAULT '0' COMMENT '使用次数',
-    `source_type`              varchar(32) COMMENT '来源类型，枚举（原始、对齐、分箱）',
-    `source_flow_id`           varchar(64) COMMENT '来源流程id',
-    `source_job_id`            varchar(64) COMMENT '来源任务id',
-    `source_task_id`           varchar(100) COMMENT '来源子任务id',
-    `y_positive_example_count` bigint(20) COMMENT '正例数量',
-    `y_positive_example_ratio` double(10, 4
-) COMMENT '正例比例',
-    PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='数据集';
-
-
--- ----------------------------
 -- Table structure for data_source
 -- ----------------------------
 DROP TABLE IF EXISTS `data_source`;
@@ -250,7 +207,7 @@ CREATE TABLE `job`
     `star`                     tinyint(1) NOT NULL DEFAULT '0' COMMENT '收藏/置顶/标记',
     `job_middle_data_is_clear` tinyint(1) NOT NULL DEFAULT '0' COMMENT '中间数据是否已清理',
     `remark`                   text COMMENT '备注',
-    `job_config`               text COMMENT '配置信息',
+    `job_config`               MEDIUMTEXT COMMENT '配置信息',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique` (`job_id`, `my_role`)
 ) ENGINE = InnoDB
@@ -594,7 +551,7 @@ DROP TABLE IF EXISTS `project_flow_template`;
 CREATE TABLE `project_flow_template`
 (
     `id`                      varchar(32) NOT NULL COMMENT '全局唯一标识',
-    `graph`                   text COMMENT '流程图',
+    `graph`                   MEDIUMTEXT COMMENT '流程图',
     `name`                    varchar(32) DEFAULT NULL COMMENT '模板名称',
     `enname`                  VARCHAR(45) NULL COMMENT '模板英文名称',
     `description`             varchar(32) DEFAULT NULL COMMENT '模板描述',
@@ -932,10 +889,10 @@ CREATE TABLE `table_data_set`
     `created_time`            datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
     `updated_by`              varchar(32) COMMENT '更新人',
     `updated_time`            datetime(6) COMMENT '更新时间',
-    `column_name_list`        text        NOT NULL COMMENT '数据集字段列表',
+    `column_name_list`        MEDIUMTEXT        NOT NULL COMMENT '数据集字段列表',
     `column_count`            int(11) NOT NULL COMMENT '数据集列数',
     `primary_key_column`      varchar(32) NOT NULL COMMENT '主键字段',
-    `feature_name_list`       text COMMENT '特征列表',
+    `feature_name_list`       MEDIUMTEXT COMMENT '特征列表',
     `feature_count`           int(11) NOT NULL COMMENT '特征数量',
     `contains_y`              bool        NOT NULL COMMENT '是否包含 Y 值',
     `y_name_list`             text COMMENT 'y列名称列表',
@@ -944,7 +901,7 @@ CREATE TABLE `table_data_set`
     `y_positive_sample_count` bigint(20) COMMENT '正例数量',
     `y_positive_sample_ratio` double(10, 4
 ) COMMENT '正例比例',
-    `label_distribution`      text COMMENT 'label 分布情况',
+    `label_distribution`      MEDIUMTEXT COMMENT 'label 分布情况',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='数据集';

@@ -103,7 +103,7 @@ public class GrpcServer {
             }
 
             // Set the maximum message that the server can receive（2000M）
-            serverBuilder.maxInboundMessageSize(GrpcConstant.MAX_BOUND_MESSAGE_SIZE * 1024 * 1024);
+            serverBuilder.maxInboundMessageSize(Integer.MAX_VALUE);
             serverBuilder.compressorRegistry(CompressorRegistry.getDefaultInstance());
             serverBuilder.decompressorRegistry(DecompressorRegistry.getDefaultInstance());
             serverBuilder.keepAliveTimeout(30, TimeUnit.SECONDS);
