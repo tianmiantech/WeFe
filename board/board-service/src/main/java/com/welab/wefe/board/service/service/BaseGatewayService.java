@@ -132,7 +132,7 @@ public class BaseGatewayService extends AbstractService {
 
         GatewayMetaProto.TransferMeta transferMeta = buildTransferMeta(dstMemberId, dstMemberName, dstGatewayUri, data, processorType);
         ManagedChannel grpcChannel = null;
-        String message = "[grpc] end to " + dstMemberName;
+        String message = "[grpc] end to " + dstMemberName + " ";
         try {
             grpcChannel = buildManagedChannel(gatewayUri);
             TransferServiceGrpc.TransferServiceBlockingStub clientStub = TransferServiceGrpc.newBlockingStub(grpcChannel);
