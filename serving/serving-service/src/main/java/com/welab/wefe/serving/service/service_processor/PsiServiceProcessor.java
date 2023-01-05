@@ -151,7 +151,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
                     JSONObject item = keyCalcRules.getJSONObject(i);
                     String[] fields = item.getString("field").split(",");
                     for (String f : fields) {
-                        conditions.add(f + " = " + idObj.get(f));
+                        conditions.add(f + " = " + "'" + idObj.get(f) + "'");
                         if (!resultFields.contains(f)) {
                             resultFields.add(f);
                         }
