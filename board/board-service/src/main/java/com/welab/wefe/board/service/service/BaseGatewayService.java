@@ -141,12 +141,14 @@ public class BaseGatewayService extends AbstractService {
                 StatusCode.REMOTE_SERVICE_ERROR.throwException(returnStatus.getMessage());
             }
 
-            message += "success(" + (System.currentTimeMillis() - start) + "ms) request:" + data;
+            long spend = System.currentTimeMillis() - start;
+            message += "success(" + spend + "ms) request:" + data;
             LOG.info(message);
 
             return JSON.parseObject(returnStatus.getData());
         } catch (Exception e) {
-            message += "fail(" + (System.currentTimeMillis() - start) + "ms) message:" + e.getMessage() + " request:" + data;
+            long spend = System.currentTimeMillis() - start;
+            message += "fail(" + spend + "ms) message:" + e.getMessage() + " request:" + data;
             LOG.error(message);
 
             LOG.error("Request gateway exception, message: " + transferMetaToString(transferMeta) + ",exception：" + e.getMessage(), e);
