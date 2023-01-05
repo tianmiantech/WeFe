@@ -16,17 +16,6 @@
 
 package com.welab.wefe.board.service.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.api.project.node.CheckExistEvaluationComponentApi;
 import com.welab.wefe.board.service.api.project.node.UpdateApi;
@@ -53,6 +42,16 @@ import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.ProjectFlowStatus;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author zane.luo
@@ -159,6 +158,7 @@ public class ProjectFlowNodeService {
      */
     @Transactional(rollbackFor = Exception.class)
     public List<ProjectFlowNodeOutputModel> updateFlowNode(UpdateApi.Input input) throws StatusCodeWithException {
+        input.stopwatch.tapAndPrint("start updateFlowNode");
 
         // 对于网格搜索任务参数自动回写等程序自动修改参数的场景，不需要将状态修改为 editing
         if (CurrentAccountUtil.get() != null || input.fromGateway()) {
@@ -166,6 +166,7 @@ public class ProjectFlowNodeService {
             projectFlowService.updateFlowStatus(input.getFlowId(), ProjectFlowStatus.editing);
         }
 
+        input.stopwatch.tapAndPrint("start ProjectFlowNodeMySqlModel node = findOne");
         ProjectFlowNodeMySqlModel node = findOne(input.getFlowId(), input.getNodeId());
 
         List<ProjectFlowNodeOutputModel> list = new ArrayList<>();
@@ -199,6 +200,8 @@ public class ProjectFlowNodeService {
             node.setUpdatedBy(input);
         }
 
+        input.stopwatch.tapAndPrint("start if (node.getComponentType() == ComponentType.DataIO)");
+
         // If the parameters of the DataIO node have changed,
         // the node parameters with selective features in the child nodes need to be blank.
         if (node.getComponentType() == ComponentType.DataIO) {
@@ -212,9 +215,12 @@ public class ProjectFlowNodeService {
             }
         }
 
+        input.stopwatch.tapAndPrint("start projectFlowNodeRepository.save(node)");
         projectFlowNodeRepository.save(node);
 
+        input.stopwatch.tapAndPrint("start syncToOtherFormalProjectMembers");
         gatewayService.syncToOtherFormalProjectMembers(node.getProjectId(), input, UpdateApi.class);
+        input.stopwatch.tapAndPrint("end syncToOtherFormalProjectMembers");
 
         return list;
     }
