@@ -16,13 +16,6 @@
 
 package com.welab.wefe.board.service.service;
 
-import java.security.cert.X509Certificate;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.lang3.math.NumberUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.protobuf.MessageOrBuilder;
@@ -39,7 +32,6 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.dto.global_config.GatewayConfigModel;
 import com.welab.wefe.common.wefe.dto.global_config.MemberInfoModel;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
-
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.netty.GrpcSslContexts;
@@ -47,6 +39,12 @@ import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.security.cert.X509Certificate;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author zane
@@ -123,16 +121,18 @@ public class BaseGatewayService extends AbstractService {
      */
     private JSONObject callGateway(String gatewayUri, String dstMemberId, String dstMemberName, String dstGatewayUri, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
 
+        long start = System.currentTimeMillis();
+
         if (StringUtil.isEmpty(gatewayUri)) {
             StatusCode.RPC_ERROR.throwException("尚未设置 gateway 内网地址，请在[全局设置][系统设置]中设置 gateway 服务的内网地址。");
         }
-        if(StringUtil.isNotEmpty(dstGatewayUri) && !isValidGatewayUri(dstGatewayUri)) {
+        if (StringUtil.isNotEmpty(dstGatewayUri) && !isValidGatewayUri(dstGatewayUri)) {
             StatusCode.RPC_ERROR.throwException("目的网关地址格式不正确，格式应为 HOST:PORT。");
         }
 
         GatewayMetaProto.TransferMeta transferMeta = buildTransferMeta(dstMemberId, dstMemberName, dstGatewayUri, data, processorType);
         ManagedChannel grpcChannel = null;
-        String message = "[grpc] end to " + dstMemberName;
+        String message = "[grpc] end to " + dstMemberName + " ";
         try {
             grpcChannel = buildManagedChannel(gatewayUri);
             TransferServiceGrpc.TransferServiceBlockingStub clientStub = TransferServiceGrpc.newBlockingStub(grpcChannel);
@@ -141,12 +141,14 @@ public class BaseGatewayService extends AbstractService {
                 StatusCode.REMOTE_SERVICE_ERROR.throwException(returnStatus.getMessage());
             }
 
-            message += "success request:" + data;
+            long spend = System.currentTimeMillis() - start;
+            message += "success(" + spend + "ms) request:" + data;
             LOG.info(message);
 
             return JSON.parseObject(returnStatus.getData());
         } catch (Exception e) {
-            message += "fail message:" + e.getMessage() + " request:" + data;
+            long spend = System.currentTimeMillis() - start;
+            message += "fail(" + spend + "ms) message:" + e.getMessage() + " request:" + data;
             LOG.error(message);
 
             LOG.error("Request gateway exception, message: " + transferMetaToString(transferMeta) + ",exception：" + e.getMessage(), e);

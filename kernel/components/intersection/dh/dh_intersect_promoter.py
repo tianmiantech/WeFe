@@ -86,6 +86,10 @@ class DhIntersectionPromoter(DhIntersect):
             encrypt_provider_id_list = [ids.map(lambda k, v: self.promoter_id_process(k, self.r[i], self.p[i])) for
                                         i, ids
                                         in enumerate(provider_id_list)]
+
+        for provider_id in provider_id_list:
+            del provider_id
+
         LOGGER.info(f"encrypt_provider_id_list :{encrypt_provider_id_list[0].first()}")
         # (intersect_eeid, (promoter_eid, provider_eid))
         encrypt_intersect_id_list = [
@@ -154,6 +158,6 @@ class DhIntersectionPromoter(DhIntersect):
         intersect_ids = self._get_value_from_data(intersect_ids, data_instances)
         LOGGER.info("intersect_ids count {}".format(intersect_ids.count()))
         LOGGER.debug(f"first:{intersect_ids.first()}")
-        for i in list(intersect_ids.collect()):
-            LOGGER.debug(f"item:{i}")
+        # for i in list(intersect_ids.collect()):
+        #     LOGGER.debug(f"item:{i}")
         return intersect_ids, intersect_ids_map

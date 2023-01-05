@@ -86,6 +86,7 @@ class RDDSource(Table):
     def __del__(self):
         try:
             if hasattr(self, "_rdd") and self._rdd is not None:
+                print(f'prepare to del rdd, {self._namespace}, {self._name}, {self._rdd.id()}')
                 self._rdd.unpersist()
                 del self._rdd
         except:

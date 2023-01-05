@@ -16,17 +16,6 @@
 
 package com.welab.wefe.board.service.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.api.project.node.CheckExistEvaluationComponentApi;
 import com.welab.wefe.board.service.api.project.node.UpdateApi;
@@ -53,6 +42,16 @@ import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.ProjectFlowStatus;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author zane.luo
@@ -214,7 +213,9 @@ public class ProjectFlowNodeService {
 
         projectFlowNodeRepository.save(node);
 
+        input.stopwatch.tapAndPrint("start syncToOtherFormalProjectMembers");
         gatewayService.syncToOtherFormalProjectMembers(node.getProjectId(), input, UpdateApi.class);
+        input.stopwatch.tapAndPrint("end syncToOtherFormalProjectMembers");
 
         return list;
     }

@@ -31,7 +31,7 @@ from multiprocessing.pool import Pool
 
 FORCE_SERI = False
 LOGGER = log_utils.get_logger()
-BATCH_BYTE_SIZE = 10 * 1024 * 1024
+BATCH_BYTE_SIZE = 4 * 1024 * 1024
 
 
 def set_force_serialize(in_seri):
@@ -124,27 +124,37 @@ class ClickHouseStorage(Storage):
         sql = f"INSERT INTO {self.table_name} (eventDate,k,v,id) values"
         # write_batch = 500000
         now = datetime.datetime.now()
-
         data = []
         batch_count = None
         max_batch_count = 500000
+        use_generator_param = True
 
-        for k, v in kv_list:
-            k_bytes, v_bytes = self.kv_to_bytes(
-                k=k, v=v, use_serialize=use_serialize)
-            data.append([now, k_bytes, v_bytes, ''])
+        if use_generator_param:
 
-            if batch_count is None:
-                row_size = len(k_bytes) + len(v_bytes)
-                batch_count = BATCH_BYTE_SIZE // row_size
-                if batch_count > max_batch_count:
-                    batch_count = max_batch_count
+            def get_param_generator(kv_list):
+                for k,v in kv_list:
+                    k_bytes, v_bytes = self.kv_to_bytes(k=k, v=v, use_serialize=use_serialize)
+                    yield now, k_bytes, v_bytes, ''
+            
+            self.ck_execute(sql, get_param_generator(kv_list))
 
-            if len(data) == batch_count:
+        else:
+            for k, v in kv_list:
+                k_bytes, v_bytes = self.kv_to_bytes(
+                    k=k, v=v, use_serialize=use_serialize)
+                data.append([now, k_bytes, v_bytes, ''])
+
+                if batch_count is None:
+                    row_size = len(k_bytes) + len(v_bytes)
+                    batch_count = BATCH_BYTE_SIZE // row_size
+                    if batch_count > max_batch_count:
+                        batch_count = max_batch_count
+
+                if len(data) == batch_count:
+                    self.ck_execute(sql, data)
+                    data = []
+            if len(data) > 0:
                 self.ck_execute(sql, data)
-                data = []
-        if len(data) > 0:
-            self.ck_execute(sql, data)
 
         # max_workers = 2
         # use_pool = False
@@ -413,7 +423,7 @@ if __name__ == '__main__':
     pass
     # test_collect_mem()
 
-    # storage = ClickHouseStorage(_type=None, namespace="wefe_data", name="test_112101")
+    # storage = ClickHouseStorage(_type=None, namespace="wefe_data", name="test_121601")
     # clean_up_tables("442a9be30a66423c9798e6ae18a152a0")
     # storage.put_all([(1, 1), (2, 2)])
     # print(list(storage.collect()))
