@@ -158,7 +158,6 @@ public class ProjectFlowNodeService {
      */
     @Transactional(rollbackFor = Exception.class)
     public List<ProjectFlowNodeOutputModel> updateFlowNode(UpdateApi.Input input) throws StatusCodeWithException {
-        input.stopwatch.tapAndPrint("start updateFlowNode");
 
         // 对于网格搜索任务参数自动回写等程序自动修改参数的场景，不需要将状态修改为 editing
         if (CurrentAccountUtil.get() != null || input.fromGateway()) {
@@ -166,7 +165,6 @@ public class ProjectFlowNodeService {
             projectFlowService.updateFlowStatus(input.getFlowId(), ProjectFlowStatus.editing);
         }
 
-        input.stopwatch.tapAndPrint("start ProjectFlowNodeMySqlModel node = findOne");
         ProjectFlowNodeMySqlModel node = findOne(input.getFlowId(), input.getNodeId());
 
         List<ProjectFlowNodeOutputModel> list = new ArrayList<>();
@@ -200,8 +198,6 @@ public class ProjectFlowNodeService {
             node.setUpdatedBy(input);
         }
 
-        input.stopwatch.tapAndPrint("start if (node.getComponentType() == ComponentType.DataIO)");
-
         // If the parameters of the DataIO node have changed,
         // the node parameters with selective features in the child nodes need to be blank.
         if (node.getComponentType() == ComponentType.DataIO) {
@@ -215,7 +211,6 @@ public class ProjectFlowNodeService {
             }
         }
 
-        input.stopwatch.tapAndPrint("start projectFlowNodeRepository.save(node)");
         projectFlowNodeRepository.save(node);
 
         input.stopwatch.tapAndPrint("start syncToOtherFormalProjectMembers");

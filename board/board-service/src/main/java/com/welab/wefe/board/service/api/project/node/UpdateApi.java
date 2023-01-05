@@ -60,15 +60,12 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, UpdateApi.Output> {
 
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {
-            this.stopwatch.tapAndPrint("start checkAndStandardize");
             super.checkAndStandardize();
 
             // 对表单有效性进行检查
             Components
                     .get(componentType)
                     .deserializationParam(params);
-
-            this.stopwatch.tapAndPrint("end checkAndStandardize");
         }
 
         //region getter/setter
