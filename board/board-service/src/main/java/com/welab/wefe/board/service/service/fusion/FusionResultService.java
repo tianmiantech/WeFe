@@ -16,7 +16,12 @@
 package com.welab.wefe.board.service.service.fusion;
 
 
-import com.alibaba.fastjson.JSONObject;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.google.common.collect.Lists;
 import com.welab.wefe.board.service.api.project.fusion.result.ResultExportApi;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
@@ -32,12 +37,6 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.jdbc.JdbcClient;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.StringUtil;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author hunter.zhao
