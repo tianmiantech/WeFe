@@ -312,7 +312,7 @@ public class JdbcManager {
             ps = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             ps.setFetchSize(Integer.MIN_VALUE);
             ps.setFetchDirection(ResultSet.FETCH_REVERSE);
-            ps.setQueryTimeout(10 * 60); // 10 min
+            // ps.setQueryTimeout(10 * 60); // 10 min
             rs = ps.executeQuery();
             while (rs.next()) {
                 Map<String, String> fieldMap = new LinkedHashMap<>();
