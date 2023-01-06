@@ -64,10 +64,7 @@ public class FusionResultService extends AbstractService {
                 fusionResultStorageService.createRawDataSetTableName(input.getBusinessId()) + ".meta",
                 "header"
         );
-        LOG.info("headerModel = " + JSONObject.toJSONString(headerModel));
         List<String> columns = StringUtil.splitWithoutEmptyItem(headerModel.getV().toString().replace("\"", ""), ",");
-        LOG.info("columns = " + JSONObject.toJSONString(columns));
-
         List<DataItemModel> allList = fusionResultStorageService.getList(fusionResultStorageService.createRawDataSetTableName(input.getBusinessId()));
 
         JdbcClient client = JdbcClient.create(
