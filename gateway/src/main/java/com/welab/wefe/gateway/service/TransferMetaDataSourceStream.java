@@ -30,7 +30,7 @@ import com.welab.wefe.gateway.common.EndpointBuilder;
 import com.welab.wefe.gateway.common.KeyValueDataBuilder;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
 import com.welab.wefe.gateway.config.ConfigProperties;
-import com.welab.wefe.gateway.interceptor.RemoteGrpcProxyCallCredentials;
+import com.welab.wefe.gateway.interceptor.ClientCallCredentials;
 import com.welab.wefe.gateway.interceptor.SignVerifyMetadataBuilder;
 import com.welab.wefe.gateway.interceptor.SystemTimestampMetadataBuilder;
 import com.welab.wefe.gateway.service.base.AbstractTransferMetaDataSource;
@@ -142,7 +142,7 @@ public class TransferMetaDataSourceStream extends AbstractTransferMetaDataSource
                     GatewayMetaProto.Member dstMember = transferMeta.getDst();
                     originalChannel = channelCache.getNonNull(EndpointBuilder.endpointToUri(dstMember.getEndpoint()), tlsEnable, TlsUtil.getAllCertificates(tlsEnable));
                     // Set header
-                    NetworkDataTransferProxyServiceGrpc.NetworkDataTransferProxyServiceStub asyncClientStub = NetworkDataTransferProxyServiceGrpc.newStub(originalChannel).withCallCredentials(new RemoteGrpcProxyCallCredentials(null, new SignVerifyMetadataBuilder(null), new SystemTimestampMetadataBuilder(null)));
+                    NetworkDataTransferProxyServiceGrpc.NetworkDataTransferProxyServiceStub asyncClientStub = NetworkDataTransferProxyServiceGrpc.newStub(originalChannel).withCallCredentials(new ClientCallCredentials(null, new SignVerifyMetadataBuilder(null), new SystemTimestampMetadataBuilder(null)));
 
                     // Get the request flow associated with the server
                     requestStreamObserver = asyncClientStub.pushDataSource(new PushDataSourceResponseStreamObserver(finishFuture, asyncResponseCollector));
@@ -194,7 +194,7 @@ public class TransferMetaDataSourceStream extends AbstractTransferMetaDataSource
                 transferMeta = transferMeta.toBuilder().setTransferStatus(success ? GatewayMetaProto.TransferStatus.COMPLETE : GatewayMetaProto.TransferStatus.ERROR)
                         .setSequenceIsEnd(true).build();
                 // Set header
-                NetworkDataTransferProxyServiceGrpc.NetworkDataTransferProxyServiceStub asyncClientStub = NetworkDataTransferProxyServiceGrpc.newStub(originalChannel).withCallCredentials(new RemoteGrpcProxyCallCredentials(null, new SignVerifyMetadataBuilder(null), new SystemTimestampMetadataBuilder(null)));
+                NetworkDataTransferProxyServiceGrpc.NetworkDataTransferProxyServiceStub asyncClientStub = NetworkDataTransferProxyServiceGrpc.newStub(originalChannel).withCallCredentials(new ClientCallCredentials(null, new SignVerifyMetadataBuilder(null), new SystemTimestampMetadataBuilder(null)));
 
                 // Synchronizer
                 final SettableFuture<Void> finishFuture = SettableFuture.create();
