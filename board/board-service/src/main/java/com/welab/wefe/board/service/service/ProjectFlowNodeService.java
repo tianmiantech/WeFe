@@ -120,7 +120,6 @@ public class ProjectFlowNodeService {
                 if (dataSetInfo != null) {
                     member.dataSetRows = dataSetInfo.getTotalDataCount();
                     member.dataSetFeatures = dataSetInfo.getFeatureCount();
-                    member.labelDistribution = dataSetInfo.getLabelDistribution();
                 }
                 dataSet.members.add(member);
             }
@@ -205,8 +204,26 @@ public class ProjectFlowNodeService {
             for (ProjectFlowNodeMySqlModel flowNode : nodes) {
                 if (Components.get(flowNode.getComponentType()).canSelectFeatures()) {
                     flowNode.setParams(null);
+                    flowNode.setParamsVersion(System.currentTimeMillis());
                     projectFlowNodeRepository.save(flowNode);
                     list.add(ModelMapper.map(flowNode, ProjectFlowNodeOutputModel.class));
+                }
+            }
+        }
+
+        // 特征筛选组件重新选择特征后，后续节点已选择的特征需要重新选择。
+        if (node.getComponentType() == ComponentType.FeatureSelection) {
+            FlowGraph graph = jobService.createFlowGraph(input.getFlowId());
+            for (FlowGraphNode step : graph.getAllJobSteps()) {
+                // 有特征列表选项，且是当前编辑节点的子节点
+                if (Components.get(step.getComponentType()).canSelectFeatures()
+                        && graph.isChild(step.getNodeId(), input.getNodeId())) {
+
+                    ProjectFlowNodeMySqlModel stepNode = findOne(input.getFlowId(), step.getNodeId());
+                    stepNode.setParams(null);
+                    stepNode.setParamsVersion(System.currentTimeMillis());
+                    projectFlowNodeRepository.save(stepNode);
+                    list.add(ModelMapper.map(stepNode, ProjectFlowNodeOutputModel.class));
                 }
             }
         }
@@ -240,18 +257,18 @@ public class ProjectFlowNodeService {
         if (isOotMode) {
             JobMySqlModel jobMySqlModel = jobService.findByJobId(input.getJobId(), JobMemberRole.promoter);
             if (null == jobMySqlModel) {
-                throw new StatusCodeWithException("作业信息不存在。", StatusCode.DATA_NOT_FOUND);
+                throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "作业信息不存在。");
             }
             // Find out all the task information of the promoter under the job
             List<TaskMySqlModel> totalTaskMySqlModelList = taskService.listByJobId(jobMySqlModel.getJobId(), jobMySqlModel.getMyRole());
             if (CollectionUtils.isEmpty(totalTaskMySqlModelList)) {
-                throw new StatusCodeWithException("任务信息不存在。", StatusCode.DATA_NOT_FOUND);
+                throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "任务信息不存在。");
             }
 
             // Find out the task ID of the current model
             List<TaskMySqlModel> myRoleTaskMySqlModelList = taskService.findAll(jobMySqlModel.getJobId(), input.getModelNodeId(), jobMySqlModel.getMyRole());
             if (CollectionUtils.isEmpty(myRoleTaskMySqlModelList)) {
-                throw new StatusCodeWithException("模型任务信息不存在。", StatusCode.DATA_NOT_FOUND);
+                throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "模型任务信息不存在。");
             }
 
             // Find out all the branch nodes of the model with the same origin and judge whether there is an evaluation node in all nodes
@@ -267,17 +284,17 @@ public class ProjectFlowNodeService {
         }
         ProjectFlowMySqlModel projectFlowMySqlModel = projectFlowService.findOne(input.getFlowId());
         if (null == projectFlowMySqlModel) {
-            throw new StatusCodeWithException("流程信息不存在。", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "流程信息不存在。");
         }
         List<ProjectFlowNodeMySqlModel> flowNodeMySqlModelList = projectFlowNodeService.findNodesByFlowId(input.getFlowId());
         if (CollectionUtils.isEmpty(flowNodeMySqlModelList)) {
-            throw new StatusCodeWithException("流程节点信息不存在。", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "流程节点信息不存在。");
         }
 
         FlowGraph flowGraph = new FlowGraph(projectFlowMySqlModel.getFederatedLearningType(), flowNodeMySqlModelList);
         FlowGraphNode node = flowGraph.getNode(input.getNodeId());
         if (null == node) {
-            throw new StatusCodeWithException("节点信息不存在。", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "节点信息不存在。");
         }
 
         // Find related parent node types

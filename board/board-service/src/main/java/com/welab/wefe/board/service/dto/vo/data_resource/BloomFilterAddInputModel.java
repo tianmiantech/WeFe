@@ -17,7 +17,6 @@
 package com.welab.wefe.board.service.dto.vo.data_resource;
 
 import com.welab.wefe.board.service.constant.BloomfilterAddMethod;
-import com.welab.wefe.board.service.constant.DataSetAddMethod;
 import com.welab.wefe.board.service.util.primarykey.FieldInfo;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -65,21 +64,21 @@ public class BloomFilterAddInputModel extends BloomFilterUpdateInputModel {
         super.checkAndStandardize();
 
         if(CollectionUtils.isEmpty(fieldInfoList)){
-            throw new StatusCodeWithException("请设置主键！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "请设置主键！");
         }
 
         // 如果来源是数据库，则要求dataSourceId、sql不能为空
-        if (DataSetAddMethod.Database.equals(bloomfilterAddMethod)) {
+        if (BloomfilterAddMethod.Database.equals(bloomfilterAddMethod)) {
             if (StringUtils.isEmpty(dataSourceId)) {
-                throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
+                throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "dataSourceId在数据库不存在");
             }
 
             if (StringUtils.isEmpty(sql)) {
-                throw new StatusCodeWithException("请填入sql查询语句", StatusCode.PARAMETER_CAN_NOT_BE_EMPTY);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_CAN_NOT_BE_EMPTY, "请填入sql查询语句");
             }
         } else {
             if (StringUtils.isEmpty(filename)) {
-                throw new StatusCodeWithException("请指定数据集文件", StatusCode.PARAMETER_CAN_NOT_BE_EMPTY);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_CAN_NOT_BE_EMPTY, "请指定数据集文件");
             }
         }
     }

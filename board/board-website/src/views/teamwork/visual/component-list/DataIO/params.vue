@@ -81,6 +81,9 @@
                     <el-form-item label="数据量/特征量：">
                         {{ row.total_data_count ? row.total_data_count : row.row_count }} / {{ row.feature_count }}
                     </el-form-item>
+                    <el-form-item label="分类数：" v-if="(row.contains_y && row.label_species_count)">
+                        {{ row.label_species_count > 10000 ? '10000+':row.label_species_count }}
+                    </el-form-item>
                     <template v-if="row.contains_y">
                         <el-form-item v-if="row.y_positive_sample_count" label="正例样本数量：">
                             {{ row.y_positive_sample_count }}
@@ -187,7 +190,10 @@
                                     <span class="board-checkbox__inner"></span>
                                     <input :id="`label-${index * 5 + i - 1}`" class="board-checkbox__original" type="checkbox" />
                                 </span>
-                                <span class="board-checkbox__label">{{ list[index * 5 + i - 1] }}</span>
+                                <span class="board-checkbox__label">
+                                    {{ list[index * 5 + i - 1] }}
+                                    <FeatureTagVue :name="list[index * 5 + i - 1]" :data_set_id="vData.check_data_set_id" :featureTypeList="vData.featureTypeList" />
+                                </span>
                             </label>
                         </template>
                     </template>
@@ -271,6 +277,7 @@
                         :search-field="vData.rawSearch"
                         :paramsExclude="['allList', 'list']"
                         :member-id="vData.memberId"
+                        :needClassify="true"
                         @list-loaded="methods.listLoaded"
                         @selectDataSet="methods.selectDataSet"
                         @close-dialog="vData.showSelectDataSet=false;"
@@ -337,11 +344,14 @@
     } from 'vue';
     import { useStore } from 'vuex';
     import DataSetList from '@comp/views/data-set-list';
+    import FeatureTagVue from '../common/featureTag.vue';
+    import { getDataSetFeatureType } from '@src/service';
 
     export default {
         name:       'DataIO',
         components: {
             DataSetList,
+            FeatureTagVue,
         },
         props: {
             projectId:    String,
@@ -381,6 +391,7 @@
                 column_list:       [],
                 checkedColumns:    '',
                 checkedColumnsArr: [],
+                check_data_set_id: '',
                 showColumnList:    false,
                 columnListLoading: false,
                 indeterminate:     false,
@@ -396,9 +407,10 @@
                     contains_y:       '',
                     data_resource_id: '',
                 },
-                currentItem:  {}, // current member
-                providerList: [],
-                promoterList: [],
+                currentItem:     {}, // current member
+                providerList:    [],
+                promoterList:    [],
+                featureTypeList: {},
             });
 
             const methods = {
@@ -586,27 +598,46 @@
                         refInstance.getDataList(params);
                     });
                 },
+                getDataFeatureType(params){
+                    getDataSetFeatureType(params).then(res => {
+                        console.error('res', res);
+                        vData.featureTypeList = {
+                            ...vData.featureTypeList.value,
+                            [params.dataSetId]: res,
+                        };
+                    });
+                },
 
                 /* add dataset to list */
                 selectDataSet(item) {
+                    console.log('item',item);
+                    const { data_set_id, member_id, project_id } = item;
+
+                    methods.getDataFeatureType({ dataSetId: data_set_id, memberId: member_id, projectId: project_id });
+
                     vData.showSelectDataSet = false;
                     if(item.data_resource.derived_from) {
+                        // 衍生数据集
                         // derived dataset
                         const memberIds = {}; // cache member_id
 
                         item.members.forEach(member => {
                             if(member.job_role === 'promoter' || member.job_role === 'provider') {
                                 const features = member.feature_name_list ? member.feature_name_list.split(',') : [];
+                                const { data_resource,data_set_id } = item || {};
+                                const { label_species_count,derived_from,name } = data_resource || {};
 
                                 memberIds[member.member_id] = {
                                     member_role:       member.job_role,
                                     member_id:         member.member_id,
                                     member_name:       member.member_name,
                                     feature_count:     member.feature_count,
-                                    data_set_id:       item.data_set_id,
-                                    derived_from:      item.data_resource.derived_from,
+                                    data_set_id,
+                                    derived_from,
                                     row_count:         item.row_count ? item.row_count : item.data_resource.total_data_count,
-                                    name:              item.data_resource.name,
+                                    name,
+                                    /** 分类数,用于区分二分类 */
+                                    label_species_count,
                                     column_name_list:  features,
                                     $column_name_list: features,
                                 };
@@ -665,6 +696,7 @@
                 },
 
                 checkColumns(row, index) {
+                    vData.check_data_set_id = row.data_set_id;
                     vData.checkedColumns = '';
                     vData.memberIndex = index;
                     vData.checkedAll = false;
@@ -783,6 +815,7 @@
                 confirmCheck() {
                     vData.member_list[vData.memberIndex].$data_set_list[0].$column_name_list = [...vData.checkedColumnsArr];
                     vData.checkedColumnsArr = [];
+                    vData.check_data_set_id = '';
                     vData.showColumnList = false;
                 },
 
@@ -804,6 +837,7 @@
                                 derived_from:      row[0].derived_from,
                                 row_count:         row[0].row_count || row[0].total_data_count,
                                 name:              row[0].name,
+                                label_species_count: row[0].label_species_count,
                             });
                         }
                     });
@@ -811,6 +845,11 @@
                     return {
                         params: {
                             dataset_list,
+                        },
+                        callback: () => {
+                            store.dispatch('getFeatureType', {
+                                flow_id: props.flowId,
+                            });
                         },
                     };
                 },

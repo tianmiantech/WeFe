@@ -21,7 +21,7 @@
                             size="small"
                             type="primary"
                             @click="addFlowMethod"
-                            style="position: relative; top:-4px; left: -15px; background: lightgreen; border: none;"
+                            style="position: relative; top:-4px; left: -15px; background: #007ad1; border: none;"
                         >
                             新建训练
                         </el-button>
@@ -537,7 +537,7 @@
         methods: {
             async loadMemberList(keyward) {
                 const { code, data } = await this.$http.post({
-                    url:  '/account/query',
+                    url:  '/account/list_all',
                     data: {
                         page_size: 200,
                         name:      keyward,

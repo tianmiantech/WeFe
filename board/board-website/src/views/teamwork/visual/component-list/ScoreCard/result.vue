@@ -14,9 +14,21 @@
                             <template #default="props">
                                 <el-table :data="vData.resultTableData[props.$index].inlineTable" stripe border>
                                     <el-table-column label="分箱" prop="binning" />
-                                    <el-table-column label="评分" prop="score" />
-                                    <el-table-column label="woe" prop="woe" />
-                                    <el-table-column label="特征权重" prop="weight" />
+                                    <el-table-column label="评分" prop="score">
+                                        <template v-slot="scope">
+                                            {{ dealNumPrecision(scope.row.score) }}
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column label="woe" prop="woe">
+                                        <template v-slot="scope">
+                                            {{ dealNumPrecision(scope.row.woe) }}
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column label="特征权重" prop="weight">
+                                        <template v-slot="scope">
+                                            {{ dealNumPrecision(scope.row.weight) }}
+                                        </template>
+                                    </el-table-column>
                                 </el-table>
                             </template>
                         </el-table-column>
@@ -38,6 +50,7 @@
     import { reactive, ref, onBeforeMount } from 'vue';
     import CommonResult from '../common/CommonResult';
     import resultMixin from '../result-mixin';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     const mixin = resultMixin();
 
@@ -75,7 +88,7 @@
             };
 
             onBeforeMount(() => {
-                
+
             });
 
             const { $data, $methods } = mixin.mixin({
@@ -92,6 +105,7 @@
                 vData,
                 methods,
                 activeName,
+                dealNumPrecision,
             };
         },
     };

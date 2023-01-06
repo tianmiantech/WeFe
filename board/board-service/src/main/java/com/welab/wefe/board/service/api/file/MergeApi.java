@@ -73,7 +73,7 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
             // delete chunk
             FileUtils.deleteDirectory(dir);
         } catch (IOException e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
         // 检查上传的文件是否安全

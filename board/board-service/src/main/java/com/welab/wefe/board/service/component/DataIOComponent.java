@@ -66,6 +66,16 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
         return ComponentType.DataIO;
     }
 
+//    @Override
+//    public List<FlowDataSetOutputModel> traceFeatures(TableDataSetFeatureTracer checker, Params params) {
+//        for (DataSetItem dataSetItem : params.getDataSetList()) {
+//            checker.putTableDataSet(dataSetItem);
+//        }
+//
+//
+//        return null;
+//    }
+
     @Override
     protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
         List<JobMemberMySqlModel> jobMembers = graph.getMembers();
@@ -82,9 +92,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
             throw new FlowNodeException(node, "请为 promoter 指定数据集");
         }
 
-        JobMemberMySqlModel promoter = jobMembers.stream().filter(
-                        x -> x.getJobRole() == JobMemberRole.promoter && CacheObjects.getMemberId().equals(x.getMemberId()))
-                .findFirst().orElse(null);
+        JobMemberMySqlModel promoter = jobMembers.stream().filter(x -> x.getJobRole() == JobMemberRole.promoter && CacheObjects.getMemberId().equals(x.getMemberId())).findFirst().orElse(null);
 
         if (params.getDataSetList().stream().noneMatch(x -> x.memberId.equals(promoter.getMemberId()))) {
             throw new FlowNodeException(node, "请为 promoter 指定数据集");
@@ -140,14 +148,12 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
         }
 
         if (graph.getJob().getFederatedLearningType() == FederatedLearningType.mix) {
-            List<DataSetItem> dataSetItems = params.getDataSetList().stream()
-                    .filter(s -> s.getMemberRole() == JobMemberRole.promoter).collect(Collectors.toList());
+            List<DataSetItem> dataSetItems = params.getDataSetList().stream().filter(s -> s.getMemberRole() == JobMemberRole.promoter).collect(Collectors.toList());
             if (dataSetItems.size() < 2) {
                 throw new FlowNodeException(node, "混合建模需要发起方数据集最少2个");
             }
             for (int i = 0; i < dataSetItems.size() - 1; i++) {
-                if (!CollectionUtils.isEqualCollection(dataSetItems.get(i).getFeatures(),
-                        dataSetItems.get(i + 1).getFeatures())) {
+                if (!CollectionUtils.isEqualCollection(dataSetItems.get(i).getFeatures(), dataSetItems.get(i + 1).getFeatures())) {
                     throw new FlowNodeException(node, "混合建模需要保证发起方样本所选特征列表一致。");
                 }
             }
@@ -163,11 +169,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
         }
 
         // Create the input parameters of the components in the kernel according to the component parameter settings in the interface
-        DataSetItem myDataSetConfig = params.getDataSetList()
-                .stream()
-                .filter(x -> x.getMemberId().equals(CacheObjects.getMemberId()) && x.getMemberRole() == graph.getJob().getMyRole())
-                .findFirst()
-                .orElse(null);
+        DataSetItem myDataSetConfig = params.getDataSetList().stream().filter(x -> x.getMemberId().equals(CacheObjects.getMemberId()) && x.getMemberRole() == graph.getJob().getMyRole()).findFirst().orElse(null);
 
         if (myDataSetConfig == null) {
             throw new FlowNodeException(node, "请保存自己的数据集信息。");
@@ -178,14 +180,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
             throw new FlowNodeException(node, "找不到己方数据集，请检查数据集是否已删除。");
         }
 
-        JObject output = JObject
-                .create()
-                .append("data_set_id", myDataSet.getId())
-                .append("with_label", myDataSet.isContainsY())
-                .append("label_name", "y")
-                .append("namespace", myDataSet.getStorageNamespace())
-                .append("name", myDataSet.getStorageResourceName())
-                .append("need_features", myDataSetConfig.features);
+        JObject output = JObject.create().append("data_set_id", myDataSet.getId()).append("with_label", myDataSet.isContainsY()).append("label_name", "y").append("namespace", myDataSet.getStorageNamespace()).append("name", myDataSet.getStorageResourceName()).append("need_features", myDataSetConfig.features);
 
         return output;
     }
@@ -248,6 +243,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
         return Arrays.asList(OutputItem.of(Names.Data.NORMAL_DATA_SET, IODataType.DataSetInstance));
     }
 
+
     public static class Params extends AbstractDataIOParam<DataSetItem> {
 
         /**
@@ -261,10 +257,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
                 return null;
             }
 
-            TableDataSetMysqlModel myDataSet = Launcher
-                    .CONTEXT
-                    .getBean(TableDataSetService.class)
-                    .findOneById(myDataSetConfig.getDataSetId());
+            TableDataSetMysqlModel myDataSet = Launcher.CONTEXT.getBean(TableDataSetService.class).findOneById(myDataSetConfig.getDataSetId());
 
             return myDataSet;
         }
@@ -273,9 +266,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
          * Find my data set configuration from the configuration list
          */
         public DataSetItem getMyDataSetConfig() {
-            DataSetItem myDataSetConfig = Components
-                    .getDataIOComponent()
-                    .findMyData(dataSetList, x -> x.getMemberId());
+            DataSetItem myDataSetConfig = Components.getDataIOComponent().findMyData(dataSetList, x -> x.getMemberId());
 
             return myDataSetConfig;
         }

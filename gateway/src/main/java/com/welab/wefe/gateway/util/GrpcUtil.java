@@ -44,7 +44,7 @@ import com.welab.wefe.gateway.common.GrpcConstant;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
 import com.welab.wefe.gateway.entity.MemberEntity;
 import com.welab.wefe.gateway.interceptor.AntiTamperMetadataBuilder;
-import com.welab.wefe.gateway.interceptor.RemoteGrpcProxyCallCredentials;
+import com.welab.wefe.gateway.interceptor.ClientCallCredentials;
 import com.welab.wefe.gateway.interceptor.SignVerifyMetadataBuilder;
 import com.welab.wefe.gateway.interceptor.SystemTimestampMetadataBuilder;
 
@@ -70,7 +70,7 @@ public class GrpcUtil {
     }
 
     public static ManagedChannel getManagedChannel(String ip, int port) {
-        return ManagedChannelBuilder.forTarget(ip + ":" + port).maxInboundMessageSize(GrpcConstant.MAX_BOUND_MESSAGE_SIZE * 1024 * 1024).usePlaintext().build();
+        return ManagedChannelBuilder.forTarget(ip + ":" + port).maxInboundMessageSize(Integer.MAX_VALUE).usePlaintext().build();
     }
 
     public static ManagedChannel getSslManagedChannel(BasicMetaProto.Endpoint endpoint, X509Certificate[] x509Certificates) throws SSLException {
@@ -87,7 +87,7 @@ public class GrpcUtil {
         }
 
         NettyChannelBuilder builder = NettyChannelBuilder.forTarget(ip + ":" + port).negotiationType(NegotiationType.TLS)
-                .sslContext(sslContextBuilder.build()).maxInboundMetadataSize(GrpcConstant.MAX_BOUND_MESSAGE_SIZE * 1024 * 1024);
+                .sslContext(sslContextBuilder.build()).maxInboundMessageSize(Integer.MAX_VALUE);
         if (!certificatesIsEmpty) {
             builder.overrideAuthority("wefe.tianmiantech.com.test");
         }
@@ -202,7 +202,7 @@ public class GrpcUtil {
                 try {
                     originalChannel = channelCache.getNonNull(dstGatewayUri, tlsEnable, TlsUtil.getAllCertificates(tlsEnable));
                     NetworkDataTransferProxyServiceGrpc.NetworkDataTransferProxyServiceBlockingStub clientStub = NetworkDataTransferProxyServiceGrpc.newBlockingStub(originalChannel)
-                            .withCallCredentials(new RemoteGrpcProxyCallCredentials(transferMeta,
+                            .withCallCredentials(new ClientCallCredentials(transferMeta,
                                     new AntiTamperMetadataBuilder(transferMeta),
                                     new SignVerifyMetadataBuilder(transferMeta),
                                     new SystemTimestampMetadataBuilder(transferMeta)));
@@ -222,7 +222,7 @@ public class GrpcUtil {
                     }
                     if (GrpcUtil.checkIsConnectionDisableExp(e)) {
                         //The connection is unavailable. The address may have been updated. You need to refresh the destination address and try again
-                        // 用户没指定具体的专有网络地址
+                        // 用户没指定具体的专有网络地址（因为如果指定的专有网络则不能使用公开的地址，则没必要刷新）
                         if (null == PartnerConfigCache.getInstance().get(dstMember.getMemberId())) {
                             MemberEntity dstMemberEntity = MemberCache.getInstance().refreshCacheById(dstMember.getMemberId());
                             if (null != dstMemberEntity) {

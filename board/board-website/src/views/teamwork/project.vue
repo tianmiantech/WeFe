@@ -199,6 +199,7 @@
         watch: {
             '$route.query': {
                 handler (val) {
+                    console.log('route change')
                     this.activeTab = val.activeTab || 'allProjects';
                     for (const key in this.search) {
                         this.search[key] = '';
@@ -275,13 +276,16 @@
                 this.search.member_id = item.id;
             },
             searchList() {
-                this.$router.push({
-                    query: {
-                        ...this.search,
-                        activeTab: this.activeTab,
-                    },
-                });
-                this.getProjectList();
+                this.$nextTick(()=>{
+                    this.$router.push({
+                        query: {
+                            ...this.search,
+                            activeTab: this.activeTab,
+                            page_index: 1,
+                        },
+                    });
+                    this.getProjectList();
+                })
             },
             getProjectList() {
                 this.getProjectStatistic();

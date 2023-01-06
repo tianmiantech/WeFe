@@ -30,7 +30,6 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.dto.global_config.GatewayConfigModel;
-import com.welab.wefe.common.wefe.dto.global_config.MemberInfoModel;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -200,23 +199,23 @@ public class BaseGatewayService extends AbstractService {
         // The gateway responds to the signature and prompts abnormal information
         String signPermissionTips = "UNAUTHENTICATED";
         if (StringUtil.isEmpty(errorMsg) || errorMsg.contains(connectionDisableTips)) {
-            throw new StatusCodeWithException("gateway 连接不可用，请检查网关地址是否正确或网络连接是否正常或网关服务是否已启动", StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "gateway 连接不可用，请检查网关地址是否正确或网络连接是否正常或网关服务是否已启动");
         }
         if (errorMsg.contains(ipPermissionTips)) {
-            throw new StatusCodeWithException("请在 [全局设置] -> [系统设置] 菜单下添加 board 服务的 IP 地址到 gateway 白名单，详细信息请查看 [Dashboard] 菜单", StatusCode.IP_LIMIT);
+            throw new StatusCodeWithException(StatusCode.IP_LIMIT, "请在 [全局设置] -> [系统设置] 菜单下添加 board 服务的 IP 地址到 gateway 白名单，详细信息请查看 [Dashboard] 菜单");
         }
         if (errorMsg.contains(signPermissionTips)) {
-            throw new StatusCodeWithException("签名失败，请确保Member的公私钥正确性以及公钥是否已上传", StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "签名失败，请确保Member的公私钥正确性以及公钥是否已上传");
         }
     }
 
     private ManagedChannel getGrpcChannel(String gatewayUri) throws StatusCodeWithException {
         if (StringUtil.isEmpty(gatewayUri)) {
-            throw new StatusCodeWithException("请到 [全局设置] -> [系统设置] 菜单下配置网关地址信息，格式为 HOST:PORT", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "请到 [全局设置] -> [系统设置] 菜单下配置网关地址信息，格式为 HOST:PORT");
         }
 
         if (!isValidGatewayUri(gatewayUri)) {
-            throw new StatusCodeWithException("网关地址格式不正确，格式应为 HOST:PORT", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "网关地址格式不正确，格式应为 HOST:PORT");
         }
 
         return ManagedChannelBuilder
@@ -273,12 +272,12 @@ public class BaseGatewayService extends AbstractService {
 
     private ManagedChannel buildManagedChannel(String gatewayUri) throws Exception {
         if (!isValidGatewayUri(gatewayUri)) {
-            throw new StatusCodeWithException("网关地址格式不正确，格式应为 HOST:PORT", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "网关地址格式不正确，格式应为 HOST:PORT");
         }
-        MemberInfoModel memberInfoModel = globalConfigService.getModel(MemberInfoModel.class);
-        if (gatewayUri.equals(memberInfoModel.getMemberGatewayUri()) && Boolean.TRUE.equals(memberInfoModel.getMemberGatewayTlsEnable())) {
-            return getSslGrpcChannel(gatewayUri);
-        }
+//        MemberInfoModel memberInfoModel = globalConfigService.getModel(MemberInfoModel.class);
+//        if (gatewayUri.equals(memberInfoModel.getMemberGatewayUri()) && Boolean.TRUE.equals(memberInfoModel.getMemberGatewayTlsEnable())) {
+//            return getSslGrpcChannel(gatewayUri);
+//        }
         return getGrpcChannel(gatewayUri);
 
     }
@@ -295,7 +294,7 @@ public class BaseGatewayService extends AbstractService {
                 .negotiationType(NegotiationType.TLS)
                 .overrideAuthority("wefe.tianmiantech.com.test")
                 .sslContext(sslContextBuilder.build())
-                .maxInboundMetadataSize(2000 * 1024 * 1024)
+                .maxInboundMessageSize(2000 * 1024 * 1024)
                 .build();
     }
 

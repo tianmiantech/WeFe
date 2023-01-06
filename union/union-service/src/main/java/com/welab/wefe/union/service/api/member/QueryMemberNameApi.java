@@ -16,19 +16,14 @@
 
 package com.welab.wefe.union.service.api.member;
 
-import com.welab.wefe.common.data.mongodb.entity.union.Member;
-import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
+import com.welab.wefe.union.service.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author yuxin.zhang
@@ -36,25 +31,11 @@ import java.util.stream.Collectors;
 @Api(path = "member/map", name = "member_map", allowAccessWithSign = true)
 public class QueryMemberNameApi extends AbstractApi<BaseInput, JObject> {
     @Autowired
-    protected MemberMongoReop memberMongoReop;
-
-    private static JObject apply(Member member) {
-        return JObject.create()
-                .put("name", member.getName())
-                .put("hidden", Integer.parseInt(member.getHidden()))
-                .put("freezed", Integer.parseInt(member.getFreezed()))
-                .put("lostContact", Integer.parseInt(member.getLostContact()));
-    }
+    private MemberService memberService;
 
     @Override
     protected ApiResult<JObject> handle(BaseInput input) throws StatusCodeWithException {
-        List<Member> memberList = memberMongoReop.find(null);
-        Map<String, JObject> collect = memberList.stream().collect(
-                Collectors.toMap(
-                        Member::getMemberId,
-                        QueryMemberNameApi::apply
-                ));
-        return success(JObject.create(collect));
+        return success(JObject.create(memberService.queryMap(input)));
     }
 
 }

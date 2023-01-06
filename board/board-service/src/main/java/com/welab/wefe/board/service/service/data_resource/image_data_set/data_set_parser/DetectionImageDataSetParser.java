@@ -212,7 +212,7 @@ public class DetectionImageDataSetParser extends AbstractImageDataSetParser {
             } catch (StreamException e) {
                 StatusCode.PARAMETER_VALUE_INVALID.throwException("xml 文件反序列化失败：" + xmlFile.getAbsolutePath());
             } catch (IOException e) {
-                StatusCode.FILE_IO_ERROR.throwException(e);
+                StatusCode.FILE_IO_READ_ERROR.throwException(e);
             }
         } else {
             annotation = new Annotation();
@@ -222,7 +222,7 @@ public class DetectionImageDataSetParser extends AbstractImageDataSetParser {
         try {
             image = ImageIO.read(new FileInputStream(imageFile));
         } catch (IOException e) {
-            StatusCode.FILE_IO_ERROR.throwException(e);
+            StatusCode.FILE_IO_READ_ERROR.throwException(e);
         }
         annotation.size = new Size();
         annotation.size.depth = image.getRaster().getNumDataElements();

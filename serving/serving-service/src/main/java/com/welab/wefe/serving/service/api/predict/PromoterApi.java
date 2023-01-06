@@ -16,10 +16,6 @@
 
 package com.welab.wefe.serving.service.api.predict;
 
-import java.util.Map;
-
-import org.apache.commons.collections4.MapUtils;
-
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -33,6 +29,9 @@ import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.predicter.Predictor;
 import com.welab.wefe.serving.service.service.CacheObjects;
+import org.apache.commons.collections4.MapUtils;
+
+import java.util.Map;
 
 
 /**
@@ -111,14 +110,14 @@ public class PromoterApi extends AbstractApi<PromoterApi.Input, PredictResult> {
             super.checkAndStandardize();
             if (!isBatch) {
                 if (StringUtil.isEmpty(userId)) {
-                    throw new StatusCodeWithException("单条预测时，参数userId不能为空", StatusCode.PARAMETER_VALUE_INVALID);
+                    throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "单条预测时，参数userId不能为空");
                 }
 
                 return;
             }
 
             if (MapUtils.isEmpty(featureDataMap)) {
-                throw new StatusCodeWithException("批量预测时，参数predictParamsList不能为空", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "批量预测时，参数predictParamsList不能为空");
             }
         }
 

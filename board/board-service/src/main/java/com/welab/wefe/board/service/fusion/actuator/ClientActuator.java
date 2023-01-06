@@ -78,8 +78,6 @@ public class ClientActuator extends AbstractPsiClientActuator {
         FieldInfoService service = Launcher.getBean(FieldInfoService.class);
 
         columnList = service.columnList(businessId);
-
-
         /**
          * Calculate the fragment size based on the number of fields
          */
@@ -96,7 +94,6 @@ public class ClientActuator extends AbstractPsiClientActuator {
          * Find primary key composition fields
          */
         fieldInfoList = service.fieldInfoList(businessId);
-
         /**
          * Initialize dataset header
          */
@@ -257,7 +254,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
                 JSONObject.class
         );
 
-        LOG.info("downloadBloomFilter end {} ", result);
+        LOG.info("downloadBloomFilter end");
 
         PsiActuatorMeta meta = JObject.toJavaObject(result, PsiActuatorMeta.class);
         meta.setBfByDto(meta.getBfDto());

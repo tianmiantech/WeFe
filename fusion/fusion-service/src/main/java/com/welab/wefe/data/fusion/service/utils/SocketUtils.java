@@ -67,13 +67,13 @@ public class SocketUtils {
         Socket socket = null;
         for (int remainingCount = retryCount; remainingCount >= 0; remainingCount--) {
             try {
-                socket = new Socket(InetAddress.getByName(ip), port);
+                socket = new Socket(ip, port);
                 socket.setSoTimeout(10000);
                 if (socket != null) {
                     break;
                 }
             } catch (IOException e) {
-                LOG.warn("fusion task log , new socket error ,", e);
+                LOG.warn("fusion task log , new socket error , ip=" + ip + ", port=" + port, e);
             } finally {
                 if (retryDelay > 0) {
                     try {

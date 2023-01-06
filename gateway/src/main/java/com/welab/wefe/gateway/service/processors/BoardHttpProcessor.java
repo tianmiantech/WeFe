@@ -123,7 +123,7 @@ public class BoardHttpProcessor extends AbstractProcessor {
 
         String secretKey = SM4Util.generateKeyString();
         String encryptSecretKey = AsymmetricCryptoUtil.encryptByPublicKey(secretKey, dstMember.getPublicKey(), dstMember.getSecretKeyType());
-        String encryptBody = SM4Util.encrypt(secretKey, body);
+        String encryptBody = SM4Util.encryptBase64(secretKey, body);
         GatewayMetaProto.Content content = contentBuilder.setStrData(encryptSecretKey + ":" + encryptBody).build();
 
         return transferMeta.toBuilder().setContent(content).build();
@@ -144,6 +144,6 @@ public class BoardHttpProcessor extends AbstractProcessor {
         String encryptSecretKey = cipherContent.split(":")[0];
         String encryptContent = cipherContent.split(":")[1];
         String secretKey = AsymmetricCryptoUtil.decryptByPrivateKey(encryptSecretKey, selfMember.getPrivateKey(), selfMember.getSecretKeyType());
-        return SM4Util.decrypt(secretKey, encryptContent);
+        return SM4Util.decryptBase64(secretKey, encryptContent);
     }
 }

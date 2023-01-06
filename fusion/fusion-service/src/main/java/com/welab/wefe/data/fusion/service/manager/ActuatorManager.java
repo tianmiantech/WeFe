@@ -150,15 +150,13 @@ public class ActuatorManager {
         if (StringUtils.isNotBlank(socketServerIp)) {
             return socketServerIp;
         }
-//        InetAddress addr = null;
-//        try {
-//            addr = InetAddress.getLocalHost();
-//        } catch (UnknownHostException e) {
-//            e.printStackTrace();
-//            LOG.error("get ip error : " + e.getMessage());
-//        }
-//        return addr.getHostAddress();
-        return "";
-
+        InetAddress addr = null;
+        try {
+            addr = InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            LOG.error("get ip error : " + e.getMessage());
+        }
+        return addr.getHostAddress();
     }
 }

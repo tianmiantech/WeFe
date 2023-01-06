@@ -57,7 +57,7 @@ public class DataResourceContractService extends AbstractContractService {
 
         } catch (
                 Exception e) {
-            throw new StatusCodeWithException("Failed to update DataResource information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to update DataResource information: " + e.getMessage());
         }
 
     }

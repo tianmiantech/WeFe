@@ -23,7 +23,7 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.member.MemberOutput;
-import com.welab.wefe.union.service.service.MemberContractService;
+import com.welab.wefe.union.service.service.contract.MemberContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

@@ -94,7 +94,7 @@ public class ProjectMemberService {
 
         for (ProjectMemberInput member : input.getMemberList()) {
             if (checkExistMember(member.getMemberId(), members)) {
-                throw new StatusCodeWithException("您此次添加的成员 " + CacheObjects.getMemberName(member.getMemberId()) + " 已在该项目中，不可重复添加", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "您此次添加的成员 " + CacheObjects.getMemberName(member.getMemberId()) + " 已在该项目中，不可重复添加");
             }
             JobMemberRole role = member.getMemberRole();
             if (role.equals(JobMemberRole.provider)) {
@@ -117,7 +117,7 @@ public class ProjectMemberService {
         }
         members = findListByProjectId(input.getProjectId());
         if (!checkMembers(members)) {
-            throw new StatusCodeWithException("改变项目类型时不允许有重复成员存在。", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "改变项目类型时不允许有重复成员存在。");
         }
 
 
@@ -365,16 +365,16 @@ public class ProjectMemberService {
         }
 
         if (CollectionUtils.isEmpty(projectMemberMySqlModelList)) {
-            throw new StatusCodeWithException("找不到项目的任何参与方信息。", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到项目的任何参与方信息。");
         }
         JobMySqlModel jobMySqlModel = jobService.findByJobId(input.getOotJobId(), JobMemberRole.promoter);
         if (null == jobMySqlModel) {
-            throw new StatusCodeWithException("找不到原流程任务信息。", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到原流程任务信息。");
         }
 
         List<JobMemberMySqlModel> jobMemberMySqlModelList = jobMemberService.findListByJobId(input.getOotJobId());
         if (CollectionUtils.isEmpty(jobMemberMySqlModelList)) {
-            throw new StatusCodeWithException("找不到原流程任何参与方信息。", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到原流程任何参与方信息。");
         }
 
         List<ProjectMemberMySqlModel> resultList = new ArrayList<>();
@@ -387,7 +387,7 @@ public class ProjectMemberService {
                     filter(x -> x.getMemberId().equals(memberId)).findFirst().orElse(null);
             if (FederatedLearningType.vertical.equals(jobMySqlModel.getFederatedLearningType())) {
                 if (null == projectMemberMySqlModel || projectMemberMySqlModel.isExited()) {
-                    throw new StatusCodeWithException("成员: " + CacheObjects.getMemberName(memberId) + " 已退出, 禁止打分验证", StatusCode.DATA_NOT_FOUND);
+                    throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "成员: " + CacheObjects.getMemberName(memberId) + " 已退出, 禁止打分验证");
                 }
             }
             if (null != projectMemberMySqlModel) {

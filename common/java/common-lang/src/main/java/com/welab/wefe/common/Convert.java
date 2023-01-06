@@ -16,7 +16,6 @@
 
 package com.welab.wefe.common;
 
-import com.alibaba.fastjson.util.TypeUtils;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.StringUtil;
 
@@ -172,7 +171,19 @@ public class Convert {
     //region LocalDateTime
 
     public static Date toDate(Object value) {
-        return TypeUtils.castToDate(value);
+        if (value == null) {
+            return null;
+        }
+
+//        // 最大限度兼容各种格式的时间格式
+//        if (value instanceof String) {
+//            value = String.valueOf(value)
+//                    .replaceAll("T", " ")
+//                    .replaceAll("/", "-")
+//                    .replaceAll("(?<=-)(\\d)(?=\\b)", "0$1")
+//                    .replaceAll("(?<= )(\\d{1,2}:\\d{1,2})(?=$)", "$1:00");
+//        }
+        return cn.hutool.core.convert.Convert.toDate(value);
     }
 
     public LocalDateTime toLocalDateTime(Date value) {

@@ -17,7 +17,7 @@
 package com.welab.wefe.serving.service.feature.sql;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.wefe.enums.DatabaseType;
+import com.welab.wefe.common.jdbc.base.DatabaseType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

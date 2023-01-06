@@ -16,7 +16,6 @@
 
 package com.welab.wefe.board.service.dto.entity.data_set;
 
-import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.wefe.enums.ColumnDataType;
 
@@ -25,7 +24,7 @@ import java.util.Map;
 /**
  * @author Zane
  */
-public class DataSetColumnOutputModel extends AbstractOutputModel {
+public class DataSetColumnOutputModel {
 
     @Check(name = "数据集Id")
     private String dataSetId;

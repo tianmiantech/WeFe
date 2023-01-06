@@ -137,29 +137,6 @@
             </el-form-item>
         </div>
         <el-form>
-            <el-form-item v-if="!vData.check_result" label="是否计算分布">
-                <el-switch v-model="vData.prob_need_to_bin" active-color="#13ce66"/>
-            </el-form-item>
-            <el-form-item v-if="vData.prob_need_to_bin">
-                <el-select
-                    v-model="vData.calcDistribution.bin_method"
-                    placeholder="请选择"
-                    style="width: 84px;"
-                >
-                    <el-option
-                        v-for="item in vData.bin_method"
-                        :key="item.value"
-                        :label="item.text"
-                        :value="item.value"
-                    />
-                </el-select>
-                <el-input-number
-                    v-model="vData.calcDistribution.bin_num"
-                    type="number"
-                    controls-position="right"
-                />箱
-                <span style="color: #999;">（建议设置10-20箱）</span>
-            </el-form-item>
             <el-form-item v-if="vData.exitVertComponent" label="是否启用PSI分箱（预测概览概率/评分）">
                 <el-switch v-model="vData.need_psi" active-color="#13ce66"/>
             </el-form-item>
@@ -400,10 +377,6 @@
                     binNumber:    6,
                     split_points: '',
                 },
-                calcDistribution: {
-                    bin_method: 'bucket',
-                    bin_num:    10,
-                },
                 exitVertComponent: false,
             });
 
@@ -419,7 +392,7 @@
                     });
 
                     if (code === 0 && data && data.params && data.params.dataset_list) {
-                        const { dataset_list, eval_type, pos_label, psi_param, score_param } = data.params;
+                        const { dataset_list, eval_type, pos_label, psi_param } = data.params;
 
                         for(const memberIndex in vData.member_list) {
                             const member = vData.member_list[memberIndex];
@@ -464,17 +437,6 @@
                                 binNumber:    bin_num ,
                                 split_points: split_points ? split_points.join() : '',
                             };
-                        }
-                        if(score_param) {
-                            const { prob_need_to_bin, bin_num, bin_method } = score_param;
-
-                            vData.prob_need_to_bin = prob_need_to_bin;
-                            if(prob_need_to_bin) {
-                                vData.calcDistribution = {
-                                    bin_num,
-                                    bin_method,
-                                };
-                            }
                         }
                     }
                 },
@@ -768,9 +730,8 @@
                 },
 
                 checkParams() {
-                    const { binValue, exitVertComponent, need_psi, prob_need_to_bin, calcDistribution } = vData;
+                    const { binValue, exitVertComponent, need_psi } = vData;
                     const { method, binNumber, split_points } = binValue;
-                    const { bin_num, bin_method } = calcDistribution;
                     const isCustom = method === 'custom';
                     const array = replace(split_points).replace(/，/g,',').replace(/,$/, '').split(',');
 
@@ -789,11 +750,6 @@
                             bin_method:   exitVertComponent ? method : undefined,
                             bin_num:      exitVertComponent && !isCustom ? binNumber : undefined,
                             split_points: exitVertComponent && isCustom ?  [...new Set([0, ...re ,1])] : undefined,
-                        },
-                        score_param: vData.check_result ? undefined : {
-                            prob_need_to_bin,
-                            bin_num,
-                            bin_method,
                         },
                     };
 

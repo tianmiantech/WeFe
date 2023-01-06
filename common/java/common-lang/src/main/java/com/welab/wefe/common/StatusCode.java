@@ -54,20 +54,21 @@ public enum StatusCode {
     DATA_NOT_FOUND(10019, "数据不存在"),
     REQUEST_API_NOT_FOUND(10020, "接口不存在：%s"),
     PRIMARY_KEY_CONFLICT(10026, "数据 (%s) 已经存在 (%s)"),
-    UNEXPECTED_ENUM_CASE(10027, "枚举值错误：(%s)"),
+    UNEXPECTED_ENUM_CASE(10027, "意料之外的枚举值：%s"),
     DIRECTORY_NOT_FOUND(10028, "字典不存在"),
     PARAMETER_CAN_NOT_BE_EMPTY(10029, "%s 参数不能为空!"),
     SQL_ERROR(10030, "SQL执行失败"),
     INVALID_MEMBER(10031, "非法成员 (%s)"),
-    FILE_IO_ERROR(10035, "文件读写失败"),
+    FILE_IO_READ_ERROR(10035, "文件读取失败"),
     RSA_ERROR(10036, "Rsa 错误"),
     DUPLICATE_RESOURCE_ERROR(10037, "资源重复"),
 
 
-    FILE_DOES_NOT_EXIST(10038, "文件不存在，fileId: (%s)"),
+    FILE_DOES_NOT_EXIST(10038, "文件不存在: %s"),
     INVALID_PARAMETER(10039, "参数非法 (%s)"),
     MISSING_DATA(10040, "缺失数据 (%s)"),
     UPDATE_PASWWORD(10050, "请先修改密码"),
+    FILE_IO_WRITE_ERROR(10051, "文件写入失败"),
 
     /**
      * Database related error status code
@@ -115,20 +116,34 @@ public enum StatusCode {
     }
 
     public StatusCodeWithException throwException() throws StatusCodeWithException {
-        throw new StatusCodeWithException(this.getMessage(), this);
+        throw new StatusCodeWithException(this, this.getMessage());
     }
 
     public StatusCodeWithException throwException(String message) throws StatusCodeWithException {
-        throw new StatusCodeWithException(message, this);
+        throw new StatusCodeWithException(this, message);
     }
 
     public StatusCodeWithException throwException(Exception e) throws StatusCodeWithException {
-        throw new StatusCodeWithException(e.getClass().getSimpleName() + " " + e.getMessage(), this);
+        throw new StatusCodeWithException(this, e.getClass().getSimpleName() + " " + e.getMessage());
     }
 
+    public void throwExWithFormatMsg(Enum aEnum) throws StatusCodeWithException {
+        String message = getMessage(aEnum.name());
+        throw new StatusCodeWithException(this, message);
+    }
+
+    /**
+     * 抛出异常
+     * 使用状态码对应的 description format string 拼接 message
+     */
+    public void throwExWithFormatMsg(String... args) throws StatusCodeWithException {
+        String message = getMessage(args);
+        throw new StatusCodeWithException(this, message);
+    }
 
     @Override
     public String toString() {
         return code + "";
     }
+
 }

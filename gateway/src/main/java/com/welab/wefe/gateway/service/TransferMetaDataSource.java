@@ -33,7 +33,7 @@ import com.welab.wefe.gateway.common.KeyValueDataBuilder;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
 import com.welab.wefe.gateway.config.ConfigProperties;
 import com.welab.wefe.gateway.entity.MemberEntity;
-import com.welab.wefe.gateway.interceptor.RemoteGrpcProxyCallCredentials;
+import com.welab.wefe.gateway.interceptor.ClientCallCredentials;
 import com.welab.wefe.gateway.interceptor.SignVerifyMetadataBuilder;
 import com.welab.wefe.gateway.interceptor.SystemTimestampMetadataBuilder;
 import com.welab.wefe.gateway.service.base.AbstractTransferMetaDataSource;
@@ -241,7 +241,7 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
             originalChannel = channelCache.getNonNull(EndpointBuilder.endpointToUri(dstMember.getEndpoint()), tlsEnable, TlsUtil.getAllCertificates(tlsEnable));
             // Set header
             NetworkDataTransferProxyServiceGrpc.NetworkDataTransferProxyServiceStub asyncClientStub = NetworkDataTransferProxyServiceGrpc.newStub(originalChannel)
-                    .withCallCredentials(new RemoteGrpcProxyCallCredentials(null,
+                    .withCallCredentials(new ClientCallCredentials(null,
                             new SignVerifyMetadataBuilder(null),
                             new SystemTimestampMetadataBuilder(null)));
 
@@ -324,7 +324,7 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
                 transferMeta = transferMeta.toBuilder().setTransferStatus(success ? GatewayMetaProto.TransferStatus.COMPLETE : GatewayMetaProto.TransferStatus.ERROR).build();
                 // Set header
                 NetworkDataTransferProxyServiceGrpc.NetworkDataTransferProxyServiceStub asyncClientStub = NetworkDataTransferProxyServiceGrpc.newStub(originalChannel)
-                        .withCallCredentials(new RemoteGrpcProxyCallCredentials(null,
+                        .withCallCredentials(new ClientCallCredentials(null,
                                 new SignVerifyMetadataBuilder(null),
                                 new SystemTimestampMetadataBuilder(null)));
 
