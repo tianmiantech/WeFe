@@ -65,8 +65,10 @@ public class FusionResultService extends AbstractService {
                 "header"
         );
         List<String> columns = StringUtil.splitWithoutEmptyItem(headerModel.getV().toString().replace("\"", ""), ",");
+        LOG.info("begin getList from ck");
+        long start = System.currentTimeMillis();
         List<DataItemModel> allList = fusionResultStorageService.getList(fusionResultStorageService.createRawDataSetTableName(input.getBusinessId()));
-
+        LOG.info("end getList from ck, duration = " + (System.currentTimeMillis() - start));
         JdbcClient client = JdbcClient.create(
                 input.getDatabaseType(),
                 input.getHost(),
