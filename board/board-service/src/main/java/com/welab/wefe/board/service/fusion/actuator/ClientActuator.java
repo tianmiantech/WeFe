@@ -237,8 +237,12 @@ public class ClientActuator extends AbstractPsiClientActuator {
 
     @Override
     public int bucketSize() {
-        return dataCount.intValue() % shardSize == 0 ? dataCount.intValue() / shardSize
+        LOG.info("dataCount = " + dataCount.intValue());
+        LOG.info("shardSize = " + shardSize);
+        int bucketSize = dataCount.intValue() % shardSize == 0 ? dataCount.intValue() / shardSize
                 : dataCount.intValue() / shardSize + 1;
+        LOG.info("bucketSize = " + bucketSize);
+        return bucketSize;
     }
 
     @Override

@@ -62,7 +62,7 @@ public abstract class AbstractPsiServerActuator extends AbstractPsiActuator impl
     @Override
     public byte[][] dataTransform(List<String> bsList) {
 
-        LOG.info("align start...");
+        LOG.info("align start...bsList size = " + bsList.size());
 
         byte[][] bs = new byte[bsList.size()][];
 
@@ -91,7 +91,7 @@ public abstract class AbstractPsiServerActuator extends AbstractPsiActuator impl
      */
     @Override
     public void receiveResult(List<String> rs) {
-
+        LOG.info("receiveResult size = " + rs.size());
         fusionCount.add(rs.size());
 
         List<JObject> fruit = new ArrayList<>();

@@ -105,10 +105,11 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator impl
             e.printStackTrace();
             LOG.error("slice：{} fusion error: {}", e.getMessage());
         }
+        LOG.info("dataTransform result size = " + result.length);
 
         //matching
         List<JObject> fruit = this.parseAndMatch(result, data, rInv);
-
+        LOG.info("parseAndMatch result size = " + fruit.size());
         dump(fruit);
 
         sendFusionDataToServer(fruit);
