@@ -60,7 +60,7 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator impl
         init();
 
         while (!isServerReady(businessId)) {
-            ThreadUtil.sleep(100);
+            ThreadUtil.sleep(2000);
         }
 
         psiClientMeta = downloadActuatorMeta();
