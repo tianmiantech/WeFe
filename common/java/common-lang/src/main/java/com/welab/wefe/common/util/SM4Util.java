@@ -16,6 +16,7 @@
 
 package com.welab.wefe.common.util;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
@@ -81,6 +82,38 @@ public class SM4Util {
     public static String decrypt(String hexKey, String ciphertext) throws Exception {
         byte[] keyData = ByteUtils.fromHexString(hexKey);
         byte[] resultData = ByteUtils.fromHexString(ciphertext);
+        byte[] srcData = decryptCbcPadding(keyData, resultData);
+        return new String(srcData, ENCODING);
+    }
+
+    /**
+     * sm4 encrypt
+     *
+     * @param hexKey    Hexadecimal key（ignore case）
+     * @param plaintext Plaintext
+     * @return Hexadecimal encrypted string
+     * @throws Exception
+     * @explain Encryption mode：CBC
+     */
+    public static String encryptBase64(String hexKey, String plaintext) throws Exception {
+        byte[] keyData = ByteUtils.fromHexString(hexKey);
+        byte[] srcData = plaintext.getBytes(ENCODING);
+        byte[] cipherArray = encryptCbcPadding(keyData, srcData);
+        return Base64Util.encode(cipherArray);
+    }
+
+    /**
+     * sm4 decrypt
+     *
+     * @param hexKey Hexadecimal key（ignore case）
+     * @param ciphertext   ciphertext
+     * @return plaintext
+     * @throws Exception
+     * @explain Encryption mode：CBC
+     */
+    public static String decryptBase64(String hexKey, String ciphertext) throws Exception {
+        byte[] keyData = ByteUtils.fromHexString(hexKey);
+        byte[] resultData = Base64.decodeBase64(ciphertext);
         byte[] srcData = decryptCbcPadding(keyData, resultData);
         return new String(srcData, ENCODING);
     }
