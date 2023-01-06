@@ -111,7 +111,6 @@ public class FusionResultService extends AbstractService {
         if (s.length() > 0) {
             s.deleteCharAt(s.length() - 1).append(")");
         }
-        LOG.info("create s = " + s);
         try {
             client.execute(s.toString());
         } catch (Exception e) {
