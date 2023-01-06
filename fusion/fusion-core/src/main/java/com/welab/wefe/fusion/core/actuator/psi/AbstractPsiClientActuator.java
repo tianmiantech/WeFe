@@ -64,10 +64,10 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator impl
         }
 
         psiClientMeta = downloadActuatorMeta();
+        int bucketSize = bucketSize();
+        CountDownLatch latch = new CountDownLatch(bucketSize);
 
-        CountDownLatch latch = new CountDownLatch(bucketSize());
-
-        for (int j = 0; j < bucketSize(); j++) {
+        for (int j = 0; j < bucketSize; j++) {
             int index = j;
             CommonThreadPool.run(() -> execute(index), latch);
         }
@@ -105,10 +105,11 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator impl
             e.printStackTrace();
             LOG.error("slice：{} fusion error: {}", e.getMessage());
         }
+        LOG.info("psi log, dataTransform result size = " + result.length);
 
         //matching
         List<JObject> fruit = this.parseAndMatch(result, data, rInv);
-
+        LOG.info("psi log, parseAndMatch result size = " + fruit.size());
         dump(fruit);
 
         sendFusionDataToServer(fruit);
@@ -123,7 +124,7 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator impl
      */
     private List<JObject> parseAndMatch(byte[][] ret, List<JObject> cur, List<BigInteger> rInv) {
 
-        LOG.info("client start parse data...");
+        LOG.info("psi log, client start parse data...");
 
         List<JObject> fruit = new ArrayList<>();
         for (int i = 0; i < ret.length; i++) {
