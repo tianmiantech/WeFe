@@ -389,7 +389,7 @@ public class JdbcManager {
                 ps.setString(1, s);
                 ps.addBatch();
                 count++;
-                // 每1000条记录插入一次
+                // 每50000条记录插入一次
                 if (count % 50000 == 0) {
                     ps.executeBatch();
                     conn.commit();

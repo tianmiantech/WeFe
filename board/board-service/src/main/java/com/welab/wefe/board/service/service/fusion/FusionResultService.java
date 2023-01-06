@@ -16,8 +16,12 @@
 package com.welab.wefe.board.service.service.fusion;
 
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,10 +30,8 @@ import com.google.common.collect.Lists;
 import com.welab.wefe.board.service.api.project.fusion.result.ResultExportApi;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
 import com.welab.wefe.board.service.dto.fusion.FusionResultExportProgress;
-import com.welab.wefe.board.service.fusion.enums.ExportStatus;
 import com.welab.wefe.board.service.fusion.manager.ExportManager;
 import com.welab.wefe.board.service.service.AbstractService;
-import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.storage.common.Constant;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
@@ -82,23 +84,37 @@ public class FusionResultService extends AbstractService {
 
         FusionResultExportProgress progress = new FusionResultExportProgress(input.getBusinessId(), tableName, allList.size());
         ExportManager.set(input.getBusinessId(), progress);
-
-        // todo:（Winter）这里建议使用 client.saveBatch() 进行批量写入。
-        allList.forEach(x -> {
-            CommonThreadPool.run(
-                    () -> {
-                        try {
-                            writer(columns, x, client, tableName);
-                            progress.increment();
-                        } catch (Exception e) {
-                            progress.setStatus(ExportStatus.failure);
-                            e.printStackTrace();
-                            return;
-                        }
-                    }
-            );
-        });
-
+        int partitionSize = 500000;
+        int taskNum = Math.max(allList.size() / partitionSize, 1);
+        List<List<DataItemModel>> lists = partitionList(allList, taskNum);
+        ExecutorService executorService1 = Executors.newFixedThreadPool(10);
+        for (int i = 0; i < lists.size(); i++) {
+            List<DataItemModel> subList = lists.get(i);
+            final int finalI = i;
+            executorService1.submit(() -> {
+                try {
+                    LOG.info("begin writerBatch index = " + finalI + ", partition size = " + subList.size());
+                    writerBatch(columns, subList, client, tableName);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+//        todo:（Winter）这里建议使用 client.saveBatch() 进行批量写入。
+//        allList.forEach(x -> {
+//            CommonThreadPool.run(
+//                    () -> {
+//                        try {
+//                            writer(columns, x, client, tableName);
+//                            progress.increment();
+//                        } catch (Exception e) {
+//                            progress.setStatus(ExportStatus.failure);
+//                            e.printStackTrace();
+//                            return;
+//                        }
+//                    }
+//            );
+//        });
         return tableName;
     }
 
@@ -138,5 +154,56 @@ public class FusionResultService extends AbstractService {
         sql.deleteCharAt(sql.length() - 1).append(")");
 
         client.execute(sql.toString());
+    }
+
+    private void writerBatch(List<String> headers, List<DataItemModel> models, JdbcClient client, String tableName)
+            throws Exception {
+        StringBuilder sql = new StringBuilder().append("INSERT INTO  " + tableName + "(");
+        headers.forEach(x -> {
+            sql.append(x + ",");
+        });
+        sql.deleteCharAt(sql.length() - 1).append(") value (");
+        headers.forEach(x -> {
+            sql.append("?,");
+        });
+        sql.deleteCharAt(sql.length() - 1).append(")");
+        LOG.info("writerBatch sql = " + sql.toString());
+
+        client.saveBatch(sql.toString(), models, (s) -> {
+            List<String> list = Lists.newArrayList();
+            list.add(String.valueOf(s.getK()));
+            list.addAll(StringUtil.splitWithoutEmptyItem(String.valueOf(s.getV()), ","));
+            return list.toArray();
+        });
+    }
+    
+    /**
+     * 分片
+     */
+    public static <T> List<List<T>> partitionList(List<T> list, int numPartitions) {
+        if (list == null) {
+            throw new NullPointerException("The set must not be null");
+        }
+        List<List<T>> partitions = new ArrayList<>(numPartitions);
+        for (int i = 0; i < numPartitions; i++)
+            partitions.add(i, new ArrayList<>());
+
+        int size = list.size();
+        int partitionSize = (int) Math.ceil((double) size / numPartitions);
+        if (numPartitions <= 0)
+            throw new IllegalArgumentException("'numPartitions' must be greater than 0");
+
+        Iterator<T> iterator = list.iterator();
+        int partitionToWrite = 0;
+        int cont = 0;
+        while (iterator.hasNext()) {
+            partitions.get(partitionToWrite).add(iterator.next());
+            cont++;
+            if (cont >= partitionSize) {
+                partitionToWrite++;
+                cont = 0;
+            }
+        }
+        return partitions;
     }
 }
