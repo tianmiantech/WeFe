@@ -114,9 +114,9 @@ public class FusionResultService extends AbstractService {
         if (s.length() > 0) {
             s.deleteCharAt(s.length() - 1).append(")");
         }
-        LOG.info("create sql = " + sql);
+        LOG.info("create s = " + s);
         try {
-            client.execute(sql);
+            client.execute(s.toString());
         } catch (Exception e) {
             e.printStackTrace();
             throw new StatusCodeWithException(StatusCode.SQL_ERROR, "create table error:" + e.getMessage());
