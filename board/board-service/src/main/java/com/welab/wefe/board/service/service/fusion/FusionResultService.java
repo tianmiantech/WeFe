@@ -16,6 +16,7 @@
 package com.welab.wefe.board.service.service.fusion;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.welab.wefe.board.service.api.project.fusion.result.ResultExportApi;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
@@ -31,6 +32,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.jdbc.JdbcClient;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.StringUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -62,8 +64,9 @@ public class FusionResultService extends AbstractService {
                 fusionResultStorageService.createRawDataSetTableName(input.getBusinessId()) + ".meta",
                 "header"
         );
+        LOG.info("headerModel = " + JSONObject.toJSONString(headerModel));
         List<String> columns = StringUtil.splitWithoutEmptyItem(headerModel.getV().toString().replace("\"", ""), ",");
-
+        LOG.info("columns = " + JSONObject.toJSONString(columns));
 
         List<DataItemModel> allList = fusionResultStorageService.getList(fusionResultStorageService.createRawDataSetTableName(input.getBusinessId()));
 
