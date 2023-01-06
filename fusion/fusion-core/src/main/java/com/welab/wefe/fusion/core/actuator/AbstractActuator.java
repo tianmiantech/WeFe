@@ -54,18 +54,12 @@ public abstract class AbstractActuator implements AutoCloseable {
     protected final long startTime = System.currentTimeMillis();
 
     /**
-     * Maximum execution time of a task
-     */
-    private TimeSpan maxExecuteTimeSpan = new TimeSpan(15 * 60 * 1000);
-
-    /**
      * Maximum execution time
      *
      * @param minute
      * @return
      */
     public AbstractActuator setMaxExecuteTimeSpan(int minute) {
-        this.maxExecuteTimeSpan = new TimeSpan(minute * 60 * 1000L);
         return this;
     }
 
@@ -163,39 +157,37 @@ public abstract class AbstractActuator implements AutoCloseable {
     private void execute() {
         try {
 
-            LOG.info("task execute...");
+            LOG.info("psi log, task execute...");
 
             fusion();
 
-            LOG.info("task execute end!");
+            LOG.info("psi log, task execute end!");
 
         } catch (Exception e) {
-            e.printStackTrace();
-            LOG.info("error: ", e);
+            LOG.error("psi log, error: ", e);
             this.error = e.getMessage();
-            LOG.info("error message: {}", e.getMessage());
+            LOG.error("psi log, error message: {}", e.getMessage());
         }
     }
 
     private void heartbeat() {
-        LOG.info("finish waiting...");
+        LOG.info("psi log, finish waiting...");
 
         while (true) {
             sleep(1000);
 
-            if (System.currentTimeMillis() - startTime < maxExecuteTimeSpan.toMs()
-                    && !isFinish() && StringUtil.isEmpty(error)) {
+            if (!isFinish() && StringUtil.isEmpty(error)) {
                 continue;
             }
 
             try {
-                LOG.info("close task...");
+                LOG.info("psi log, close task...");
                 close();
             } catch (Exception e) {
-                LOG.error(e.getClass().getSimpleName() + " close task error：" + e.getMessage());
+                LOG.error("psi log, " + e.getClass().getSimpleName() + " close task error：" + e.getMessage());
             }
 
-            LOG.info("{} spend: {} ms", businessId, System.currentTimeMillis() - startTime);
+            LOG.info("psi log, {} spend: {} ms", businessId, System.currentTimeMillis() - startTime);
             //remove Actuator
             ActuatorCache.remove(businessId);
             return;
