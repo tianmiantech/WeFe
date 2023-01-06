@@ -56,9 +56,9 @@ public class ClientActuator extends AbstractPsiClientActuator {
     public Set<String> columnList;
 
     /**
-     * Fragment size, default 10000
+     * Fragment size, default 200000
      */
-    public int shardSize = 10000;
+    public int shardSize = 100000;
     public List<FieldInfo> fieldInfoList;
     public String dstMemberId;
     DataSetStorageService dataSetStorageService;

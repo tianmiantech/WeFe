@@ -54,18 +54,12 @@ public abstract class AbstractActuator implements AutoCloseable {
     protected final long startTime = System.currentTimeMillis();
 
     /**
-     * Maximum execution time of a task
-     */
-    private TimeSpan maxExecuteTimeSpan = new TimeSpan(15 * 60 * 1000);
-
-    /**
      * Maximum execution time
      *
      * @param minute
      * @return
      */
     public AbstractActuator setMaxExecuteTimeSpan(int minute) {
-        this.maxExecuteTimeSpan = new TimeSpan(minute * 60 * 1000L);
         return this;
     }
 
@@ -183,8 +177,7 @@ public abstract class AbstractActuator implements AutoCloseable {
         while (true) {
             sleep(1000);
 
-            if (System.currentTimeMillis() - startTime < maxExecuteTimeSpan.toMs()
-                    && !isFinish() && StringUtil.isEmpty(error)) {
+            if (!isFinish() && StringUtil.isEmpty(error)) {
                 continue;
             }
 
