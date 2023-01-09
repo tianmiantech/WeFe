@@ -45,6 +45,8 @@ public class FusionResultExportProgress {
         this.totalDataCount = totalDataCount;
         this.tableName = tableName;
         this.status = ExportStatus.exporting;
+        this.processedCount = 0;
+        this.progress = 0;
     }
 
     public int getProgress() {
