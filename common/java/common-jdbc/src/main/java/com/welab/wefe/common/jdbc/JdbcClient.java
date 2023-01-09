@@ -83,16 +83,18 @@ public class JdbcClient {
         PreparedStatement ps = null;
         try {
             ps = conn.prepareStatement(sql);
+            int count = 0;
             for (int rowIndex = 0; rowIndex < rows.size(); rowIndex++) {
                 Object[] row = rows.get(rowIndex);
                 for (int i = 0; i < row.length; i++) {
                     ps.setObject(i + 1, row[i]);
                 }
-
+                count++;
                 ps.addBatch();
                 if (rowIndex % 50000 == 0) {
                     ps.executeBatch();
                     ps.clearBatch();
+                    LOG.info("JdbcClient saveBatch count: " + count + ", rows size = " + rows.size());
                 }
             }
 
@@ -102,8 +104,8 @@ public class JdbcClient {
             LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
         } finally {
             close(conn, ps, null);
+            LOG.info("saveBatch spend：" + rows.size() + "rows " + (System.currentTimeMillis() - start) + "ms");
         }
-        System.out.println("saveBatch spend：" + rows.size() + "rows " + (System.currentTimeMillis() - start) + "ms");
     }
 
     /**
