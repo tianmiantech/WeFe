@@ -30,8 +30,10 @@ import com.google.common.collect.Lists;
 import com.welab.wefe.board.service.api.project.fusion.result.ResultExportApi;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
 import com.welab.wefe.board.service.dto.fusion.FusionResultExportProgress;
+import com.welab.wefe.board.service.fusion.enums.ExportStatus;
 import com.welab.wefe.board.service.fusion.manager.ExportManager;
 import com.welab.wefe.board.service.service.AbstractService;
+import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.storage.common.Constant;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
@@ -53,12 +55,10 @@ public class FusionResultService extends AbstractService {
     FusionResultStorageService fusionResultStorageService;
 
     public String export(ResultExportApi.Input input) throws Exception {
-
         FusionTaskMySqlModel taskMySqlModel = fusionTaskService.findByBusinessId(input.getBusinessId());
         if (taskMySqlModel == null) {
             StatusCode.DATA_NOT_FOUND.throwException();
         }
-
         //table header
         DataItemModel headerModel = fusionResultStorageService.getByKey(
                 Constant.DBName.WEFE_DATA,
@@ -66,10 +66,6 @@ public class FusionResultService extends AbstractService {
                 "header"
         );
         List<String> columns = StringUtil.splitWithoutEmptyItem(headerModel.getV().toString().replace("\"", ""), ",");
-        LOG.info("begin getList from ck");
-        long start = System.currentTimeMillis();
-        List<DataItemModel> allList = fusionResultStorageService.getList(fusionResultStorageService.createRawDataSetTableName(input.getBusinessId()));
-        LOG.info("end getList from ck, duration = " + (System.currentTimeMillis() - start));
         JdbcClient client = JdbcClient.create(
                 input.getDatabaseType(),
                 input.getHost(),
@@ -78,44 +74,42 @@ public class FusionResultService extends AbstractService {
                 input.getPassword(),
                 input.getDatabaseName()
         );
-
         String tableName = "fusion_result_" + input.getBusinessId() + "_" + DateUtil.toString(new Date(), DateUtil.Y4_M2_D2_H2_M2_S2);
-        create(columns, client, tableName);
-
-        FusionResultExportProgress progress = new FusionResultExportProgress(input.getBusinessId(), tableName, allList.size());
-        ExportManager.set(input.getBusinessId(), progress);
-        int partitionSize = 500000;
-        int taskNum = Math.max(allList.size() / partitionSize, 1);
-        List<List<DataItemModel>> lists = partitionList(allList, taskNum);
-        ExecutorService executorService1 = Executors.newFixedThreadPool(5);
-        for (int i = 0; i < lists.size(); i++) {
-            List<DataItemModel> subList = lists.get(i);
-            final int finalI = i;
-            executorService1.submit(() -> {
-                try {
-                    LOG.info("begin writerBatch index = " + finalI + ", partition size = " + subList.size());
-                    writerBatch(columns, subList, client, tableName);
-                    progress.increment(subList.size());
-                } catch (Exception e) {
-                    e.printStackTrace();
+        FusionResultExportProgress tmp = new FusionResultExportProgress(input.getBusinessId(), tableName, 100);
+        ExportManager.set(input.getBusinessId(), tmp);
+        CommonThreadPool.run(()->{
+            try {
+                LOG.info("begin create table");
+                create(columns, client, tableName);
+                LOG.info("begin getList from ck");
+                long start = System.currentTimeMillis();
+                List<DataItemModel> allList;
+                allList = fusionResultStorageService.getList(fusionResultStorageService.createRawDataSetTableName(input.getBusinessId()));
+                LOG.info("end getList from ck, duration = " + (System.currentTimeMillis() - start));
+                FusionResultExportProgress progress = new FusionResultExportProgress(input.getBusinessId(), tableName, allList.size());
+                ExportManager.set(input.getBusinessId(), progress);
+                int partitionSize = 500000;
+                int taskNum = Math.max(allList.size() / partitionSize, 1);
+                List<List<DataItemModel>> lists = partitionList(allList, taskNum);
+                ExecutorService executorService1 = Executors.newFixedThreadPool(5);
+                for (int i = 0; i < lists.size(); i++) {
+                    List<DataItemModel> subList = lists.get(i);
+                    final int finalI = i;
+                    executorService1.submit(() -> {
+                        try {
+                            LOG.info("begin writerBatch index = " + finalI + ", partition size = " + subList.size());
+                            writerBatch(columns, subList, client, tableName);
+                            progress.increment(subList.size());
+                        } catch (Exception e) {
+                            LOG.error("writerBatch error", e);
+                            progress.setStatus(ExportStatus.failure);
+                        }
+                    });
                 }
-            });
-        }
-//        todo:（Winter）这里建议使用 client.saveBatch() 进行批量写入。
-//        allList.forEach(x -> {
-//            CommonThreadPool.run(
-//                    () -> {
-//                        try {
-//                            writer(columns, x, client, tableName);
-//                            progress.increment();
-//                        } catch (Exception e) {
-//                            progress.setStatus(ExportStatus.failure);
-//                            e.printStackTrace();
-//                            return;
-//                        }
-//                    }
-//            );
-//        });
+            } catch (Exception e1) {
+                LOG.error("export fusion result error", e1);
+            }
+        });
         return tableName;
     }
 
