@@ -75,8 +75,8 @@ public class FusionResultService extends AbstractService {
                 input.getDatabaseName()
         );
         String tableName = "fusion_result_" + input.getBusinessId() + "_" + DateUtil.toString(new Date(), DateUtil.Y4_M2_D2_H2_M2_S2);
-        FusionResultExportProgress tmp = new FusionResultExportProgress(input.getBusinessId(), tableName, 100);
-        ExportManager.set(input.getBusinessId(), tmp);
+        final FusionResultExportProgress progress = new FusionResultExportProgress(input.getBusinessId(), tableName, 100);
+        ExportManager.set(input.getBusinessId(), progress);
         CommonThreadPool.run(()->{
             try {
                 LOG.info("begin create table");
@@ -86,8 +86,7 @@ public class FusionResultService extends AbstractService {
                 List<DataItemModel> allList;
                 allList = fusionResultStorageService.getList(fusionResultStorageService.createRawDataSetTableName(input.getBusinessId()));
                 LOG.info("end getList from ck, duration = " + (System.currentTimeMillis() - start));
-                FusionResultExportProgress progress = new FusionResultExportProgress(input.getBusinessId(), tableName, allList.size());
-                ExportManager.set(input.getBusinessId(), progress);
+                progress.setTotalDataCount(allList.size());
                 int partitionSize = 500000;
                 int taskNum = Math.max(allList.size() / partitionSize, 1);
                 List<List<DataItemModel>> lists = partitionList(allList, taskNum);
