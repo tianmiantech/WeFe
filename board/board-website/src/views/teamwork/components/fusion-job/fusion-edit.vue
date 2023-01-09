@@ -929,7 +929,7 @@
                                 } else {
                                     exportTimer = setTimeout(() => {
                                         methods.getExportProgress({ progress: data.progress });
-                                    }, 1000);
+                                    }, 3000);
                                 }
                             // }
                         });
