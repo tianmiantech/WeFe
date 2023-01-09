@@ -80,6 +80,7 @@ public class JdbcClient {
     public void saveBatch(String sql, List<Object[]> rows) throws Exception {
         long start = System.currentTimeMillis();
         Connection conn = createConnection(true);
+        conn.setAutoCommit(false);
         PreparedStatement ps = null;
         try {
             ps = conn.prepareStatement(sql);
