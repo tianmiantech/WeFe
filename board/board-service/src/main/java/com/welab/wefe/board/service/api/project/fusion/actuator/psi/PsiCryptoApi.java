@@ -17,6 +17,9 @@ package com.welab.wefe.board.service.api.project.fusion.actuator.psi;
 
 
 
+import java.io.IOException;
+import java.util.List;
+
 import com.welab.wefe.board.service.dto.fusion.PsiMeta;
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
@@ -27,9 +30,6 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-
-import java.io.IOException;
-import java.util.List;
 
 /**
  * @author hunter.zhao
@@ -42,7 +42,6 @@ import java.util.List;
 )
 public class PsiCryptoApi extends AbstractApi<PsiCryptoApi.Input, PsiMeta> {
 
-
     @Override
     protected ApiResult<PsiMeta> handle(Input input) throws StatusCodeWithException, IOException {
         ServerActuator actuator = (ServerActuator) ActuatorManager.get(input.getBusinessId());
@@ -50,7 +49,6 @@ public class PsiCryptoApi extends AbstractApi<PsiCryptoApi.Input, PsiMeta> {
             LOG.error("Actuator not found,businessId is {}", input.getBusinessId());
             throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "Actuator not found");
         }
-
         return success(PsiMeta.of(actuator.dataTransform(input.getBs())));
     }
 

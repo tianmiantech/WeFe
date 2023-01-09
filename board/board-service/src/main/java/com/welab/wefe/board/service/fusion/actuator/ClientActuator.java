@@ -275,11 +275,8 @@ public class ClientActuator extends AbstractPsiClientActuator {
             stringList.add(Base64Util.encode(bs[i]));
         }
 
-        PsiMeta result = gatewayService.callOtherMemberBoard(dstMemberId,
-                PsiCryptoApi.class,
-                new PsiCryptoApi.Input(businessId, stringList),
-                PsiMeta.class
-        );
+        PsiMeta result = gatewayService.callOtherMemberBoard(dstMemberId, PsiCryptoApi.class,
+                new PsiCryptoApi.Input(businessId, stringList), PsiMeta.class);
 
         List<String> list = result.getBs();
 
