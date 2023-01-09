@@ -93,12 +93,13 @@ public class JdbcClient {
                 ps.addBatch();
                 if (rowIndex % 50000 == 0) {
                     ps.executeBatch();
+                    conn.commit();
                     ps.clearBatch();
                     LOG.info("JdbcClient saveBatch count: " + count + ", rows size = " + rows.size());
                 }
             }
-
             ps.executeBatch();
+            conn.commit();
             ps.clearBatch();
         } catch (SQLException e) {
             LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
