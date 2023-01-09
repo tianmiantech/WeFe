@@ -74,7 +74,7 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator impl
 //        }
 
 //        latch.await();
-        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        ExecutorService executorService = Executors.newFixedThreadPool(6);
         for (int j = 0; j < bucketSize; j++) {
             final int index = j;
             executorService.submit(() -> {
