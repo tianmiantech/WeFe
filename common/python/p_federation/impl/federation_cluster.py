@@ -84,9 +84,6 @@ def _thread_receive(receive_func, name, tag, session_id, src, dst, backend):
     transfer_meta = TransferMeta(sessionId=session_id, tag=tag)
 
     recv_meta = _await_receive(receive_func, transfer_meta)
-    # backend = conf_utils.get_backend_from_string(
-    #     conf_utils.get_comm_config(consts.COMM_CONF_KEY_BACKEND)
-    # )
     storage_type = GlobalConfigDao.get_function_compute_config().cloud_provider
     transfer_action = recv_meta.extField
 
@@ -182,7 +179,7 @@ def _get_fcsource(transfer_content):
                 cloud_store_temp_auth['temp_auth_end_point']:
             fcs._instance_name = object_data_json['cloud_store_temp_auth']['instance_name']
         elif consts.STORAGETYPE.OSS in cloud_store_temp_auth['temp_auth_end_point'] \
-                or consts.STORAGETYPE.COS in cloud_store_temp_auth['temp_auth_end_point'] :
+                or consts.STORAGETYPE.COS in cloud_store_temp_auth['temp_auth_end_point']:
             fcs._bucket_name = object_data_json['cloud_store_temp_auth']['temp_auth_bucket_name']
 
     session_id = RuntimeInstance.SESSION.get_session_id()
@@ -217,10 +214,6 @@ def _get_obj_storage_source_name(src, dst, session_id):
 
 def _fill_cache(parties, local, session_id):
     for party in parties:
-        # if party == local:
-        #     continue
-        # _cache_get_obj_storage_source[party] = _create_source(_get_obj_storage_source_name(party, local, session_id),
-        #                                                       NAMESPACE.PROCESS)
         _cache_remote_obj_storage_source[party] = _create_source(_get_obj_storage_source_name(local, party, session_id),
                                                                  NAMESPACE.PROCESS)
 
@@ -313,7 +306,7 @@ class FederationRuntime(Federation):
             if obj._fcs:
                 for index, party in enumerate(parties):
                     log_msg = f"src={self.local_party}, dst={party}, name={name}, tag={tag}, " \
-                        f"session_id={self._session_id}"
+                              f"session_id={self._session_id}"
                     LOGGER.debug(f"[REMOTE] sending FCSource: {log_msg}")
 
                     ret = self._send(transfer_type=TransferAction.FCSOURCE, name=name, tag=tag, dst_party=party,
@@ -397,7 +390,7 @@ class FederationRuntime(Federation):
         elif transfer_type == TransferAction.DSOURCE:
             transfer_process = consts.GatewayTransferProcess.DSOURCE_PROCESS
 
-            #Todo 这里需要添加对存储类型的判断可能需要board修改代码
+            # Todo 这里需要添加对存储类型的判断可能需要board修改代码
             dst_backend = RuntimeInstance.get_member_backend(dst_party.get_member_id())
             dst_fc_provider = RuntimeInstance.get_member_fc_provider(dst_party.get_member_id())
 
@@ -452,7 +445,7 @@ class FederationRuntime(Federation):
             content = gateway_meta_pb2.Content(strData=json.dumps(object_data))
 
         session_id = f"{self._session_id}-{name}-{tag}-{self.local_party.role}-{self.local_party.member_id}-" \
-            f"{dst_party.role}-{dst_party.member_id}"
+                     f"{dst_party.role}-{dst_party.member_id}"
 
         log_msg = f"src={self.local_party.role}, dst={dst_party.role}, name={name}, tag={tag}, session_id={session_id}"
         LOGGER.debug(f"[REMOTE] sending table: {log_msg}")

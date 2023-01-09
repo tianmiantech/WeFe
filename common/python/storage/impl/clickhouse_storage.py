@@ -17,7 +17,6 @@ import datetime
 import uuid
 import multiprocessing
 from collections.abc import Iterable
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from fnmatch import fnmatch
 
 from clickhouse_driver import Client
@@ -46,11 +45,6 @@ def get_db_conn(database='default'):
     ck_user = conf_utils.get_comm_config(consts.COMM_CONF_KEY_CK_USER)
     ck_pwd = conf_utils.get_comm_config(consts.COMM_CONF_KEY_CK_PWD)
     ck_port = conf_utils.get_comm_config(consts.COMM_CONF_KEY_CK_PORT)
-
-    # env_ck_host = '10.10.62.1'
-    # ck_user = 'welab'
-    # ck_pwd = 'welab2020'
-    # env_ck_port = 9000
 
     return Client(host=env_ck_host or ck_host, user=ck_user, password=ck_pwd, database=database,
                   port=env_ck_port or ck_port)
@@ -122,7 +116,7 @@ class ClickHouseStorage(Storage):
     def put_all(self, kv_list: Iterable, use_serialize=True, chunk_size=100000):
         use_serialize = set_force_serialize(use_serialize)
         sql = f"INSERT INTO {self.table_name} (eventDate,k,v,id) values"
-        # write_batch = 500000
+
         now = datetime.datetime.now()
         data = []
         batch_count = None
@@ -132,10 +126,10 @@ class ClickHouseStorage(Storage):
         if use_generator_param:
 
             def get_param_generator(kv_list):
-                for k,v in kv_list:
+                for k, v in kv_list:
                     k_bytes, v_bytes = self.kv_to_bytes(k=k, v=v, use_serialize=use_serialize)
                     yield now, k_bytes, v_bytes, ''
-            
+
             self.ck_execute(sql, get_param_generator(kv_list))
 
         else:
@@ -155,25 +149,6 @@ class ClickHouseStorage(Storage):
                     data = []
             if len(data) > 0:
                 self.ck_execute(sql, data)
-
-        # max_workers = 2
-        # use_pool = False
-        # if use_pool:
-        #     with ThreadPoolExecutor(max_workers=max_workers) as t:
-        #         data = []
-        #         all_task = []
-        #         for k, v in kv_list:
-        #             k_bytes, v_bytes = self.kv_to_bytes(k=k, v=v, use_serialize=use_serialize)
-        #             data.append([now, k_bytes, v_bytes, str(uuid.uuid1())])
-        #             if len(data) == write_batch:
-        #                 all_task.append(t.submit(self.ck_execute, sql, data))
-        #                 data = []
-        #         if len(data) > 0:
-        #             all_task.append(t.submit(self.ck_execute, sql, data))
-
-        #         for future in as_completed(all_task):
-        #             future.result()
-        # else:
 
     def put_if_absent(self, k, v, use_serialize=True):
         use_serialize = set_force_serialize(use_serialize)

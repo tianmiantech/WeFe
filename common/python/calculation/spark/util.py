@@ -32,7 +32,6 @@ from pyspark.rdd import RDD
 from pyspark import SparkContext
 from pyspark.serializers import BatchedSerializer
 
-
 _STORAGE_CLIENT = "_storage_client"
 RDD_ATTR_NAME = "_rdd"
 
@@ -80,12 +79,20 @@ class WefeSparkContext(SparkContext):
         self.context = super().getOrCreate()
 
     def parallelize(self, c: Iterable, numSlices: int, data_count: int):
+        """
+        parallelize
+
+        支持传入data_count的数据量, 避免数据集强制转list再取长度
+
+        :param c: 数据集
+        :param numSlices: 分片数
+        :param data_count: 数据量
+        :return:
+        """
         c_size = data_count
 
-        batchSize = max(1, min(c_size // numSlices,
-                        self.context._batchSize or 1024))
-        serializer = BatchedSerializer(
-            self.context._unbatched_serializer, batchSize)
+        batchSize = max(1, min(c_size // numSlices, self.context._batchSize or 1024))
+        serializer = BatchedSerializer(self.context._unbatched_serializer, batchSize)
 
         def reader_func(temp_filename):
             return self.context._jvm.PythonRDD.readRDDFromFile(self.context._jsc, temp_filename, numSlices)
