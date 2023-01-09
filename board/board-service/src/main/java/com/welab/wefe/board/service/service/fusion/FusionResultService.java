@@ -87,7 +87,7 @@ public class FusionResultService extends AbstractService {
         int partitionSize = 500000;
         int taskNum = Math.max(allList.size() / partitionSize, 1);
         List<List<DataItemModel>> lists = partitionList(allList, taskNum);
-        ExecutorService executorService1 = Executors.newFixedThreadPool(10);
+        ExecutorService executorService1 = Executors.newFixedThreadPool(5);
         for (int i = 0; i < lists.size(); i++) {
             List<DataItemModel> subList = lists.get(i);
             final int finalI = i;
