@@ -90,7 +90,7 @@ public class JdbcClient {
                 }
 
                 ps.addBatch();
-                if (rowIndex % 500 == 0) {
+                if (rowIndex % 50000 == 0) {
                     ps.executeBatch();
                     ps.clearBatch();
                 }
