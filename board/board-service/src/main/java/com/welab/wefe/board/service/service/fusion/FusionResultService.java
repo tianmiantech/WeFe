@@ -95,6 +95,7 @@ public class FusionResultService extends AbstractService {
                 try {
                     LOG.info("begin writerBatch index = " + finalI + ", partition size = " + subList.size());
                     writerBatch(columns, subList, client, tableName);
+                    progress.increment(subList.size());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

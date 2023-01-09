@@ -76,7 +76,18 @@ public class FusionResultExportProgress {
     public synchronized void increment() {
         processedCount++;
 
-        if (processedCount == totalDataCount) {
+        if (processedCount >= totalDataCount) {
+            this.finishTime = System.currentTimeMillis();
+            this.status = ExportStatus.success;
+        }
+    }
+    
+    public synchronized void increment(int count) {
+        if (count < 0) {
+            return;
+        }
+        processedCount += count;
+        if (processedCount >= totalDataCount) {
             this.finishTime = System.currentTimeMillis();
             this.status = ExportStatus.success;
         }
