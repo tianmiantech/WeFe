@@ -436,6 +436,7 @@
         nextTick,
         reactive,
         getCurrentInstance,
+        onBeforeUnmount
     } from 'vue';
     import { useStore } from 'vuex';
     import { useRoute, useRouter } from 'vue-router';
@@ -467,6 +468,7 @@
                 project_id,
                 is_project_admin = 'true',
             } = route.query;
+            const exportTimer = null;
 
             const vData = reactive({
                 id,
@@ -918,15 +920,18 @@
                             vData.exportDialog.total_data_count = data.total_data_count;
                             vData.export_status = data.status;
 
-                            if(data.progress !== opt.progress) {
+                            // if(data.progress !== opt.progress) {
                                 if(data.progress === 100) {
                                     vData.exportDialog.onProcess = false;
+                                    if (exportTimer) {
+                                        clearTimeout(exportTimer);
+                                    }
                                 } else {
-                                    setTimeout(() => {
+                                    exportTimer = setTimeout(() => {
                                         methods.getExportProgress({ progress: data.progress });
-                                    }, 3000);
+                                    }, 1000);
                                 }
-                            }
+                            // }
                         });
                     }
                 },
@@ -939,6 +944,12 @@
                 vData.promoter.member_name = userInfo.value.member_name;
                 methods.getProviders();
             }
+
+            onBeforeUnmount(_ => {
+                if (exportTimer) {
+                    clearTimeout(exportTimer);
+                }
+            });
 
             return {
                 vData,
