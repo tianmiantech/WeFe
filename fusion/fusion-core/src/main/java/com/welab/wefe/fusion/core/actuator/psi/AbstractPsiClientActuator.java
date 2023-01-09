@@ -16,19 +16,20 @@
 
 package com.welab.wefe.fusion.core.actuator.psi;
 
-import com.welab.wefe.common.CommonThreadPool;
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
-
-import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 
 /**
@@ -65,17 +66,32 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator impl
 
         psiClientMeta = downloadActuatorMeta();
         int bucketSize = bucketSize();
-        CountDownLatch latch = new CountDownLatch(bucketSize);
+//        CountDownLatch latch = new CountDownLatch(bucketSize);
+        
+//        for (int j = 0; j < bucketSize; j++) {
+//            int index = j;
+//            CommonThreadPool.run(() -> execute(index), latch);
+//        }
 
+//        latch.await();
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
         for (int j = 0; j < bucketSize; j++) {
-            int index = j;
-            CommonThreadPool.run(() -> execute(index), latch);
+            final int index = j;
+            executorService.submit(() -> {
+                execute(index);
+            });
         }
-
-        latch.await();
-
+        executorService.shutdown();
+        try {
+            while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                // pass
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            executorService.shutdown();
+        }
         status = PSIActuatorStatus.success;
-
         notifyServerClose();
     }
 
