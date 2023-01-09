@@ -58,7 +58,23 @@
                     maxlength="10"
                 />
             </el-form-item>
-
+            <el-form-item
+                label="加密方式："
+                prop="secret_key_type"
+            >
+                <el-select
+                    v-model="clientService.secret_key_type"
+                    filterable
+                    placeholder="请选择加密方式"
+                >
+                    <el-option
+                        v-for="item in secret_key_type_list"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                    />
+                </el-select>
+            </el-form-item>
             <el-form-item
                 label="合作者公钥："
                 prop="publicKey"
@@ -122,6 +138,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
+import { secret_key_type_list } from './config.js';
 
 
 export default {
@@ -167,16 +184,17 @@ export default {
 
         return {
             clientService: {
-                serviceId:   '',
-                clientId:    '',
-                status:      '',
-                unitPrice:   '',
-                ipAdd:       '',
-                publicKey:   '',
+                serviceId:       '',
+                clientId:        '',
+                status:          '',
+                unitPrice:       '',
+                ipAdd:           '',
+                publicKey:       '',
                 // 预留字段
-                payType:     '',
-                serviceName: '',
-                clientName:  '',
+                payType:         '',
+                serviceName:     '',
+                clientName:      '',
+                secret_key_type: 'sm2',
             },
             services:          [],
             clients:           [],
@@ -191,6 +209,7 @@ export default {
                 0: '后付费',
                 1: '预付费',
             },
+            secret_key_type_list,
             rules: {
                 serviceName: [
                     { required: true, validator: validateServiceName, trigger: 'change' },
@@ -204,6 +223,9 @@ export default {
                 ],
                 payType: [
                     { required: true, validator: validatePayType, trigger: 'change' },
+                ],
+                secret_key_type: [
+                    { required: true, message: '请选择加密方式', trigger: 'change' },
                 ],
             },
         };
@@ -235,19 +257,25 @@ export default {
                         this.$message.error('请选择付费类型');
                         return false;
                     }
+
+                    if(!this.clientService.secret_key_type){
+                        this.$message.error('请选择加密方式');
+                        return false;
+                    }
                     this.clientService.serviceName = this.services.find(y => y.value === this.clientService.serviceId).label;
                     const { code } = await this.$http.post({
                         url:  '/clientservice/save',
                         data: {
-                            serviceId:   this.clientService.serviceId,
-                            clientId:    this.clientService.clientId,
-                            unitPrice:   this.clientService.unitPrice,
-                            payType:     this.clientService.payType,
-                            publicKey:   this.clientService.publicKey,
-                            ipAdd:       this.clientService.ipAdd,
-                            serviceName: this.clientService.serviceName,
-                            clientName:  this.clientService.clientName,
-                            createdBy:   this.userInfo.nickname,
+                            serviceId:     this.clientService.serviceId,
+                            clientId:      this.clientService.clientId,
+                            unitPrice:     this.clientService.unitPrice,
+                            payType:       this.clientService.payType,
+                            publicKey:     this.clientService.publicKey,
+                            ipAdd:         this.clientService.ipAdd,
+                            serviceName:   this.clientService.serviceName,
+                            clientName:    this.clientService.clientName,
+                            secretKeyType: this.clientService.secret_key_type,
+                            createdBy:     this.userInfo.nickname,
                         },
                     });
 
