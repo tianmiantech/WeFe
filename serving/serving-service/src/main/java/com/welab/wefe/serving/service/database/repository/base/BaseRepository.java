@@ -16,6 +16,7 @@
 
 package com.welab.wefe.serving.service.database.repository.base;
 
+import com.welab.wefe.common.data.mysql.MySpecification;
 import com.welab.wefe.serving.service.dto.PagingInput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import org.springframework.data.domain.PageRequest;
@@ -103,13 +104,20 @@ public interface BaseRepository<T, ID extends Serializable> extends JpaRepositor
      * @param input
      * @return Pageable
      */
-    default Pageable getDefaultPageable(PagingInput input) {
-        return PageRequest
-                .of(
-                        input.getPageIndex(),
-                        input.getPageSize(),
-                        Sort.by(Sort.Direction.DESC, "createdTime")
-                );
+    default Pageable getDefaultPageable(PagingInput input, @Nullable Specification<T> queryCondition) {
+        Sort orders = null;
+
+        // 从 MySpecification 中获取 order by 子句
+        if (queryCondition instanceof MySpecification) {
+            orders = ((MySpecification) queryCondition).getSort();
+        }
+
+        // 当未指定排序字段时，默认按照 createdTime 排序
+        if (orders == null || orders.isEmpty()) {
+            orders = Sort.by(Sort.Direction.DESC, "createdTime");
+        }
+
+        return PageRequest.of(input.getPageIndex(), input.getPageSize(), orders);
     }
 
     /**

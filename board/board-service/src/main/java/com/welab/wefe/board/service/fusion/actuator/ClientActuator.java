@@ -56,9 +56,9 @@ public class ClientActuator extends AbstractPsiClientActuator {
     public Set<String> columnList;
 
     /**
-     * Fragment size, default 10000
+     * Fragment size, default 200000
      */
-    public int shardSize = 10000;
+    public int shardSize = 100000;
     public List<FieldInfo> fieldInfoList;
     public String dstMemberId;
     DataSetStorageService dataSetStorageService;
@@ -151,6 +151,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
     @Override
     public void notifyServerClose() {
         //notify the server that the task has ended
+        LOG.info("psi log, notify the server that the task has ended");
         try {
             gatewayService.callOtherMemberBoard(
                     dstMemberId,
@@ -189,7 +190,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
             });
 
 
-            LOG.info("cursor {} spend: {} curList {} list {}", index, System.currentTimeMillis() - start, curList.size(), list.size());
+            LOG.info("psi log, cursor {} spend: {} curList {} list {}", index, System.currentTimeMillis() - start, curList.size(), list.size());
 
 
             return curList;
@@ -224,7 +225,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
 
     @Override
     public void dump(List<JObject> fruit) {
-        LOG.info("fruit insert ready...");
+        LOG.info("psi log, fruit insert ready...");
 
         try {
             PsiDumpHelper.dump(businessId, columnList, fruit);
@@ -232,19 +233,23 @@ public class ClientActuator extends AbstractPsiClientActuator {
             LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
         }
 
-        LOG.info("fruit insert end...");
+        LOG.info("psi log, fruit insert end...");
     }
 
     @Override
     public int bucketSize() {
-        return dataCount.intValue() % shardSize == 0 ? dataCount.intValue() / shardSize
+        LOG.info("psi log, dataCount = " + dataCount.intValue());
+        LOG.info("psi log, shardSize = " + shardSize);
+        int bucketSize = dataCount.intValue() % shardSize == 0 ? dataCount.intValue() / shardSize
                 : dataCount.intValue() / shardSize + 1;
+        LOG.info("psi log, bucketSize = " + bucketSize);
+        return bucketSize;
     }
 
     @Override
     public PsiActuatorMeta downloadActuatorMeta() throws StatusCodeWithException {
 
-        LOG.info("downloadActuatorMeta start");
+        LOG.info("psi log, downloadActuatorMeta start");
 
         //调用gateway
         JSONObject result = gatewayService.callOtherMemberBoard(
@@ -254,7 +259,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
                 JSONObject.class
         );
 
-        LOG.info("downloadBloomFilter end {} ", result);
+        LOG.info("psi log, downloadBloomFilter end");
 
         PsiActuatorMeta meta = JObject.toJavaObject(result, PsiActuatorMeta.class);
         meta.setBfByDto(meta.getBfDto());
@@ -263,7 +268,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
 
     @Override
     public byte[][] dataTransform(byte[][] bs) throws StatusCodeWithException {
-        LOG.info("dataTransform start");
+        LOG.info("psi log, dataTransform start");
 
         List<String> stringList = Lists.newArrayList();
         for (int i = 0; i < bs.length; i++) {
@@ -298,8 +303,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
                     new ReceiveResultApi.Input(businessId, stringList)
             );
         } catch (Exception e) {
-            LOG.info("sendFusionDataToServer error: ", e);
-            e.printStackTrace();
+            LOG.error("sendFusionDataToServer error: ", e);
         }
     }
 

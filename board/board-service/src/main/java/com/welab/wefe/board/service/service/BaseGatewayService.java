@@ -16,6 +16,13 @@
 
 package com.welab.wefe.board.service.service;
 
+import java.security.cert.X509Certificate;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.protobuf.MessageOrBuilder;
@@ -30,8 +37,8 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.dto.global_config.GatewayConfigModel;
-import com.welab.wefe.common.wefe.dto.global_config.MemberInfoModel;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.netty.GrpcSslContexts;
@@ -39,12 +46,6 @@ import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.security.cert.X509Certificate;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author zane
@@ -271,10 +272,10 @@ public class BaseGatewayService extends AbstractService {
         if (!isValidGatewayUri(gatewayUri)) {
             throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "网关地址格式不正确，格式应为 HOST:PORT");
         }
-        MemberInfoModel memberInfoModel = globalConfigService.getModel(MemberInfoModel.class);
-        if (gatewayUri.equals(memberInfoModel.getMemberGatewayUri()) && Boolean.TRUE.equals(memberInfoModel.getMemberGatewayTlsEnable())) {
-            return getSslGrpcChannel(gatewayUri);
-        }
+//        MemberInfoModel memberInfoModel = globalConfigService.getModel(MemberInfoModel.class);
+//        if (gatewayUri.equals(memberInfoModel.getMemberGatewayUri()) && Boolean.TRUE.equals(memberInfoModel.getMemberGatewayTlsEnable())) {
+//            return getSslGrpcChannel(gatewayUri);
+//        }
         return getGrpcChannel(gatewayUri);
 
     }
@@ -291,7 +292,7 @@ public class BaseGatewayService extends AbstractService {
                 .negotiationType(NegotiationType.TLS)
                 .overrideAuthority("wefe.tianmiantech.com.test")
                 .sslContext(sslContextBuilder.build())
-                .maxInboundMetadataSize(2000 * 1024 * 1024)
+                .maxInboundMessageSize(2000 * 1024 * 1024)
                 .build();
     }
 

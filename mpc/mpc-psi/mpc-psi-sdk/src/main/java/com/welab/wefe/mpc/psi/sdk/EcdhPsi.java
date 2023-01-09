@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
@@ -98,6 +99,8 @@ public class EcdhPsi extends Psi {
         logger.info("ecdh psi request = " + request);
         QueryPrivateSetIntersectionResponse response = privateSetIntersectionService.handle(config, request);
         if (response.getCode() != 0) {
+            logger.error("ecdh psi request error, response = " + JSONObject.toJSONString(response));
+            // TODO 是否需要重试？
             throw new Exception(response.getMessage());
         }
         boolean hasNext = response.isHasNext();
@@ -128,6 +131,7 @@ public class EcdhPsi extends Psi {
             logger.info("ecdh psi request = " + request);
             response = privateSetIntersectionService.handle(config, request);
             if (response.getCode() != 0) {
+                logger.error("ecdh psi request error, response = " + JSONObject.toJSONString(response));
                 throw new Exception(response.getMessage());
             }
             logger.info("ecdh psi response serverIds size = " + CollectionUtils.size(response.getServerEncryptIds())
