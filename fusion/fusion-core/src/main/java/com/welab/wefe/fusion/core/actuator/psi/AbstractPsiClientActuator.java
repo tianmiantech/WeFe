@@ -74,7 +74,7 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator impl
 //        }
 
 //        latch.await();
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        ExecutorService executorService = Executors.newFixedThreadPool(4);
         for (int j = 0; j < bucketSize; j++) {
             final int index = j;
             executorService.submit(() -> {
@@ -146,17 +146,19 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator impl
         for (int i = 0; i < ret.length; i++) {
             BigInteger y = PSIUtils.bytesToBigInteger(ret[i], 0, ret[i].length);
             BigInteger z = y.multiply(rInv.get(i)).mod(psiClientMeta.getN());
-
             if (psiClientMeta.getBf().contains(z)) {
                 fruit.add(cur.get(i));
                 fusionCount.increment();
             }
             processedCount.increment();
         }
+        long free = Runtime.getRuntime().freeMemory();
+        long total = Runtime.getRuntime().totalMemory();
         // 得到JVM中的空闲内存量（单位是字节）
-        LOG.info("psi log, free memory" + Runtime.getRuntime().freeMemory() + " bytes");
+        LOG.info("psi log, free memory" + free + " bytes");
         // 的JVM内存总量（单位是字节）
         LOG.info("psi log, total memory" + Runtime.getRuntime().totalMemory() + " bytes");
+        LOG.info("psi log, used = " + ((total - free) / total) + "%");
         // JVM试图使用额最大内存量（单位是字节）
         LOG.info("psi log, max memory" + Runtime.getRuntime().maxMemory() + " bytes");
         // 可用处理器的数目
