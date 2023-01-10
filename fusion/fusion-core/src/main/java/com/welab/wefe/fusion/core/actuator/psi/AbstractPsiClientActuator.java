@@ -153,6 +153,14 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator impl
             }
             processedCount.increment();
         }
+        // 得到JVM中的空闲内存量（单位是字节）
+        LOG.info("psi log, free memory" + Runtime.getRuntime().freeMemory() + " bytes");
+        // 的JVM内存总量（单位是字节）
+        LOG.info("psi log, total memory" + Runtime.getRuntime().totalMemory() + " bytes");
+        // JVM试图使用额最大内存量（单位是字节）
+        LOG.info("psi log, max memory" + Runtime.getRuntime().maxMemory() + " bytes");
+        // 可用处理器的数目
+        LOG.info("psi log, " + Runtime.getRuntime().availableProcessors() + "cpus");
         return fruit;
     }
 
