@@ -312,6 +312,7 @@ public class JdbcManager {
             ps = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             ps.setFetchSize(Integer.MIN_VALUE);
             ps.setFetchDirection(ResultSet.FETCH_REVERSE);
+            // ps.setQueryTimeout(10 * 60); // 10 min
             rs = ps.executeQuery();
             while (rs.next()) {
                 Map<String, String> fieldMap = new LinkedHashMap<>();
@@ -388,7 +389,7 @@ public class JdbcManager {
                 ps.setString(1, s);
                 ps.addBatch();
                 count++;
-                // 每1000条记录插入一次
+                // 每50000条记录插入一次
                 if (count % 50000 == 0) {
                     ps.executeBatch();
                     conn.commit();
@@ -396,7 +397,6 @@ public class JdbcManager {
                     log.info("JdbcManager batchInsert count: " + count + ", ids size = " + ids.size());
                 }
             }
-            // 剩余数量不足1000
             ps.executeBatch();
             conn.commit();
             ps.clearBatch();
