@@ -86,6 +86,7 @@ class RDDSource(Table):
     def __del__(self):
         try:
             if hasattr(self, "_rdd") and self._rdd is not None:
+                print(f'prepare to del rdd, {self._namespace}, {self._name}, {self._rdd.id()}')
                 self._rdd.unpersist()
                 del self._rdd
         except:
@@ -131,8 +132,13 @@ class RDDSource(Table):
     @log_elapsed
     def _rdd_from_dtable(self):
         storage_iterator = self._dsource.collect(use_serialize=True)
-        if self._dsource.count() <= 0:
+        data_count = self._dsource.count()
+        if data_count <= 0:
             storage_iterator = []
+
+        storage_level = util.get_storage_level()
+        # if data_count > 10000000:
+        #     storage_level = util.get_large_data_storage_level()
 
         num_partition = self._dsource._partitions
 
@@ -145,10 +151,10 @@ class RDDSource(Table):
             num_slices = conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_NUM_SLICES)
             num_partition = int(num_slices) if num_slices else num_partition
 
-        from pyspark import SparkContext
-        self._rdd = SparkContext.getOrCreate() \
-            .parallelize(storage_iterator, num_partition) \
-            .persist(util.get_storage_level())
+        # from pyspark import SparkContext
+        self._rdd = util.WefeSparkContext() \
+            .parallelize(storage_iterator, num_partition, data_count) \
+            .persist(storage_level)
         return self._rdd
 
     def dsource(self):
