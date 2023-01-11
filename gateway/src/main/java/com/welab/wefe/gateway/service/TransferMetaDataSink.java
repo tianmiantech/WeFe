@@ -222,7 +222,7 @@ public class TransferMetaDataSink extends AbstractTransferMetaDataSink {
             FileUtil.createDir(saveBaseDir);
             String filePath = saveBaseDir + File.separator;
             // Completion identification block submitted by the client (i.e. the last block)
-            if (transferMeta.getTransferStatus().equals(GatewayMetaProto.TransferStatus.COMPLETE)) {
+            if (transferMeta.getSequenceIsEnd()) {
                 filePath += "complete";
                 completeBlockFlagCache.put(transferMeta.getSessionId(), transferMeta);
                 SerializeUtil.serialize(transferMeta, filePath);

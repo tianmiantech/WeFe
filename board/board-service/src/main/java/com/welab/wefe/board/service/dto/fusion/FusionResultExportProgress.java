@@ -45,6 +45,8 @@ public class FusionResultExportProgress {
         this.totalDataCount = totalDataCount;
         this.tableName = tableName;
         this.status = ExportStatus.exporting;
+        this.processedCount = 0;
+        this.progress = 0;
     }
 
     public int getProgress() {
@@ -76,7 +78,18 @@ public class FusionResultExportProgress {
     public synchronized void increment() {
         processedCount++;
 
-        if (processedCount == totalDataCount) {
+        if (processedCount >= totalDataCount) {
+            this.finishTime = System.currentTimeMillis();
+            this.status = ExportStatus.success;
+        }
+    }
+    
+    public synchronized void increment(int count) {
+        if (count < 0) {
+            return;
+        }
+        processedCount += count;
+        if (processedCount >= totalDataCount) {
             this.finishTime = System.currentTimeMillis();
             this.status = ExportStatus.success;
         }

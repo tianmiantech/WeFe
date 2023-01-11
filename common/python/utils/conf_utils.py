@@ -147,7 +147,7 @@ def get_local_config(key, config_type):
                         return split_arr[1].strip()
 
 
-@cached(cache=LRUCache(maxsize=64))
+# @cached(cache=LRUCache(maxsize=64))
 def get_comm_config(key, default=None):
     """
     Get config from config.properties
@@ -207,7 +207,7 @@ def get_comm_config(key, default=None):
     return default
 
 
-@cached(cache=LRUCache(maxsize=64))
+# @cached(cache=LRUCache(maxsize=64))
 def get_env_config(key, default=None):
     """
     Read configuration from environment variables
