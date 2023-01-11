@@ -468,7 +468,8 @@
                 project_id,
                 is_project_admin = 'true',
             } = route.query;
-            const exportTimer = null;
+            
+            let exportTimer = null;
 
             const vData = reactive({
                 id,
