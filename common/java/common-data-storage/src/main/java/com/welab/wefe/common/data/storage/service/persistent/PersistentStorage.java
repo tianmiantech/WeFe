@@ -19,11 +19,11 @@ import com.alibaba.druid.pool.DruidDataSource;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
-import com.welab.wefe.common.wefe.dto.storage.ClickhouseConfig;
-import com.welab.wefe.common.wefe.dto.storage.DataSourceConfig;
 import com.welab.wefe.common.data.storage.service.persistent.clickhouse.ClickhouseStorage;
 import com.welab.wefe.common.data.storage.service.persistent.mysql.MysqlConfig;
 import com.welab.wefe.common.data.storage.service.persistent.mysql.MysqlStorage;
+import com.welab.wefe.common.wefe.dto.storage.ClickhouseConfig;
+import com.welab.wefe.common.wefe.dto.storage.DataSourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,6 +76,16 @@ public abstract class PersistentStorage {
     public abstract boolean isExists(String dbName, String tbName) throws SQLException;
 
     protected abstract String validationQuery();
+
+
+    public <K, V> void putAllNew(String dbName, String tbName, List<DataItemModel<K, V>> data) throws Exception {
+    }
+
+    public void getByStream(String dbName, String tbName, int pageSize, PersistentStorageStreamHandler handler) throws Exception {
+
+    }
+
+
     // endregion
 
     private static PersistentStorage storage;
@@ -241,6 +251,22 @@ public abstract class PersistentStorage {
         try {
             conn = getConnection();
             String sql = validationQuery();
+            statement = conn.prepareStatement(sql);
+            statement.execute();
+        } finally {
+            close(statement, conn);
+        }
+    }
+
+    /**
+     * Check and create table
+     */
+    protected void checkTbStream(String dbName, String tbName) throws SQLException {
+        Connection conn = null;
+        PreparedStatement statement = null;
+        try {
+            conn = getConnection();
+            String sql = "CREATE TABLE IF NOT EXISTS " + formatTableName(dbName, tbName) + "(`eventDate` Date, `k` String, `v` String) ENGINE = MergeTree() PARTITION BY toDate(eventDate) ORDER BY tuple() SETTINGS index_granularity = 8192";
             statement = conn.prepareStatement(sql);
             statement.execute();
         } finally {

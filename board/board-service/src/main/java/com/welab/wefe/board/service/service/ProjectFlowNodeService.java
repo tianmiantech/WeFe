@@ -230,7 +230,9 @@ public class ProjectFlowNodeService {
 
         projectFlowNodeRepository.save(node);
 
+        input.stopwatch.tapAndPrint("start syncToOtherFormalProjectMembers");
         gatewayService.syncToOtherFormalProjectMembers(node.getProjectId(), input, UpdateApi.class);
+        input.stopwatch.tapAndPrint("end syncToOtherFormalProjectMembers");
 
         return list;
     }

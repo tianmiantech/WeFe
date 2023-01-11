@@ -19,6 +19,7 @@ package com.welab.wefe.common.web.dto;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.welab.wefe.common.Stopwatch;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
@@ -31,6 +32,13 @@ import javax.servlet.http.HttpServletRequest;
  * @author Zane
  */
 public class AbstractApiInput extends AbstractCheckModel {
+
+    /**
+     * 用于调试 api 耗时
+     */
+    @JSONField(serialize = false)
+    public Stopwatch stopwatch = Stopwatch.startNew();
+
     /**
      * 原始的全部接口请求参数
      */
