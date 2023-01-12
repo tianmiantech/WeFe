@@ -32,7 +32,7 @@
                 height:      100,
             });
 
-            for(let i = 0; i < Math.ceil(props.list.length / 5); i++) {
+            for(let i = 0; i < Math.ceil(props.list.length / 4); i++) {
                 vData.virtualList.push({ i });
             }
 

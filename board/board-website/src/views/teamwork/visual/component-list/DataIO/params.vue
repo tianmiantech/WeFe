@@ -176,23 +176,25 @@
                     :list="vData.column_list"
                 >
                     <template #checkbox="{ index, list }">
+                        {{ index }}
+                        {{ list }}
                         <template
-                            v-for="i in 5"
-                            :key="`${index * 5 + i - 1}`"
+                            v-for="i in 4"
+                            :key="`${index * 4 + i - 1}`"
                         >
                             <label
-                                v-if="list[index * 5 + i - 1]"
-                                :for="`label-${index * 5 + i - 1}`"
+                                v-if="list[index * 4 + i - 1]"
+                                :for="`label-${index * 4 + i - 1}`"
                                 class="board-checkbox"
-                                @click.prevent.stop="methods.checkboxChange($event, list[index * 5 + i - 1])"
+                                @click.prevent.stop="methods.checkboxChange($event, list[index * 4 + i - 1])"
                             >
-                                <span :class="['board-checkbox__input', { 'is-checked': vData.checkedColumnsArr.includes(list[index * 5 + i - 1]) }]">
+                                <span :class="['board-checkbox__input', { 'is-checked': vData.checkedColumnsArr.includes(list[index * 4 + i - 1]) }]">
                                     <span class="board-checkbox__inner"></span>
-                                    <input :id="`label-${index * 5 + i - 1}`" class="board-checkbox__original" type="checkbox" />
+                                    <input :id="`label-${index * 4 + i - 1}`" class="board-checkbox__original" type="checkbox" />
                                 </span>
                                 <span class="board-checkbox__label">
-                                    <FeatureTagVue :name="list[index * 5 + i - 1]" :data_set_id="vData.check_data_set_id" :featureTypeList="vData.featureTypeList" />
-                                    <span>{{ list[index * 5 + i - 1] }}</span>
+                                    <FeatureTagVue :name="list[index * 4 + i - 1]" :data_set_id="vData.check_data_set_id" :featureTypeList="vData.featureTypeList" />
+                                    <span>{{ list[index * 4 + i - 1] }}</span>
                                 </span>
                             </label>
                         </template>
