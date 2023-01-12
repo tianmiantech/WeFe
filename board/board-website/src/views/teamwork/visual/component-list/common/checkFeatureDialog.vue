@@ -81,8 +81,8 @@
                                     </span>
 
                                     <span class="board-checkbox__label">
-                                        {{ list[index * 5 + i - 1].name }}
                                         <FeatureTagVue :name="list[index * 5 + i - 1].name" :data_set_id="item.data_set_id" />
+                                        <span>{{ list[index * 5 + i - 1].name }}</span>
                                     </span>
                                 </label>
                             </template>
