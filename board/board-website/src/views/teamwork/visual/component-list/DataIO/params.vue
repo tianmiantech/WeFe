@@ -176,8 +176,6 @@
                     :list="vData.column_list"
                 >
                     <template #checkbox="{ index, list }">
-                        {{ index }}
-                        {{ list }}
                         <template
                             v-for="i in 4"
                             :key="`${index * 4 + i - 1}`"
