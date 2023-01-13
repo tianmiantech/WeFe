@@ -16,6 +16,12 @@
 
 package com.welab.wefe.data.fusion.service.api.task;
 
+import static com.welab.wefe.common.StatusCode.DATA_NOT_FOUND;
+
+import java.util.EnumSet;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -30,13 +36,6 @@ import com.welab.wefe.data.fusion.service.enums.PSIActuatorStatus;
 import com.welab.wefe.data.fusion.service.enums.TaskStatus;
 import com.welab.wefe.data.fusion.service.manager.ActuatorManager;
 import com.welab.wefe.data.fusion.service.service.TaskService;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-
-import static com.welab.wefe.common.StatusCode.DATA_NOT_FOUND;
 
 /**
  * @author hunter.zhao
@@ -67,23 +66,12 @@ public class StopTaskApi extends AbstractApi<StopTaskApi.Input, EnumSet<TaskStat
         @Check(name = "任务Id", require = true)
         private String businessId;
 
-        @Check(name = "操作", require = true)
-        private List<String> operators = new ArrayList<>(); // ["end", "status"]
-
         public String getBusinessId() {
             return businessId;
         }
 
         public void setBusinessId(String businessId) {
             this.businessId = businessId;
-        }
-
-        public List<String> getOperators() {
-            return operators;
-        }
-
-        public void setOperators(List<String> operators) {
-            this.operators = operators;
         }
 
     }
