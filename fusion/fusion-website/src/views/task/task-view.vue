@@ -284,6 +284,14 @@
                 >
                     {{ task.result_table }}
                 </el-form-item>
+                <el-form-item v-if="task.status === 'Running'">
+                    <el-button
+                        type="danger"
+                        @click="stopTask"
+                    >
+                        中断任务
+                    </el-button>
+                </el-form-item>
             </el-form>
         </el-card>
     </div>
@@ -351,6 +359,18 @@
         },
 
         methods: {
+            async stopTask(){
+                const { data, code } = await this.$http.get({
+                    url:    'task/stop',
+                    params: {
+                        business_id: this.task.business_id,
+                    },
+                });
+
+                if (code === 0) {
+                    this.$message.success('操作成功!');
+                }
+            },
             async getData() {
                 this.loading = true;
                 const { code, data } = await this.$http.get({
