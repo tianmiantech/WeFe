@@ -289,6 +289,12 @@ public class TaskService extends AbstractService {
         if (ActuatorManager.get(task.getBusinessId()) != null) {
             return;
         }
+        task.setStatus(TaskStatus.Ready);
+        task.setDataResourceId(input.getDataResourceId());
+        task.setDataResourceType(input.getDataResourceType());
+        task.setRowCount(input.getRowCount());
+        task.setUpdatedTime(new Date());
+        taskRepository.save(task);
         /**
          * Find your party by task ID
          */
@@ -304,13 +310,6 @@ public class TaskService extends AbstractService {
          * Generate the corresponding task handler
          */
         new Thread(() -> {
-            task.setStatus(TaskStatus.Ready);
-            task.setDataResourceId(input.getDataResourceId());
-            task.setDataResourceType(input.getDataResourceType());
-            task.setRowCount(input.getRowCount());
-            task.setUpdatedTime(new Date());
-            taskRepository.save(task);
-            
             final CountDownLatch latch = new CountDownLatch(1);
             AbstractTask server = new PsiServerTask(task.getBusinessId(), bf.getSrc(),
                     new PsiServerActuator(task.getBusinessId(), task.getDataCount(), "localhost",
