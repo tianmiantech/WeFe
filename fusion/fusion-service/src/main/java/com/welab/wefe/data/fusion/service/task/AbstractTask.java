@@ -140,10 +140,6 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
 
     public void run() {
         CommonThreadPool.run(() -> execute());
-
-
-        Thread thread = new Thread(() -> finish());
-        thread.start();
     }
 
 
@@ -161,6 +157,9 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
         } catch (Exception e) {
             LOG.error("execute error ", e);
             error = e.getMessage();
+        } finally {
+            Thread thread = new Thread(() -> finish());
+            thread.start();
         }
     }
 
