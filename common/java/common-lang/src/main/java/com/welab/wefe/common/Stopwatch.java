@@ -127,11 +127,12 @@ public class Stopwatch {
         @Override
         public String toString() {
             StringBuilder str = new StringBuilder();
-            str.append("[spend]");
+            str.append("[spend]")
+                    .append(spend)
+                    .append("ms");
             if (StringUtils.isNotEmpty(name)) {
-                str.append(" " + name);
+                str.append(" : " + name);
             }
-            str.append(": ").append(spend).append(" ms");
             return str.toString();
         }
 

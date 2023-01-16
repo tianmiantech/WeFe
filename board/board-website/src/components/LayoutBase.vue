@@ -218,7 +218,6 @@
                         $message.error('请重试');
                     }
                     checkEnv();
-                    getUserList();
                 }
             };
             // 判断是否为 demo 环境
@@ -231,25 +230,6 @@
                     store.commit('IS_DEMO', is_demo);
                 } else {
                     store.commit('IS_DEMO', false);
-                }
-            };
-            const getUserList = async() => {
-                const { code, data } = await $http.post({
-                    url:  '/account/list_all',
-                    data: {
-                        nickname:   '',
-                        page_index: 0,
-                        page_size:  '',
-                    },
-                });
-
-                if (code === 0 && data) {
-                    let admin_list = [];
-
-                    if (data.list && data.list.length) {
-                        admin_list = data.list.filter(item => item.admin_role);
-                    }
-                    store.commit('ADMIN_USER_LIST', admin_list);
                 }
             };
 

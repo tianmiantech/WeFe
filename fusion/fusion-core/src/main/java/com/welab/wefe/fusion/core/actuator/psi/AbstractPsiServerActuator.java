@@ -16,16 +16,16 @@
 
 package com.welab.wefe.fusion.core.actuator.psi;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author hunter.zhao
@@ -62,7 +62,7 @@ public abstract class AbstractPsiServerActuator extends AbstractPsiActuator impl
     @Override
     public byte[][] dataTransform(List<String> bsList) {
 
-        LOG.info("align start...");
+        LOG.info("psi log, align start...bsList size = " + bsList.size());
 
         byte[][] bs = new byte[bsList.size()][];
 
@@ -70,11 +70,14 @@ public abstract class AbstractPsiServerActuator extends AbstractPsiActuator impl
         for (int i = 0; i < bsList.size(); i++) {
             bs[i] = Base64Util.base64ToByteArray(bsList.get(i));
         }
-
+        // 由于gateway的重试机制，可能会导致相同的请求会收到两次，会影响这个值的计算
         processedCount.add(bsList.size());
-
+        if (processedCount.longValue() > dataCount) {
+            processedCount.reset();
+            processedCount.add(dataCount);
+            LOG.info("psi log, processedCount bigger than dataCount, reset");
+        }
         try {
-
             //Encrypted again
             return CryptoUtils.sign(n, d, p, q, cp, cq, bs);
         } catch (Exception e) {
@@ -91,9 +94,14 @@ public abstract class AbstractPsiServerActuator extends AbstractPsiActuator impl
      */
     @Override
     public void receiveResult(List<String> rs) {
-
+        LOG.info("psi log, receiveResult size = " + rs.size());
         fusionCount.add(rs.size());
-
+        // 由于gateway的重试机制，可能会导致相同的请求会收到两次，会影响这个值的计算
+        if (fusionCount.longValue() > dataCount) {
+            fusionCount.reset();
+            fusionCount.add(dataCount);
+            LOG.info("psi log, fusionCount bigger than dataCount, reset");
+        }
         List<JObject> fruit = new ArrayList<>();
         for (int i = 0; i < rs.size(); i++) {
             fruit.add(JObject.create(new String(Base64Util.base64ToByteArray(rs.get(i)))));

@@ -48,7 +48,7 @@ public class PsiServerTask extends AbstractPsiTask<PsiServerActuator> {
 
     @Override
     protected void preprocess() {
-        LOG.info("preprocess start");
+        LOG.info("preprocess start, read bf from " + src);
         long start = System.currentTimeMillis();
         BloomFilters bf = findBloomFilters(src);
         ActuatorManager.setBloomFilters(src, bf);

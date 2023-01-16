@@ -30,7 +30,6 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.dto.global_config.GatewayConfigModel;
-import com.welab.wefe.common.wefe.dto.global_config.MemberInfoModel;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -121,16 +120,18 @@ public class BaseGatewayService extends AbstractService {
      */
     private JSONObject callGateway(String gatewayUri, String dstMemberId, String dstMemberName, String dstGatewayUri, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
 
+        long start = System.currentTimeMillis();
+
         if (StringUtil.isEmpty(gatewayUri)) {
             StatusCode.RPC_ERROR.throwException("尚未设置 gateway 内网地址，请在[全局设置][系统设置]中设置 gateway 服务的内网地址。");
         }
-        if(StringUtil.isNotEmpty(dstGatewayUri) && !isValidGatewayUri(dstGatewayUri)) {
+        if (StringUtil.isNotEmpty(dstGatewayUri) && !isValidGatewayUri(dstGatewayUri)) {
             StatusCode.RPC_ERROR.throwException("目的网关地址格式不正确，格式应为 HOST:PORT。");
         }
 
         GatewayMetaProto.TransferMeta transferMeta = buildTransferMeta(dstMemberId, dstMemberName, dstGatewayUri, data, processorType);
         ManagedChannel grpcChannel = null;
-        String message = "[grpc] end to " + dstMemberName;
+        String message = "[grpc] end to " + dstMemberName + " ";
         try {
             grpcChannel = buildManagedChannel(gatewayUri);
             TransferServiceGrpc.TransferServiceBlockingStub clientStub = TransferServiceGrpc.newBlockingStub(grpcChannel);
@@ -139,12 +140,14 @@ public class BaseGatewayService extends AbstractService {
                 StatusCode.REMOTE_SERVICE_ERROR.throwException(returnStatus.getMessage());
             }
 
-            message += "success request:" + data;
+            long spend = System.currentTimeMillis() - start;
+            message += "success(" + spend + "ms) request:" + data;
             LOG.info(message);
 
             return JSON.parseObject(returnStatus.getData());
         } catch (Exception e) {
-            message += "fail message:" + e.getMessage() + " request:" + data;
+            long spend = System.currentTimeMillis() - start;
+            message += "fail(" + spend + "ms) message:" + e.getMessage() + " request:" + data;
             LOG.error(message);
 
             LOG.error("Request gateway exception, message: " + transferMetaToString(transferMeta) + ",exception：" + e.getMessage(), e);
@@ -271,10 +274,10 @@ public class BaseGatewayService extends AbstractService {
         if (!isValidGatewayUri(gatewayUri)) {
             throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "网关地址格式不正确，格式应为 HOST:PORT");
         }
-        MemberInfoModel memberInfoModel = globalConfigService.getModel(MemberInfoModel.class);
-        if (gatewayUri.equals(memberInfoModel.getMemberGatewayUri()) && Boolean.TRUE.equals(memberInfoModel.getMemberGatewayTlsEnable())) {
-            return getSslGrpcChannel(gatewayUri);
-        }
+//        MemberInfoModel memberInfoModel = globalConfigService.getModel(MemberInfoModel.class);
+//        if (gatewayUri.equals(memberInfoModel.getMemberGatewayUri()) && Boolean.TRUE.equals(memberInfoModel.getMemberGatewayTlsEnable())) {
+//            return getSslGrpcChannel(gatewayUri);
+//        }
         return getGrpcChannel(gatewayUri);
 
     }
@@ -291,7 +294,7 @@ public class BaseGatewayService extends AbstractService {
                 .negotiationType(NegotiationType.TLS)
                 .overrideAuthority("wefe.tianmiantech.com.test")
                 .sslContext(sslContextBuilder.build())
-                .maxInboundMetadataSize(2000 * 1024 * 1024)
+                .maxInboundMessageSize(2000 * 1024 * 1024)
                 .build();
     }
 

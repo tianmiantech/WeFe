@@ -550,8 +550,7 @@ public class ServiceService {
         if (StringUtils.isNotBlank(input.getCreatedBy())) {
             where = where.equal("createdBy", input.getCreatedBy());
         }
-        Specification<BaseServiceMySqlModel> condition = where.orderBy("updatedTime", OrderBy.desc)
-                .build(BaseServiceMySqlModel.class);
+        Specification<BaseServiceMySqlModel> condition = where.orderBy("updatedTime", OrderBy.desc).build();
 
         PagingOutput<BaseServiceMySqlModel> page = baseServiceRepository.paging(condition, input);
         List<AccountMySqlModel> accounts = accountRepository.findAll();
@@ -876,7 +875,7 @@ public class ServiceService {
 
         // 将需要提供的文件加到这个列表
         List<String> stringList = FileUtil
-                .readAllForLine(Paths.get(config.getFileBasePath()).resolve("ApiExample.java").toString(), "UTF-8");
+                .readAllForLine(Paths.get(config.getFileBasePath()).resolve("ModelPredictClient.java").toString(), "UTF-8");
         stringList.stream().forEach(x -> {
             try {
                 FileUtil.writeTextToFile(String.format(x, serviceId) + System.lineSeparator(), path, true);

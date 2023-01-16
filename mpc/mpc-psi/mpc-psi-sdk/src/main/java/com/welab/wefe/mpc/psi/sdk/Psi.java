@@ -28,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -124,12 +125,15 @@ public abstract class Psi {
         for (final String psiResult : psiResults) {
             executorService.submit(() -> {
                 List<String> ids = new LinkedList<>();
-                ids.add(psiResult);
-                ids.addAll(confuseData.generateConfuseData(psiResult));
-                if (ids.size() == 1) {
+                List<String> confuseItem = confuseData.generateConfuseData(psiResult);
+                if (confuseItem == null || confuseItem.isEmpty()) {
                     logger.error("generateConfuseData error");
                     return;
                 }
+                int totalSize = confuseItem.size() + 1;
+                int targetIndex = new Random().nextInt(totalSize);
+                ids.addAll(confuseItem);
+                ids.add(targetIndex, psiResult);
                 List<JSONObject> params = new LinkedList<>();
                 if (!confuseData.isJson()) {
                     for (String id : ids) {
@@ -143,7 +147,6 @@ public abstract class Psi {
                         params.add(idJson);
                     }
                 }
-                int targetIndex = 0;
                 // pir请求
                 try {
                     String str = PirQuery.query(targetIndex, (List) params, config);
@@ -253,7 +256,7 @@ public abstract class Psi {
         } else {
             try {
                 String[] arr = content.split("###");
-                return new int[] { Integer.valueOf(arr[0]), Integer.valueOf(arr[1]) };
+                return new int[] { Integer.valueOf(arr[0].trim()), Integer.valueOf(arr[1].trim()) };
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new Exception(requestId + "_currentBatch" + " content error : " + content);

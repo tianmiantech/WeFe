@@ -73,9 +73,11 @@ class DhIntersectionProvider(DhIntersect):
         else:
             provider_ids = data_instances.map(lambda k, v: self.encrypt_ids_process(k, True))
         raw_provider_ids = provider_ids.mapValues(lambda v: 1, need_send=True)
+        del provider_ids
         self.transfer_variable.intersect_provider_ids_process.remote(raw_provider_ids,
                                                                      role=consts.PROMOTER,
                                                                      idx=0)
+        del raw_provider_ids
 
         promoter_ids = self.transfer_variable.intersect_promoter_ids.get(idx=0)
 

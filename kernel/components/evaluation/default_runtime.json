@@ -7,7 +7,7 @@
     "bin_method": "bucket"
   },
     "psi_param": {
-    "need_psi": true,
+    "need_psi": false,
     "bin_num": 10,
     "bin_method": "bucket",
       "split_points": null

@@ -301,7 +301,7 @@ public class JdbcManager {
         return result;
     }
 
-    public List<Map<String, String>> queryList(Connection conn, String sql, List<String> returnFields) {
+    public List<Map<String, String>> queryList(Connection conn, String sql, List<String> returnFields) throws StatusCodeWithException {
         long start = System.currentTimeMillis();
         log.info("JdbcManager queryList sql: " + sql);
         PreparedStatement ps = null;
@@ -312,6 +312,7 @@ public class JdbcManager {
             ps = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             ps.setFetchSize(Integer.MIN_VALUE);
             ps.setFetchDirection(ResultSet.FETCH_REVERSE);
+            // ps.setQueryTimeout(10 * 60); // 10 min
             rs = ps.executeQuery();
             while (rs.next()) {
                 Map<String, String> fieldMap = new LinkedHashMap<>();
@@ -323,7 +324,7 @@ public class JdbcManager {
             }
         } catch (SQLException e) {
             log.error("queryList error", e);
-            return result;
+            throw new StatusCodeWithException(StatusCode.SQL_ERROR, e.getMessage());
         } finally {
             close(conn, ps, rs);
             long duration = System.currentTimeMillis() - start;
@@ -388,7 +389,7 @@ public class JdbcManager {
                 ps.setString(1, s);
                 ps.addBatch();
                 count++;
-                // 每1000条记录插入一次
+                // 每50000条记录插入一次
                 if (count % 50000 == 0) {
                     ps.executeBatch();
                     conn.commit();
@@ -396,7 +397,6 @@ public class JdbcManager {
                     log.info("JdbcManager batchInsert count: " + count + ", ids size = " + ids.size());
                 }
             }
-            // 剩余数量不足1000
             ps.executeBatch();
             conn.commit();
             ps.clearBatch();

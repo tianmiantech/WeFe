@@ -30,6 +30,7 @@
 import argparse
 import importlib
 import json
+import math
 import os
 import pickle
 import re
@@ -67,7 +68,7 @@ class TaskExecutor(object):
             parser.add_argument('-t', '--task_id', required=True, type=str, help="task id")
             parser.add_argument('-r', '--role', required=True, type=str, help="role")
             parser.add_argument('-m', '--member_id', required=True, type=str, help="member id")
-            parser.add_argument('-c', '--config', required=True, type=str, help="task config")
+            parser.add_argument('-c', '--config', required=False, type=str, help="task config")
             parser.add_argument('-s', '--federation_session_id', required=False, type=str, help="federation_session_id")
             parser.add_argument('-e', '--environment', required=False, type=str, help="running environment")
             args = parser.parse_args()
@@ -381,6 +382,7 @@ class TaskExecutor(object):
             # The average amount of data processed by each function shard
             default_size = FunctionConfig.FC_PARTITION_DATA_SIZE
 
+            max_rows = 0
             min_rows = 0
             features_count = 0
             for component_dataset in data_sets:
@@ -388,20 +390,24 @@ class TaskExecutor(object):
                     for member in component_dataset["members"]:
                         member_dataset_row = member["data_set_rows"]
                         features_count += member["data_set_features"] if "data_set_features" in member else 0
+                        if member_dataset_row > max_rows:
+                            max_rows = member_dataset_row
                         if member_dataset_row < min_rows or min_rows == 0:
                             min_rows = member_dataset_row
 
-            fc_partitions = int(
-                min_rows / default_size if min_rows % default_size == 0 else min_rows / default_size + 1)
+            partitions_by_max_row = math.ceil(max_rows / default_size)
             options[features_count_key] = features_count
+            partition_by_row_and_features = math.ceil((min_rows / default_size) * (features_count / 200))
+            partitions = max(partitions_by_max_row, partition_by_row_and_features)
 
-            if fc_partitions > max_partitions:
+            if partitions > max_partitions:
                 options[fc_partition_key] = max_partitions
-            elif fc_partitions > 0:
-                options[fc_partition_key] = fc_partitions
+            elif partitions > 0:
+                options[fc_partition_key] = partitions
 
-        # at present, the two parameters are consistent
-        options[spark_partition_key] = options[fc_partition_key]
+            options[spark_partition_key] = FunctionConfig.SPARK_MAX_PARTITION \
+                if partitions > FunctionConfig.SPARK_MAX_PARTITION \
+                else partitions
 
         # members_backend
         options[RuntimeOptionKey.MEMBERS_BACKEND] = TaskExecutor.parse_members_backend(task_config)
@@ -410,7 +416,7 @@ class TaskExecutor(object):
         options[RuntimeOptionKey.MEMBERS_FC_PROVIDER] = TaskExecutor.parse_members_fc_provider(task_config)
 
         return options
-
+        
     @staticmethod
     def parse_members_backend(task_config: dict):
         members_backend = {}

@@ -59,7 +59,7 @@
             user-select:auto;
             padding-right: 10px;
             overflow: hidden;
-            width: 20%;
+            width: 25%;
             margin:0;
         }
         :deep(.board-checkbox__label){

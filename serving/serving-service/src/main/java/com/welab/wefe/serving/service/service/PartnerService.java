@@ -231,13 +231,6 @@ public class PartnerService {
 
     public void upsert(List<MemberParams> memberParams) {
         memberParams.forEach(x -> {
-            SavePartnerApi.Input partner = new SavePartnerApi.Input();
-            partner.setIsUnionMember(true);
-            partner.setId(x.getMemberId());
-            partner.setName(x.getName());
-            partner.setCode(x.getMemberId());
-            partner.setServingBaseUrl(x.getUrl());
-            partner.setEmail("");
             try {
                 upsert(x.getMemberId(), true, x.getName(), x.getMemberId(), x.getUrl());
             } catch (StatusCodeWithException e) {
@@ -271,7 +264,9 @@ public class PartnerService {
         partnerMysqlModel.setName(name);
         partnerMysqlModel.setEmail("");
         partnerMysqlModel.setRemark("");
-        partnerMysqlModel.setServingBaseUrl(url);
+        if(StringUtils.isNotBlank(url)) {
+            partnerMysqlModel.setServingBaseUrl(url);
+        }
         partnerMysqlModel.setCreatedBy(CurrentAccountUtil.get() == null ? "board推送" : CurrentAccountUtil.get().getId());
         partnerMysqlModel.setCode(code);
         partnerMysqlModel.setIsUnionMember(isUnionMember);

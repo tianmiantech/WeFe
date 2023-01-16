@@ -113,6 +113,7 @@ class GatewayService:
             )
             JOB_GRPC.send(transfer_meta)
         except grpc.RpcError as error:
+            GatewayService.logger.error(error, exc_info=True, stack_info=True)
             if str(error.code()) == GrpcStatusMessage.UNAVAILABLE:
                 result = {
                     JsonField.CODE: ServiceStatusCode.REMOTE_SERVICE_ERROR,
