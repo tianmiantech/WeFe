@@ -28,6 +28,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.data.fusion.service.actuator.rsapsi.AbstractPsiActuator;
 import com.welab.wefe.data.fusion.service.actuator.rsapsi.PsiClientActuator;
 import com.welab.wefe.data.fusion.service.actuator.rsapsi.PsiServerActuator;
 import com.welab.wefe.data.fusion.service.database.entity.TaskMySqlModel;
@@ -46,7 +47,7 @@ public class StopTaskApi extends AbstractApi<StopTaskApi.Input, EnumSet<TaskStat
     private TaskService taskService;
 
     @Override
-    protected ApiResult<EnumSet<TaskStatus>> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<EnumSet<TaskStatus>> handle(Input input) throws Exception {
         TaskMySqlModel task = taskService.findByBusinessId(input.getBusinessId());
         if (task == null) {
             throw new StatusCodeWithException(DATA_NOT_FOUND, "任务不存在！");
@@ -54,10 +55,12 @@ public class StopTaskApi extends AbstractApi<StopTaskApi.Input, EnumSet<TaskStat
         if (PSIActuatorRole.client.equals(task.getPsiActuatorRole())) {
             PsiClientActuator act = (PsiClientActuator)ActuatorManager.get(input.getBusinessId()).actuator;
             act.status = PSIActuatorStatus.exception;
+            LOG.info("change client actuator.status = exception");
         }
         else {
             PsiServerActuator act = (PsiServerActuator)ActuatorManager.get(input.getBusinessId()).actuator;
             act.status = PSIActuatorStatus.exception;
+            LOG.info("change server actuator.status = exception");
         }
         return success();
     }

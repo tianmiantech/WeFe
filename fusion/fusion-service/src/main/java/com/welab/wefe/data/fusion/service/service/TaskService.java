@@ -199,9 +199,9 @@ public class TaskService extends AbstractService {
 
     @Transactional(rollbackFor = Exception.class)
     public void handle(HandleApi.Input input) throws StatusCodeWithException {
-//        if (ActuatorManager.size() > 0) {
-//            throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "有正在运行的任务, 请等待任务完成后再尝试审核运行！");
-//        }
+        if (ActuatorManager.size() > 0) {
+            throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "有正在运行的任务, 请等待任务完成后再尝试审核运行！");
+        }
 
         TaskMySqlModel task = find(input.getId());
         if (task == null) {

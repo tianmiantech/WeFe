@@ -220,7 +220,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
                     fusion();
                 } catch (StatusCodeWithException e) {
                     e.printStackTrace();
-                    LOG.error("fusion task log , StatusCodeWithException :", e);
+                    LOG.error("fusion task log , fusion error :", e);
                 } finally {
                     latch.countDown();
                 }
@@ -245,16 +245,17 @@ public class PsiClientActuator extends AbstractPsiActuator {
      * @throws StatusCodeWithException
      */
     private void fusion() throws StatusCodeWithException {
-
+        if (PSIActuatorStatus.running != status && PSIActuatorStatus.uninitialized != status) {
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "status is " + status + ", not allow fusion");
+        }
         cursor();
-
         //Initiating a query request
         LOG.info("fusion task log , Server@" + ip + ":" + port + " connecting!");
         Socket socket = SocketUtils
                 .create(ip, port)
                 .setRetryCount(3)
                 .builder();
-
+        LOG.info("fusion task log , Server@" + ip + ":" + port + " connected!");
         query(socket);
 
         receiveAndParseResult(socket);
