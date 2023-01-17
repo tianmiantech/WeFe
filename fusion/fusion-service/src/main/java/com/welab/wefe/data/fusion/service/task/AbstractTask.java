@@ -142,6 +142,8 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
 
     public void run() {
         CommonThreadPool.run(() -> execute());
+        Thread thread = new Thread(() -> finish());
+        thread.start();
     }
 
 
@@ -159,9 +161,6 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
         } catch (Exception e) {
             LOG.error("execute error ", e);
             error = e.getMessage();
-        } finally {
-            Thread thread = new Thread(() -> finish());
-            thread.start();
         }
     }
 
@@ -173,7 +172,7 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
             if (System.currentTimeMillis() - startTime < maxExecuteTimeSpan.toMs() && !isFinish() && StringUtil.isEmpty(error)) {
                 continue;
             }
-            LOG.info("actuator.status = " + ((AbstractPsiActuator)actuator).status);
+            LOG.info("fusion task log , actuator.status = " + ((AbstractPsiActuator)actuator).status);
             try {
                 LOG.info("fusion task log , close actuator...");
                 actuator.close();
