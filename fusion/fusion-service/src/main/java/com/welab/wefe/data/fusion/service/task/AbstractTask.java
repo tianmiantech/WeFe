@@ -16,15 +16,17 @@
 
 package com.welab.wefe.data.fusion.service.task;
 
+import static com.welab.wefe.common.util.ThreadUtil.sleep;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.data.fusion.service.actuator.AbstractActuator;
+import com.welab.wefe.data.fusion.service.actuator.rsapsi.AbstractPsiActuator;
 import com.welab.wefe.data.fusion.service.enums.PSIActuatorStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import static com.welab.wefe.common.util.ThreadUtil.sleep;
 
 /**
  * @author hunter.zhao
@@ -164,15 +166,14 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
     }
 
     public void finish() {
-        LOG.info("fusion task log , finish waiting...");
-
+        LOG.info("fusion task log , finish waiting... begin");
         while (true) {
             sleep(1000);
-
+            LOG.info("fusion task log , finish waiting...");
             if (System.currentTimeMillis() - startTime < maxExecuteTimeSpan.toMs() && !isFinish() && StringUtil.isEmpty(error)) {
                 continue;
             }
-
+            LOG.info("actuator.status = " + ((AbstractPsiActuator)actuator).status);
             try {
                 LOG.info("fusion task log , close actuator...");
                 actuator.close();
