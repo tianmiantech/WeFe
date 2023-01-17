@@ -10,7 +10,8 @@
         "build": "vue-cli-service build",
         "dev": "vue-cli-service serve --HOST_ENV dev",
         "start": "npm run dev",
-        "predev": "node ./src/themeconfig/copyFile.js"
+        "predev": "node ./src/themeconfig/copyFile.js",
+        "hwfat": "vue-cli-service serve --HOST_ENV hwcloud_fat"
     },
     "keywords": [
         "vue",

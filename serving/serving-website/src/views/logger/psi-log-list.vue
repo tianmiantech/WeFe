@@ -208,6 +208,7 @@
                 let count_header = [], unEmptyCount = 0, new_rows = null;
                 const count_rows = [], obj = {};
 
+                console.log('data_grid',this.data_grid);
                 this.data_grid.forEach(item => {
                     if (Object.values(item)[0].length) {
                         count_header = [];
@@ -231,8 +232,9 @@
                                 if (val !== 'null') count_count +=val;
                             });
                         }
+                        console.log('count_header',count_header);
                         
-                        count_header[Object.values(item)[0].length] = 'Sum';
+                        count_header[Object.values(item)[0].length +1] = 'Sum';
                         new_rows.Sum = this.currentRadio === 'PSI' ? count_count.toFixed(5) : count_count;
                         this.table_data.rows.push(new_rows);
                         unEmptyCount++;
