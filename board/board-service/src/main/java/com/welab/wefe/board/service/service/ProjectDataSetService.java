@@ -137,55 +137,57 @@ public class ProjectDataSetService extends AbstractService {
 
         // Create a derived dataset object
         TableDataSetMysqlModel dataSet = tableDataSetService.findOneById(projectDataSet.getDataSetId());
-        if (dataSet != null) {
-            derivedDataSet.setDataResource(JObject.create(dataSet).toJavaObject(TableDataSetOutputModel.class));
-            // Query the feature list from each member
-            List<JobMemberOutputModel> jobMembers = jobMemberService.list(dataSet.getDerivedFromJobId(), false);
-            List<JobMemberWithDataSetOutputModel> output = jobMembers
-                    .stream()
-                    .map(m -> {
-                        JobMemberWithDataSetOutputModel member = ModelMapper.map(m, JobMemberWithDataSetOutputModel.class);
-
-                        // Take your own feature list directly
-                        TableDataSetOutputModel tableDataSet = null;
-                        if (member.getMemberId().equals(derivedDataSet.getMemberId())) {
-                            tableDataSet = (TableDataSetOutputModel) derivedDataSet.getDataResource();
-                        }
-                        // Others’ feature list should be checked remotely
-                        else {
-                            try {
-
-                                JSONObject derivedProjectDataSet = gatewayService.callOtherMemberBoard(
-                                        member.getMemberId(),
-                                        GetDerivedDataSetDetailApi.class,
-                                        new GetDerivedDataSetDetailApi.Input(member.getProjectId(), projectDataSet.getDataSetId(), member.getJobRole()),
-                                        /**
-                                         * 这里不能直接指定为 DerivedProjectDataSetOutputModel.class，
-                                         * 因为 dataResource 字段类型为 DataResourceOutputModel，
-                                         * 这是个父类，反射成这个对象会缺字段。
-                                         *
-                                         * 要取 json 节点手动反射为 TableDataSetOutputModel
-                                         */
-                                        JSONObject.class
-
-                                );
-                                tableDataSet = derivedProjectDataSet.getJSONObject("data_resource").toJavaObject(TableDataSetOutputModel.class);
-                            } catch (Exception e) {
-                                super.log(e);
-                            }
-                        }
-
-                        if (tableDataSet != null) {
-                            member.setFeatureNameList(tableDataSet.getFeatureNameList());
-                            member.setFeatureCount(tableDataSet.getFeatureCount());
-                        }
-
-                        return member;
-                    })
-                    .collect(Collectors.toList());
-
-            derivedDataSet.setMembers(output);
+        if (dataSet == null) {
+            return derivedDataSet;
         }
+
+        derivedDataSet.setDataResource(JObject.create(dataSet).toJavaObject(TableDataSetOutputModel.class));
+        // Query the feature list from each member
+        List<JobMemberOutputModel> jobMembers = jobMemberService.list(dataSet.getDerivedFromJobId(), false);
+        List<JobMemberWithDataSetOutputModel> output = jobMembers
+                .stream()
+                .map(m -> {
+                    JobMemberWithDataSetOutputModel member = ModelMapper.map(m, JobMemberWithDataSetOutputModel.class);
+
+                    // Take your own feature list directly
+                    TableDataSetOutputModel tableDataSet = null;
+                    if (member.getMemberId().equals(derivedDataSet.getMemberId())) {
+                        tableDataSet = (TableDataSetOutputModel) derivedDataSet.getDataResource();
+                    }
+                    // Others’ feature list should be checked remotely
+                    else {
+                        try {
+
+                            JSONObject derivedProjectDataSet = gatewayService.callOtherMemberBoard(
+                                    member.getMemberId(),
+                                    GetDerivedDataSetDetailApi.class,
+                                    new GetDerivedDataSetDetailApi.Input(member.getProjectId(), projectDataSet.getDataSetId(), member.getJobRole()),
+                                    /**
+                                     * 这里不能直接指定为 DerivedProjectDataSetOutputModel.class，
+                                     * 因为 dataResource 字段类型为 DataResourceOutputModel，
+                                     * 这是个父类，反射成这个对象会缺字段。
+                                     *
+                                     * 要取 json 节点手动反射为 TableDataSetOutputModel
+                                     */
+                                    JSONObject.class
+
+                            );
+                            tableDataSet = derivedProjectDataSet.getJSONObject("data_resource").toJavaObject(TableDataSetOutputModel.class);
+                        } catch (Exception e) {
+                            super.log(e);
+                        }
+                    }
+
+                    if (tableDataSet != null) {
+                        member.setFeatureNameList(tableDataSet.getFeatureNameList());
+                        member.setFeatureCount(tableDataSet.getFeatureCount());
+                    }
+
+                    return member;
+                })
+                .collect(Collectors.toList());
+
+        derivedDataSet.setMembers(output);
 
         return derivedDataSet;
     }
