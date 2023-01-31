@@ -73,6 +73,8 @@ public class DataResourceLazyUpdateTask {
         for (DataResourceLazyUpdateModel dataResourceLazyUpdateModel : list) {
             try {
                 LOG.info("DataResourceLazyUpdate start data resource id: {}", dataResourceLazyUpdateModel.getDataResourceId());
+                // 先删掉，否则数据列循环
+                dataResourceLazyUpdateModelMongoReop.deleteByDataResourceId(dataResourceLazyUpdateModel.getDataResourceId());
                 DataResource dataResource = dataResourceMongoReop.findByDataResourceId(dataResourceLazyUpdateModel.getDataResourceId());
                 if (null == dataResource) {
                     LOG.info("DataResourceLazyUpdate, Not exist data resource id: {} info", dataResourceLazyUpdateModel.getDataResourceId());
