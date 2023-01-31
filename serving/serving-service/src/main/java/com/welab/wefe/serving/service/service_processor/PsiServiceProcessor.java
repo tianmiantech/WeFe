@@ -446,8 +446,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             JSONObject dataSource, int currentBatch) throws StatusCodeWithException {
         List<String> needFields = new ArrayList<>(Arrays.asList("id"));
         List<String> serverDataSet = new ArrayList<>();
-        String keysTableName = dataSource.getString("table");
-        String sql = "select " + StringUtils.join(needFields, ",") + " from " + keysTableName + " limit "
+        String sql = "select " + StringUtils.join(needFields, ",") + " from " + model.getIdsTableName() + " limit "
                 + currentBatch * this.batchSize + ", " + this.batchSize;
         List<Map<String, String>> result = dataSourceService.queryList(dataSourceModel, sql, needFields);
         for (Map<String, String> item : result) {
