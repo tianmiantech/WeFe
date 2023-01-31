@@ -251,7 +251,7 @@ alter table `partner`  add column `is_me` tinyint(1) NOT NULL COMMENT '是否是
 ALTER TABLE `account` DROP INDEX `index_unique_phonenumber`;
 
 CREATE TABLE `psi_service_result`(
-    `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
+    `id` bigint(20) NOT NULL primary key AUTO_INCREMENT COMMENT 'ID',
     `request_id` varchar(32) DEFAULT NULL COMMENT '请求ID',
     `service_id` varchar(32) DEFAULT NULL COMMENT '服务ID',
     `service_name` varchar(32) DEFAULT NULL COMMENT '服务名称',

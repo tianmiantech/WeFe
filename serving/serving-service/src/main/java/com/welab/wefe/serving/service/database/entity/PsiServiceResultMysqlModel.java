@@ -18,10 +18,11 @@ package com.welab.wefe.serving.service.database.entity;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity(name = "psi_service_result")
@@ -34,7 +35,8 @@ public class PsiServiceResultMysqlModel implements Serializable {
      */
     @Id
     @Column(name = "id", updatable = false)
-    private String id = UUID.randomUUID().toString().replaceAll("-", "");
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
     @Column(name = "created_time")
     private Date createdTime = new Date();
@@ -63,11 +65,11 @@ public class PsiServiceResultMysqlModel implements Serializable {
     @Column(name = "result")
     private String result;
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
