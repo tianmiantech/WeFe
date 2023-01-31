@@ -66,6 +66,7 @@
             width:100%;
             overflow: hidden;
             text-overflow: ellipsis;
+            line-height: 1.5;
         }
     }
 </style>
