@@ -103,7 +103,7 @@ public class PartnerVerifySignFunction extends AbstractVerifySignFunction {
         ClientServiceService clientServiceService = Launcher.CONTEXT.getBean(ClientServiceService.class);
         ClientServiceMysqlModel clientServiceMysqlModel = clientServiceService.queryByIdAndServiceId(partnerId, serviceId);
         if (clientServiceMysqlModel == null) {
-            throw new StatusCodeWithException("未查询到该合作方到开通记录", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未查询到该合作方到开通记录");
         }
         return clientServiceMysqlModel;
     }

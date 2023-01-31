@@ -48,7 +48,8 @@ public abstract class AbstractHttpTransferVariable {
         params = new JSONObject(new TreeMap(params));
         String data = params.toJSONString();
         if (mConfig.isNeedSign()) {
-            String sign = SignUtil.sign(data, mConfig.getSignPrivateKey());
+            //String sign = SignUtil.sign(data, mConfig.getSignPrivateKey());
+            String sign = SignUtil.sign(data, mConfig.getSignPrivateKey(), mConfig.getSecretKeyType());
             JSONObject body = new JSONObject();
             body.put("customer_id", mConfig.getCommercialId());
             body.put("sign", sign);
