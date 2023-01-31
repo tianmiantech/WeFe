@@ -76,15 +76,15 @@ public class MemberContractService extends AbstractContractService {
 
             String responseValues = transactionResponse.getValues();
             if (transactionException(responseValues)) {
-                throw new StatusCodeWithException("upsert failed,blockchain response error: " + transactionResponse.getReturnMessage(), StatusCode.SYSTEM_BUSY);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "upsert failed,blockchain response error: " + transactionResponse.getReturnMessage());
             }
             if (transactionDataNotFound(responseValues)) {
-                throw new StatusCodeWithException("upsert failed，Data is not exist", StatusCode.SYSTEM_BUSY);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "upsert failed，Data is not exist");
             }
 
         } catch (Exception e) {
             LOG.error("upsert member failed：", e);
-            throw new StatusCodeWithException("upsert member failed", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "upsert member failed");
         }
     }
 
@@ -109,7 +109,7 @@ public class MemberContractService extends AbstractContractService {
 
         } catch (
                 Exception e) {
-            throw new StatusCodeWithException("Failed to updateExtJson set information: " + e, StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to updateExtJson set information: " + e);
         }
     }
 
@@ -125,7 +125,7 @@ public class MemberContractService extends AbstractContractService {
             return (null != ret && ret);
         } catch (Exception e) {
             LOG.error("Check if the member information exists failed: ", e);
-            throw new StatusCodeWithException("Check if the member information exists failed: ", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Check if the member information exists failed: ");
         }
     }
 

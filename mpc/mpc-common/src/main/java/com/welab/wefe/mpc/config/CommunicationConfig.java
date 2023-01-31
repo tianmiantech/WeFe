@@ -16,6 +16,8 @@
 
 package com.welab.wefe.mpc.config;
 
+import java.util.UUID;
+
 import com.welab.wefe.common.constant.SecretKeyType;
 
 /**
@@ -25,9 +27,9 @@ import com.welab.wefe.common.constant.SecretKeyType;
  * @Date: 2021-12-30
  **/
 public class CommunicationConfig {
-    
-    private String requestId;
-    
+
+    private String requestId = UUID.randomUUID().toString().replaceAll("-", "");
+
     /**
      * 查询的接口名
      */

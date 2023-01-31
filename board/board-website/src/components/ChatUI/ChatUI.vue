@@ -147,6 +147,7 @@
         getCurrentInstance,
         onMounted,
         nextTick,
+        onBeforeUnmount,
     } from 'vue';
     import { useStore } from 'vuex';
     // import DBUtil from '@src/utils/dbUtil';
@@ -192,6 +193,8 @@
                 ],
                 account: {},
             });
+
+            let chatTimer = null;
 
             // hide chat room
             const hide = () => {
@@ -255,18 +258,22 @@
                 }
             };
             // init chart connection
-            const initConnections = async () => {
+            const initConnections = async (isClick) => {
                 const userInfoLocalStorage = window.localStorage.getItem(`${appCode()}_userInfo`);
 
                 if(!userInfoLocalStorage) return;
 
                 await getLastChatAccount({ requestFromRefresh: true });
 
-                setTimeout(() => {
-                    // every 10s
-                    initConnections();
-                }, 10 * 10e2);
+                if (!isClick) {
+                    chatTimer = setTimeout(() => {
+                        // every 10s
+                        initConnections();
+                    }, 10 * 10e2);
+                }
             };
+            // 定时器
+
 
             const tabChange = (ref) => {
                 const callback = {
@@ -274,7 +281,7 @@
                         accountList.value.getContacts();
                     },
                     recent() {
-                        initConnections();
+                        initConnections(true);
                     },
                 };
 
@@ -566,6 +573,10 @@
                         vData.tabName = 'recent';
                     }
                 });
+            });
+            onBeforeUnmount(() => {
+                clearTimeout(chatTimer);
+                chatTimer = null;
             });
 
             return {

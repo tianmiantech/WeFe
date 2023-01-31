@@ -70,7 +70,7 @@ public class GrpcUtil {
     }
 
     public static ManagedChannel getManagedChannel(String ip, int port) {
-        return ManagedChannelBuilder.forTarget(ip + ":" + port).maxInboundMessageSize(GrpcConstant.MAX_BOUND_MESSAGE_SIZE * 1024 * 1024).usePlaintext().build();
+        return ManagedChannelBuilder.forTarget(ip + ":" + port).maxInboundMessageSize(Integer.MAX_VALUE).usePlaintext().build();
     }
 
     public static ManagedChannel getSslManagedChannel(BasicMetaProto.Endpoint endpoint, X509Certificate[] x509Certificates) throws SSLException {
@@ -87,7 +87,7 @@ public class GrpcUtil {
         }
 
         NettyChannelBuilder builder = NettyChannelBuilder.forTarget(ip + ":" + port).negotiationType(NegotiationType.TLS)
-                .sslContext(sslContextBuilder.build()).maxInboundMetadataSize(GrpcConstant.MAX_BOUND_MESSAGE_SIZE * 1024 * 1024);
+                .sslContext(sslContextBuilder.build()).maxInboundMessageSize(Integer.MAX_VALUE);
         if (!certificatesIsEmpty) {
             builder.overrideAuthority("wefe.tianmiantech.com.test");
         }

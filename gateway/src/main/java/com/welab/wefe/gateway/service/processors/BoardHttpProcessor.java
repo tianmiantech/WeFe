@@ -55,14 +55,20 @@ public class BoardHttpProcessor extends AbstractProcessor {
 
     @Override
     public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
+        long totalStartTime = System.currentTimeMillis();
         try {
+            long startTime = System.currentTimeMillis();
             transferMeta = encryptTransferMeta(transferMeta);
+            LOG.info("Gateway access board,session id:{}, encrypt time spend:{}", transferMeta.getSessionId(), (System.currentTimeMillis() - startTime));
         } catch (Exception e) {
             LOG.error("BoardHttpProcessor encrypt transferMeta exception: ", e);
             return ReturnStatusBuilder.sysExc("加密数据异常：" + e.getMessage(), transferMeta.getSessionId());
         }
-
-        return toRemote(transferMeta);
+        long startTime2 = System.currentTimeMillis();
+        BasicMetaProto.ReturnStatus returnStatus = toRemote(transferMeta);
+        LOG.info("Gateway access board,session id:{}, to remote time spend:{}", transferMeta.getSessionId(), (System.currentTimeMillis() - startTime2));
+        LOG.info("Gateway access board,session id:{}, total time spend:{}", transferMeta.getSessionId(), (System.currentTimeMillis() - totalStartTime));
+        return returnStatus;
     }
 
     @Override
@@ -86,8 +92,10 @@ public class BoardHttpProcessor extends AbstractProcessor {
             boardBaseUrl = (boardBaseUrl.endsWith("/") ? boardBaseUrl : (boardBaseUrl + "/"));
             String fullUrl = boardBaseUrl + url;
             LOG.info("Gateway access board address：" + fullUrl);
+            long startTime = System.currentTimeMillis();
             HttpResponse response = BoardHelper.push(fullUrl, method, headers, BoardHelper.generateReqParam(body));
             if (response.success()) {
+                LOG.info("Gateway access board,session id:{}, address:{}, time spend:{}", transferMeta.getSessionId(), fullUrl, (System.currentTimeMillis() - startTime));
                 return ReturnStatusBuilder.ok(transferMeta.getSessionId(), response.getBodyAsString());
             } else {
                 String errorMsg = "请求Board地址【" + url + "】失败，Http code: " + response.getCode() + ", errorMsg: " + response.getError().getMessage();
@@ -115,7 +123,7 @@ public class BoardHttpProcessor extends AbstractProcessor {
 
         String secretKey = SM4Util.generateKeyString();
         String encryptSecretKey = AsymmetricCryptoUtil.encryptByPublicKey(secretKey, dstMember.getPublicKey(), dstMember.getSecretKeyType());
-        String encryptBody = SM4Util.encrypt(secretKey, body);
+        String encryptBody = SM4Util.encryptBase64(secretKey, body);
         GatewayMetaProto.Content content = contentBuilder.setStrData(encryptSecretKey + ":" + encryptBody).build();
 
         return transferMeta.toBuilder().setContent(content).build();
@@ -136,6 +144,6 @@ public class BoardHttpProcessor extends AbstractProcessor {
         String encryptSecretKey = cipherContent.split(":")[0];
         String encryptContent = cipherContent.split(":")[1];
         String secretKey = AsymmetricCryptoUtil.decryptByPrivateKey(encryptSecretKey, selfMember.getPrivateKey(), selfMember.getSecretKeyType());
-        return SM4Util.decrypt(secretKey, encryptContent);
+        return SM4Util.decryptBase64(secretKey, encryptContent);
     }
 }

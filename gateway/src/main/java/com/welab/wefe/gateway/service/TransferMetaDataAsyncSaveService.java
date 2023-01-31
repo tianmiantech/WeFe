@@ -135,7 +135,7 @@ public class TransferMetaDataAsyncSaveService {
                 } else if ("clickhouse".equalsIgnoreCase(storageType)) {
                     // Own use Ck
                     //storageService.saveList(dstDbName, dstTableName, dateItemModelList);
-                    PersistentStorage.getInstance().putAll(dstDbName, dstTableName, dateItemModelList);
+                    PersistentStorage.getInstance().putAllNew(dstDbName, dstTableName, dateItemModelList);
                     LOG.info("Data sink finish, session id: {}, sequence no: {}, db name: {}, table name: {}, dst db name: {}, dst table name: {}, data size: {}, time spent: {}", transferMeta.getSessionId(), transferMeta.getSequenceNo(), srcDbName, srcTableName, dstDbName, dstTableName, dataList.size(), (System.currentTimeMillis() - startTime));
 
                 } else if ("cos".equalsIgnoreCase(storageType)) {

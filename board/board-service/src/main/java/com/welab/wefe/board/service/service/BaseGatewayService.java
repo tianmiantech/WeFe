@@ -16,13 +16,6 @@
 
 package com.welab.wefe.board.service.service;
 
-import java.security.cert.X509Certificate;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.lang3.math.NumberUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.protobuf.MessageOrBuilder;
@@ -37,9 +30,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.dto.global_config.GatewayConfigModel;
-import com.welab.wefe.common.wefe.dto.global_config.MemberInfoModel;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
-
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.netty.GrpcSslContexts;
@@ -47,6 +38,12 @@ import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.security.cert.X509Certificate;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author zane
@@ -123,16 +120,18 @@ public class BaseGatewayService extends AbstractService {
      */
     private JSONObject callGateway(String gatewayUri, String dstMemberId, String dstMemberName, String dstGatewayUri, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
 
+        long start = System.currentTimeMillis();
+
         if (StringUtil.isEmpty(gatewayUri)) {
             StatusCode.RPC_ERROR.throwException("尚未设置 gateway 内网地址，请在[全局设置][系统设置]中设置 gateway 服务的内网地址。");
         }
-        if(StringUtil.isNotEmpty(dstGatewayUri) && !isValidGatewayUri(dstGatewayUri)) {
+        if (StringUtil.isNotEmpty(dstGatewayUri) && !isValidGatewayUri(dstGatewayUri)) {
             StatusCode.RPC_ERROR.throwException("目的网关地址格式不正确，格式应为 HOST:PORT。");
         }
 
         GatewayMetaProto.TransferMeta transferMeta = buildTransferMeta(dstMemberId, dstMemberName, dstGatewayUri, data, processorType);
         ManagedChannel grpcChannel = null;
-        String message = "[grpc] end to " + dstMemberName;
+        String message = "[grpc] end to " + dstMemberName + " ";
         try {
             grpcChannel = buildManagedChannel(gatewayUri);
             TransferServiceGrpc.TransferServiceBlockingStub clientStub = TransferServiceGrpc.newBlockingStub(grpcChannel);
@@ -141,12 +140,14 @@ public class BaseGatewayService extends AbstractService {
                 StatusCode.REMOTE_SERVICE_ERROR.throwException(returnStatus.getMessage());
             }
 
-            message += "success request:" + data;
+            long spend = System.currentTimeMillis() - start;
+            message += "success(" + spend + "ms) request:" + data;
             LOG.info(message);
 
             return JSON.parseObject(returnStatus.getData());
         } catch (Exception e) {
-            message += "fail message:" + e.getMessage() + " request:" + data;
+            long spend = System.currentTimeMillis() - start;
+            message += "fail(" + spend + "ms) message:" + e.getMessage() + " request:" + data;
             LOG.error(message);
 
             LOG.error("Request gateway exception, message: " + transferMetaToString(transferMeta) + ",exception：" + e.getMessage(), e);
@@ -198,23 +199,23 @@ public class BaseGatewayService extends AbstractService {
         // The gateway responds to the signature and prompts abnormal information
         String signPermissionTips = "UNAUTHENTICATED";
         if (StringUtil.isEmpty(errorMsg) || errorMsg.contains(connectionDisableTips)) {
-            throw new StatusCodeWithException("gateway 连接不可用，请检查网关地址是否正确或网络连接是否正常或网关服务是否已启动", StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "gateway 连接不可用，请检查网关地址是否正确或网络连接是否正常或网关服务是否已启动");
         }
         if (errorMsg.contains(ipPermissionTips)) {
-            throw new StatusCodeWithException("请在 [全局设置] -> [系统设置] 菜单下添加 board 服务的 IP 地址到 gateway 白名单，详细信息请查看 [Dashboard] 菜单", StatusCode.IP_LIMIT);
+            throw new StatusCodeWithException(StatusCode.IP_LIMIT, "请在 [全局设置] -> [系统设置] 菜单下添加 board 服务的 IP 地址到 gateway 白名单，详细信息请查看 [Dashboard] 菜单");
         }
         if (errorMsg.contains(signPermissionTips)) {
-            throw new StatusCodeWithException("签名失败，请确保Member的公私钥正确性以及公钥是否已上传", StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "签名失败，请确保Member的公私钥正确性以及公钥是否已上传");
         }
     }
 
     private ManagedChannel getGrpcChannel(String gatewayUri) throws StatusCodeWithException {
         if (StringUtil.isEmpty(gatewayUri)) {
-            throw new StatusCodeWithException("请到 [全局设置] -> [系统设置] 菜单下配置网关地址信息，格式为 HOST:PORT", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "请到 [全局设置] -> [系统设置] 菜单下配置网关地址信息，格式为 HOST:PORT");
         }
 
         if (!isValidGatewayUri(gatewayUri)) {
-            throw new StatusCodeWithException("网关地址格式不正确，格式应为 HOST:PORT", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "网关地址格式不正确，格式应为 HOST:PORT");
         }
 
         return ManagedChannelBuilder
@@ -271,12 +272,12 @@ public class BaseGatewayService extends AbstractService {
 
     private ManagedChannel buildManagedChannel(String gatewayUri) throws Exception {
         if (!isValidGatewayUri(gatewayUri)) {
-            throw new StatusCodeWithException("网关地址格式不正确，格式应为 HOST:PORT", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "网关地址格式不正确，格式应为 HOST:PORT");
         }
-        MemberInfoModel memberInfoModel = globalConfigService.getModel(MemberInfoModel.class);
-        if (gatewayUri.equals(memberInfoModel.getMemberGatewayUri()) && Boolean.TRUE.equals(memberInfoModel.getMemberGatewayTlsEnable())) {
-            return getSslGrpcChannel(gatewayUri);
-        }
+//        MemberInfoModel memberInfoModel = globalConfigService.getModel(MemberInfoModel.class);
+//        if (gatewayUri.equals(memberInfoModel.getMemberGatewayUri()) && Boolean.TRUE.equals(memberInfoModel.getMemberGatewayTlsEnable())) {
+//            return getSslGrpcChannel(gatewayUri);
+//        }
         return getGrpcChannel(gatewayUri);
 
     }
@@ -293,7 +294,7 @@ public class BaseGatewayService extends AbstractService {
                 .negotiationType(NegotiationType.TLS)
                 .overrideAuthority("wefe.tianmiantech.com.test")
                 .sslContext(sslContextBuilder.build())
-                .maxInboundMetadataSize(2000 * 1024 * 1024)
+                .maxInboundMessageSize(2000 * 1024 * 1024)
                 .build();
     }
 

@@ -18,19 +18,19 @@
                         <h4>训练结果:</h4>
                         <el-row class="mb10">
                             <el-col :span="8">
-                                auc：{{ vData.train.auc }}
+                                auc：{{ dealNumPrecision(vData.train.auc) }}
                             </el-col>
                             <el-col :span="12">
-                                ks：{{ vData.train.ks }}
+                                ks：{{ dealNumPrecision(vData.train.ks) }}
                             </el-col>
                         </el-row>
                         <h4>验证结果:</h4>
                         <el-row>
                             <el-col :span="8">
-                                auc：{{ vData.validate.auc }}
+                                auc：{{ dealNumPrecision(vData.validate.auc) }}
                             </el-col>
                             <el-col :span="12">
-                                ks：{{ vData.validate.ks }}
+                                ks：{{ dealNumPrecision(vData.validate.ks) }}
                             </el-col>
                         </el-row>
                     </el-form>
@@ -84,8 +84,7 @@
     import TopN from './TopN.vue';
     import psiTable from '../../components/psi/psi-table.vue';
     import { getDataResult } from '@src/service';
-    import { turnDemical } from '@src/utils/utils';
-
+    import { dealNumPrecision } from '@src/utils/utils';
 
     const mixin = resultMixin();
 
@@ -161,18 +160,18 @@
                         flowId: flow_id, flowNodeId: flow_node_id, jobId: job_id, type: 'psi',
                     }).then((data) => {
                         const { psi= {},task_config } = data;
-                        const { 
+                        const {
                             pred_label_psi = '',
                             train_pred_label_static,
                             test_pred_label_static ,
                             bin_cal_results = {},
-                            split_point = [] } = psi; 
+                            split_point = [] } = psi;
                         const { params } = task_config || {};
                         const { psi_param } = params || {};
                         const { need_psi } = psi_param || {};
 
                         vData.need_psi = need_psi;
-                        vData.featurePsi = turnDemical(pred_label_psi, 4);
+                        vData.featurePsi = dealNumPrecision(pred_label_psi, 4);
                         vData.tableData = {
                             '预测概率/评分': {
                                 train_feature_static: train_pred_label_static || {},
@@ -226,6 +225,7 @@
                 activeName,
                 methods,
                 topnRef,
+                dealNumPrecision,
             };
         },
     };

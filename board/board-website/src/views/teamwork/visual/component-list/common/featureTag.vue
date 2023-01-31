@@ -1,5 +1,11 @@
 <template>
-    <el-tag :color="showColor" effect="dark" size="small" v-if="type">
+    <el-tag
+        v-if="type"
+        :color="showColor"
+        effect="dark"
+        size="small"
+        class="feature-type-tag"
+    >
         {{type}}
     </el-tag>
 </template>
@@ -31,10 +37,10 @@
         return {
             'Integer': '#79bbff',
             'Long':    '#67c23a',
-            'Double':  '#909399', 
+            'Double':  '#006d75', 
             'Enum':    '#e6a23c', 
             'String':  '#f56c6c',
-        }[type] || ''
+        }[type] || '#79bbff'
     };
 
     const type = computed(() => {
@@ -49,6 +55,11 @@
     const showColor = computed(() => {
         return color(type.value);
     });
-
-    
 </script>
+<style lang="scss" scoped>
+.feature-type-tag {
+    transform: scale(.88);
+    padding: 0 4px;
+    margin-right: 2px;
+}
+</style>

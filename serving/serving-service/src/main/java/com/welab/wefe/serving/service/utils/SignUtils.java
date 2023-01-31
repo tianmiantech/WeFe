@@ -48,7 +48,7 @@ public class SignUtils {
             sign = SignUtil.sign(data, CacheObjects.getRsaPrivateKey(), CacheObjects.getSecretKeyType());
         } catch (Exception e) {
             e.printStackTrace();
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
         JSONObject body = new JSONObject();

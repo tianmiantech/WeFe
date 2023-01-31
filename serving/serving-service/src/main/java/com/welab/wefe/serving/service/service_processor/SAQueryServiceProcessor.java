@@ -15,11 +15,6 @@
  */
 package com.welab.wefe.serving.service.service_processor;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
-
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
@@ -39,6 +34,11 @@ import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
 import com.welab.wefe.serving.service.service.ClientServiceService;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * @author hunter.zhao
@@ -64,7 +64,7 @@ public class SAQueryServiceProcessor extends AbstractServiceProcessor<TableServi
             String url = baseUrl + apiName;
             ClientServiceMysqlModel activateModel = clientServiceService.findActivateClientServiceByUrl(url);
             if (activateModel == null) {
-                throw new StatusCodeWithException("尚未激活服务:" + url, StatusCode.PERMISSION_DENIED);
+                throw new StatusCodeWithException(StatusCode.PERMISSION_DENIED, "尚未激活服务:" + url);
             }
             ServerConfig config = new ServerConfig();
             config.setServerName(apiName);

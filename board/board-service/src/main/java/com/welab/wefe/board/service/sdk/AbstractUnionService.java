@@ -230,7 +230,7 @@ public abstract class AbstractUnionService extends AbstractService {
                 // sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
                 sign = SignUtil.sign(data, CacheObjects.getRsaPrivateKey(), secretKeyType);
             } catch (Exception e) {
-                throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
             }
 
 
@@ -251,23 +251,23 @@ public abstract class AbstractUnionService extends AbstractService {
             log(response.getError());
             String message = "访问 Union API 失败(" + response.getCode() + ")：" +
                     response.getMessage() + " ，请检查网络连接。url：" + response.getUrl();
-            throw new StatusCodeWithException(message, StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, message);
         }
 
         JSONObject json;
         try {
             json = response.getBodyAsJson();
         } catch (JSONException e) {
-            throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "union 响应失败：" + response.getBodyAsString());
         }
 
         if (json == null) {
-            throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "union 响应失败：" + response.getBodyAsString());
         }
 
         Integer code = json.getInteger("code");
         if (code == null || !code.equals(0)) {
-            throw new StatusCodeWithException("union 响应失败(" + code + ")：" + json.getString("message"), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "union 响应失败(" + code + ")：" + json.getString("message"));
         }
         return json;
     }
@@ -311,7 +311,7 @@ public abstract class AbstractUnionService extends AbstractService {
                 sign = SignUtil.sign(data, CacheObjects.getRsaPrivateKey(), CacheObjects.getSecretKeyType());
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
             }
 
 
@@ -353,7 +353,7 @@ public abstract class AbstractUnionService extends AbstractService {
 
                     request.appendParameter(item.getKey(), streamBody);
                 } catch (IOException e) {
-                    StatusCode.FILE_IO_ERROR.throwException(e);
+                    StatusCode.FILE_IO_READ_ERROR.throwException(e);
                 }
             }
 
@@ -362,23 +362,23 @@ public abstract class AbstractUnionService extends AbstractService {
 
 
         if (!response.success()) {
-            throw new StatusCodeWithException(response.getMessage(), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, response.getMessage());
         }
 
         JSONObject json;
         try {
             json = response.getBodyAsJson();
         } catch (JSONException e) {
-            throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "union 响应失败：" + response.getBodyAsString());
         }
 
         if (json == null) {
-            throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "union 响应失败：" + response.getBodyAsString());
         }
 
         Integer code = json.getInteger("code");
         if (code == null || !code.equals(0)) {
-            throw new StatusCodeWithException("union 响应失败(" + code + ")：" + json.getString("message"), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "union 响应失败(" + code + ")：" + json.getString("message"));
         }
         return json;
     }

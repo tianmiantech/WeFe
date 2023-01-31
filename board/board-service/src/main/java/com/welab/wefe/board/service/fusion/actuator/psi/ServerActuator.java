@@ -42,7 +42,7 @@ public class ServerActuator extends AbstractPsiServerActuator {
 
     @Override
     public void dump(List<JObject> fruit) {
-        LOG.info("fruit insert ready...");
+        LOG.info("fruit insert ready..., fruit size = " + fruit.size());
 
         Set<String> headers = new HashSet<>();
         if (fruit.isEmpty()) {
@@ -60,8 +60,6 @@ public class ServerActuator extends AbstractPsiServerActuator {
         }
 
         LOG.info("fruit insert end...");
-
-        System.out.println("测试结果：" + JSON.toJSONString(fruit));
     }
 
     @Override

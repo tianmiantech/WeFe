@@ -27,12 +27,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.mpc.config.CommunicationConfig;
-import com.welab.wefe.mpc.psi.sdk.PrivateSetIntersection;
+import com.welab.wefe.mpc.psi.sdk.Psi;
+import com.welab.wefe.mpc.psi.sdk.PsiFactory;
 import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
 import com.welab.wefe.serving.service.service.ClientServiceService;
-
-import cn.hutool.core.lang.UUID;
 
 /**
  * @author hunter.zhao
@@ -66,21 +65,19 @@ public class MultiPsiServiceProcessor extends AbstractServiceProcessor<TableServ
             communicationConfig.setApiName(apiName);
             communicationConfig.setServerUrl(baseUrl);
             communicationConfig.setCommercialId(activateModel.getCode());
-            communicationConfig.setNeedSign(true);
             communicationConfig.setSignPrivateKey(activateModel.getPrivateKey());
             communicationConfig.setSecretKeyType(activateModel.getSecretKeyType());
-            communicationConfig.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
             communicationConfigs.add(communicationConfig);
         }
 
         List<String> result = new ArrayList<>(clientIds);
-        PrivateSetIntersection privateSetIntersection = new PrivateSetIntersection();
+        Psi psi = PsiFactory.generatePsi();
         for (CommunicationConfig config : communicationConfigs) {
-            List<String> psi = privateSetIntersection.query(config, clientIds);
+            List<String> psiResult = psi.query(config, clientIds);
             if (result.isEmpty()) {
                 break;
             }
-            result = result.stream().filter(item -> psi.contains(item)).collect(Collectors.toList());
+            result = result.stream().filter(item -> psiResult.contains(item)).collect(Collectors.toList());
             // add calllog
             JSONObject request = new JSONObject();
             request.put("config", config);

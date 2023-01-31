@@ -131,7 +131,7 @@ public class ServingService extends AbstractService {
                 //sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey());
                 sign = SignUtil.sign(data, CacheObjects.getRsaPrivateKey(), CacheObjects.getSecretKeyType());
             } catch (Exception e) {
-                throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
             }
 
             JSONObject body = new JSONObject();
@@ -158,15 +158,15 @@ public class ServingService extends AbstractService {
                 .postJson();
 
         if (!response.success()) {
-            throw new StatusCodeWithException(response.getMessage(), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, response.getMessage());
         }
 
         JSONObject json = response.getBodyAsJson();
         Integer code = json.getInteger("code");
         if (code == null || !code.equals(0)) {
-            throw new StatusCodeWithException("serving 响应失败(" + code + ")：" +
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "serving 响应失败(" + code + ")：" +
                     (response.getMessage().isEmpty() ? json.getString("message") : response.getMessage())
-                    , StatusCode.RPC_ERROR);
+                    );
         }
         return json;
     }

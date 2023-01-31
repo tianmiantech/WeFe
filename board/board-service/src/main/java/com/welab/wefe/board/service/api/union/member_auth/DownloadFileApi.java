@@ -40,7 +40,7 @@ public class DownloadFileApi extends AbstractApi<DownloadFileApi.Input, Response
             sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
         } catch (Exception e) {
             e.printStackTrace();
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
         params.put("member_id", CacheObjects.getMemberId());
         params.put("sign", sign);

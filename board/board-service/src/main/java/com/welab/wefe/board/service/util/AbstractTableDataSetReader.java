@@ -66,7 +66,7 @@ public abstract class AbstractTableDataSetReader implements Closeable {
         try {
             list = doGetHeader();
         } catch (Exception e) {
-            throw new StatusCodeWithException("读取数据集 header 信息失败：" + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "读取数据集 header 信息失败：" + e.getMessage());
         }
 
 
@@ -79,14 +79,14 @@ public abstract class AbstractTableDataSetReader implements Closeable {
         }
 
         if (list.stream().distinct().count() != list.size()) {
-            throw new StatusCodeWithException("数据集包含重复的字段，请处理后重新上传。", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "数据集包含重复的字段，请处理后重新上传。");
         }
 
         if (list.size() == 0) {
-            throw new StatusCodeWithException("数据集首行为空", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "数据集首行为空");
         }
         if (list.size() == 1) {
-            throw new StatusCodeWithException("数据集仅一列，不支持仅有 Id 列的数据集上传。", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "数据集仅一列，不支持仅有 Id 列的数据集上传。");
         }
 
         // Convert uppercase Y to lowercase y

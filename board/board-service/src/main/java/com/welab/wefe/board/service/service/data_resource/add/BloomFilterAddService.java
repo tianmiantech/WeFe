@@ -84,6 +84,8 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
         model.setDataSourceId(input.getDataSourceId());
         model.setHashFunction(input.getHashFunction());
 
+        fieldInfoService.saveAll(model.getId(), input.getFieldInfoList());
+        
         // Parse and save the original data
         try {
             AbstractBloomFilterReader bloomfilterReader = createBloomfilterReader(input);
@@ -93,8 +95,6 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
             dataResourceUploadTaskService.onError(task.getId(), e);
             return;
         }
-
-        fieldInfoService.saveAll(model.getId(), input.getFieldInfoList());
 
         // save bloom_filter info to file
         model.setUpdatedTime(new Date());
@@ -143,7 +143,7 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
                     : new ExcelBloomfilterReader(input.getMetadataList(), file);
 
         } catch (IOException e) {
-            StatusCode.FILE_IO_ERROR.throwException(e);
+            StatusCode.FILE_IO_READ_ERROR.throwException(e);
             return null;
         }
     }
@@ -154,7 +154,7 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
     private SqlBloomFilterReader createSqlBloomfilterReader(BloomFilterAddInputModel input) throws Exception {
         DataSourceMysqlModel dataSource = bloomfilterService.getDataSourceById(input.getDataSourceId());
         if (dataSource == null) {
-            throw new StatusCodeWithException("此dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "此dataSourceId在数据库不存在");
         }
         JdbcClient client = JdbcClient.create(
                 dataSource.getDatabaseType(),

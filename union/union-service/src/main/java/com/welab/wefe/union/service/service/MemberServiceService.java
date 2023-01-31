@@ -22,12 +22,12 @@ import com.welab.wefe.common.data.mongodb.dto.member.MemberServiceQueryOutput;
 import com.welab.wefe.common.data.mongodb.entity.union.MemberService;
 import com.welab.wefe.common.data.mongodb.repo.MemberServiceMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.union.service.api.service.PutApi;
 import com.welab.wefe.union.service.api.service.QueryApi;
 import com.welab.wefe.union.service.dto.member.ApiMemberServiceQueryOutput;
 import com.welab.wefe.union.service.service.contract.MemberServiceContractService;
 import com.welab.wefe.union.service.util.MapperUtil;
+import com.welab.wefe.union.service.util.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ public class MemberServiceService {
         } catch (StatusCodeWithException e) {
             throw e;
         } catch (Exception e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
     }
 
@@ -74,7 +74,7 @@ public class MemberServiceService {
             );
         } catch (Exception e) {
             LOG.error("Failed to query member information in pagination:", e);
-            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to query member information in pagination");
+            throw StatusCodeWithException.of(StatusCode.SYSTEM_ERROR, "Failed to query member information in pagination");
         }
     }
 }

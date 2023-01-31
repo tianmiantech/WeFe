@@ -18,9 +18,7 @@ package com.welab.wefe.data.fusion.service.api.task;
 
 import static com.welab.wefe.common.StatusCode.DATA_NOT_FOUND;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -30,6 +28,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.data.fusion.service.actuator.rsapsi.AbstractPsiActuator;
 import com.welab.wefe.data.fusion.service.actuator.rsapsi.PsiClientActuator;
 import com.welab.wefe.data.fusion.service.actuator.rsapsi.PsiServerActuator;
 import com.welab.wefe.data.fusion.service.database.entity.TaskMySqlModel;
@@ -48,18 +47,20 @@ public class StopTaskApi extends AbstractApi<StopTaskApi.Input, EnumSet<TaskStat
     private TaskService taskService;
 
     @Override
-    protected ApiResult<EnumSet<TaskStatus>> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<EnumSet<TaskStatus>> handle(Input input) throws Exception {
         TaskMySqlModel task = taskService.findByBusinessId(input.getBusinessId());
         if (task == null) {
-            throw new StatusCodeWithException("任务不存在！", DATA_NOT_FOUND);
+            throw new StatusCodeWithException(DATA_NOT_FOUND, "任务不存在！");
         }
         if (PSIActuatorRole.client.equals(task.getPsiActuatorRole())) {
             PsiClientActuator act = (PsiClientActuator)ActuatorManager.get(input.getBusinessId()).actuator;
             act.status = PSIActuatorStatus.exception;
+            LOG.info("change client actuator.status = exception");
         }
         else {
             PsiServerActuator act = (PsiServerActuator)ActuatorManager.get(input.getBusinessId()).actuator;
             act.status = PSIActuatorStatus.exception;
+            LOG.info("change server actuator.status = exception");
         }
         return success();
     }
@@ -68,23 +69,12 @@ public class StopTaskApi extends AbstractApi<StopTaskApi.Input, EnumSet<TaskStat
         @Check(name = "任务Id", require = true)
         private String businessId;
 
-        @Check(name = "操作", require = true)
-        private List<String> operators = new ArrayList<>(); // ["end", "status"]
-
         public String getBusinessId() {
             return businessId;
         }
 
         public void setBusinessId(String businessId) {
             this.businessId = businessId;
-        }
-
-        public List<String> getOperators() {
-            return operators;
-        }
-
-        public void setOperators(List<String> operators) {
-            this.operators = operators;
         }
 
     }

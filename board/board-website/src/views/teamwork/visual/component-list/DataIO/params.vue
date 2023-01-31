@@ -191,8 +191,8 @@
                                     <input :id="`label-${index * 5 + i - 1}`" class="board-checkbox__original" type="checkbox" />
                                 </span>
                                 <span class="board-checkbox__label">
-                                    {{ list[index * 5 + i - 1] }}
                                     <FeatureTagVue :name="list[index * 5 + i - 1]" :data_set_id="vData.check_data_set_id" :featureTypeList="vData.featureTypeList" />
+                                    <span>{{ list[index * 5 + i - 1] }}</span>
                                 </span>
                             </label>
                         </template>
@@ -909,7 +909,7 @@
             .board-form-item__label{
                 font-size: 12px;
                 text-align: left;
-                line-height: 24px;
+                // line-height: 24px;
             }
             .board-form-item__content{
                 font-size: 12px;

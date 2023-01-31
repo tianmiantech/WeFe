@@ -109,6 +109,13 @@ export default _ => {
         'UPDATE_FEATURE_TYPE'(state, data){
             state.featureType = data;
         },
+        'MENU_LIST'(state, data){
+            state.menuList = data;
+            setStorage().setItem(MENU_LIST, JSON.stringify(data));
+        },
+        'APP_INFO'(state, data) {
+            state.appInfo = data;
+        },
     };
 
     const actions = {
@@ -117,13 +124,6 @@ export default _ => {
             getFeatureType({ flow_id }).then((res) => {
                 commit('UPDATE_FEATURE_TYPE', res);
             });
-        },
-        'MENU_LIST'(state, data){
-            state.menuList = data;
-            setStorage().setItem(MENU_LIST, JSON.stringify(data));
-        },
-        'APP_INFO'(state, data) {
-            state.appInfo = data;
         },
     };
 

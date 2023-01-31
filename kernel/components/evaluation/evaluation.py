@@ -243,7 +243,8 @@ class Evaluation(ModelBase):
                 eval_result = self.evaluate_metircs(mode, data)
                 self.eval_results[key].append(eval_result)
             scored_result = self.cal_scord_card_bin(eval_data_local)
-            self.eval_results[key].append(scored_result)
+            if scored_result:
+                self.eval_results[key].append(scored_result)
             pred_psi = self.evaluate_psi(split_data_with_label)
             if pred_psi:
                 self.eval_results[key].append(pred_psi)
@@ -955,6 +956,8 @@ class Evaluation(ModelBase):
                 pred_result[mode] = pred_scores
             train_pred_score = pred_result.get('train')
             eval_pred_score = pred_result.get('validate')
+            if eval_pred_score is None:
+                raise ValueError("eval pred score is null")
             train_bin_values, train_split_point = self.get_bin_result(train_pred_score, self.model_param.psi_param)
             LOGGER.debug('train_bin_values and train_split_point'.format(train_bin_values, train_split_point))
             train_bin_results = self.cal_bin_rate(train_bin_values)

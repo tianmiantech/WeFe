@@ -100,7 +100,7 @@
                                 label="参数"
                                 name="params"
                             >
-                                <el-scrollbar height="100%">
+                                <el-scrollbar style="height:calc(100% - 40px);">
                                     <div v-if="!isCreator" class="mb10">
                                         <el-alert
                                             title="!!! 仅允许查看"
@@ -127,10 +127,10 @@
                                         :project-type="projectType"
                                     >
                                     </component>
-
-                                    <div
-                                        v-if="!jobGraphShow && isCreator && (isProjectAdmin === 'true' || isProjectAdmin === '1')"
-                                        class="mt20"
+                                </el-scrollbar>
+                                <div
+                                    v-if="!jobGraphShow && isCreator && (isProjectAdmin === 'true' || isProjectAdmin === '1')"
+                                    style="line-height: 40px;"
                                     >
                                         <el-button
                                             v-if="tabName === 'params'"
@@ -141,7 +141,6 @@
                                         </el-button>
                                         <el-button @click="resetGraphState">取消</el-button>
                                     </div>
-                                </el-scrollbar>
                             </el-tab-pane>
                             <el-tab-pane
                                 v-if="component.result && jobGraphShow"
@@ -487,7 +486,7 @@
     position: absolute;
     top: 57.3%;
     left: -24px;
-    z-index: 100001;
+    z-index: 101;
     &.is-recover {
         top: 8px;
         left: 97%;
@@ -568,7 +567,6 @@
         right:0;
         height:100%;
         overflow-y: auto;
-        z-index: 100000;
     }
 }
 .readonly-form{

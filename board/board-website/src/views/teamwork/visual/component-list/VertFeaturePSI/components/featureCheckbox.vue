@@ -40,8 +40,8 @@
         <el-form-item>
             <el-checkbox-group v-model="data.selected" @change="handleCheckedChange">
                 <el-checkbox v-for="item in allFeature" :key="item" :label="item">
-                    {{item}}
                     <FeatureTagVue :name="item" :data_set_id="data_set_id" />
+                    <span>{{item}}</span>
                 </el-checkbox>
             </el-checkbox-group>
         </el-form-item>

@@ -16,10 +16,6 @@
 
 package com.welab.wefe.serving.service.manager;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.Launcher;
@@ -29,6 +25,10 @@ import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
 import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelService;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author hunter.zhao
@@ -61,7 +61,7 @@ public class ModelManager {
         synchronized (modelService) {
             TableModelMySqlModel mysqlModel = modelService.findOne(modelId);
             if (mysqlModel == null) {
-                throw new StatusCodeWithException("{} 模型不存在！" + modelId, StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "{} 模型不存在！" + modelId);
             }
 
 
@@ -87,7 +87,7 @@ public class ModelManager {
         synchronized (modelService) {
             TableModelMySqlModel mysqlModel = modelService.findOne(modelId);
             if (mysqlModel == null) {
-                throw new StatusCodeWithException("{} 模型不存在！" + modelId, StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "{} 模型不存在！" + modelId);
             }
 
             List<ModelMemberMySqlModel> member = modelService.findByModelIdAndMemberId(modelId, CacheObjects.getMemberId());
@@ -113,12 +113,12 @@ public class ModelManager {
         synchronized (modelService) {
             TableModelMySqlModel mysqlModel = modelService.findOne(modelId);
             if (mysqlModel == null) {
-                throw new StatusCodeWithException("{} 模型不存在！" + modelId, StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "{} 模型不存在！" + modelId);
             }
 
             ModelMemberMySqlModel member = modelService.findByModelIdAndMemberIdAndRole(modelId, CacheObjects.getMemberId(), myRole);
             if (member == null) {
-                throw new StatusCodeWithException("{} 模型数据有异常！！" + CacheObjects.getMemberId(), StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "{} 模型数据有异常！！" + CacheObjects.getMemberId());
             }
 
             BaseModel model = new BaseModel();

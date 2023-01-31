@@ -30,6 +30,8 @@ import com.welab.wefe.gateway.common.ReturnStatusBuilder;
 import com.welab.wefe.gateway.common.ReturnStatusEnum;
 import com.welab.wefe.gateway.common.StorageConstant;
 import com.welab.wefe.gateway.service.MessageService;
+import com.welab.wefe.gateway.service.TransferMetaDataSourceParallelStream;
+import com.welab.wefe.gateway.service.TransferMetaDataSourceStream;
 import com.welab.wefe.gateway.service.base.AbstractSendTransferMetaCachePersistentService;
 import com.welab.wefe.gateway.service.base.AbstractTransferMetaDataSink;
 import com.welab.wefe.gateway.service.base.AbstractTransferMetaDataSource;
@@ -45,7 +47,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class DsourceProcessor extends AbstractProcessor {
 
     @Autowired
-    private AbstractTransferMetaDataSource transferMetaDataSource;
+    //private TransferMetaDataSourceParallelStream transferMetaDataSource;
+    private TransferMetaDataSourceStream transferMetaDataSource;
+    //private AbstractTransferMetaDataSource transferMetaDataSource;
 
     @Autowired
     private AbstractTransferMetaDataSink transferMetaDataSink;

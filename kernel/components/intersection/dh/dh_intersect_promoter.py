@@ -70,6 +70,7 @@ class DhIntersectionPromoter(DhIntersect):
                                                                  role=consts.PROVIDER,
                                                                  idx=i)
             LOGGER.info("Remote promoter_ids to Provider {}".format(i))
+            del promoter_ids_provider
 
         # (provider_eid, 1)
         provider_id_list = self.transfer_variable.intersect_provider_ids_process.get(-1)
@@ -85,6 +86,10 @@ class DhIntersectionPromoter(DhIntersect):
             encrypt_provider_id_list = [ids.map(lambda k, v: self.promoter_id_process(k, self.r[i], self.p[i])) for
                                         i, ids
                                         in enumerate(provider_id_list)]
+
+        for provider_id in provider_id_list:
+            del provider_id
+
         LOGGER.info(f"encrypt_provider_id_list :{encrypt_provider_id_list[0].first()}")
         # (intersect_eeid, (promoter_eid, provider_eid))
         encrypt_intersect_id_list = [
@@ -94,7 +99,9 @@ class DhIntersectionPromoter(DhIntersect):
         LOGGER.info(f"encrypt_intersect_id_list :{encrypt_intersect_id_list[0].first()}")
         # 上面的是一致的
 
-
+        # del encrypt_promoter_id_list
+        for item_dataset in encrypt_promoter_id_list:
+            del item_dataset
 
         # (promoter_eid, provider_eid)
         intersect_id_list = [ids.map(lambda k, v: (v[0], v[1])) for ids in encrypt_intersect_id_list]
@@ -151,6 +158,6 @@ class DhIntersectionPromoter(DhIntersect):
         intersect_ids = self._get_value_from_data(intersect_ids, data_instances)
         LOGGER.info("intersect_ids count {}".format(intersect_ids.count()))
         LOGGER.debug(f"first:{intersect_ids.first()}")
-        for i in list(intersect_ids.collect()):
-            LOGGER.debug(f"item:{i}")
+        # for i in list(intersect_ids.collect()):
+        #     LOGGER.debug(f"item:{i}")
         return intersect_ids, intersect_ids_map

@@ -109,7 +109,7 @@ public class ProjectFlowService extends AbstractService {
         ProjectMySqlModel project = projectService.findByProjectId(flow.getProjectId());
 
         if (!input.fromGateway() && !flow.getCreatedBy().equals(CurrentAccountUtil.get().getId())) {
-            throw new StatusCodeWithException("只能删除自己创建的流程。", StatusCode.UNSUPPORTED_HANDLE);
+            throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "只能删除自己创建的流程。");
         }
 
         flow.setDeleted(true);
@@ -130,19 +130,19 @@ public class ProjectFlowService extends AbstractService {
         ProjectMySqlModel project = projectService.findByProjectId(input.getProjectId());
 
         if (!input.fromGateway() && project.getMyRole() != JobMemberRole.promoter) {
-            throw new StatusCodeWithException("只有 promoter 才能创建流程", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "只有 promoter 才能创建流程");
         }
 
         ProjectMemberMySqlModel member = projectMemberService.findOneByMemberId(input.getProjectId(),
                 CacheObjects.getMemberId(), JobMemberRole.promoter);
         if (!input.fromGateway()) {
             if (member == null || member.isExited()) {
-                throw new StatusCodeWithException("非项目成员不能新建流程", StatusCode.ILLEGAL_REQUEST);
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "非项目成员不能新建流程");
             }
         }
 
         if (!input.fromGateway() && member.getAuditStatus() != AuditStatus.agree) {
-            throw new StatusCodeWithException("非正式成员不能新建流程", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "非正式成员不能新建流程");
         }
 
         if (!input.fromGateway()) {
@@ -168,7 +168,7 @@ public class ProjectFlowService extends AbstractService {
         if (StringUtils.isNotBlank(input.getTemplateId())) {
             FlowTemplateMySqlModel template = flowTemplateService.findById(input.getTemplateId());
             if (template == null) {
-                throw new StatusCodeWithException("未找到相应的流程模板！", StatusCode.ILLEGAL_REQUEST);
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "未找到相应的流程模板！");
             } else {
                 flow.setGraph(template.getGraph());
                 flow.setFederatedLearningType(input.isOotMode() ? input.getFederatedLearningType() : template.getFederatedLearningType());
@@ -198,11 +198,11 @@ public class ProjectFlowService extends AbstractService {
     public synchronized void updateFlowBaseInfo(UpdateFlowBaseInfoApi.Input input) throws StatusCodeWithException {
         ProjectFlowMySqlModel flow = projectFlowRepo.findOne("flowId", input.getFlowId(), ProjectFlowMySqlModel.class);
         if (flow == null) {
-            throw new StatusCodeWithException("未找到该流程", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "未找到该流程");
         }
         if (input.getFederatedLearningType() != null
                 && flow.getFederatedLearningType() != input.getFederatedLearningType()) {
-            throw new StatusCodeWithException("训练类型不允许更改", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "训练类型不允许更改");
         }
 //        List<ProjectFlowNodeMySqlModel> nodes = projectFlowNodeService.findNodesByFlowId(flow.getFlowId());
 //        if (nodes != null && !nodes.isEmpty()) {
@@ -232,7 +232,7 @@ public class ProjectFlowService extends AbstractService {
 
         ProjectFlowMySqlModel flow = findOne(input.getFlowId());
         if (flow == null) {
-            throw new StatusCodeWithException("未找到相应的流程！", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "未找到相应的流程！");
         }
 
         flow.setGraph(input.getGraph());
@@ -601,7 +601,7 @@ public class ProjectFlowService extends AbstractService {
 
         ProjectFlowMySqlModel flow = findOne(flowId);
         if (flow == null) {
-            throw new StatusCodeWithException("找不到需要更新的流程！", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到需要更新的流程！");
         }
 
         flow.setFlowStatus(projectFlowStatus);
@@ -749,20 +749,20 @@ public class ProjectFlowService extends AbstractService {
         List<FlowTemplateMySqlModel> models = flowTemplateService.query();
         List<JobMySqlModel> jobMySqlModelList = jobService.listByJobId(input.getOotJobId());
         if (CollectionUtils.isEmpty(jobMySqlModelList)) {
-            throw new StatusCodeWithException("找不到原作业信息", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到原作业信息");
         }
         JobMySqlModel jobMySqlModel = jobMySqlModelList.stream().filter(x -> JobMemberRole.promoter.equals(x.getMyRole())).findFirst().orElse(null);
         if (null == jobMySqlModel) {
-            throw new StatusCodeWithException("只有 promoter 才能创建流程", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "只有 promoter 才能创建流程");
         }
 
         if (FederatedLearningType.mix.equals(jobMySqlModel.getFederatedLearningType())) {
-            throw new StatusCodeWithException("暂时不支持混合联邦类型", StatusCode.UNSUPPORTED_HANDLE);
+            throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "暂时不支持混合联邦类型");
         }
 
         FlowTemplateMySqlModel ootFlowTemplateMySqlModel = models.stream().filter(x -> "oot".equals(x.getEnname())).findFirst().orElse(null);
         if (null == ootFlowTemplateMySqlModel) {
-            throw new StatusCodeWithException("找不到打分验证组件模板", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到打分验证组件模板");
         }
 
         AddOotFlowApi.Output output = new AddOotFlowApi.Output();

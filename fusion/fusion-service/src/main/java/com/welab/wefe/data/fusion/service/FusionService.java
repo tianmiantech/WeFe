@@ -82,13 +82,13 @@ public class FusionService implements ApplicationContextAware {
         PartnerMySqlModel partner = partnerService.findByPartnerId(params.getString("member_id"));
 
         if (partner == null) {
-            throw new StatusCodeWithException("成员校验失败 member_id：" + params.getString("member_id"), StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "成员校验失败 member_id：" + params.getString("member_id"));
         }
 
 
         boolean verified = RSAUtil.verify(params.getString("data").getBytes(), RSAUtil.getPublicKey(partner.getRsaPublicKey()), signedApiInput.getSign());
         if (!verified) {
-            throw new StatusCodeWithException("错误的签名！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "错误的签名！");
         }
 
         params.putAll(params.getJSONObject("data"));

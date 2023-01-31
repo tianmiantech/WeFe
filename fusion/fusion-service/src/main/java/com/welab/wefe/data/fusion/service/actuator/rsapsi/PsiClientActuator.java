@@ -16,23 +16,6 @@
 
 package com.welab.wefe.data.fusion.service.actuator.rsapsi;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.net.Socket;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.collections4.CollectionUtils;
-
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.welab.wefe.common.StatusCode;
@@ -54,6 +37,18 @@ import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
 import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
+import org.apache.commons.collections4.CollectionUtils;
+
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.net.Socket;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.*;
 
 /**
  * @author hunter.zhao
@@ -93,9 +88,9 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
     private final DataSetService dataSetService = Launcher.CONTEXT.getBean(DataSetService.class);
     private final ThirdPartyService thirdPartyService = Launcher.CONTEXT.getBean(ThirdPartyService.class);
-    
+
     public PsiClientActuator(String businessId, Integer dataCount, String ip, int port, String dataSetId,
-            Boolean isTrace, String traceColumn, PartnerOutputModel partnerModel) {
+                             Boolean isTrace, String traceColumn, PartnerOutputModel partnerModel) {
         super(businessId, dataCount);
         this.ip = ip;
         this.port = port;
@@ -144,7 +139,8 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
     /**
      * Download the Server Square Bloom filter
-     * @throws StatusCodeWithException 
+     *
+     * @throws StatusCodeWithException
      */
     private void downloadBloomFilter() throws StatusCodeWithException {
         Socket socket = null;
@@ -155,7 +151,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
                 socket = SocketUtils.create(ip, port).setRetryCount(3).setRetryDelay(1000).builder();
                 count++;
             }
-            if(socket == null) {
+            if (socket == null) {
                 LOG.error("fusion task log , socket connect error");
                 this.status = PSIActuatorStatus.exception;
                 throw new StatusCodeWithException(StatusCode.REMOTE_SERVICE_ERROR, "connect " + ip + ":" + port + "error");
@@ -224,7 +220,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
                     fusion();
                 } catch (StatusCodeWithException e) {
                     e.printStackTrace();
-                    LOG.error("fusion task log , StatusCodeWithException :", e);
+                    LOG.error("fusion task log , fusion error :", e);
                 } finally {
                     latch.countDown();
                 }
@@ -235,7 +231,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
             latch.await();
         } catch (InterruptedException e1) {
             e1.printStackTrace();
-            LOG.error("fusion task log ,  InterruptedException :",e1);
+            LOG.error("fusion task log ,  InterruptedException :", e1);
         }
 
         LOG.info("fusion task log , -----------------Time used: {} ", (System.currentTimeMillis() - startTime));
@@ -249,16 +245,17 @@ public class PsiClientActuator extends AbstractPsiActuator {
      * @throws StatusCodeWithException
      */
     private void fusion() throws StatusCodeWithException {
-
+        if (PSIActuatorStatus.running != status && PSIActuatorStatus.uninitialized != status) {
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "status is " + status + ", not allow fusion");
+        }
         cursor();
-
         //Initiating a query request
         LOG.info("fusion task log , Server@" + ip + ":" + port + " connecting!");
         Socket socket = SocketUtils
                 .create(ip, port)
                 .setRetryCount(3)
                 .builder();
-
+        LOG.info("fusion task log , Server@" + ip + ":" + port + " connected!");
         query(socket);
 
         receiveAndParseResult(socket);
@@ -419,7 +416,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
     @Override
     public void close() throws Exception {
-        if(!status.name().equalsIgnoreCase(PSIActuatorStatus.success.name())) {
+        if (!status.name().equalsIgnoreCase(PSIActuatorStatus.success.name())) {
             closeByHttp(CallbackType.stop);
         }
         // Notifies the server that no further action is required
@@ -485,7 +482,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
         //align
         execute(ActionType.align);
     }
-    
+
     public PartnerOutputModel getPartnerModel() {
         return partnerModel;
     }

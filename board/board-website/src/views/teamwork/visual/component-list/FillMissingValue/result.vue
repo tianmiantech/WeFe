@@ -45,8 +45,13 @@
                                     <el-table-column
                                         label="缺失数量"
                                         prop="missing_count"
+                                        sortable
+                                        sort-by="missing_count"
                                     />
-                                    <el-table-column label="填充方式">
+                                    <el-table-column 
+                                        label="填充方式"  
+                                        sortable
+                                        sort-by="method">
                                         <template v-slot="scope">
                                             {{ vData.methodObj[scope.row.method] }}
                                         </template>
@@ -54,7 +59,11 @@
                                     <el-table-column
                                         label="填充值"
                                         prop="value"
-                                    />
+                                    >
+                                        <template v-slot="scope">
+                                            {{ scope.row.method == 'mean' ? dealNumPrecision(scope.row.value) : scope.row.value }}
+                                        </template>
+                                    </el-table-column>
                                 </el-table>
                             </el-tab-pane>
                         </el-tabs>
@@ -76,6 +85,7 @@
     import { ref, reactive } from 'vue';
     import CommonResult from '../common/CommonResult';
     import resultMixin from '../result-mixin';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     const mixin = resultMixin();
 
@@ -129,7 +139,9 @@
 
                             let i = 0;
 
-                            for(const $key in member.result) {
+                            const keys = Object.keys(member.result);
+                            keys.sort((a,b) => a > b ? 1 : -1 );
+                            for(const $key of keys) {
                                 const val = member.result[$key];
                                 const row = {
                                     feature: $key,
@@ -166,6 +178,7 @@
                 vData,
                 activeName,
                 methods,
+                dealNumPrecision,
             };
         },
     };

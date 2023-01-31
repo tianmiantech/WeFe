@@ -101,7 +101,7 @@ public class CsvBloomFilterReader extends AbstractBloomFilterReader {
             }
 
         } catch (IOException e) {
-            throw new StatusCodeWithException("读取数据集中的数据行失败：" + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "读取数据集中的数据行失败：" + e.getMessage());
         }
 
         return map;

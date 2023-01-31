@@ -43,7 +43,7 @@ public class ImageDataSetAddInputModel extends ImageDataSetUpdateInputModel {
 
         if (!file.exists()) {
             StatusCode
-                    .FILE_IO_ERROR
+                    .FILE_IO_READ_ERROR
                     .throwException("未找到文件：" + filename + "，请重试刷新页面后重新上传。");
         }
     }

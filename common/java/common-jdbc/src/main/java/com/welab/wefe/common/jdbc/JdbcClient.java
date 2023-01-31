@@ -80,30 +80,34 @@ public class JdbcClient {
     public void saveBatch(String sql, List<Object[]> rows) throws Exception {
         long start = System.currentTimeMillis();
         Connection conn = createConnection(true);
+        conn.setAutoCommit(false);
         PreparedStatement ps = null;
         try {
             ps = conn.prepareStatement(sql);
+            int count = 0;
             for (int rowIndex = 0; rowIndex < rows.size(); rowIndex++) {
                 Object[] row = rows.get(rowIndex);
                 for (int i = 0; i < row.length; i++) {
                     ps.setObject(i + 1, row[i]);
                 }
-
+                count++;
                 ps.addBatch();
-                if (rowIndex % 500 == 0) {
+                if (rowIndex % 50000 == 0 && rowIndex > 0) {
                     ps.executeBatch();
+                    conn.commit();
                     ps.clearBatch();
+                    LOG.info("JdbcClient saveBatch count: " + count + ", rows size = " + rows.size());
                 }
             }
-
             ps.executeBatch();
+            conn.commit();
             ps.clearBatch();
         } catch (SQLException e) {
             LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
         } finally {
             close(conn, ps, null);
+            LOG.info("saveBatch spend：" + rows.size() + "rows " + (System.currentTimeMillis() - start) + "ms");
         }
-        System.out.println("saveBatch spend：" + rows.size() + "rows " + (System.currentTimeMillis() - start) + "ms");
     }
 
     /**
@@ -367,7 +371,7 @@ public class JdbcClient {
 
         Connection conn;
         try {
-            String url;
+            String url = null;
             switch (databaseType) {
                 case MySql:
                     Class.forName("com.mysql.jdbc.Driver");
@@ -389,13 +393,13 @@ public class JdbcClient {
                 case Cassandra:
                 case PgSql:
                 default:
-                    throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, databaseType.toString());
+                    StatusCode.UNEXPECTED_ENUM_CASE.throwExWithFormatMsg(databaseType);
             }
 
             conn = DriverManager.getConnection(url, userName, password);
         } catch (Exception e) {
             LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-            throw new StatusCodeWithException("创建链接失败：" + e.getMessage(), StatusCode.DATABASE_LOST);
+            throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "创建链接失败：" + e.getMessage());
         }
 
         return conn;

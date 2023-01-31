@@ -80,7 +80,7 @@ public class MemberServiceContractService extends AbstractContractService {
             throw e;
         } catch (Exception e) {
             LOG.error("save member service error: ", e);
-            throw new StatusCodeWithException("save member service error: ", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "save member service error: ");
         }
     }
 
@@ -108,7 +108,7 @@ public class MemberServiceContractService extends AbstractContractService {
             throw e;
         } catch (Exception e) {
             LOG.error("MemberServiceContract update failed: ", e);
-            throw new StatusCodeWithException("MemberServiceContract update failed", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "MemberServiceContract update failed");
         }
     }
 
@@ -123,7 +123,7 @@ public class MemberServiceContractService extends AbstractContractService {
             return (null != ret && ret);
         } catch (Exception e) {
             LOG.error("Check if the member service information exists failed: ", e);
-            throw new StatusCodeWithException("Check if the member service information exists failed: ", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Check if the member service information exists failed: ");
         }
     }
 
@@ -149,7 +149,7 @@ public class MemberServiceContractService extends AbstractContractService {
 
         } catch (
                 Exception e) {
-            throw new StatusCodeWithException("Failed to updateExtJson set information: " + e, StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to updateExtJson set information: " + e);
         }
     }
 
@@ -161,10 +161,10 @@ public class MemberServiceContractService extends AbstractContractService {
             TransactionResponse deleteResponse = new TransactionDecoderService(cryptoSuite)
                     .decodeReceiptWithValues(MemberServiceContract.ABI, MemberServiceContract.FUNC_DELETEBYSERVICEID, transactionReceipt);
             if (!transactionIsSuccess(deleteResponse.getValues())) {
-                throw new StatusCodeWithException("transaction failed", StatusCode.SYSTEM_ERROR);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "transaction failed");
             }
         } catch (Exception e) {
-            throw new StatusCodeWithException("Failed to delete data set information: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to delete data set information: " + e.getMessage());
         }
     }
 
