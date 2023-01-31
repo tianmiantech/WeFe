@@ -18,7 +18,6 @@ from typing import Iterable
 
 from common.python import RuntimeInstance
 from common.python.calculation.fc.fc_storage import FCStorage
-from common.python.calculation.spark import util
 from common.python.common import consts
 from common.python.common.consts import NAMESPACE
 from common.python.common.exception.custom_exception import FCCommonError
@@ -99,7 +98,7 @@ class FCSource(Table):
         """
 
         self._valid_param_check(fcs, dsource, namespace, partitions)
-        setattr(self, util.RDD_ATTR_NAME, fcs)
+        setattr(self, "_rdd", fcs)
         self._fcs = fcs
         self._partitions = partitions
         self._dsource = dsource
