@@ -249,3 +249,12 @@ alter table `partner`  add column `is_me` tinyint(1) NOT NULL COMMENT '是否是
 
 -- 删除手机号唯一索引
 ALTER TABLE `account` DROP INDEX `index_unique_phonenumber`;
+
+CREATE TABLE `psi_service_result`(
+    `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
+    `request_id` varchar(32) DEFAULT NULL COMMENT '请求ID',
+    `service_id` varchar(32) DEFAULT NULL COMMENT '服务ID',
+    `service_name` varchar(32) DEFAULT NULL COMMENT '服务名称',
+    `result` text COMMENT '结果',
+    `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='psi 服务交集结果表';
