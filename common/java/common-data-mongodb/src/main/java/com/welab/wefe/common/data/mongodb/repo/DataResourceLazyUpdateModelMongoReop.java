@@ -55,4 +55,12 @@ public class DataResourceLazyUpdateModelMongoReop extends AbstractMongoRepo {
         return mongoUnionTemplate.find(query, DataResourceLazyUpdateModel.class);
     }
 
+    public void deleteByDataResourceId(String dataResourceId) {
+        if (StringUtils.isEmpty(dataResourceId)) {
+            return;
+        }
+        Query query = new QueryBuilder().append("dataResourceId", dataResourceId).build();
+        mongoUnionTemplate.remove(query, DataResourceLazyUpdateModel.class);
+    }
+
 }
