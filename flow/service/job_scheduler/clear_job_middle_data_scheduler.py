@@ -34,7 +34,7 @@ class ClearJobMiddleDataScheduler(threading.Thread):
         with DB.connection_context():
             to_clear_status = [JobStatus.SUCCESS, JobStatus.ERROR_ON_RUNNING, JobStatus.STOP_ON_RUNNING]
             job_list = Job.select().where(
-                Job.status in to_clear_status,
+                Job.status.in_(to_clear_status),
                 Job.job_middle_data_is_clear == 0
             ).limit(1).execute()
             if job_list:
