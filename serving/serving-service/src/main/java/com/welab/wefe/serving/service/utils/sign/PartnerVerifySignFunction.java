@@ -80,9 +80,9 @@ public class PartnerVerifySignFunction extends AbstractVerifySignFunction {
     }
 
     private void verify(SignedApiInput signedApiInput, String partnerRsaKey, SecretKeyType secretKeyType) throws Exception {
-        boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(),
-                RSAUtil.getPublicKey(partnerRsaKey), signedApiInput.getSign());
-        verified = com.welab.wefe.common.util.SignUtil.verify(signedApiInput.getData().getBytes(), partnerRsaKey, signedApiInput.getSign(), secretKeyType);
+        /*boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(),
+                RSAUtil.getPublicKey(partnerRsaKey), signedApiInput.getSign());*/
+        boolean verified = com.welab.wefe.common.util.SignUtil.verify(signedApiInput.getData().getBytes(), partnerRsaKey, signedApiInput.getSign(), secretKeyType);
         if (!verified) {
             throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "Wrong signature");
         }
