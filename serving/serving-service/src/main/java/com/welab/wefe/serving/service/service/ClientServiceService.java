@@ -139,9 +139,6 @@ public class ClientServiceService {
                     if (null == input.getSecretKeyType()) {
                         StatusCode.ILLEGAL_REQUEST.throwException("请选择公私钥类型");
                     }
-                    if(StringUtil.isEmpty(input.getPrivateKey()) || StringUtil.isEmpty(input.getPublicKey())) {
-                        StatusCode.ILLEGAL_REQUEST.throwException("公私钥不能为空");
-                    }
 
                     model.setPrivateKey(input.getPrivateKey());
                     model.setPublicKey(input.getPublicKey());
