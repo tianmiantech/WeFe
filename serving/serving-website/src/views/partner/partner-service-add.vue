@@ -194,7 +194,7 @@ export default {
                 payType:         '',
                 serviceName:     '',
                 clientName:      '',
-                secret_key_type: 'sm2',
+                secret_key_type: 'rsa',
             },
             services:          [],
             clients:           [],
