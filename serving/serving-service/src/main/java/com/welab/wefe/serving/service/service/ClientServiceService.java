@@ -25,6 +25,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.SignUtil;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.service.api.clientservice.*;
@@ -128,22 +129,23 @@ public class ClientServiceService {
                     model.setPublicKey(input.getPublicKey());
                     model.setSecretKeyType(null != input.getSecretKeyType() ? input.getSecretKeyType() : SecretKeyType.rsa);
                 }*/
-                if (input.isUseSystemSecretKey()) {
+                // 如果前端提交过来的公钥和系统的相同，则证明是使用系统的公钥私
+                if (StringUtils.isNotBlank(input.getPublicKey()) && StringUtils.isBlank(input.getPrivateKey())
+                        && input.getPublicKey().equalsIgnoreCase(CacheObjects.getRsaPublicKey())) {
                     model.setPrivateKey(CacheObjects.getRsaPrivateKey());
                     model.setPublicKey(CacheObjects.getRsaPublicKey());
                     model.setSecretKeyType(CacheObjects.getSecretKeyType());
                 } else {
-                    if (null == model.getSecretKeyType()) {
+                    if (null == input.getSecretKeyType()) {
                         StatusCode.ILLEGAL_REQUEST.throwException("请选择公私钥类型");
                     }
-                    SignUtil.KeyPair keyPair = null;
-                    try {
-                        keyPair = SignUtil.generateKeyPair(model.getSecretKeyType());
-                    } catch (Exception e) {
-                        StatusCode.SYSTEM_ERROR.throwException("生成公私钥失败：" + e.getMessage());
+                    if(StringUtil.isEmpty(input.getPrivateKey()) || StringUtil.isEmpty(input.getPublicKey())) {
+                        StatusCode.ILLEGAL_REQUEST.throwException("公私钥不能为空");
                     }
-                    model.setPrivateKey(keyPair.privateKey);
-                    model.setPublicKey(keyPair.publicKey);
+
+                    model.setPrivateKey(input.getPrivateKey());
+                    model.setPublicKey(input.getPublicKey());
+                    model.setSecretKeyType(input.getSecretKeyType());
                 }
                 if (StringUtils.isNotBlank(input.getUrl()) && input.getUrl().endsWith("/")) {
                     input.setUrl(input.getUrl().substring(0, input.getUrl().length() - 1));
@@ -448,7 +450,7 @@ public class ClientServiceService {
                 .equal("clientId", clientId).build(ClientServiceMysqlModel.class);
         return clientServiceRepository.findOne(where).orElse(null);
     }
-    
+
     public List<ClientServiceMysqlModel> queryActivateListByServiceId(String serviceId) {
 
         Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", serviceId)
