@@ -74,6 +74,33 @@ public class MultiPsi {
         }
     }
 
+    /**
+     * The sm2 private key signature
+     *
+     * 依赖 bcprov-jdk15on 1.70
+     */
+    //import org.bouncycastle.asn1.gm.GMNamedCurves;
+    //import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
+    //import org.bouncycastle.asn1.x9.X9ECParameters;
+    //import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
+    //import org.bouncycastle.jce.provider.BouncyCastleProvider;
+    //import org.bouncycastle.jce.spec.ECParameterSpec;
+    //import org.bouncycastle.jce.spec.ECPrivateKeySpec;
+//    public static String signSm2(String data, String privateKeyStr) throws Exception {
+//        Signature signature = Signature.getInstance(
+//                GMObjectIdentifiers.sm2sign_with_sm3.toString(), new BouncyCastleProvider());
+//        // 将私钥HEX字符串转换为X值
+//        BigInteger bigInteger = new BigInteger(privateKeyStr, 16);
+//        KeyFactory keyFactory = KeyFactory.getInstance("EC", new BouncyCastleProvider());
+//        X9ECParameters parameters = GMNamedCurves.getByName("sm2p256v1");
+//        ECParameterSpec ecParameterSpec = new ECParameterSpec(parameters.getCurve(),
+//                parameters.getG(), parameters.getN(), parameters.getH());
+//        BCECPrivateKey privateKey = (BCECPrivateKey) keyFactory.generatePrivate(new ECPrivateKeySpec(bigInteger,
+//                ecParameterSpec));
+//        signature.initSign(privateKey);
+//        signature.update(data.getBytes(StandardCharsets.UTF_8));
+//        return Base64.getEncoder().encodeToString(signature.sign());
+//    }
     public static String getMD5String(String str) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");

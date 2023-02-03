@@ -15,13 +15,6 @@
  */
 
 import com.alibaba.fastjson.JSONObject;
-import org.bouncycastle.asn1.gm.GMNamedCurves;
-import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
-import org.bouncycastle.asn1.x9.X9ECParameters;
-import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.jce.spec.ECParameterSpec;
-import org.bouncycastle.jce.spec.ECPrivateKeySpec;
 
 import java.io.*;
 import java.math.BigInteger;
@@ -36,8 +29,9 @@ import java.util.*;
 /**
  * @author winter.zou
  *
- * 依赖 bcprov-jdk15on 1.70
+ * 模型预测客户端
  * 依赖 fastjson 1.2.83
+ * 如果公私钥是sm2,则依赖 bcprov-jdk15on 1.70
  */
 public class ModelPredictClient {
 
@@ -82,7 +76,7 @@ public class ModelPredictClient {
          */
         String sign;
         try {
-            sign = signSm2(data, customer_privateKey);
+            sign = signRsa(data, customer_privateKey);
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -94,9 +88,9 @@ public class ModelPredictClient {
         return body.toJSONString();
     }
     /**
-     * The rsa private key signature rsa
+     * The rsa private key signature
      */
-    public static String sign(String data, String privateKeyStr) throws Exception {
+    public static String signRsa(String data, String privateKeyStr) throws Exception {
         Signature sigEng = Signature.getInstance("SHA1withRSA");
         byte[] priByte = Base64.getDecoder().decode(privateKeyStr);
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(priByte);
@@ -109,22 +103,31 @@ public class ModelPredictClient {
 
     /**
      * The sm2 private key signature
+     *
+     * 依赖 bcprov-jdk15on 1.70
      */
-    public static String signSm2(String data, String privateKeyStr) throws Exception {
-        Signature signature = Signature.getInstance(
-                GMObjectIdentifiers.sm2sign_with_sm3.toString(), new BouncyCastleProvider());
-        // 将私钥HEX字符串转换为X值
-        BigInteger bigInteger = new BigInteger(privateKeyStr, 16);
-        KeyFactory keyFactory = KeyFactory.getInstance("EC", new BouncyCastleProvider());
-        X9ECParameters parameters = GMNamedCurves.getByName("sm2p256v1");
-        ECParameterSpec ecParameterSpec = new ECParameterSpec(parameters.getCurve(),
-                parameters.getG(), parameters.getN(), parameters.getH());
-        BCECPrivateKey privateKey = (BCECPrivateKey) keyFactory.generatePrivate(new ECPrivateKeySpec(bigInteger,
-                ecParameterSpec));
-        signature.initSign(privateKey);
-        signature.update(data.getBytes(StandardCharsets.UTF_8));
-        return Base64.getEncoder().encodeToString(signature.sign());
-    }
+    //import org.bouncycastle.asn1.gm.GMNamedCurves;
+    //import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
+    //import org.bouncycastle.asn1.x9.X9ECParameters;
+    //import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
+    //import org.bouncycastle.jce.provider.BouncyCastleProvider;
+    //import org.bouncycastle.jce.spec.ECParameterSpec;
+    //import org.bouncycastle.jce.spec.ECPrivateKeySpec;
+//    public static String signSm2(String data, String privateKeyStr) throws Exception {
+//        Signature signature = Signature.getInstance(
+//                GMObjectIdentifiers.sm2sign_with_sm3.toString(), new BouncyCastleProvider());
+//        // 将私钥HEX字符串转换为X值
+//        BigInteger bigInteger = new BigInteger(privateKeyStr, 16);
+//        KeyFactory keyFactory = KeyFactory.getInstance("EC", new BouncyCastleProvider());
+//        X9ECParameters parameters = GMNamedCurves.getByName("sm2p256v1");
+//        ECParameterSpec ecParameterSpec = new ECParameterSpec(parameters.getCurve(),
+//                parameters.getG(), parameters.getN(), parameters.getH());
+//        BCECPrivateKey privateKey = (BCECPrivateKey) keyFactory.generatePrivate(new ECPrivateKeySpec(bigInteger,
+//                ecParameterSpec));
+//        signature.initSign(privateKey);
+//        signature.update(data.getBytes(StandardCharsets.UTF_8));
+//        return Base64.getEncoder().encodeToString(signature.sign());
+//    }
 
     /**
      * 向指定 URL 发送POST方法的请求
