@@ -15,6 +15,7 @@
  */
 package com.welab.wefe.serving.service.api.clientservice;
 
+import com.welab.wefe.common.constant.SecretKeyType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -77,6 +78,9 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
 
         @Check(name = "服务地址")
         private String url;
+
+        @Check(name = "公私钥类型")
+        private SecretKeyType secretKeyType;
 
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {
@@ -177,6 +181,14 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
 
         public void setClientName(String clientName) {
             this.clientName = clientName;
+        }
+
+        public SecretKeyType getSecretKeyType() {
+            return secretKeyType;
+        }
+
+        public void setSecretKeyType(SecretKeyType secretKeyType) {
+            this.secretKeyType = secretKeyType;
         }
     }
 }
