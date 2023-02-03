@@ -159,7 +159,7 @@ export default {
                 payType:         '',
                 serviceName:     '',
                 clientName:      '',
-                secret_key_type: 'sm2',
+                secret_key_type: 'rsa',
             },
             services:          [],
             clients:           [],
@@ -209,8 +209,12 @@ export default {
             });
 
             if (code === 0) {
+                const { identity_info } = data || {};
+                const { rsa_public_key='', secret_key_type = 'rsa' } = identity_info;
+
                 this.clientService.privateKey='******************';
-                this.clientService.publicKey=data.identity_info.rsa_public_key;
+                this.clientService.publicKey= rsa_public_key;
+                this.clientService.secret_key_type = secret_key_type;
                 setTimeout(() => {
                     this.$message('填充成功!');
                 }, 1000);
