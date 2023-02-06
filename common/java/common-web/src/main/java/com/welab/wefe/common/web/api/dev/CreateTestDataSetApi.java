@@ -107,7 +107,15 @@ public class CreateTestDataSetApi extends AbstractApi<CreateTestDataSetApi.Input
     }
 
     private String createCsv(Input input) throws IOException {
-        String fileName = input.idType + "-" + input.features + "-" + input.rows + (input.hasY ? "-y" : "") + ".csv";
+        String fileName = StringUtil.isNotEmpty(input.fileName)
+                // 指定文件名
+                ? input.fileName
+                // 生成文件名
+                : input.features + "x"
+                + input.rows + "rows-"
+                + "miss" + input.featureMissRate + "-"
+                + input.idType + "-"
+                + (input.hasY ? "-y" : "") + ".csv";
 
         // 将生成的文件存放在日志目录
         String baseDir = "";
@@ -231,6 +239,8 @@ public class CreateTestDataSetApi extends AbstractApi<CreateTestDataSetApi.Input
     }
 
     public static class Input extends AbstractApiInput {
+        @Check(name = "文件名")
+        public String fileName;
         @Check(name = "特征数")
         public int features;
         @Check(name = "数据行数")
