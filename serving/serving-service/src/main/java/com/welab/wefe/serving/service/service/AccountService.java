@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.welab.wefe.serving.service.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +49,9 @@ import com.welab.wefe.serving.service.api.account.QueryAllApi.Output;
 @Service
 public class AccountService {
     @Autowired
+    private Config config;
+
+    @Autowired
     private AccountRepository accountRepository;
 
     @Autowired
@@ -66,7 +70,7 @@ public class AccountService {
             identityInfoModel.setMemberName("serving系统");
             identityInfoModel.setMode(ServingModeEnum.standalone.name());
             try {
-                SignUtil.KeyPair keyPair = SignUtil.generateKeyPair(SecretKeyType.rsa);
+                SignUtil.KeyPair keyPair = SignUtil.generateKeyPair(SecretKeyType.valueOf(config.getInitializeSecretKeyType()));
                 identityInfoModel.setRsaPrivateKey(keyPair.privateKey);
                 identityInfoModel.setRsaPublicKey(keyPair.publicKey);
             } catch (NoSuchAlgorithmException e) {
