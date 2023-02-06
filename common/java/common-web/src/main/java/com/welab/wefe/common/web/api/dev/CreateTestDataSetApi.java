@@ -153,9 +153,16 @@ public class CreateTestDataSetApi extends AbstractApi<CreateTestDataSetApi.Input
         }
 
         // 根据指定概率产生空值
+        int missRate = 0;
         if (feature.missRate > 0) {
+            missRate = feature.missRate;
+        } else if (input.featureMissRate > 0) {
+            missRate = input.featureMissRate;
+        }
+
+        if (missRate > 0) {
             int limit = random.nextInt(100);
-            if (feature.missRate > limit) {
+            if (missRate > limit) {
                 return "";
             }
         }
@@ -220,7 +227,7 @@ public class CreateTestDataSetApi extends AbstractApi<CreateTestDataSetApi.Input
         public List<String> featureNameList = new ArrayList<>();
         @Check(name = "特征名称长度", desc = "生成工具在自动生成特征名时，将会生产指定长度的名称。")
         public int featureNameLength;
-        @Check(name = "特征名称长度", desc = "生成工具在自动生成特征名时，将会生产指定长度的名称。")
+        @Check(name = "缺失率", desc = "取值范围 0 - 100，默认 0（无缺失）。生成工具将会使用该缺失率配置项生成数据。")
         public int featureMissRate;
         @Check(name = "自定义特征列表", desc = "生成工具在生成特征数据时，将会根据指定配置进行生成。")
         public List<Feature> manualFeatureList = new ArrayList<>();
