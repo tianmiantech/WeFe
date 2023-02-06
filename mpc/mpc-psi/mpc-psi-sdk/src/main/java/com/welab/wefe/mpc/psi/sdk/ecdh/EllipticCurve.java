@@ -200,8 +200,8 @@ public class EllipticCurve {
      * @return ECPoint mapping of the input value
      */
     public ECPoint mapMessage(BigInteger m) {
-        if (this.p.compareTo(m) < 0)
-            throw new RuntimeException("Unexpected: Hashing missing");
+//        if (this.p.compareTo(m) < 0)
+//            throw new RuntimeException("Unexpected: Hashing missing");
         BigInteger k = BigInteger.valueOf(200);
         BigInteger km1 = k.subtract(BigInteger.ONE);
         BigInteger start = m.multiply(k);

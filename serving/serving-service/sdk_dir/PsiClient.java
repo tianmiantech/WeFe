@@ -133,11 +133,10 @@ public class PsiClient {
     private static void init(String[] args) throws Exception {
         if (args == null || args.length == 0) {
             File file = new File("data.csv");
-            if(file.exists()){
+            if (file.exists()) {
                 args = new String[1];
                 args[0] = "data.csv";
-            }
-            else {
+            } else {
                 throw new Exception("data.csv not exists");
             }
         }
@@ -198,28 +197,53 @@ public class PsiClient {
     }
 
     public static String getMD5String(String str) {
+        MessageDigest messageDigest;
+        String encodeStr = "";
         try {
-            // 生成一个MD5加密计算摘要
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            // 计算md5函数
-            md.update(str.getBytes());
-            return new BigInteger(1, md.digest()).toString(16);
+            messageDigest = MessageDigest.getInstance("MD5");
+            messageDigest.update(str.getBytes("UTF-8"));
+            encodeStr = byte2Hex(messageDigest.digest());
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
         }
+        return encodeStr;
     }
 
+    /**
+     * 利用java原生的类实现SHA256加密
+     *
+     * @return
+     */
     public static String getSHA256String(String str) {
+        MessageDigest messageDigest;
+        String encodeStr = "";
         try {
-            // 生成一个MD5加密计算摘要
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            // 计算md5函数
-            md.update(str.getBytes());
-            return new BigInteger(1, md.digest()).toString(16);
+            messageDigest = MessageDigest.getInstance("SHA-256");
+            messageDigest.update(str.getBytes("UTF-8"));
+            encodeStr = byte2Hex(messageDigest.digest());
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
         }
+        return encodeStr;
     }
+
+    /**
+     * 将byte转为16进制
+     *
+     * @return
+     */
+    private static String byte2Hex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        String temp = null;
+        for (byte aByte : bytes) {
+            temp = Integer.toHexString(aByte & 0xFF);
+            if (temp.length() == 1) {
+                // 1得到一位的进行补0操作
+                sb.append("0");
+            }
+            sb.append(temp);
+        }
+        return sb.toString();
+    }
+
 }

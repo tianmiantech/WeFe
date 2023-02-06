@@ -74,27 +74,57 @@ public class MultiPsi {
         }
     }
 
+
     public static String getMD5String(String str) {
+        MessageDigest messageDigest;
+        String encodeStr = "";
         try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(str.getBytes());
-            return new BigInteger(1, md.digest()).toString(16);
+            messageDigest = MessageDigest.getInstance("MD5");
+            messageDigest.update(str.getBytes("UTF-8"));
+            encodeStr = byte2Hex(messageDigest.digest());
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
         }
+        return encodeStr;
     }
 
+    /**
+     * 利用java原生的类实现SHA256加密
+     *
+     * @return
+     */
     public static String getSHA256String(String str) {
+        MessageDigest messageDigest;
+        String encodeStr = "";
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(str.getBytes());
-            return new BigInteger(1, md.digest()).toString(16);
+            messageDigest = MessageDigest.getInstance("SHA-256");
+            messageDigest.update(str.getBytes("UTF-8"));
+            encodeStr = byte2Hex(messageDigest.digest());
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
         }
+        return encodeStr;
     }
+
+    /**
+     * 将byte转为16进制
+     *
+     * @return
+     */
+    private static String byte2Hex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        String temp = null;
+        for (byte aByte : bytes) {
+            temp = Integer.toHexString(aByte & 0xFF);
+            if (temp.length() == 1) {
+                // 1得到一位的进行补0操作
+                sb.append("0");
+            }
+            sb.append(temp);
+        }
+        return sb.toString();
+    }
+
 
     /**
      * 向指定 URL 发送POST方法的请求
