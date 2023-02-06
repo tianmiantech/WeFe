@@ -222,7 +222,10 @@ def get_env_config(key, default=None):
 
     """
     env_dist = os.environ
-    val = env_dist.get(key[1])
+    if isinstance(key, tuple):
+        val = env_dist.get(key[1])
+    else:
+        val = env_dist.get(key)
     return val if val else default
 
 

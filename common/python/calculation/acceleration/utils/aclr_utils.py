@@ -51,16 +51,19 @@ def to_bytes(value: int, bits):
     return value.to_bytes(bits // 8, "little")
 
 
+ACLR_SUPPORT = None
+
+
 def check_aclr_support():
+    global ACLR_SUPPORT
+    if ACLR_SUPPORT is not None:
+        return ACLR_SUPPORT
+
     env_dist = os.environ
     backend = env_dist.get('backend')
     is_fc = int(env_dist.get('IN_FC_ENV') or 0)
     if backend == Backend.LOCAL or is_fc == 1:
         return False
     aclr_type = conf_utils.get_comm_config(consts.COMM_CONF_KEY_ACCELERATION, "")
-    return aclr_type in [consts.AccelerationType.GPU]
-
-
-def gpu_support():
-    aclr_type = conf_utils.get_comm_config(consts.COMM_CONF_KEY_ACCELERATION, "")
-    return aclr_type == consts.AccelerationType.GPU
+    ACLR_SUPPORT = aclr_type in [consts.AccelerationType.GPU]
+    return ACLR_SUPPORT

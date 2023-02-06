@@ -51,7 +51,8 @@ class JobDao:
         job.status_updated_time = current_datetime()
         job.updated_time = current_datetime()
         job.finish_time = current_datetime()
-        job.save()
+        with DB.connection_context():
+            job.save()
 
     @staticmethod
     def update_progress(job):
