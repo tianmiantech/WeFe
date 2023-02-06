@@ -19,6 +19,7 @@ package com.welab.wefe.common.web.api.dev;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.OS;
 import com.welab.wefe.common.util.RandomUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -33,6 +34,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -71,8 +73,12 @@ public class CreateTestDataSetApi extends AbstractApi<CreateTestDataSetApi.Input
     public Map<String, Feature> buildFeaturesConfig(Input input) {
         LinkedHashMap<String, Feature> result = new LinkedHashMap<>(input.features);
 
+        Feature idFeature = Feature.ofId();
+        result.put(idFeature.name, idFeature);
+
         if (input.hasY) {
-            result.put("y", new Feature("y"));
+            Feature yFeature = Feature.ofY();
+            result.put(yFeature.name, yFeature);
         }
 
         // Count the number of columns
@@ -104,7 +110,18 @@ public class CreateTestDataSetApi extends AbstractApi<CreateTestDataSetApi.Input
         String fileName = input.idType + "-" + input.features + "-" + input.rows + (input.hasY ? "-y" : "") + ".csv";
 
         // 将生成的文件存放在日志目录
-        Path dir = new File(commonConfig.getLoggingFilePath()).getParentFile().toPath().resolve("create_data_set");
+        String baseDir = "";
+        switch (OS.get()) {
+            case windows:
+                baseDir = "D:\\";
+                break;
+            default:
+                baseDir = "~";
+        }
+        if (!StringUtil.isEmpty(commonConfig.getLoggingFilePath())) {
+            baseDir = new File(commonConfig.getLoggingFilePath()).getParentFile().getAbsolutePath();
+        }
+        Path dir = Paths.get(baseDir).resolve("create_data_set");
 
         File file = dir.resolve(fileName).toFile();
         if (file.exists()) {
@@ -122,18 +139,18 @@ public class CreateTestDataSetApi extends AbstractApi<CreateTestDataSetApi.Input
         fileOutputStream.write(title.getBytes());
 
         // Generate data rows
-        for (long i = 0; i < input.rows; i++) {
+        for (long rowIndex = 1; rowIndex < input.rows; rowIndex++) {
             String[] row = new String[features.size()];
 
-            for (int c = 0; c < features.size(); c++) {
-                row[c] = createValue(input, features.get(c), i);
+            for (int columnIndex = 0; columnIndex < features.size(); columnIndex++) {
+                row[columnIndex] = createValue(input, features.get(columnIndex), rowIndex);
             }
 
             String line = StringUtil.join(row, ",") + System.lineSeparator();
             fileOutputStream.write(line.getBytes());
 
-            if (i % 10000 == 0) {
-                System.out.println(i);
+            if (rowIndex % 10000 == 0) {
+                System.out.println(rowIndex);
             }
         }
 
@@ -154,7 +171,7 @@ public class CreateTestDataSetApi extends AbstractApi<CreateTestDataSetApi.Input
 
         // 根据指定概率产生空值
         int missRate = 0;
-        if (feature.missRate > 0) {
+        if (feature.missRate >= 0) {
             missRate = feature.missRate;
         } else if (input.featureMissRate > 0) {
             missRate = input.featureMissRate;
@@ -235,7 +252,7 @@ public class CreateTestDataSetApi extends AbstractApi<CreateTestDataSetApi.Input
 
     public static class Feature {
         public String name;
-        public int missRate;
+        public int missRate = -1;
         public String dataType = "double";
         public boolean primaryKey;
         public boolean y;
@@ -260,6 +277,51 @@ public class CreateTestDataSetApi extends AbstractApi<CreateTestDataSetApi.Input
             feature.y = true;
             return feature;
         }
+
+        // region getter/setter
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public int getMissRate() {
+            return missRate;
+        }
+
+        public void setMissRate(int missRate) {
+            this.missRate = missRate;
+        }
+
+        public String getDataType() {
+            return dataType;
+        }
+
+        public void setDataType(String dataType) {
+            this.dataType = dataType;
+        }
+
+        public boolean isPrimaryKey() {
+            return primaryKey;
+        }
+
+        public void setPrimaryKey(boolean primaryKey) {
+            this.primaryKey = primaryKey;
+        }
+
+        public boolean isY() {
+            return y;
+        }
+
+        public void setY(boolean y) {
+            this.y = y;
+        }
+
+
+        // endregion
     }
 
     public static class Output {
