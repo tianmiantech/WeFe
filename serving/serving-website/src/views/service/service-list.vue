@@ -215,7 +215,7 @@
                                     <el-button
                                         type="text"
                                         size="small"
-                                        @click="export_sdk(scope.row.id)"
+                                        @click="export_sdk(scope.row.service_type === 7 ? scope.row.service_id : scope.row.id)"
                                     >
                                         下载工具包
                                     </el-button>
