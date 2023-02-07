@@ -70,9 +70,11 @@ public class AccountService {
             identityInfoModel.setMemberName("serving系统");
             identityInfoModel.setMode(ServingModeEnum.standalone.name());
             try {
-                SignUtil.KeyPair keyPair = SignUtil.generateKeyPair(SecretKeyType.valueOf(config.getInitializeSecretKeyType()));
+                SecretKeyType secretKeyType = SecretKeyType.valueOf(config.getInitializeSecretKeyType());
+                SignUtil.KeyPair keyPair = SignUtil.generateKeyPair(secretKeyType);
                 identityInfoModel.setRsaPrivateKey(keyPair.privateKey);
                 identityInfoModel.setRsaPublicKey(keyPair.publicKey);
+                identityInfoModel.setSecretKeyType(secretKeyType);
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
