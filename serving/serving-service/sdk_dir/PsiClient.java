@@ -27,6 +27,7 @@ import java.util.Random;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.psi.sdk.Psi;
 import com.welab.wefe.mpc.psi.sdk.PsiFactory;
@@ -65,6 +66,7 @@ public class PsiClient {
         psi.setClientDatasetMap(clientDatasetMap);
         CommunicationConfig config = new CommunicationConfig();
         config.setSignPrivateKey(Customer_privateKey);// 私钥
+//        config.setSecretKeyType(SecretKeyType.sm2);
         config.setCommercialId(Customer_code); // 客户ID
         // 服务地址
         config.setServerUrl(serverUrl);
