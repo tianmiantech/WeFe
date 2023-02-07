@@ -847,7 +847,10 @@ public class ServiceService {
                 BaseServiceMySqlModel.class);
 
         if (model == null) {
-            StatusCode.DATA_NOT_FOUND.throwException();
+            model = baseServiceRepository.findOne("id", serviceId, BaseServiceMySqlModel.class);
+            if (model == null) {
+                StatusCode.DATA_NOT_FOUND.throwException();
+            }
         }
 
         if (model.getServiceType() == 7) {
