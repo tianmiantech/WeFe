@@ -68,13 +68,6 @@ import static com.welab.wefe.common.StatusCode.PARAMETER_VALUE_INVALID;
 @Service
 public class TaskService extends AbstractService {
 
-    ExecutorService threadPool = new ThreadPoolExecutor(
-            Runtime.getRuntime().availableProcessors(),
-            Runtime.getRuntime().availableProcessors() * 2,
-            100L,
-            TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>());
-
     @Autowired
     TaskRepository taskRepository;
 
@@ -293,17 +286,9 @@ public class TaskService extends AbstractService {
      */
     private void psiServer(HandleApi.Input input, TaskMySqlModel task, PartnerMySqlModel partner) throws StatusCodeWithException {
         LOG.info("fusion task log , psiServer begin");
-        task.setStatus(TaskStatus.Ready);
-        task.setDataResourceId(input.getDataResourceId());
-        task.setDataResourceType(input.getDataResourceType());
-        task.setRowCount(input.getRowCount());
-        task.setUpdatedTime(new Date());
-        taskRepository.save(task);
-
         if (ActuatorManager.get(task.getBusinessId()) != null) {
             return;
         }
-
         /**
          * Find your party by task ID
          */
@@ -318,7 +303,14 @@ public class TaskService extends AbstractService {
         /**
          * Generate the corresponding task handler
          */
-        threadPool.execute(() -> {
+        new Thread(() -> {
+            task.setStatus(TaskStatus.Ready);
+            task.setDataResourceId(input.getDataResourceId());
+            task.setDataResourceType(input.getDataResourceType());
+            task.setRowCount(input.getRowCount());
+            task.setUpdatedTime(new Date());
+            taskRepository.save(task);
+            
             final CountDownLatch latch = new CountDownLatch(1);
             AbstractTask server = new PsiServerTask(task.getBusinessId(), bf.getSrc(),
                     new PsiServerActuator(task.getBusinessId(), task.getDataCount(), "localhost",
@@ -349,7 +341,7 @@ public class TaskService extends AbstractService {
             } catch (StatusCodeWithException e) {
                 e.printStackTrace();
             }
-        });
+        }).start();
     }
 
     /**

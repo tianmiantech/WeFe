@@ -16,19 +16,20 @@
 
 package com.welab.wefe.fusion.core.actuator.psi;
 
-import com.welab.wefe.common.CommonThreadPool;
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
-
-import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 
 /**
@@ -65,17 +66,32 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator impl
 
         psiClientMeta = downloadActuatorMeta();
         int bucketSize = bucketSize();
-        CountDownLatch latch = new CountDownLatch(bucketSize);
+//        CountDownLatch latch = new CountDownLatch(bucketSize);
+        
+//        for (int j = 0; j < bucketSize; j++) {
+//            int index = j;
+//            CommonThreadPool.run(() -> execute(index), latch);
+//        }
 
+//        latch.await();
+        ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
         for (int j = 0; j < bucketSize; j++) {
-            int index = j;
-            CommonThreadPool.run(() -> execute(index), latch);
+            final int index = j;
+            executorService.submit(() -> {
+                execute(index);
+            });
         }
-
-        latch.await();
-
+        executorService.shutdown();
+        try {
+            while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                // pass
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            executorService.shutdown();
+        }
         status = PSIActuatorStatus.success;
-
         notifyServerClose();
     }
 
@@ -130,13 +146,23 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator impl
         for (int i = 0; i < ret.length; i++) {
             BigInteger y = PSIUtils.bytesToBigInteger(ret[i], 0, ret[i].length);
             BigInteger z = y.multiply(rInv.get(i)).mod(psiClientMeta.getN());
-
             if (psiClientMeta.getBf().contains(z)) {
                 fruit.add(cur.get(i));
                 fusionCount.increment();
             }
             processedCount.increment();
         }
+        long free = Runtime.getRuntime().freeMemory();
+        long total = Runtime.getRuntime().totalMemory();
+        // 得到JVM中的空闲内存量（单位是字节）
+        LOG.info("psi log, free memory" + free + " bytes");
+        // 的JVM内存总量（单位是字节）
+        LOG.info("psi log, total memory" + Runtime.getRuntime().totalMemory() + " bytes");
+        LOG.info("psi log, used = " + ((total - free) / total) + "%");
+        // JVM试图使用额最大内存量（单位是字节）
+        LOG.info("psi log, max memory" + Runtime.getRuntime().maxMemory() + " bytes");
+        // 可用处理器的数目
+        LOG.info("psi log, " + Runtime.getRuntime().availableProcessors() + "cpus");
         return fruit;
     }
 
