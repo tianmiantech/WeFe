@@ -15,7 +15,6 @@
  */
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.pir.sdk.PrivateInformationRetrievalQuery;
 import com.welab.wefe.mpc.pir.sdk.config.PrivateInformationRetrievalConfig;
@@ -47,7 +46,7 @@ public class PirClient {
 		communicationConfig.setApiName(apiName);
 		communicationConfig.setCommercialId(customer_code); // 客户code
 		communicationConfig.setSignPrivateKey(customer_privateKey); // 客户私钥
-//		communicationConfig.setSecretKeyType(SecretKeyType.sm2);
+//		communicationConfig.setSecretKeyType("sm2");
 		// params
 		String idsStr = "[\n" +
 				"  {\n" +
