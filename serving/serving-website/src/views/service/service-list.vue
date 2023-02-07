@@ -211,7 +211,7 @@
                         </el-button>
                         <template #dropdown>
                             <el-dropdown-menu>
-                                <el-dropdown-item v-if="scope.row.service_type < 7">
+                                <el-dropdown-item>
                                     <el-button
                                         type="text"
                                         size="small"
@@ -392,9 +392,11 @@
                 });
             },
             async export_sdk(id) {
-                downLoadFileTool('/service/export_sdk', {
+                this.loading = true;
+                await downLoadFileTool('/service/export_sdk', {
                     serviceId: id,
                 });
+                this.loading = false;
             },
         },
     };
