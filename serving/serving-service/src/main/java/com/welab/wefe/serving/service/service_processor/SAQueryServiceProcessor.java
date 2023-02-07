@@ -76,7 +76,7 @@ public class SAQueryServiceProcessor extends AbstractServiceProcessor<TableServi
             communicationConfig.setCommercialId(activateModel.getCode());
             communicationConfig.setNeedSign(true);
             communicationConfig.setSignPrivateKey(activateModel.getPrivateKey());
-            communicationConfig.setSecretKeyType(activateModel.getSecretKeyType());
+            communicationConfig.setSecretKeyType(activateModel.getSecretKeyType().name());
             config.setCommunicationConfig(communicationConfig);
             HttpTransferVariable httpTransferVariable = new HttpTransferVariable(config);
             transferVariables.add(httpTransferVariable);

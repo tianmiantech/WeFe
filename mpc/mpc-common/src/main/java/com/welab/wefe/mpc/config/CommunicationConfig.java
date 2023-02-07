@@ -18,8 +18,6 @@ package com.welab.wefe.mpc.config;
 
 import java.util.UUID;
 
-import com.welab.wefe.common.constant.SecretKeyType;
-
 /**
  * 与服务通信配置
  *
@@ -49,7 +47,7 @@ public class CommunicationConfig {
      */
     private String signPrivateKey;
 
-    private SecretKeyType secretKeyType;
+    private String secretKeyType;
 
     /**
      * 是否需要签名
@@ -104,11 +102,11 @@ public class CommunicationConfig {
         this.requestId = requestId;
     }
 
-    public SecretKeyType getSecretKeyType() {
+    public String getSecretKeyType() {
         return secretKeyType;
     }
 
-    public void setSecretKeyType(SecretKeyType secretKeyType) {
+    public void setSecretKeyType(String secretKeyType) {
         this.secretKeyType = secretKeyType;
     }
 }
