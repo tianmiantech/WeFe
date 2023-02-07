@@ -906,6 +906,7 @@ public class ServiceService {
         if (serviceType == ServiceTypeEnum.PIR.getCode() || serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
             // 将需要提供的文件加到这个列表
             fileList.add(new File(basePath.resolve("mpc-pir-sdk-1.0.0.jar").toString()));
+            fileList.add(new File(basePath.resolve("bcprov-jdk15on-1.69.jar").toString()));
             if (serviceType == ServiceTypeEnum.PIR.getCode()) {
                 fileList.add(new File(basePath.resolve("PirClient.java").toString()));
             }
@@ -916,6 +917,7 @@ public class ServiceService {
         } else if (serviceType == ServiceTypeEnum.PSI.getCode() || serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
             // 将需要提供的文件加到这个列表
             fileList.add(new File(basePath.resolve("mpc-psi-sdk-1.0.0.jar").toString()));
+            fileList.add(new File(basePath.resolve("bcprov-jdk15on-1.69.jar").toString()));
             if (serviceType == ServiceTypeEnum.PSI.getCode()) {
                 fileList.add(new File(basePath.resolve("PsiClient.java").toString()));
             }
@@ -926,6 +928,7 @@ public class ServiceService {
         } else if (serviceType == ServiceTypeEnum.SA.getCode() || serviceType == ServiceTypeEnum.MULTI_SA.getCode()) {
             // 将需要提供的文件加到这个列表
             fileList.add(new File(basePath.resolve("mpc-sa-sdk-1.0.0.jar").toString()));
+            fileList.add(new File(basePath.resolve("bcprov-jdk15on-1.69.jar").toString()));
             fileList.add(new File(basePath.resolve("SaClient.java").toString()));
             fillReadmeFile(model, readme);
         } else {
