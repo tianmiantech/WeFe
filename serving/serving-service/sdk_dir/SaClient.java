@@ -1,4 +1,4 @@
-package com.welab.wefe.mpc;/*
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
