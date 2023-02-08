@@ -19,6 +19,7 @@ package com.welab.wefe.common.web.api.dev;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.OS;
 import com.welab.wefe.common.util.RandomUtil;
 import com.welab.wefe.common.util.StringUtil;
@@ -198,9 +199,16 @@ public class CreateTestDataSetApi extends AbstractApi<CreateTestDataSetApi.Input
             case "int":
                 return (random.nextBoolean() ? "" : "-") + random.nextInt(101);
             case "sex_cn":
-            case "city_cn":
-            case "date":
+                return (random.nextBoolean() ? "男" : "女");
             case "datetime":
+                return DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(
+                        new Date(System.currentTimeMillis() - random.nextInt(Integer.MAX_VALUE))
+                );
+            case "date":
+                return DateUtil.toStringYYYY_MM_DD(
+                        new Date(System.currentTimeMillis() - random.nextInt(Integer.MAX_VALUE))
+                );
+            case "city_cn":
             case "double":
             default:
                 return NUMBER_FORMAT.format(random.nextDouble());
