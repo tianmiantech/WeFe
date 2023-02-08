@@ -88,12 +88,7 @@ public class SaClient {
         body.put("sign", sign);
         body.put("data", JSONObject.parseObject(data));
         body.put("requestId", "xxx");
-        boolean verified = RSAUtil.verify(params.get("data").toString().getBytes(),
-                RSAUtil.getPublicKey(customer_publicKey), sign);
-        if (verified) {
-            return body.toJSONString();
-        }
-        return "";
+        return body.toJSONString();
     }
     /**
      * The rsa private key signature
