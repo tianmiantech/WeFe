@@ -276,7 +276,7 @@
                 v-if="metadata_pagination.list.length > 0"
                 :gutter="40"
             >
-                <el-col :span="10">
+                <el-col :span="10" v-if="addDataType !== 'BloomFilter'">
                     <h4 class="mt10 mb20">
                         字段信息：
                         <el-select
@@ -369,7 +369,7 @@
                         />
                     </div>
                 </el-col>
-                <el-col :span="14">
+                <el-col :span="addDataType === 'BloomFilter' ? 24 : 14">
                     <h4 class="m5">数据资源预览：</h4>
                     <c-grid
                         v-if="!loading"
@@ -970,14 +970,14 @@
                 if (code === 0) {
                     this.data_set_header = data.header;
                     this.dataSetHeaderOptions = [];
-                    data.header.forEach((x, i) => {
-                        if(i) {
+                    if (this.addDataType === 'BloomFilter') {
+                        data.header.forEach((x, i) => {
                             this.dataSetHeaderOptions.push({
                                 label: x,
                                 value: x,
                             });
-                        }
-                    });
+                        });
+                    }
                     this.metadata_pagination.list = [];
                     this.raw_data_list = data.raw_data_list.map(item => {
                         for(const key in item) {
