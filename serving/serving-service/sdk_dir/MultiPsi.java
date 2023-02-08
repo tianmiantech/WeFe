@@ -1,4 +1,4 @@
-/*
+package com.welab.wefe.mpc;/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,21 +15,34 @@
  */
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.mpc.util.RSAUtil;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLConnection;
-import java.security.MessageDigest;
 import java.util.TreeMap;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.Signature;
+import java.util.*;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+
+//import org.bouncycastle.asn1.gm.GMNamedCurves;
+//import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
+//import org.bouncycastle.asn1.x9.X9ECParameters;
+//import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
+//import org.bouncycastle.jce.provider.BouncyCastleProvider;
+//import org.bouncycastle.jce.spec.ECParameterSpec;
+//import org.bouncycastle.jce.spec.ECPrivateKeySpec;
 
 // 多方交集查询 用来生成http请求参数，然后自己通过http请求
+// 如果公私钥是sm2,则依赖 bcprov-jdk15on 1.69
 public class MultiPsi {
- // 私钥
+    // 私钥
     private static final String customer_privateKey = "***"; // TODO
     // 公钥
     private static final String customer_publicKey = "***"; // TODO
@@ -56,7 +69,7 @@ public class MultiPsi {
         String data = params.get("data").toString();
         String sign = "";
         try {
-            sign = RSAUtil.sign(data, customer_privateKey);
+            sign = signRsa(data, customer_privateKey); // signSm2
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -71,15 +84,8 @@ public class MultiPsi {
     /**
      * The sm2 private key signature
      *
-     * 依赖 bcprov-jdk15on 1.70
+     * 依赖 bcprov-jdk15on 1.69
      */
-    //import org.bouncycastle.asn1.gm.GMNamedCurves;
-    //import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
-    //import org.bouncycastle.asn1.x9.X9ECParameters;
-    //import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
-    //import org.bouncycastle.jce.provider.BouncyCastleProvider;
-    //import org.bouncycastle.jce.spec.ECParameterSpec;
-    //import org.bouncycastle.jce.spec.ECPrivateKeySpec;
 //    public static String signSm2(String data, String privateKeyStr) throws Exception {
 //        Signature signature = Signature.getInstance(
 //                GMObjectIdentifiers.sm2sign_with_sm3.toString(), new BouncyCastleProvider());
@@ -95,61 +101,20 @@ public class MultiPsi {
 //        signature.update(data.getBytes(StandardCharsets.UTF_8));
 //        return Base64.getEncoder().encodeToString(signature.sign());
 //    }
-    /**
-     * 利用java原生的类实现MD5加密
-     *
-     * @return
-     */
-    public static String getMD5String(String str) {
-        MessageDigest messageDigest;
-        String encodeStr = "";
-        try {
-            messageDigest = MessageDigest.getInstance("MD5");
-            messageDigest.update(str.getBytes("UTF-8"));
-            encodeStr = byte2Hex(messageDigest.digest());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return encodeStr;
-    }
 
     /**
-     * 利用java原生的类实现SHA256加密
-     *
-     * @return
+     * The rsa private key signature
      */
-    public static String getSHA256String(String str) {
-        MessageDigest messageDigest;
-        String encodeStr = "";
-        try {
-            messageDigest = MessageDigest.getInstance("SHA-256");
-            messageDigest.update(str.getBytes("UTF-8"));
-            encodeStr = byte2Hex(messageDigest.digest());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return encodeStr;
+    public static String signRsa(String data, String privateKeyStr) throws Exception {
+        Signature sigEng = Signature.getInstance("SHA1withRSA");
+        byte[] priByte = Base64.getDecoder().decode(privateKeyStr);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(priByte);
+        KeyFactory fac = KeyFactory.getInstance("RSA");
+        RSAPrivateKey privateKey = (RSAPrivateKey) fac.generatePrivate(keySpec);
+        sigEng.initSign(privateKey);
+        sigEng.update(data.getBytes());
+        return Base64.getEncoder().encodeToString(sigEng.sign());
     }
-
-    /**
-     * 将byte转为16进制
-     *
-     * @return
-     */
-    private static String byte2Hex(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        String temp = null;
-        for (byte aByte : bytes) {
-            temp = Integer.toHexString(aByte & 0xFF);
-            if (temp.length() == 1) {
-                // 1得到一位的进行补0操作
-                sb.append("0");
-            }
-            sb.append(temp);
-        }
-        return sb.toString();
-    }
-
 
     /**
      * 向指定 URL 发送POST方法的请求
