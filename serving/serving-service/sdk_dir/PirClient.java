@@ -47,6 +47,7 @@ public class PirClient {
 		communicationConfig.setCommercialId(customer_code); // 客户code
 		communicationConfig.setSignPrivateKey(customer_privateKey); // 客户私钥
 //		communicationConfig.setSecretKeyType("sm2");
+		communicationConfig.setSecretKeyType("rsa");
 		// params
 		String idsStr = "[\n" +
 				"  {\n" +

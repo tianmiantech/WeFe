@@ -1,4 +1,4 @@
-/*
+package com.welab.wefe.mpc;/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,8 +24,24 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.TreeMap;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.Signature;
+import java.util.*;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+
+//import org.bouncycastle.asn1.gm.GMNamedCurves;
+//import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
+//import org.bouncycastle.asn1.x9.X9ECParameters;
+//import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
+//import org.bouncycastle.jce.provider.BouncyCastleProvider;
+//import org.bouncycastle.jce.spec.ECParameterSpec;
+//import org.bouncycastle.jce.spec.ECPrivateKeySpec;
 
 // 多方匿踪查询 用来生成http请求参数，然后自己通过http请求
+// 如果公私钥是sm2,则依赖 bcprov-jdk15on 1.69
 public class MultiPir {
     // 私钥
     private static final String customer_privateKey = "***"; // TODO
@@ -81,7 +97,7 @@ public class MultiPir {
         String data = params.get("data").toString();
         String sign = "";
         try {
-            sign = RSAUtil.sign(data, customer_privateKey);
+            sign = signRsa(data, customer_privateKey);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -94,17 +110,24 @@ public class MultiPir {
     }
 
     /**
+     * The rsa private key signature
+     */
+    public static String signRsa(String data, String privateKeyStr) throws Exception {
+        Signature sigEng = Signature.getInstance("SHA1withRSA");
+        byte[] priByte = Base64.getDecoder().decode(privateKeyStr);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(priByte);
+        KeyFactory fac = KeyFactory.getInstance("RSA");
+        RSAPrivateKey privateKey = (RSAPrivateKey) fac.generatePrivate(keySpec);
+        sigEng.initSign(privateKey);
+        sigEng.update(data.getBytes());
+        return Base64.getEncoder().encodeToString(sigEng.sign());
+    }
+
+    /**
      * The sm2 private key signature
      *
-     * 依赖 bcprov-jdk15on 1.70
+     * 依赖 bcprov-jdk15on 1.69
      */
-    //import org.bouncycastle.asn1.gm.GMNamedCurves;
-    //import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
-    //import org.bouncycastle.asn1.x9.X9ECParameters;
-    //import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
-    //import org.bouncycastle.jce.provider.BouncyCastleProvider;
-    //import org.bouncycastle.jce.spec.ECParameterSpec;
-    //import org.bouncycastle.jce.spec.ECPrivateKeySpec;
 //    public static String signSm2(String data, String privateKeyStr) throws Exception {
 //        Signature signature = Signature.getInstance(
 //                GMObjectIdentifiers.sm2sign_with_sm3.toString(), new BouncyCastleProvider());

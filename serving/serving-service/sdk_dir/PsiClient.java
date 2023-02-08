@@ -37,7 +37,7 @@ import com.welab.wefe.mpc.psi.sdk.model.ConfuseData;
 
 /**
  * 两方交集查询 客户端 <br>
- * 配合 mpc-psi-sdk-1.0.0.jar使用 <br>
+ * 配合 mpc-pir-sdk-1.0.0.jar， bcprov-jdk15on-1.69.jar使用 <br>
  * 编译 `javac -cp mpc-psi-sdk-1.0.0.jar:. PsiClient.java` <br>
  * 运行 `java -cp mpc-psi-sdk-1.0.0.jar:. PsiClient xxxxx.csv`
  */
@@ -65,6 +65,7 @@ public class PsiClient {
         psi.setClientDatasetMap(clientDatasetMap);
         CommunicationConfig config = new CommunicationConfig();
         config.setSignPrivateKey(Customer_privateKey);// 私钥
+        config.setSecretKeyType("rsa");
 //        config.setSecretKeyType("sm2");
         config.setCommercialId(Customer_code); // 客户ID
         // 服务地址

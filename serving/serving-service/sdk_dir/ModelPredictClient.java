@@ -1,4 +1,4 @@
-/*
+package com.welab.wefe.mpc;/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,12 +26,20 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.*;
 
+//import org.bouncycastle.asn1.gm.GMNamedCurves;
+//import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
+//import org.bouncycastle.asn1.x9.X9ECParameters;
+//import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
+//import org.bouncycastle.jce.provider.BouncyCastleProvider;
+//import org.bouncycastle.jce.spec.ECParameterSpec;
+//import org.bouncycastle.jce.spec.ECPrivateKeySpec;
+
 /**
  * @author winter.zou
  *
  * 模型预测客户端
  * 依赖 fastjson 1.2.83
- * 如果公私钥是sm2,则依赖 bcprov-jdk15on 1.70
+ * 如果公私钥是sm2,则依赖 bcprov-jdk15on 1.69
  */
 public class ModelPredictClient {
 
@@ -76,7 +84,7 @@ public class ModelPredictClient {
          */
         String sign;
         try {
-            sign = signRsa(data, customer_privateKey);
+            sign = signRsa(data, customer_privateKey); // signSm2
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -104,15 +112,9 @@ public class ModelPredictClient {
     /**
      * The sm2 private key signature
      *
-     * 依赖 bcprov-jdk15on 1.70
+     * 依赖 bcprov-jdk15on 1.69
      */
-    //import org.bouncycastle.asn1.gm.GMNamedCurves;
-    //import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
-    //import org.bouncycastle.asn1.x9.X9ECParameters;
-    //import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
-    //import org.bouncycastle.jce.provider.BouncyCastleProvider;
-    //import org.bouncycastle.jce.spec.ECParameterSpec;
-    //import org.bouncycastle.jce.spec.ECPrivateKeySpec;
+
 //    public static String signSm2(String data, String privateKeyStr) throws Exception {
 //        Signature signature = Signature.getInstance(
 //                GMObjectIdentifiers.sm2sign_with_sm3.toString(), new BouncyCastleProvider());
