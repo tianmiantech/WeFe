@@ -66,6 +66,7 @@ public class MultiPsiServiceProcessor extends AbstractServiceProcessor<TableServ
             communicationConfig.setServerUrl(baseUrl);
             communicationConfig.setCommercialId(activateModel.getCode());
             communicationConfig.setSignPrivateKey(activateModel.getPrivateKey());
+            communicationConfig.setSecretKeyType(activateModel.getSecretKeyType().name());
             communicationConfigs.add(communicationConfig);
         }
 

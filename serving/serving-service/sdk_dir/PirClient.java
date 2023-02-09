@@ -23,7 +23,7 @@ import java.util.List;
 
 /**
  * 两方匿踪查询客户端 <br>
- * 配合 mpc-pir-sdk-1.0.0.jar使用 <br>
+ * 配合 mpc-pir-sdk-1.0.0.jar， bcprov-jdk15on-1.69.jar使用 <br>
  * 编译 `javac -cp mpc-pir-sdk-1.0.0.jar:. PirClient.java` <br>
  * 运行 `java -cp mpc-pir-sdk-1.0.0.jar:. PirClient`
  */
@@ -46,6 +46,8 @@ public class PirClient {
 		communicationConfig.setApiName(apiName);
 		communicationConfig.setCommercialId(customer_code); // 客户code
 		communicationConfig.setSignPrivateKey(customer_privateKey); // 客户私钥
+//		communicationConfig.setSecretKeyType("sm2");
+		communicationConfig.setSecretKeyType("rsa");
 		// params
 		String idsStr = "[\n" +
 				"  {\n" +

@@ -36,7 +36,7 @@ public class MemberExtJSON {
     private Long updatedTime;
     private String description;
     private List<RealnameAuthFileInfo> realnameAuthFileInfoList;
-    private SecretKeyType secretKeyType = SecretKeyType.rsa;
+    private SecretKeyType secretKeyType;
 
     // 证书相关字段
     // 证书请求内容

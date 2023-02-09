@@ -20,6 +20,11 @@ import java.security.MessageDigest;
 
 public class MD5Util {
 
+    /**
+     * 利用java原生的类实现MD5加密
+     *
+     * @return
+     */
     public static String getMD5String(String str) {
         MessageDigest messageDigest;
         String encodeStr = "";

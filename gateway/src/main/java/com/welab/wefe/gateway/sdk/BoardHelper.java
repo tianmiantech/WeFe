@@ -20,8 +20,10 @@ import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.gateway.cache.MemberCache;
+import com.welab.wefe.gateway.entity.MemberEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,8 +65,7 @@ public class BoardHelper {
      * @return signature
      */
     private static String generateSign(String body) throws Exception {
-        String privateKey = MemberCache.getInstance().getSelfMember().getPrivateKey();
-
-        return RSAUtil.sign(StringUtil.isEmpty(body) ? "" : body, privateKey, "UTF-8");
+        MemberEntity memberEntity = MemberCache.getInstance().getSelfMember();
+        return SignUtil.sign(StringUtil.isEmpty(body) ? "" : body, memberEntity.getPrivateKey(), memberEntity.getSecretKeyType());
     }
 }

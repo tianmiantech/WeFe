@@ -250,6 +250,8 @@ alter table `partner`  add column `is_me` tinyint(1) NOT NULL COMMENT '是否是
 -- 删除手机号唯一索引
 ALTER TABLE `account` DROP INDEX `index_unique_phonenumber`;
 
+ALTER TABLE client_service ADD secret_key_type varchar(10) NULL;
+
 CREATE TABLE `psi_service_result`(
     `id` bigint(20) NOT NULL primary key AUTO_INCREMENT COMMENT 'ID',
     `request_id` varchar(32) DEFAULT NULL COMMENT '请求ID',

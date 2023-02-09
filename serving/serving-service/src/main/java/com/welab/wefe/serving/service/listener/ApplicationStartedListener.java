@@ -182,11 +182,14 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
             lastRecordTime = lastRecord.getCreatedTime();
         }
         for (ClientServiceMysqlModel model : clientServiceMysqlModels) {
-            if (model.getType() == null || model.getType() == ServiceClientTypeEnum.ACTIVATE.getValue()) {
+            if (model == null || model.getType() == null || model.getType() == ServiceClientTypeEnum.ACTIVATE.getValue()) {
                 continue;
             }
             // 统计开通服务
             PartnerMysqlModel partnerServiceOne = partnerService.findOne(model.getClientId());
+            if(partnerServiceOne == null) {
+                continue;
+            }
             addFeeDetailRecord(model.getServiceId(), partnerServiceOne.getCode(), lastRecordTime);
         }
     }

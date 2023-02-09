@@ -61,28 +61,28 @@
                     >
                         <template #checkbox="{ index, list }">
                             <template
-                                v-for="i in 5"
-                                :key="`${index * 5 + i - 1}`"
+                                v-for="i in 4"
+                                :key="`${index * 4 + i - 1}`"
                             >
                                 <label
-                                    v-if="list[index * 5 + i - 1]"
-                                    :for="`label-${index * 5 + i - 1}`"
-                                    :class="['board-checkbox', { 'is-checked': item.$checkedColumnsArr.includes(list[index * 5 + i - 1].name) }]"
-                                    @click.prevent.stop="methods.checkboxChange($event, item, list[index * 5 + i - 1].name, columnListType)"
+                                    v-if="list[index * 4 + i - 1]"
+                                    :for="`label-${index * 4 + i - 1}`"
+                                    :class="['board-checkbox', { 'is-checked': item.$checkedColumnsArr.includes(list[index * 4 + i - 1].name) }]"
+                                    @click.prevent.stop="methods.checkboxChange($event, item, list[index * 4 + i - 1].name, columnListType)"
                                 >
-                                    <span :class="['board-checkbox__input', { 'is-checked': item.$checkedColumnsArr.includes(list[index * 5 + i - 1].name), 'is-disabled': Boolean(!!list[index * 5 + i - 1].method && selectListId && list[index * 5 + i - 1].id && list[index * 5 + i - 1].id !== selectListId) }]">
+                                    <span :class="['board-checkbox__input', { 'is-checked': item.$checkedColumnsArr.includes(list[index * 4 + i - 1].name), 'is-disabled': Boolean(!!list[index * 4 + i - 1].method && selectListId && list[index * 4 + i - 1].id && list[index * 4 + i - 1].id !== selectListId) }]">
                                         <span class="board-checkbox__inner"></span>
                                         <input
-                                            :id="`label-${index * 5 + i - 1}`"
-                                            :disabled="Boolean(!!list[index * 5 + i - 1].method && selectListId && list[index * 5 + i - 1].id && list[index * 5 + i - 1].id !== selectListId)"
+                                            :id="`label-${index * 4 + i - 1}`"
+                                            :disabled="Boolean(!!list[index * 4 + i - 1].method && selectListId && list[index * 4 + i - 1].id && list[index * 4 + i - 1].id !== selectListId)"
                                             class="board-checkbox__original"
                                             type="checkbox"
                                         />
                                     </span>
 
                                     <span class="board-checkbox__label">
-                                        <FeatureTagVue :name="list[index * 5 + i - 1].name" :data_set_id="item.data_set_id" />
-                                        <span>{{ list[index * 5 + i - 1].name }}</span>
+                                        <FeatureTagVue :name="list[index * 4 + i - 1].name" :data_set_id="item.data_set_id" />
+                                        <span>{{ list[index * 4 + i - 1].name }}</span>
                                     </span>
                                 </label>
                             </template>

@@ -195,7 +195,9 @@
             selectMemberCheckbox(item, idx) {
                 this.list[idx] = item;
                 if (item.selected) {
-                    this.checkedList.push(item);
+                    if (this.checkedList.findIndex(c => c.id === item.id) < 0) {
+                        this.checkedList.push(item);
+                    }
                 } else {
                     this.removeByValue(this.checkedList, 'id', item.id);
                 }

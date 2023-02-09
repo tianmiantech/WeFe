@@ -16,6 +16,8 @@
 
 package com.welab.wefe.serving.sdk.config;
 
+import com.welab.wefe.common.constant.SecretKeyType;
+
 /**
  * Global cache
  * It stores invariable or less variable data in the system to reduce database query and coding complexity.
@@ -30,4 +32,5 @@ public class Config {
     public static String MEMBER_ID;
     public static String RSA_PRIVATE_KEY;
     public static String RSA_PUBLIC_KEY;
+    public static SecretKeyType SECRET_KEY_TYPE = SecretKeyType.rsa;
 }
