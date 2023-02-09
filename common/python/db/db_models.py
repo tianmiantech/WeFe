@@ -134,9 +134,21 @@ class GlobalSetting(object):
         return GlobalConfigDao.getMemberInfo().member_allow_public_data_set
 
     @staticmethod
-    def get_rsa_private_key():
+    def get_secret_key_type():
+        from common.python.db.global_config_dao import GlobalConfigDao
+        from flow.web.utils.const import SecretKeyType
+        secret_key_type = GlobalConfigDao.getMemberInfo().secret_key_type
+        return secret_key_type if secret_key_type else SecretKeyType.RSA
+
+    @staticmethod
+    def get_private_key():
         from common.python.db.global_config_dao import GlobalConfigDao
         return GlobalConfigDao.getMemberInfo().rsa_private_key
+
+    @staticmethod
+    def get_public_key():
+        from common.python.db.global_config_dao import GlobalConfigDao
+        return GlobalConfigDao.getMemberInfo().rsa_public_key
 
     @staticmethod
     def get_flow_base_url():

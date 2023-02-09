@@ -16,6 +16,7 @@
 
 package com.welab.wefe.serving.service.dto.globalconfig;
 
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.fieldvalidate.secret.MaskStrategy;
 import com.welab.wefe.common.fieldvalidate.secret.Secret;
@@ -48,6 +49,9 @@ public class IdentityInfoModel extends AbstractConfigModel {
 
     @Check(name = "模式 standalone-独立模式 union-联邦模式")
     private String mode;
+
+    @Check(name = "密钥类型")
+    private SecretKeyType secretKeyType = SecretKeyType.rsa;
 
     //region getter/setter
 
@@ -114,6 +118,14 @@ public class IdentityInfoModel extends AbstractConfigModel {
 
     public void setMode(String mode) {
         this.mode = mode;
+    }
+
+    public SecretKeyType getSecretKeyType() {
+        return secretKeyType;
+    }
+
+    public void setSecretKeyType(SecretKeyType secretKeyType) {
+        this.secretKeyType = secretKeyType;
     }
 
     //endregion

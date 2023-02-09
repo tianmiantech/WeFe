@@ -23,6 +23,12 @@ public class Config extends CommonConfig {
     @Value("${psi.batch.size:400000}")
     private int psiBatchSize;
 
+    /**
+     * 系统在自身初始化时生成的公私钥类型
+     */
+    @Value("${initialize.secret.key.type:sm2}")
+    private String initializeSecretKeyType;
+
     public String getFileBasePath() {
         return fileBasePath;
     }
@@ -55,4 +61,11 @@ public class Config extends CommonConfig {
         this.psiBatchSize = psiBatchSize;
     }
 
+    public String getInitializeSecretKeyType() {
+        return initializeSecretKeyType;
+    }
+
+    public void setInitializeSecretKeyType(String initializeSecretKeyType) {
+        this.initializeSecretKeyType = initializeSecretKeyType;
+    }
 }

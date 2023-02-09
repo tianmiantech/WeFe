@@ -40,7 +40,8 @@ public class BoardVerifySignFunction extends AbstractVerifySignFunction {
             throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "board校验失败：" + signedApiInput.getMemberId());
         }
 
-        boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(), RSAUtil.getPublicKey(CacheObjects.getRsaPublicKey()), signedApiInput.getSign());
+        //boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(), RSAUtil.getPublicKey(CacheObjects.getRsaPublicKey()), signedApiInput.getSign());
+        boolean verified = com.welab.wefe.common.util.SignUtil.verify(signedApiInput.getData().getBytes(), CacheObjects.getRsaPublicKey(), signedApiInput.getSign(), CacheObjects.getSecretKeyType());
         if (!verified) {
             throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "错误的签名");
         }

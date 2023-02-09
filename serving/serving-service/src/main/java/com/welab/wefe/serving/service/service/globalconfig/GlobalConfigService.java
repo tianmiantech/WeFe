@@ -156,16 +156,16 @@ public class GlobalConfigService extends BaseGlobalConfigService {
 
     @Transactional(rollbackFor = Exception.class)
     public void updateMemberRsaKey() throws StatusCodeWithException {
-
+/*
         AccountMySqlModel account = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(CurrentAccountUtil.get().getPhoneNumber()));
         if (!account.getSuperAdminRole()) {
-            throw new StatusCodeWithException(StatusCode.INVALID_USER, "您没有编辑权限，请联系超级管理员（第一个注册的人）进行操作。");
-        }
+            throw new StatusCodeWithException("您没有编辑权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
+        }*/
 
         IdentityInfoModel model = getModel(IdentityInfoModel.class);
 
         try {
-            SignUtil.KeyPair keyPair = SignUtil.generateKeyPair(SecretKeyType.rsa);
+            SignUtil.KeyPair keyPair = SignUtil.generateKeyPair(null != model.getSecretKeyType() ? model.getSecretKeyType() : SecretKeyType.rsa);
             model.setRsaPrivateKey(keyPair.privateKey);
             model.setRsaPublicKey(keyPair.publicKey);
         } catch (NoSuchAlgorithmException e) {

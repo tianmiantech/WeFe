@@ -157,7 +157,7 @@
                     member_mobile:                '',
                     member_allow_public_data_set: true,
                     // gateway_uri:                  '',
-                    secret_key_type:              'sm2',
+                    secret_key_type:              'rsa',
                 },
                 memberCard: {
                     visible:    false,

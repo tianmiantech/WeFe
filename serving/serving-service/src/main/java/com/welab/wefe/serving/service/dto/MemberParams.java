@@ -16,6 +16,7 @@
 
 package com.welab.wefe.serving.service.dto;
 
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
 /**
@@ -31,6 +32,8 @@ public class MemberParams {
     private String publicKey;
 
     private String url;
+
+    private SecretKeyType secretKeyType;
 
     public String getMemberId() {
         return memberId;
@@ -70,5 +73,13 @@ public class MemberParams {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public SecretKeyType getSecretKeyType() {
+        return secretKeyType;
+    }
+
+    public void setSecretKeyType(SecretKeyType secretKeyType) {
+        this.secretKeyType = secretKeyType;
     }
 }

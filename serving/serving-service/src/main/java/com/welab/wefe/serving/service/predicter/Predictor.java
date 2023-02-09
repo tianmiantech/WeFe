@@ -69,7 +69,8 @@ public class Predictor {
             com.welab.wefe.serving.sdk.config.Launcher.init(
                     CacheObjects.getMemberId(),
                     CacheObjects.getRsaPrivateKey(),
-                    CacheObjects.getRsaPublicKey()
+                    CacheObjects.getRsaPublicKey(),
+                    CacheObjects.getSecretKeyType()
             );
         } catch (Exception e) {
             e.printStackTrace();

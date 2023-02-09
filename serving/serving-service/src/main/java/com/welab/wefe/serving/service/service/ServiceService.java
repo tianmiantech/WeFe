@@ -847,7 +847,10 @@ public class ServiceService {
                 BaseServiceMySqlModel.class);
 
         if (model == null) {
-            StatusCode.DATA_NOT_FOUND.throwException();
+            model = baseServiceRepository.findOne("id", serviceId, BaseServiceMySqlModel.class);
+            if (model == null) {
+                StatusCode.DATA_NOT_FOUND.throwException();
+            }
         }
 
         if (model.getServiceType() == 7) {
@@ -870,9 +873,11 @@ public class ServiceService {
 
         List<File> fileList = new ArrayList<>();
 
-        Path path = Paths.get(config.getFileBasePath()).resolve(serviceId + ".java");
+        Path path = Paths.get(config.getFileBasePath()).resolve("ModelPredictClient.java");
         File file = new File(path.toString());
-
+        
+        // TODO 新增依赖
+        // 新增readme.md servingID，url, api
         // 将需要提供的文件加到这个列表
         List<String> stringList = FileUtil
                 .readAllForLine(Paths.get(config.getFileBasePath()).resolve("ModelPredictClient.java").toString(), "UTF-8");
@@ -906,6 +911,7 @@ public class ServiceService {
         if (serviceType == ServiceTypeEnum.PIR.getCode() || serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
             // 将需要提供的文件加到这个列表
             fileList.add(new File(basePath.resolve("mpc-pir-sdk-1.0.0.jar").toString()));
+            fileList.add(new File(basePath.resolve("bcprov-jdk15on-1.69.jar").toString()));
             if (serviceType == ServiceTypeEnum.PIR.getCode()) {
                 fileList.add(new File(basePath.resolve("PirClient.java").toString()));
             }
@@ -916,6 +922,7 @@ public class ServiceService {
         } else if (serviceType == ServiceTypeEnum.PSI.getCode() || serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
             // 将需要提供的文件加到这个列表
             fileList.add(new File(basePath.resolve("mpc-psi-sdk-1.0.0.jar").toString()));
+            fileList.add(new File(basePath.resolve("bcprov-jdk15on-1.69.jar").toString()));
             if (serviceType == ServiceTypeEnum.PSI.getCode()) {
                 fileList.add(new File(basePath.resolve("PsiClient.java").toString()));
             }
@@ -926,6 +933,7 @@ public class ServiceService {
         } else if (serviceType == ServiceTypeEnum.SA.getCode() || serviceType == ServiceTypeEnum.MULTI_SA.getCode()) {
             // 将需要提供的文件加到这个列表
             fileList.add(new File(basePath.resolve("mpc-sa-sdk-1.0.0.jar").toString()));
+            fileList.add(new File(basePath.resolve("bcprov-jdk15on-1.69.jar").toString()));
             fileList.add(new File(basePath.resolve("SaClient.java").toString()));
             fillReadmeFile(model, readme);
         } else {
