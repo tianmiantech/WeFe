@@ -305,7 +305,7 @@ public class ClientServiceService {
                     model.setPrivateKey("");
                     model.setPublicKey("");
                 }
-                model.setSecretKeyType(null != input.getSecretKeyType() ? input.getSecretKeyType() : SecretKeyType.rsa);
+                model.setSecretKeyType(null != input.getSecretKeyType() ? input.getSecretKeyType() : model.getSecretKeyType());
             }
             clientServiceRepository.save(model);
 
