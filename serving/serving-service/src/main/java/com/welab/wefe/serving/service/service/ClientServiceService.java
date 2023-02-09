@@ -283,11 +283,11 @@ public class ClientServiceService {
                 model.setServiceName(serviceMySqlModel.getName());
                 if (StringUtils.isBlank(input.getPublicKey()) || !input.getPublicKey().contains("******")) {
                     model.setPublicKey(input.getPublicKey());
-                    model.setSecretKeyType(null != input.getSecretKeyType() ? input.getSecretKeyType() : SecretKeyType.rsa);
                 }
                 if (model.getUnitPrice() < 0) {
                     StatusCode.PARAMETER_VALUE_INVALID.throwException("单价不能为负数：" + model.getUnitPrice());
                 }
+                model.setSecretKeyType(null != input.getSecretKeyType() ? input.getSecretKeyType() : model.getSecretKeyType());
             } else { // 激活
                 model.setUnitPrice(0.0);
                 model.setIpAdd("-");
