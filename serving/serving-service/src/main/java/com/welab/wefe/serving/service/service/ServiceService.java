@@ -873,9 +873,11 @@ public class ServiceService {
 
         List<File> fileList = new ArrayList<>();
 
-        Path path = Paths.get(config.getFileBasePath()).resolve(serviceId + ".java");
+        Path path = Paths.get(config.getFileBasePath()).resolve("ModelPredictClient.java");
         File file = new File(path.toString());
-
+        
+        // TODO 新增依赖
+        // 新增readme.md servingID，url, api
         // 将需要提供的文件加到这个列表
         List<String> stringList = FileUtil
                 .readAllForLine(Paths.get(config.getFileBasePath()).resolve("ModelPredictClient.java").toString(), "UTF-8");
