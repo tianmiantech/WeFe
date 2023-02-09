@@ -25,6 +25,7 @@ import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.serving.service.api.service.UnionServiceApi;
 import com.welab.wefe.serving.service.api.service.UnionServiceApi.Input;
 import com.welab.wefe.serving.service.api.service.UnionServiceApi.Output;
@@ -181,7 +182,8 @@ public class UnionServiceService {
         if (needSign) {
             String sign = null;
             try {
-                sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
+                //sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
+				sign = SignUtil.sign(data, CacheObjects.getRsaPrivateKey(), CacheObjects.getSecretKeyType());
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());

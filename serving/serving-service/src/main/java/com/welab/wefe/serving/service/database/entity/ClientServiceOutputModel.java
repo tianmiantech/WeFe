@@ -15,8 +15,9 @@
  */
 package com.welab.wefe.serving.service.database.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import com.welab.wefe.common.constant.SecretKeyType;
+
+import javax.persistence.*;
 import java.util.UUID;
 
 /**
@@ -70,6 +71,10 @@ public class ClientServiceOutputModel {
     private String publicKey;
     private String privateKey;
     private String code;
+
+    @Column(name = "secret_key_type")
+    @Enumerated(EnumType.STRING)
+    private SecretKeyType secretKeyType = SecretKeyType.rsa;
 
     /**
      * 请求地址
@@ -186,5 +191,13 @@ public class ClientServiceOutputModel {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public SecretKeyType getSecretKeyType() {
+        return secretKeyType;
+    }
+
+    public void setSecretKeyType(SecretKeyType secretKeyType) {
+        this.secretKeyType = secretKeyType;
     }
 }

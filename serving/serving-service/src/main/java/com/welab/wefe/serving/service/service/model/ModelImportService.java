@@ -17,10 +17,7 @@ package com.welab.wefe.serving.service.service.model;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.AESUtil;
-import com.welab.wefe.common.util.FileUtil;
-import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.util.*;
 import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.Algorithm;
@@ -101,7 +98,8 @@ public class ModelImportService {
     }
 
     private String decryptAesKey(String aesKeyCiphertext) throws Exception {
-        return RSAUtil.decryptByPrivateKey(aesKeyCiphertext, CacheObjects.getRsaPrivateKey());
+        //return RSAUtil.decryptByPrivateKey(aesKeyCiphertext, CacheObjects.getRsaPrivateKey());
+        return SignUtil.decryptByPrivateKey(aesKeyCiphertext, CacheObjects.getRsaPrivateKey(), CacheObjects.getSecretKeyType());
     }
 
     private List<String> parseFileToList(String filename) throws IOException {

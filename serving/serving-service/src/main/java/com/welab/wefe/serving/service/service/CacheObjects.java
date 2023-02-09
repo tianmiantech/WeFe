@@ -16,6 +16,7 @@
 
 package com.welab.wefe.serving.service.service;
 
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.serving.service.database.entity.*;
 import com.welab.wefe.serving.service.database.repository.AccountRepository;
@@ -45,6 +46,7 @@ public class CacheObjects {
     private static String MEMBER_ID; // 系统ID
     private static String RSA_PRIVATE_KEY; // 私钥
     private static String RSA_PUBLIC_KEY; // 公钥
+    private static SecretKeyType SECRET_KEY_TYPE;//公私钥类型
     private static String SERVING_BASE_URL; // Serving服务地址
     private static String UNION_BASE_URL; // Union服务地址
     //    private static String MEMBER_NAME;
@@ -117,6 +119,13 @@ public class CacheObjects {
         return MODE;
     }
 
+    public static SecretKeyType getSecretKeyType() {
+        if (SECRET_KEY_TYPE == null) {
+            refreshGlobalConfig();
+        }
+        return null != SECRET_KEY_TYPE ? SECRET_KEY_TYPE : SecretKeyType.rsa;
+    }
+
     public static boolean isUnionModel() {
         return ServingModeEnum.union.name().equalsIgnoreCase(getMODE());
     }
@@ -135,6 +144,7 @@ public class CacheObjects {
             MEMBER_NAME = identityModel.getMemberName();
             MODE = identityModel.getMode();
             SERVING_BASE_URL = identityModel.getServingBaseUrl();
+            SECRET_KEY_TYPE = (null != identityModel.getSecretKeyType() ? identityModel.getSecretKeyType() : SecretKeyType.rsa);
         }
         if (unionModel != null) {
             UNION_BASE_URL = unionModel.getIntranetBaseUri();
@@ -244,7 +254,7 @@ public class CacheObjects {
     }
 
     public static synchronized void putAccount(AccountMySqlModel account) {
-        if(null == account) {
+        if (null == account) {
             return;
         }
         ACCOUNT_MAP.put(account.getId(), account.getNickname());

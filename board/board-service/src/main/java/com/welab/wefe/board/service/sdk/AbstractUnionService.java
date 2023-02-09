@@ -307,7 +307,8 @@ public abstract class AbstractUnionService extends AbstractService {
         JSONObject body = new JSONObject();
         if (needSign) {
             try {
-                sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
+                //sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
+                sign = SignUtil.sign(data, CacheObjects.getRsaPrivateKey(), CacheObjects.getSecretKeyType());
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());

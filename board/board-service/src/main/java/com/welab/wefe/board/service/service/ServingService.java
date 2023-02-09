@@ -30,11 +30,13 @@ import com.welab.wefe.board.service.dto.entity.job.JobMemberOutputModel;
 import com.welab.wefe.board.service.dto.serving.ProviderModelPushResult;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.dto.global_config.MemberInfoModel;
 import com.welab.wefe.common.wefe.dto.global_config.ServingConfigModel;
@@ -86,6 +88,7 @@ public class ServingService extends AbstractService {
         params.put("member_name", model.getMemberName());
         params.put("rsa_private_key", model.getRsaPrivateKey());
         params.put("rsa_public_key", model.getRsaPublicKey());
+        params.put("secret_key_type", null != model.getSecretKeyType() ? model.getSecretKeyType().name() : SecretKeyType.rsa);
         params.put("union_base_url", unionBaseUrl);
 
         request("global_config/initialize/union", params, false);
@@ -125,7 +128,8 @@ public class ServingService extends AbstractService {
 
             String sign = null;
             try {
-                sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey());
+                //sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey());
+                sign = SignUtil.sign(data, CacheObjects.getRsaPrivateKey(), CacheObjects.getSecretKeyType());
             } catch (Exception e) {
                 throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
             }
@@ -387,6 +391,11 @@ public class ServingService extends AbstractService {
                                 getJSONObject(0).
                                 getJSONObject("ext_json").
                                 getString("serving_base_url"));
+                        member.put("secretKeyType", json.getJSONObject("data").
+                                getJSONArray("list").
+                                getJSONObject(0).
+                                getJSONObject("ext_json").
+                                getString("secret_key_type"));
                     } catch (StatusCodeWithException e) {
                         super.log(e);
                     }

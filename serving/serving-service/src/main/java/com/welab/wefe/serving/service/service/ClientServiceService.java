@@ -18,11 +18,14 @@ package com.welab.wefe.serving.service.service;
 
 import cn.hutool.core.lang.UUID;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
+import com.welab.wefe.common.util.SignUtil;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.service.api.clientservice.*;
@@ -87,6 +90,9 @@ public class ClientServiceService {
             ClientServiceMysqlModel model = ModelMapper.map(input, ClientServiceMysqlModel.class);
             model.setId(UUID.randomUUID().toString().replaceAll("-", ""));
             if (input.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
+                if (null == model.getSecretKeyType()) {
+                    StatusCode.ILLEGAL_REQUEST.throwException("请选择公钥类型");
+                }
                 // 客户相关信息
                 PartnerMysqlModel partnerMysqlModel = partnerRepository.findOne("id", input.getClientId(),
                         PartnerMysqlModel.class);
@@ -106,20 +112,37 @@ public class ClientServiceService {
                     StatusCode.PARAMETER_VALUE_INVALID.throwException("单价不能为负数：" + model.getUnitPrice());
                 }
             } else {// 激活
-
                 model.setIpAdd("-");
                 model.setPayType(-1);
                 model.setStatus(ServiceStatusEnum.USED.getCode());
                 model.setServiceType(-1);
                 model.setCode(input.getCode());
                 model.setServiceName(input.getServiceName());
+
+               /* if (StringUtils.isNotBlank(input.getPublicKey()) && StringUtils.isBlank(input.getPrivateKey())
+                        && input.getPublicKey().equalsIgnoreCase(CacheObjects.getRsaPublicKey())) {
+                    model.setPrivateKey(CacheObjects.getRsaPrivateKey());
+                    model.setPublicKey(CacheObjects.getRsaPublicKey());
+                    model.setSecretKeyType(CacheObjects.getSecretKeyType());
+                } else if (StringUtils.isBlank(input.getPublicKey())) {
+                    model.setPrivateKey(input.getPrivateKey());
+                    model.setPublicKey(input.getPublicKey());
+                    model.setSecretKeyType(null != input.getSecretKeyType() ? input.getSecretKeyType() : SecretKeyType.rsa);
+                }*/
+                // 如果前端提交过来的公钥和系统的相同，则证明是使用系统的公钥私
                 if (StringUtils.isNotBlank(input.getPublicKey()) && StringUtils.isBlank(input.getPrivateKey())
                         && input.getPublicKey().equalsIgnoreCase(CacheObjects.getRsaPublicKey())) {
                     model.setPrivateKey(CacheObjects.getRsaPrivateKey());
                     model.setPublicKey(CacheObjects.getRsaPublicKey());
-                } else if (StringUtils.isBlank(input.getPublicKey())) {
+                    model.setSecretKeyType(CacheObjects.getSecretKeyType());
+                } else {
+                    if (null == input.getSecretKeyType()) {
+                        StatusCode.ILLEGAL_REQUEST.throwException("请选择公私钥类型");
+                    }
+
                     model.setPrivateKey(input.getPrivateKey());
                     model.setPublicKey(input.getPublicKey());
+                    model.setSecretKeyType(input.getSecretKeyType());
                 }
                 if (StringUtils.isNotBlank(input.getUrl()) && input.getUrl().endsWith("/")) {
                     input.setUrl(input.getUrl().substring(0, input.getUrl().length() - 1));
@@ -264,6 +287,7 @@ public class ClientServiceService {
                 if (model.getUnitPrice() < 0) {
                     StatusCode.PARAMETER_VALUE_INVALID.throwException("单价不能为负数：" + model.getUnitPrice());
                 }
+                model.setSecretKeyType(null != input.getSecretKeyType() ? input.getSecretKeyType() : model.getSecretKeyType());
             } else { // 激活
                 model.setUnitPrice(0.0);
                 model.setIpAdd("-");
@@ -281,6 +305,7 @@ public class ClientServiceService {
                     model.setPrivateKey("");
                     model.setPublicKey("");
                 }
+                model.setSecretKeyType(null != input.getSecretKeyType() ? input.getSecretKeyType() : model.getSecretKeyType());
             }
             clientServiceRepository.save(model);
 
@@ -356,12 +381,13 @@ public class ClientServiceService {
      * @throws StatusCodeWithException
      */
     public void openService(String serviceId, String serviceName, String url, String clientId, String publicKey,
-            ServiceTypeEnum serviceType) throws StatusCodeWithException {
+                            ServiceTypeEnum serviceType, SecretKeyType secretKeyType) throws StatusCodeWithException {
         SaveApi.Input clientService = new SaveApi.Input();
         clientService.setServiceType(serviceType.getCode());
         clientService.setClientId(clientId);
         clientService.setServiceId(serviceId);
         clientService.setPublicKey(publicKey);
+        clientService.setSecretKeyType(secretKeyType);
         clientService.setCode(clientId);
         clientService.setType(ServiceClientTypeEnum.OPEN.getValue());
         clientService.setStatus(ServiceStatusEnum.UNUSED.getCode());
@@ -381,7 +407,7 @@ public class ClientServiceService {
      * @throws StatusCodeWithException
      */
     public void activateService(String serviceId, String serviceName, String clientId, String privateKey,
-            String publicKey, String url, ServiceTypeEnum serviceType) throws StatusCodeWithException {
+                                String publicKey, SecretKeyType secretKeyType, String url, ServiceTypeEnum serviceType) throws StatusCodeWithException {
         ClientServiceMysqlModel clientService = clientServiceRepository.findOne("serviceId", serviceId,
                 ClientServiceMysqlModel.class);
         if (clientService == null) {
@@ -394,6 +420,7 @@ public class ClientServiceService {
         clientService.setServiceType(serviceType.getCode());
         clientService.setPrivateKey(privateKey);
         clientService.setPublicKey(publicKey);
+        clientService.setSecretKeyType(secretKeyType);
         clientService.setUrl(url);
         clientService.setType(ServiceClientTypeEnum.ACTIVATE.getValue());
         clientService.setStatus(ServiceStatusEnum.UNUSED.getCode());
@@ -401,7 +428,6 @@ public class ClientServiceService {
         clientService.setIpAdd("-");
         clientService.setPayType(-1);
         clientService.setServiceType(-1);
-
         clientServiceRepository.save(clientService);
     }
 
@@ -423,7 +449,7 @@ public class ClientServiceService {
                 .equal("clientId", clientId).build(ClientServiceMysqlModel.class);
         return clientServiceRepository.findOne(where).orElse(null);
     }
-    
+
     public List<ClientServiceMysqlModel> queryActivateListByServiceId(String serviceId) {
 
         Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", serviceId)

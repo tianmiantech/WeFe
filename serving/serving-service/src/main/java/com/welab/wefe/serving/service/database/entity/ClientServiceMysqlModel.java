@@ -17,7 +17,11 @@ package com.welab.wefe.serving.service.database.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 
+import com.welab.wefe.common.constant.SecretKeyType;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.serving.service.enums.ServiceClientTypeEnum;
 import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
 
@@ -69,6 +73,10 @@ public class ClientServiceMysqlModel extends AbstractBaseMySqlModel {
     // 开通或者激活
     @Column(name = "type")
     private Integer type = ServiceClientTypeEnum.OPEN.getValue();
+
+    @Column(name = "secret_key_type")
+    @Enumerated(EnumType.STRING)
+    private SecretKeyType secretKeyType = SecretKeyType.rsa;
 
     public Integer getPayType() {
         return payType;
@@ -180,5 +188,13 @@ public class ClientServiceMysqlModel extends AbstractBaseMySqlModel {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public SecretKeyType getSecretKeyType() {
+        return secretKeyType;
+    }
+
+    public void setSecretKeyType(SecretKeyType secretKeyType) {
+        this.secretKeyType = secretKeyType;
     }
 }

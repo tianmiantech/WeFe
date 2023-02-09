@@ -17,7 +17,9 @@
 package com.welab.wefe.common.util;
 
 import org.apache.commons.codec.binary.Base64;
+import org.bouncycastle.asn1.gm.GMNamedCurves;
 import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
+import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.crypto.engines.SM2Engine;
 import org.bouncycastle.crypto.params.ECDomainParameters;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
@@ -27,14 +29,17 @@ import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECParameterSpec;
+import org.bouncycastle.math.ec.ECPoint;
+import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.ECGenParameterSpec;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
+import org.bouncycastle.jce.spec.ECPrivateKeySpec;
+import org.bouncycastle.jce.spec.ECPublicKeySpec;
 
 /**
  * @author yuxin.zhang
@@ -56,15 +61,19 @@ public class SM2Util {
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC", new BouncyCastleProvider());
             kpg.initialize(sm2Spec, new SecureRandom());
             keyPair = kpg.generateKeyPair();
+            BCECPrivateKey privateKey = (BCECPrivateKey) keyPair.getPrivate();
+            BCECPublicKey publicKey = (BCECPublicKey) keyPair.getPublic();
+            return new Sm2KeyPair(
+                    new String(Hex.encode(publicKey.getQ().getEncoded(false))),
+                    privateKey.getD().toString(16));
+
         } catch (InvalidAlgorithmParameterException e) {
             LOG.error(e.getMessage(), e);
         } catch (NoSuchAlgorithmException e) {
             LOG.error(e.getMessage(), e);
         }
-        return new Sm2KeyPair(
-                Base64Util.encode(keyPair.getPublic().getEncoded()),
-                Base64Util.encode(keyPair.getPrivate().getEncoded())
-        );
+
+        return null;
     }
 
     public static class Sm2KeyPair {
@@ -81,34 +90,46 @@ public class SM2Util {
      * Public key format conversion: Convert from string type to PublicKey type
      */
     public static PublicKey getPublicKey(String publicKeyStr) throws Exception {
-        byte[] keyBytes = Base64.decodeBase64(publicKeyStr.getBytes(StandardCharsets.UTF_8));
-        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(keyBytes);
+        X9ECParameters parameters = GMNamedCurves.getByName("sm2p256v1");
+        ECParameterSpec ecParameterSpec = new ECParameterSpec(parameters.getCurve(),
+                parameters.getG(), parameters.getN(), parameters.getH());
+        // 将公钥HEX字符串转换为椭圆曲线对应的点
+        ECPoint ecPoint = parameters.getCurve().decodePoint(Hex.decode(publicKeyStr));
         KeyFactory keyFactory = KeyFactory.getInstance("EC", new BouncyCastleProvider());
-        return keyFactory.generatePublic(x509KeySpec);
+        BCECPublicKey key = (BCECPublicKey) keyFactory.generatePublic(new ECPublicKeySpec(ecPoint, ecParameterSpec));
+        return key;
     }
 
     /**
      * PrivateKey key format conversion: Convert from string type to PrivateKey type
      */
     public static PrivateKey getPrivateKey(String privateKeyStr) throws Exception {
-        byte[] keyBytes = Base64.decodeBase64(privateKeyStr.getBytes(StandardCharsets.UTF_8));
-        PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(keyBytes);
+        // 将私钥HEX字符串转换为X值
+        BigInteger bigInteger = new BigInteger(privateKeyStr, 16);
         KeyFactory keyFactory = KeyFactory.getInstance("EC", new BouncyCastleProvider());
-        return keyFactory.generatePrivate(pkcs8EncodedKeySpec);
-    }
 
+        X9ECParameters parameters = GMNamedCurves.getByName("sm2p256v1");
+        ECParameterSpec ecParameterSpec = new ECParameterSpec(parameters.getCurve(),
+                parameters.getG(), parameters.getN(), parameters.getH());
+
+        BCECPrivateKey privateKey = (BCECPrivateKey) keyFactory.generatePrivate(new ECPrivateKeySpec(bigInteger,
+                ecParameterSpec));
+
+        return privateKey;
+    }
 
     /**
      * The private key signature
      */
     public static String sign(String data, String privateKeyStr) throws Exception {
         Signature signature = Signature.getInstance(
-                GMObjectIdentifiers.sm2sign_with_sm3.toString()
-                , new BouncyCastleProvider());
+                GMObjectIdentifiers.sm2sign_with_sm3.toString(), new BouncyCastleProvider());
 
         signature.initSign(getPrivateKey(privateKeyStr));
         signature.update(data.getBytes(StandardCharsets.UTF_8));
-        return Base64.encodeBase64String(signature.sign());
+        byte[] signBytes = signature.sign();
+        // System.out.println(org.apache.commons.codec.binary.Hex.encodeHex(signBytes));
+        return Base64.encodeBase64String(signBytes);
 
     }
 
@@ -117,8 +138,7 @@ public class SM2Util {
      */
     public static boolean verify(byte[] data, PublicKey publicKey, String sign) throws Exception {
         Signature signature = Signature.getInstance(
-                GMObjectIdentifiers.sm2sign_with_sm3.toString()
-                , new BouncyCastleProvider());
+                GMObjectIdentifiers.sm2sign_with_sm3.toString(), new BouncyCastleProvider());
         signature.initVerify(publicKey);
         signature.update(data);
         return signature.verify(Base64.decodeBase64(sign.getBytes()));

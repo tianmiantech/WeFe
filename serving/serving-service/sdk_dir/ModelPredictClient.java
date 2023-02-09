@@ -1,4 +1,4 @@
-/*
+package com.welab.wefe.mpc;/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,26 +14,32 @@
  * limitations under the License.
  */
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.URL;
-import java.net.URLConnection;
+import com.alibaba.fastjson.JSONObject;
+
+import java.io.*;
+import java.math.BigInteger;
+import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.Signature;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
 
-import com.alibaba.fastjson.JSONObject;
+//import org.bouncycastle.asn1.gm.GMNamedCurves;
+//import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
+//import org.bouncycastle.asn1.x9.X9ECParameters;
+//import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
+//import org.bouncycastle.jce.provider.BouncyCastleProvider;
+//import org.bouncycastle.jce.spec.ECParameterSpec;
+//import org.bouncycastle.jce.spec.ECPrivateKeySpec;
 
 /**
- * @author hunter.zhao
+ * @author winter.zou
+ *
+ * 模型预测客户端
+ * 依赖 fastjson 1.2.83
+ * 如果公私钥是sm2,则依赖 bcprov-jdk15on 1.69
  */
 public class ModelPredictClient {
 
@@ -46,7 +52,7 @@ public class ModelPredictClient {
 
     private static final String api = "{{baseUrl}}/api/predict/%s"; // TODO
 
-    private static final String serviceId = "xxxx"; // TODO
+    private static final String serviceId = "***"; // TODO
 
     public static void main(String[] args) throws Exception {
         String params = setFederatedPredictBody();
@@ -60,7 +66,7 @@ public class ModelPredictClient {
         TreeMap<String, Object> params = new TreeMap<>();
         Map<String, Object> map1 = new HashMap<>();
         // TODO 添加特征值到map
-        map1.put("特征1", 0.1223213);
+        map1.put("x1", 0.54);
 
         params.put("featureData", map1);
         params.put("userId", "1"); // TODO 传给协作方查找特征使用
@@ -78,7 +84,7 @@ public class ModelPredictClient {
          */
         String sign;
         try {
-            sign = sign(data, customer_privateKey);
+            sign = signRsa(data, customer_privateKey); // signSm2
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -89,14 +95,11 @@ public class ModelPredictClient {
         body.put("data", data);
         return body.toJSONString();
     }
-
-    private static final String SIGN_ALGORITHM = "SHA1withRSA";
-
     /**
-     * The private key signature
+     * The rsa private key signature
      */
-    public static String sign(String data, String privateKeyStr) throws Exception {
-        Signature sigEng = Signature.getInstance(SIGN_ALGORITHM);
+    public static String signRsa(String data, String privateKeyStr) throws Exception {
+        Signature sigEng = Signature.getInstance("SHA1withRSA");
         byte[] priByte = Base64.getDecoder().decode(privateKeyStr);
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(priByte);
         KeyFactory fac = KeyFactory.getInstance("RSA");
@@ -105,6 +108,28 @@ public class ModelPredictClient {
         sigEng.update(data.getBytes());
         return Base64.getEncoder().encodeToString(sigEng.sign());
     }
+
+    /**
+     * The sm2 private key signature
+     *
+     * 依赖 bcprov-jdk15on 1.69
+     */
+
+//    public static String signSm2(String data, String privateKeyStr) throws Exception {
+//        Signature signature = Signature.getInstance(
+//                GMObjectIdentifiers.sm2sign_with_sm3.toString(), new BouncyCastleProvider());
+//        // 将私钥HEX字符串转换为X值
+//        BigInteger bigInteger = new BigInteger(privateKeyStr, 16);
+//        KeyFactory keyFactory = KeyFactory.getInstance("EC", new BouncyCastleProvider());
+//        X9ECParameters parameters = GMNamedCurves.getByName("sm2p256v1");
+//        ECParameterSpec ecParameterSpec = new ECParameterSpec(parameters.getCurve(),
+//                parameters.getG(), parameters.getN(), parameters.getH());
+//        BCECPrivateKey privateKey = (BCECPrivateKey) keyFactory.generatePrivate(new ECPrivateKeySpec(bigInteger,
+//                ecParameterSpec));
+//        signature.initSign(privateKey);
+//        signature.update(data.getBytes(StandardCharsets.UTF_8));
+//        return Base64.getEncoder().encodeToString(signature.sign());
+//    }
 
     /**
      * 向指定 URL 发送POST方法的请求
