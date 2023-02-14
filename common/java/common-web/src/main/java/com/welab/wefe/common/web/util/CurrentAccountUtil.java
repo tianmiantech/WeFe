@@ -17,6 +17,7 @@
 package com.welab.wefe.common.web.util;
 
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.util.UrlUtil;
 import com.welab.wefe.common.web.service.account.SsoAccountInfo;
 
 import javax.servlet.http.HttpServletRequest;
@@ -71,7 +72,7 @@ public class CurrentAccountUtil {
         String phoneNumber = httpServletRequest.getHeader(IAM_HEADER_KEY_PHONE_NUMBER);
         String email = httpServletRequest.getHeader(IAM_HEADER_KEY_EMAIL);
         userId = StringUtil.isEmpty(userId) ? DEFAULT_ACCOUNT_ID : userId;
-        userName = StringUtil.isEmpty(userName) ? DEFAULT_ACCOUNT_NAME : userName;
+        userName = StringUtil.isEmpty(userName) ? DEFAULT_ACCOUNT_NAME : UrlUtil.decode(userName);
         phoneNumber = StringUtil.isEmpty(phoneNumber) ? DEFAULT_ACCOUNT_PHONE_NUMBER : phoneNumber;
         email = StringUtil.isEmpty(email) ? DEFAULT_ACCOUNT_EMAIL : email;
 
