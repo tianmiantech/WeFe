@@ -344,7 +344,7 @@ public class ModelService {
             model.setUpdatedTime(new Date());
             modelRepository.save(model);
         }
-        clientServiceService.updateAllByServiceId(model.getServiceId(), model.getName(), model.getUrl(),
-                model.getServiceType());
+        clientServiceService.updateAllByServiceId(model.getServiceId(), model.getName(),
+                ServiceService.SERVICE_PRE_URL + model.getUrl(), model.getServiceType());
     }
 }

@@ -644,8 +644,8 @@ public class ServiceService {
         } else {
             unionServiceService.offline2Union(model);
         }
-        clientServiceService.updateAllByServiceId(model.getId(), model.getName(),
-                ServiceService.SERVICE_PRE_URL + model.getUrl(), model.getServiceType());
+        clientServiceService.updateAllByServiceId(model.getId(), model.getName(), model.getUrl(),
+                model.getServiceType());
         return output;
     }
 

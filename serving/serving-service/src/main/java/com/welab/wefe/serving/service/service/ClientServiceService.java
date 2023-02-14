@@ -26,6 +26,7 @@ import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.service.api.clientservice.*;
@@ -363,6 +364,8 @@ public class ClientServiceService {
             model.setServiceName(serviceName);
             model.setServiceType(serviceType);
             model.setUrl(url);
+            model.setUpdatedBy(CurrentAccountUtil.get().getId());
+            model.setUpdatedTime(new Date());
             newModels.add(model);
         }
         clientServiceRepository.saveAll(newModels);
