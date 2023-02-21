@@ -1,4 +1,4 @@
-import { isQianKun } from "@src/http/utils";
+import { isQianKun } from '@src/http/utils';
 
 const CLOUD = [
     'cloud-dev.tianmiantech.com',
@@ -36,6 +36,7 @@ export function baseURL (){
     const appCodes = appCode();
     const lastTwo = appCodes.substring(appCodes.length - 2);
     const second = /^\d+$/.test(lastTwo) ? lastTwo : '';
+
     if(window._wefeApi){
         /** 提供给客户快速修改请求地址，一般通过修改html head */
         return window._wefeApi;
@@ -48,4 +49,10 @@ export function baseURL (){
 //  拥有权限的菜单列表
 export const MENU_LIST=`${appCode()}_menu_list`;
 
+// 获取当前 token 名称
+export const getTokenName = () => {
+    const { _QIANKUN_ENV: qiankun_env } = window.$app || {};
+    const tokenName = `iam-${ qiankun_env || process.env.HOST_ENV || 'dev'}-x-user-token`;
 
+    return tokenName;
+};

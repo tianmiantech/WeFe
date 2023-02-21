@@ -21,7 +21,7 @@
                         prop="service_type"
                         label="服务类型:"
                         style="min-width: 280px; min-height: 50px"
-                        label-width="100px"
+                        label-width="120px"
                     >
                         <el-select
                             v-model="form.service_type"
@@ -62,7 +62,7 @@
                     prop="name"
                     label="服务名称:"
                     class="maxlength"
-                    label-width="100px"
+                    label-width="120px"
                 >
                     <el-input
                         v-model="form.name"
@@ -76,7 +76,7 @@
                     prop="url"
                     label="服务英文名称:"
                     class="maxlength"
-                    label-width="100px"
+                    label-width="120px"
                 >
                     <el-input
                         v-model="form.url"
@@ -197,7 +197,7 @@
                                 message: '参数名称不能为空',
                                 trigger: 'blur',
                             }"
-                            label-width="30px"
+                            label-width="50px"
                         >
                             <label style="color: #6c757d">
                                 <span>参数名称：</span>
@@ -212,7 +212,7 @@
                                 <span>参数描述：</span>
                                 <el-input
                                     v-model="item.desc"
-                                    style="width: 230px"
+                                    style="width: 200px"
                                     clearable
                                 />
                             </label>
@@ -246,7 +246,7 @@
                         </p>
                         <el-form-item
                             label="数据源:"
-                            label-width="100px"
+                            label-width="120px"
                         >
                             <el-select
                                 v-model="form.data_source.id"
@@ -270,7 +270,7 @@
                         </el-form-item>
                         <el-form-item
                             label="数据表:"
-                            label-width="100px"
+                            label-width="120px"
                         >
                             <el-select
                                 v-model="form.data_source.table"
@@ -288,7 +288,7 @@
 
                         <el-form-item
                             label="返回字段:"
-                            label-width="100px"
+                            label-width="120px"
                         >
                             <el-select
                                 v-model="form.data_source.return_fields"
@@ -315,7 +315,7 @@
                             <el-form-item
                                 label="求交主键:"
                                 required
-                                label-width="100px"
+                                label-width="120px"
                             >
                                 <el-button
                                     type="primary"
@@ -340,7 +340,7 @@
                                 :key="`condition_field-${$index}`"
                                 class="condition_fields"
                                 label="查询条件:"
-                                label-width="100px"
+                                label-width="120px"
                             >
                                 <el-select
                                     v-model="sqlOperator"
@@ -396,7 +396,7 @@
                                     placeholder="从查询参数配置中选择"
                                     class="ml10"
                                     clearable
-                                    style="width: 32%"
+                                    style="width: 24%"
                                     @change="sqlShow"
                                 >
                                     <el-option
@@ -816,7 +816,7 @@
                                                 type="text"
                                                 placeholder="查询的字段对应的值"
                                                 class="user-tips"
-                                                style="width: 40%"
+                                                style="width: 38%"
                                             />
                                             <el-button
                                                 type="primary"
@@ -1014,14 +1014,18 @@
                 >
                     保存
                 </el-button>
-                <el-link
-                    type="primary"
-                    :disabled="!api.id"
-                    style="margin-left: 10px"
-                    @click="export_sdk"
+                <DownloadLink
+                    :mid-url="`service/export_sdk?serviceId=${api.id}`"
+                    inline
                 >
-                    点击下载工具包
-                </el-link>
+                    <el-link
+                        type="primary"
+                        :disabled="!api.id"
+                        style="margin-left: 10px"
+                    >
+                        点击下载工具包
+                    </el-link>
+                </DownloadLink>
                 <p
                     v-if="form.status === 1"
                     style="font-size: 10px;color:red"
@@ -1364,11 +1368,13 @@ import { Grid, Minimap, Tooltip, TreeGraph } from '@antv/g6';
 import { downLoadFileTool } from '@src/utils/tools';
 import { getHeader } from '@src/http/utils';
 import { baseURL } from '@src/utils/constant';
+import DownloadLink from '@src/components/Common/DownloadLink';
 
 export default {
     components: {
         ServiceConfigs,
         DataSourceEditor,
+        DownloadLink,
     },
     data() {
         return {
