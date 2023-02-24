@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.ObjectUtils;
 
 import com.alibaba.fastjson.util.TypeUtils;
 import com.welab.wefe.serving.sdk.enums.XgboostWorkMode;
@@ -490,7 +491,7 @@ public class XgboostAlgorithmHelper {
                      */
                     boolean direction = false;
 
-                    if (featureDataMap.containsKey(Integer.toString(fid))) {
+                    if (featureDataMap.containsKey(Integer.toString(fid)) && ObjectUtils.isNotEmpty(featureDataMap.get(Integer.toString(fid)))) {
                         Object featVal = featureDataMap.get(Integer.toString(fid));
                         BigDecimal splitValue;
                         if (MapUtils.isNotEmpty(decisionTree.getSplitMaskdict())) {
