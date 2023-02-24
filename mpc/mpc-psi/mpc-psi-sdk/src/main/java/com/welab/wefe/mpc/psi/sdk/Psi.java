@@ -35,6 +35,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +58,7 @@ public abstract class Psi {
     public static final String DH_PSI = "DH_PSI";
     public static final String PSI_RESULT = "PSI_RESULT";
     public static final String PSI_RESULT_BY_PIR = "PSI_RESULT_BY_PIR";
+    public static final String PUSH_RESULT_TO_SERVER = "PUSH_RESULT_TO_SERVER";
 
     public static final int DEFAULT_CURRENT_BATCH = 0; // 第一页
     public static final int DEFAULT_BATCH_SIZE = -1; // 默认不用配置，以服务端为准
@@ -67,13 +69,17 @@ public abstract class Psi {
     protected ConfuseData confuseData;
 
     /**
+     * 是否把结果推送给服务方
+     * */
+    private boolean pushResultToServer = false;
+    /**
      * 是否要返回结果标签
      */
     private boolean needReturnFields = false;
     /**
-     * 是否使用匿踪查询返回标签，会很慢
+     * 是否使用匿踪查询返回标签，用会很慢
      */
-    private boolean usePirToReturnFields = false;
+    private boolean usePirToReturnFields = true;
     /**
      * 是否续跑
      */
@@ -94,8 +100,36 @@ public abstract class Psi {
 
     public List<String> query(CommunicationConfig config, List<String> clientIds, int currentBatch) throws Exception {
         List<String> result = query(config, clientIds, currentBatch, DEFAULT_BATCH_SIZE);
-        returnFields(config);
+        if(isPushResultToServer()) {
+            pushResultToServer(config, result);
+        }
+        if (isNeedReturnFields()) {
+            returnFields(config);
+        }
         return result;
+    }
+
+    private void pushResultToServer(CommunicationConfig config, List<String> result) throws Exception {
+        if (!isPushResultToServer()) {
+            return;
+        }
+        if (CollectionUtils.isEmpty(result)) {
+            logger.info("pushResultToServer finished, result is empty");
+            return;
+        } else {
+            QueryPrivateSetIntersectionRequest request = new QueryPrivateSetIntersectionRequest();
+            request.setRequestId(config.getRequestId());
+            request.setType(Psi.PUSH_RESULT_TO_SERVER);
+            request.setClientIds(result);
+            
+            PrivateSetIntersectionService privateSetIntersectionService = new PrivateSetIntersectionService();
+            logger.info("psi pushResultToServer request = " + request);
+            QueryPrivateSetIntersectionResponse response = privateSetIntersectionService.handle(config, request);
+            if (response.getCode() != 0) {
+                logger.info("psi pushResultToServer response = " + response);
+                throw new Exception(response.getMessage());
+            }
+        }
     }
 
     private void returnFields(CommunicationConfig config) throws Exception {
@@ -173,6 +207,7 @@ public abstract class Psi {
         return new ArrayList<>(resultSet);
     }
 
+    @Deprecated
     public List<String> returnFieldsByCommon(CommunicationConfig config) throws Exception {
         if (!this.isNeedReturnFields()) {
             return new ArrayList<>();
@@ -356,6 +391,14 @@ public abstract class Psi {
 
     public void setUsePirToReturnFields(boolean usePirToReturnFields) {
         this.usePirToReturnFields = usePirToReturnFields;
+    }
+
+    public boolean isPushResultToServer() {
+        return pushResultToServer;
+    }
+
+    public void setPushResultToServer(boolean pushResultToServer) {
+        this.pushResultToServer = pushResultToServer;
     }
 
 }

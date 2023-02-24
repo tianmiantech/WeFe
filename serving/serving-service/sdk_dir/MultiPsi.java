@@ -117,6 +117,26 @@ public class MultiPsi {
     }
 
     /**
+     * 将byte转为16进制
+     *
+     * @return
+     */
+    private static String byte2Hex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        String temp = null;
+        for (byte aByte : bytes) {
+            temp = Integer.toHexString(aByte & 0xFF);
+            if (temp.length() == 1) {
+                // 1得到一位的进行补0操作
+                sb.append("0");
+            }
+            sb.append(temp);
+        }
+        return sb.toString();
+    }
+
+
+    /**
      * 向指定 URL 发送POST方法的请求
      *
      * @param url 发送请求的 URL

@@ -54,7 +54,9 @@ import com.welab.wefe.mpc.psi.sdk.ecdh.EcdhPsiServer;
 import com.welab.wefe.mpc.psi.sdk.util.EcdhUtil;
 import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
+import com.welab.wefe.serving.service.database.entity.PsiServiceResultMysqlModel;
 import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
+import com.welab.wefe.serving.service.service.PsiServiceResultService;
 import com.welab.wefe.serving.service.utils.ServiceUtil;
 
 /**
@@ -68,6 +70,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
     private static final ConcurrentHashMap<String, DataSourceMySqlModel> DATASOURCE_MAP = new ConcurrentHashMap<>();
 
     protected final Config config = Launcher.getBean(Config.class);
+    protected final PsiServiceResultService psiServiceResultService = Launcher.getBean(PsiServiceResultService.class);
     private int batchSize;
     private int numPartitions; // 服务端数据批次
     private String requestId;
@@ -82,8 +85,10 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             return processECDH(data, model);
         } else if (Psi.PSI_RESULT.equalsIgnoreCase(type)) {
             return processPSIResult(data, model);
+        } else if (Psi.PUSH_RESULT_TO_SERVER.equalsIgnoreCase(type)) {
+            return processSaveResult(data, model);
         } else {
-            return processPSIResultByPir(data, model);
+            return processPSIResultByPir(data, model); // 通过pir的方式返回标签字段
         }
     }
 
@@ -95,6 +100,36 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         if (bs > 0) {
             this.batchSize = bs;
         }
+    }
+
+    private JObject processSaveResult(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {
+        long now = System.currentTimeMillis();
+        LOG.info("processSaveResult begin");
+        QueryPrivateSetIntersectionResponse response = new QueryPrivateSetIntersectionResponse();
+        response.setRequestId(this.requestId);
+        response.setCode(0);
+        // 结果ID
+        List<String> resultIds = JObject.parseArray(data.getString("client_ids"), String.class);
+        if (CollectionUtils.isEmpty(resultIds)) {
+            resultIds = JObject.parseArray(data.getString("clientIds"), String.class);
+        }
+        if (CollectionUtils.isEmpty(resultIds)) {
+            LOG.error("processSaveResult end, resultIds is empty");
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "client_ids is empty");
+        }
+        LOG.info("psi results size = " + resultIds.size());
+        List<PsiServiceResultMysqlModel> models = new ArrayList<>();
+        for (String resultId : resultIds) {
+            PsiServiceResultMysqlModel m = new PsiServiceResultMysqlModel();
+            m.setRequestId(this.requestId);
+            m.setResult(resultId);
+            m.setServiceId(model.getServiceId());
+            m.setServiceName(model.getName());
+            models.add(m);
+        }
+        psiServiceResultService.saveAll(models);
+        LOG.info("processSaveResult end, duration = " + (System.currentTimeMillis() - now) + " ms");
+        return JObject.create(response);
     }
 
     private JObject processPSIResultByPir(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {
@@ -180,6 +215,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         return response;
     }
 
+    @Deprecated
     private JObject processPSIResult(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {
         List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
         if (CollectionUtils.isEmpty(clientIds)) {
