@@ -17,6 +17,9 @@
 
 package com.welab.wefe.mpc.util;
 
+import java.security.Security;
+
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,16 +28,27 @@ import org.slf4j.LoggerFactory;
  * @Date 2021/12/15
  **/
 public class SignUtil {
+
+    static {
+        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
+            Security.addProvider(new BouncyCastleProvider());
+        }
+    }
     private static final Logger logger = LoggerFactory.getLogger(SignUtil.class);
 
-    public static String sign(String data, String signPrivateKey) {
+    public static String sign(String data, String signPrivateKey, String secretKeyType) {
         String signStr = null;
         try {
-            signStr = RSAUtil.sign(data, signPrivateKey, "UTF-8");
+            switch (secretKeyType) {
+            case "sm2":
+                signStr = SM2Util.sign(data, signPrivateKey);
+                break;
+            default:
+                signStr = RSAUtil.sign(data, signPrivateKey);
+            }
         } catch (Exception e) {
             logger.error("sign error: " + e.getMessage(), e);
         }
         return signStr;
     }
-
 }

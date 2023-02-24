@@ -138,7 +138,11 @@ public class DataResourceUploadTaskService extends AbstractService {
             long estimateTime = 0;
             if (progress < 100) {
                 long spend = System.currentTimeMillis() - task.getCreatedTime().getTime();
-                estimateTime = spend / progress * (100 - progress);
+                if (completedDataCount > 0) {
+                    estimateTime = (totalDataRowCount - completedDataCount) / completedDataCount * spend;
+                } else {
+                    estimateTime = spend / progress * (100 - progress);
+                }
             }
 
             task.setTotalDataCount(totalDataRowCount);

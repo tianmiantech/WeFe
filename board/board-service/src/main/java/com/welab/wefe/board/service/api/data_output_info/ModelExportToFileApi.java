@@ -20,10 +20,9 @@ import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.ServingService;
 import com.welab.wefe.common.SecurityUtil;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.util.AESUtil;
-import com.welab.wefe.common.util.FileUtil;
-import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.util.*;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -61,7 +60,14 @@ public class ModelExportToFileApi extends AbstractApi<ModelExportToFileApi.Input
         // 随机生成 aes 密钥
         String aesKey = SecurityUtil.createRandomSalt();
         //RSA加密
-        String aes_key_str = RSAUtil.encryptByPublicKey(aesKey, CacheObjects.getRsaPublicKey());
+        String aes_key_str = null;
+        SecretKeyType secretKeyType = CacheObjects.getSecretKeyType();
+        if(SecretKeyType.rsa.equals(secretKeyType)) {
+            aes_key_str = RSAUtil.encryptByPublicKey(aesKey, CacheObjects.getRsaPublicKey());
+        } else {
+            aes_key_str = SM2Util.encryptByPublicKey(aesKey, CacheObjects.getRsaPublicKey());
+        }
+
         FileUtil.writeTextToFile(aes_key_str + System.lineSeparator(), file.toPath(), false);
 
         //将ASE密钥加密后放入加密文件的第一行

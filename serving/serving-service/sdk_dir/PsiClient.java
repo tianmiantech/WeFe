@@ -37,7 +37,7 @@ import com.welab.wefe.mpc.psi.sdk.model.ConfuseData;
 
 /**
  * 两方交集查询 客户端 <br>
- * 配合 mpc-psi-sdk-1.0.0.jar使用 <br>
+ * 配合 mpc-pir-sdk-1.0.0.jar， bcprov-jdk15on-1.69.jar使用 <br>
  * 编译 `javac -cp mpc-psi-sdk-1.0.0.jar:. PsiClient.java` <br>
  * 运行 `java -cp mpc-psi-sdk-1.0.0.jar:. PsiClient xxxxx.csv`
  */
@@ -65,6 +65,8 @@ public class PsiClient {
         psi.setClientDatasetMap(clientDatasetMap);
         CommunicationConfig config = new CommunicationConfig();
         config.setSignPrivateKey(Customer_privateKey);// 私钥
+        config.setSecretKeyType("rsa");
+//        config.setSecretKeyType("sm2");
         config.setCommercialId(Customer_code); // 客户ID
         // 服务地址
         config.setServerUrl(serverUrl);
@@ -197,29 +199,59 @@ public class PsiClient {
         return encodeValue.toString();
     }
 
+    /**
+     * 利用java原生的类实现MD5加密
+     *
+     * @return
+     */
     public static String getMD5String(String str) {
+        MessageDigest messageDigest;
+        String encodeStr = "";
         try {
-            // 生成一个MD5加密计算摘要
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            // 计算md5函数
-            md.update(str.getBytes());
-            return new BigInteger(1, md.digest()).toString(16);
+            messageDigest = MessageDigest.getInstance("MD5");
+            messageDigest.update(str.getBytes("UTF-8"));
+            encodeStr = byte2Hex(messageDigest.digest());
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
         }
+        return encodeStr;
     }
 
+    /**
+     * 利用java原生的类实现SHA256加密
+     *
+     * @return
+     */
     public static String getSHA256String(String str) {
+        MessageDigest messageDigest;
+        String encodeStr = "";
         try {
-            // 生成一个MD5加密计算摘要
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            // 计算md5函数
-            md.update(str.getBytes());
-            return new BigInteger(1, md.digest()).toString(16);
+            messageDigest = MessageDigest.getInstance("SHA-256");
+            messageDigest.update(str.getBytes("UTF-8"));
+            encodeStr = byte2Hex(messageDigest.digest());
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
         }
+        return encodeStr;
     }
+
+    /**
+     * 将byte转为16进制
+     *
+     * @return
+     */
+    private static String byte2Hex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        String temp = null;
+        for (byte aByte : bytes) {
+            temp = Integer.toHexString(aByte & 0xFF);
+            if (temp.length() == 1) {
+                // 1得到一位的进行补0操作
+                sb.append("0");
+            }
+            sb.append(temp);
+        }
+        return sb.toString();
+    }
+
 }

@@ -47,11 +47,13 @@ public class CommunicationConfig {
      */
     private String signPrivateKey;
 
+    private String secretKeyType;
+
     /**
      * 是否需要签名
      */
     private boolean needSign = true;
-    
+
     public String getApiName() {
         return apiName;
     }
@@ -98,5 +100,13 @@ public class CommunicationConfig {
 
     public void setRequestId(String requestId) {
         this.requestId = requestId;
+    }
+
+    public String getSecretKeyType() {
+        return secretKeyType;
+    }
+
+    public void setSecretKeyType(String secretKeyType) {
+        this.secretKeyType = secretKeyType;
     }
 }

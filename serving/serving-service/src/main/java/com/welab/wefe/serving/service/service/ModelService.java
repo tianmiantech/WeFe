@@ -156,6 +156,7 @@ public class ModelService {
                     x.getMemberId(),
                     CacheObjects.getRsaPrivateKey(),
                     CacheObjects.getRsaPublicKey(),
+                    CacheObjects.getSecretKeyType(),
                     API_PREFIX_1 + setModelServiceUrl(serviceId),
                     ServiceTypeEnum.MachineLearning
             );
@@ -188,7 +189,8 @@ public class ModelService {
                     API_PREFIX_1 + setModelServiceUrl(modelId),
                     x.getMemberId(),
                     x.getPublicKey(),
-                    ServiceTypeEnum.MachineLearning
+                    ServiceTypeEnum.MachineLearning,
+                    x.getSecretKeyType()
             );
         } catch (StatusCodeWithException e) {
             LOG.error("开通模型服务失败：{}", e.getMessage());
@@ -342,7 +344,7 @@ public class ModelService {
             model.setUpdatedTime(new Date());
             modelRepository.save(model);
         }
-        clientServiceService.updateAllByServiceId(model.getServiceId(), model.getName(), model.getUrl(),
-                model.getServiceType());
+        clientServiceService.updateAllByServiceId(model.getServiceId(), model.getName(),
+                ServiceService.SERVICE_PRE_URL + model.getUrl(), model.getServiceType());
     }
 }

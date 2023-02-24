@@ -17,6 +17,7 @@
 package com.welab.wefe.serving.sdk.test;
 
 import com.alibaba.fastjson.JSON;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.serving.sdk.config.Launcher;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
@@ -36,7 +37,7 @@ public class Example {
 
     static {
         try {
-            Launcher.init("memberId", "rsaPrivateKey", "rsaPublicKey");
+            Launcher.init("memberId", "rsaPrivateKey", "rsaPublicKey", SecretKeyType.rsa);
         } catch (Exception e) {
             e.printStackTrace();
         }

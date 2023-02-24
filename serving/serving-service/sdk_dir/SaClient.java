@@ -20,10 +20,25 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.TreeMap;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.Signature;
+import java.util.*;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.mpc.util.RSAUtil;
+
+//import org.bouncycastle.asn1.gm.GMNamedCurves;
+//import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
+//import org.bouncycastle.asn1.x9.X9ECParameters;
+//import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
+//import org.bouncycastle.jce.provider.BouncyCastleProvider;
+//import org.bouncycastle.jce.spec.ECParameterSpec;
+//import org.bouncycastle.jce.spec.ECPrivateKeySpec;
 
 /**
  * 多方安全统计 客户端 <br>
@@ -45,7 +60,7 @@ public class SaClient {
 
     public static void main(String[] args) throws Exception {
         JSONObject queryParams = new JSONObject();
-        // TODO 
+        // TODO
         // 参考readme.md params
         // 例如 [{"描述:":"phone","参数名:":"phone"}]
         // queryParams.put("phone", "188xxxxxxxx");
@@ -64,7 +79,7 @@ public class SaClient {
         String data = params.get("data").toString();
         String sign = "";
         try {
-            sign = RSAUtil.sign(data, customer_privateKey);
+            sign = signRsa(data, customer_privateKey); // signSm2
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -73,14 +88,41 @@ public class SaClient {
         body.put("sign", sign);
         body.put("data", JSONObject.parseObject(data));
         body.put("requestId", "xxx");
-        boolean verified = RSAUtil.verify(params.get("data").toString().getBytes(),
-                RSAUtil.getPublicKey(customer_publicKey), sign);
-        if (verified) {
-            return body.toJSONString();
-        }
-        return "";
+        return body.toJSONString();
     }
-
+    /**
+     * The rsa private key signature
+     */
+    public static String signRsa(String data, String privateKeyStr) throws Exception {
+        Signature sigEng = Signature.getInstance("SHA1withRSA");
+        byte[] priByte = Base64.getDecoder().decode(privateKeyStr);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(priByte);
+        KeyFactory fac = KeyFactory.getInstance("RSA");
+        RSAPrivateKey privateKey = (RSAPrivateKey) fac.generatePrivate(keySpec);
+        sigEng.initSign(privateKey);
+        sigEng.update(data.getBytes());
+        return Base64.getEncoder().encodeToString(sigEng.sign());
+    }
+    /**
+     * The sm2 private key signature
+     *
+     * 依赖 bcprov-jdk15on 1.69
+     */
+//    public static String signSm2(String data, String privateKeyStr) throws Exception {
+//        Signature signature = Signature.getInstance(
+//                GMObjectIdentifiers.sm2sign_with_sm3.toString(), new BouncyCastleProvider());
+//        // 将私钥HEX字符串转换为X值
+//        BigInteger bigInteger = new BigInteger(privateKeyStr, 16);
+//        KeyFactory keyFactory = KeyFactory.getInstance("EC", new BouncyCastleProvider());
+//        X9ECParameters parameters = GMNamedCurves.getByName("sm2p256v1");
+//        ECParameterSpec ecParameterSpec = new ECParameterSpec(parameters.getCurve(),
+//                parameters.getG(), parameters.getN(), parameters.getH());
+//        BCECPrivateKey privateKey = (BCECPrivateKey) keyFactory.generatePrivate(new ECPrivateKeySpec(bigInteger,
+//                ecParameterSpec));
+//        signature.initSign(privateKey);
+//        signature.update(data.getBytes(StandardCharsets.UTF_8));
+//        return Base64.getEncoder().encodeToString(signature.sign());
+//    }
     public static String sendPost(String url, String param) {
         PrintWriter out = null;
         BufferedReader in = null;
