@@ -12,7 +12,7 @@ PyMySQL==0.10.0
 Deprecated==1.2.10
 gmpy2==2.0.8
 grpcio~=1.32.0
-grpcio-tools==1.29.0
+grpcio-tools~=1.32.0
 scipy==1.5.1
 findspark==1.4.2
 clickhouse-driver==0.1.5
