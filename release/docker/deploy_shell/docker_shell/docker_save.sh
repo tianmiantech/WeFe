@@ -82,7 +82,7 @@ echo "SERVING WEBSITE SAVED"
 echo "packing welab_wefe tar "
 cd $SERVICE_WORK_DIR
 # 排除 gpu 版本 Python 包，另外打包
-sudo tar -cf welab_wefe_$WEFE_VERSION.tar *
+sudo tar -cf welab_wefe_$WEFE_VERSION.tar * --exclude=wefe_blockchain_data_sync --exclude=wefe_manager_service --exclude=wefe_manager_website --exclude=wefe_union_service
 echo "packed welab_wefe tar!"
 
 ## 单独打包 gpu 镜像
