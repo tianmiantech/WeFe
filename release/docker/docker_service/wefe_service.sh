@@ -196,20 +196,20 @@ start(){
             cd ../wefe_serving_website
             sh wefe_serving_website_start.sh
             ;;
-        manager)
-            cd $PWD/wefe_manager_service
-            sh wefe_manager_service_start.sh
-            cd ../wefe_manager_website
-            sh wefe_manager_website_start.sh
-            ;;
-        union)
-            cd $PWD/wefe_union_service
-            sh wefe_union_service_start.sh
-            ;;
-        blockchain_data_sync)
-            cd $PWD/wefe_blockchain_data_sync
-            sh wefe_blockchain_data_sync_start.sh
-            ;;
+#        manager)
+#            cd $PWD/wefe_manager_service
+#            sh wefe_manager_service_start.sh
+#            cd ../wefe_manager_website
+#            sh wefe_manager_website_start.sh
+#            ;;
+#        union)
+#            cd $PWD/wefe_union_service
+#            sh wefe_union_service_start.sh
+#            ;;
+#        blockchain_data_sync)
+#            cd $PWD/wefe_blockchain_data_sync
+#            sh wefe_blockchain_data_sync_start.sh
+#            ;;
         *)
             echo "Please Input a Legal Service"
             echo "eg. { board | gateway | python | middleware | fusion | serving | manager | union | blockchain_data_sync}"
