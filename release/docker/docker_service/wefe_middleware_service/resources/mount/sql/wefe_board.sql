@@ -18,6 +18,9 @@ SET NAMES utf8mb4;
 SET
 FOREIGN_KEY_CHECKS = 0;
 
+CREATE DATABASE 'wefe_board';
+use wefe_board;
+
 -- drop all tables
 -- select concat("DROP TABLE IF EXISTS ", table_name, ";") from information_schema.tables where table_schema = "wefe_board";
 

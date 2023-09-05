@@ -21,7 +21,7 @@ services:
       MYSQL_ROOT_PASSWORD: "wefe2020"
       MYSQL_USER: "wefe"
       MYSQL_PASSWORD: "wefe2020"
-      MYSQL_DATABASE: "wefe_board"
+#      MYSQL_DATABASE: "wefe_board"
     command: [
       '--character-set-server=utf8mb4',
       '--collation-server=utf8mb4_unicode_ci',
@@ -36,6 +36,8 @@ services:
     volumes:
       - '/data/wefe/docker-compose/mysql:/var/lib/mysql' # mysql_data
       - './mount/sql/wefe_board.sql:/docker-entrypoint-initdb.d/wefe_board.sql'
+      - './mount/sql/wefe_fusion.sql:/docker-entrypoint-initdb.d/wefe_fusion.sql'
+      - './mount/sql/wefe_serving.sql:/docker-entrypoint-initdb.d/wefe_serving.sql'
 
 networks:
   network:
