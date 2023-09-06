@@ -16,7 +16,7 @@ SET NAMES utf8mb4;
 SET
 FOREIGN_KEY_CHECKS = 0;
 
-CREATE DATABASE 'wefe_fusion';
+CREATE DATABASE wefe_fusion;
 use wefe_fusion;
 
 -- drop all tables
@@ -271,29 +271,3 @@ CREATE TABLE `operator_log`
     KEY              `caller_name_index` (`caller_name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='用户操作日志';
-
-
-
-  -- ----------------------------
--- 添加融合主键展示字段
--- ----------------------------
-ALTER TABLE bloom_filter ADD hash_function varchar(255) NULL;
-
--- ----------------------------
--- 修改合作伙伴成员字段
--- ----------------------------
-ALTER TABLE partner CHANGE partner_id member_id  varchar(64)  NOT NULL COMMENT '合作方id';
-ALTER TABLE partner CHANGE `name` member_name  varchar(255)  NOT NULL COMMENT '合作方名称';
-
--- ----------------------------
--- 修改任务相关字段
--- ----------------------------
-ALTER TABLE task CHANGE partner_id partner_member_id  varchar(32)  NOT NULL COMMENT '合作成员id';
-ALTER TABLE task ADD `my_role` varchar(255) DEFAULT NULL;
-ALTER TABLE task ADD `processed_count` int(10) DEFAULT NULL;
-
--- ----------------------------
--- 修改相关表手机号字段长度
--- author: aaron.li
--- ----------------------------
-ALTER TABLE account MODIFY COLUMN phone_number VARCHAR(200);

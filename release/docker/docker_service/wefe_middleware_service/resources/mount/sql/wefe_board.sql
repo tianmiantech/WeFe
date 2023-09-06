@@ -18,7 +18,7 @@ SET NAMES utf8mb4;
 SET
 FOREIGN_KEY_CHECKS = 0;
 
-CREATE DATABASE 'wefe_board';
+CREATE DATABASE wefe_board;
 use wefe_board;
 
 -- drop all tables
