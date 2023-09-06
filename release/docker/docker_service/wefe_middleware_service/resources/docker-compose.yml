@@ -19,9 +19,6 @@ services:
     image: mysql:5.7.24
     environment:
       MYSQL_ROOT_PASSWORD: "wefe2020"
-      MYSQL_USER: "wefe"
-      MYSQL_PASSWORD: "wefe2020"
-#      MYSQL_DATABASE: "wefe_board"
     command: [
       '--character-set-server=utf8mb4',
       '--collation-server=utf8mb4_unicode_ci',
@@ -34,10 +31,12 @@ services:
     networks:
       - network
     volumes:
+      # 初始化的sql在打包过程中会实时拷贝
       - '/data/wefe/docker-compose/mysql:/var/lib/mysql' # mysql_data
-      - './mount/sql/wefe_board.sql:/docker-entrypoint-initdb.d/wefe_board.sql'
-      - './mount/sql/wefe_fusion.sql:/docker-entrypoint-initdb.d/wefe_fusion.sql'
-      - './mount/sql/wefe_serving.sql:/docker-entrypoint-initdb.d/wefe_serving.sql'
+      - './mount/sql/all_db_init.sql:/docker-entrypoint-initdb.d/all_db_init.sql'
+      - './mount/sql/wefe_board.sql:/res/wefe_board.sql'
+      - './mount/sql/fusion.sql:/res/wefe_fusion.sql'
+      - './mount/sql/serving-init.sql:/res/wefe_serving.sql'
 
 networks:
   network:

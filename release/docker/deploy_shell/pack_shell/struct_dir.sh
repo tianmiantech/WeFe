@@ -31,8 +31,8 @@ echo 'UPDATE MOUNT FILE'
 
 # SQL 文件
 cp -f $MYSQL_FILE_LASTED $MYSQL_MOUNT_FILE
-# cp -f $WORKSPACE/deploy_package_resource/fusion.sql $SERVICE_WORK_DIR/wefe_middleware_service/resources/mount/sql/fusion.sql
-# cp -f $WORKSPACE/deploy_package_resource/serving-init.sql $SERVICE_WORK_DIR/wefe_middleware_service/resources/mount/sql/serving-init.sql
+cp -f $WORKSPACE/deploy_package_resource/fusion.sql $SERVICE_WORK_DIR/wefe_middleware_service/resources/mount/sql/fusion.sql
+cp -f $WORKSPACE/deploy_package_resource/serving-init.sql $SERVICE_WORK_DIR/wefe_middleware_service/resources/mount/sql/serving-init.sql
 # board index.html 文件
 # cp -f $INDEX_FILE_LASTED_BOARD $INDEX_MOUNT_FILE_BOARD
 
