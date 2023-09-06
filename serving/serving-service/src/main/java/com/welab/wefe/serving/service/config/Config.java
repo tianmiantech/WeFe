@@ -7,7 +7,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 @Component
-@PropertySource(value = {"file:${config.path}"}, encoding = "utf-8")
+@PropertySource(value = {"file:${config.path}"}, ignoreResourceNotFound=true, encoding = "utf-8")
 @ConfigurationProperties
 public class Config extends CommonConfig {
 
