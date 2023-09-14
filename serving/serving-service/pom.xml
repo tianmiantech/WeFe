@@ -69,6 +69,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
+            <version>${apache.hadoop.common.version}</version>
         </dependency>
 
         <!-- hive -->
