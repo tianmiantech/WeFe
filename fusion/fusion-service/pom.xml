@@ -23,11 +23,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.welab.wefe</groupId>
             <artifactId>common-lang</artifactId>
             <version>${project.parent.version}</version>
