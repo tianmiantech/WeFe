@@ -46,7 +46,7 @@ public interface RequestStatisticsRepository extends BaseRepository<RequestStati
             "t.total_request - t.success_request as total_fail_times, t.service_type " +
             "from ( " +
             "SELECT count(arr.request_result < 3 or null) as success_request, count(id) as total_request, arr.client_id, " +
-            "arr.service_id, arr.service_name, arr.client_name ,arr.service_type " +
+            "arr.service_id, max(arr.service_name) as service_name, max(arr.client_name) as client_name ,max(arr.service_type) as service_type " +
             "from api_request_record arr  " +
             "where if(:service_id != '', arr.service_id = :service_id, 1=1) and  " +
             "      if(:client_id != '', arr.client_id = :client_id, 1=1) and  " +
