@@ -43,9 +43,9 @@ public interface FeeRecordRepository extends BaseRepository<FeeDetailOutputModel
      * @param pageSize
      * @return
      */
-    @Query(value = "select concat(fd.service_id, fd.client_id,fd.fee_config_id,fd.created_time) as id, fd.service_name,fd.service_id as service_id, fd.client_name, " +
-            "fd.client_id as client_id ,fd.service_type ,fd.unit_price,DATE_FORMAT(fd.created_time ,:query_type) as query_date , " +
-            "fd.pay_type, sum(fd.total_request_times) as total_request_times, sum(fd.total_fee) as total_fee, fd.fee_config_id " +
+    @Query(value = "select concat(fd.service_id, fd.client_id,fd.fee_config_id,fd.created_time) as id, max(fd.service_name) as service_name,fd.service_id as service_id, max(fd.client_name) as client_name, " +
+            "fd.client_id as client_id ,max(fd.service_type) as service_type ,max(fd.unit_price) as unit_price,DATE_FORMAT(fd.created_time ,:query_type) as query_date , " +
+            "max(fd.pay_type) as pay_type, sum(fd.total_request_times) as total_request_times, sum(fd.total_fee) as total_fee, fd.fee_config_id " +
             "from fee_detail fd  " +
             "where if(:service_name !='', fd.service_name like concat('%',:service_name,'%'), 1=1) " +
             "       and if(:client_name != '', fd.client_name like concat('%',:client_name,'%'),1=1) " +
