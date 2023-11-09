@@ -159,6 +159,7 @@ public class BloomFilterAddService extends AbstractService {
 
         List<String> headers = dataSetReader.getHeader();
 
+        FileUtil.createDir(config.getBloomFilterDir());
 
         File src = Paths.get(config.getBloomFilterDir())
                 .resolve(model.getName()).toFile();
@@ -174,7 +175,7 @@ public class BloomFilterAddService extends AbstractService {
                 dataSetReader.readAllWithSelectRow(bloomFilterAddServiceDataRowConsumer, rows, finalProcessCount);
             } catch (StatusCodeWithException e) {
 
-            } catch (IOException e) {
+            } catch (Exception e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
             }
 

@@ -254,7 +254,7 @@ CREATE TABLE `operator_log`
     `caller_id`      varchar(32) COMMENT '调用者id',
     `caller_name`    varchar(255) COMMENT '调用者名称',
     `caller_ip`      varchar(20) COMMENT '请求来源IP',
-    `request_data`   varchar(1024) COMMENT '请求参数',
+    `request_data`   text COMMENT '请求参数',
     `response_data`  text COMMENT '响应内容',
     `response_code`    int(20) COMMENT '请求结果code',
     `response_message` text COMMENT '请求结果消息',

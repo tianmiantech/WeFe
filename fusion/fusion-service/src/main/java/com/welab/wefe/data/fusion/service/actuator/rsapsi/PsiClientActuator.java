@@ -159,8 +159,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
             bf = new BloomFilters(bitSetSize, DB_size, DB_size, bs);
         } catch (IOException e1) {
-            e1.printStackTrace();
-            LOG.error(e1.getClass().getSimpleName() + " download bf error : " + e1.getMessage());
+            LOG.error(e1.getClass().getSimpleName() + " download bf error : ", e1);
             //Interrupt tasks
             this.status = PSIActuatorStatus.exception;
         } finally {
@@ -199,8 +198,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
                 try {
                     fusion();
                 } catch (StatusCodeWithException e) {
-                    e.printStackTrace();
-                    LOG.error("{} StatusCodeWithException : {}", getClass().getSimpleName(), e.getMessage());
+                    LOG.error(getClass().getSimpleName() + "StatusCodeWithException :", e);
                 } finally {
                     latch.countDown();
                 }
@@ -210,8 +208,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
         try {
             latch.await();
         } catch (InterruptedException e1) {
-            e1.printStackTrace();
-            LOG.error("{} InterruptedException : {}", getClass().getSimpleName(), e1.getMessage());
+            LOG.error(getClass().getSimpleName() + "InterruptedException :", e1);
         }
 
         LOG.info("-----------------Time used: {} ", (System.currentTimeMillis() - startTime));

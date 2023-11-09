@@ -27,6 +27,8 @@ import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -43,6 +45,7 @@ import java.util.Map;
  * @author hunter.zhao
  */
 public class PsiServerActuator extends AbstractPsiActuator {
+    protected final static Logger LOG = LoggerFactory.getLogger(PsiServerActuator.class);
     private ServerSocket serverSocket;
 
     private BigInteger N;
@@ -75,7 +78,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
 
         try {
             ServerSocket serverSocket = new ServerSocket(9090);
-            System.out.println("Server@" + InetAddress.getLocalHost() + " start!");
+            LOG.info("Server@" + InetAddress.getLocalHost() + " start!");
 
             Thread server = new Thread(() -> {
                 try {
@@ -91,17 +94,17 @@ public class PsiServerActuator extends AbstractPsiActuator {
                         String action = FusionUtils.extractAction(dataBody);
                     }
                 } catch (Exception e) {
+                    LOG.error("Start server socket exception: ", e);
                 } finally {
                 }
             });
             server.start();
-        } catch (IOException e) {
-
+        } catch (Exception e) {
+            LOG.error("Start server socket exception: ", e);
         }
 
 
     }
-
 
 
     public void start() throws StatusCodeWithException {
@@ -115,7 +118,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
             serverSocket = new ServerSocket(port);
             LOG.info("Server@" + InetAddress.getLocalHost() + " start!");
         } catch (IOException e) {
-            LOG.error(e.getClass().getSimpleName() + "server socket start error:" + e.getMessage());
+            LOG.error(e.getClass().getSimpleName() + "server socket start error:", e);
         }
 
         Thread server = new Thread(() -> listen());
@@ -132,7 +135,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
                 CommonThreadPool.run(() -> execute(socket));
             }
         } catch (Exception e) {
-            LOG.error(e.getClass().getSimpleName() + " PsiServerActuator listen  error:" + e.getMessage());
+            LOG.error(e.getClass().getSimpleName() + " PsiServerActuator listen  error:", e);
         } finally {
         }
     }
@@ -154,7 +157,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
             PSIUtils.sendBytes(socket, bf.getBitSet().toByteArray());
             System.out.println(bf.size());
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getClass().getSimpleName() + " sendBloomFilter error:", e);
         }
     }
 
@@ -251,7 +254,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
                 serverSocket.close();
             }
         } catch (Exception e) {
-            LOG.warn(e.getClass().getSimpleName() + " close error:" + e.getMessage());
+            LOG.error(e.getClass().getSimpleName() + " close error:", e);
         }
     }
 

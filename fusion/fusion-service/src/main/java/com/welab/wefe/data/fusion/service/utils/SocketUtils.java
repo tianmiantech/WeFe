@@ -73,13 +73,13 @@ public class SocketUtils {
                     break;
                 }
             } catch (IOException e) {
-                LOG.warn("new socket error , {}", e.getMessage());
+                LOG.error("new socket error ,", e);
             } finally {
                 if (retryDelay > 0) {
                     try {
                         Thread.sleep(retryDelay);
                     } catch (InterruptedException e) {
-                        LOG.warn("thread sleep error , {}", e.getMessage());
+                        LOG.error("thread sleep error ,", e);
                     }
                 }
             }
@@ -94,7 +94,7 @@ public class SocketUtils {
                 socket.close();
             }
         } catch (IOException e1) {
-            e1.printStackTrace();
+            LOG.error("close error ,", e1);
         }
     }
 }
