@@ -116,7 +116,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
 
         try {
             serverSocket = new ServerSocket(port);
-            LOG.info("Server@" + InetAddress.getLocalHost() + " start!");
+            LOG.info("Server start, listen port: {}", port);
         } catch (IOException e) {
             LOG.error(e.getClass().getSimpleName() + "server socket start error:", e);
         }
@@ -132,6 +132,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
             while (true) {
                 // listen PORT;
                 Socket socket = serverSocket.accept();
+                LOG.info("Server socket accept client, address: {}, port: {}", socket.getInetAddress().getHostAddress(), socket.getPort());
                 CommonThreadPool.run(() -> execute(socket));
             }
         } catch (Exception e) {
@@ -225,6 +226,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
 
         List<String> dataBody = PSIUtils.receiveStringList(socket);
         if (CollectionUtils.isEmpty(dataBody)) {
+            LOG.info("dataBody is empty.");
             return;
         }
 

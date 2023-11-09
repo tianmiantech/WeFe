@@ -73,7 +73,7 @@ public class SocketUtils {
                     break;
                 }
             } catch (IOException e) {
-                LOG.error("new socket error ,", e);
+                LOG.error("new socket error,", e);
             } finally {
                 if (retryDelay > 0) {
                     try {
