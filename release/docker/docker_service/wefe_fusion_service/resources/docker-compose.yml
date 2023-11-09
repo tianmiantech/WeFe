@@ -5,6 +5,7 @@ services:
     image: wefe_fusion_service:v.2.1 # wefe_version
     ports:
       - 8800:8080 # service_port
+      - 11021:11021 # open_port
     restart: always
     privileged: true
     networks:

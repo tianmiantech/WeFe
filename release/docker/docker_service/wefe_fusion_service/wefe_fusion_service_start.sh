@@ -9,6 +9,8 @@ sed -i "/wefe_version/s/service:.*#/service:$WEFE_VERSION #/g" ./resources/docke
 
 # 修改镜像文件配置
 sed -i "/service_port/s/-.*:/- $FUSION_SERVICE_PORT:/g" ./resources/docker-compose.yml
+sed -i "/service_port/s/-.*#/- $FUSION_ARITH_OPEN_PORT:$FUSION_ARITH_OPEN_PORT #/g" ./resources/docker-compose.yml
+
 
 # 加载本地离线镜像包
 echo "开始加载 fusion-service 离线镜像"
