@@ -162,8 +162,7 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
 
             LOG.info("execute() status ： {} ", status().name());
         } catch (Exception e) {
-            e.printStackTrace();
-            LOG.error(e.getClass().getSimpleName() + " " + e.getMessage());
+            LOG.error(e.getClass().getSimpleName() + ":", e);
             error = e.getMessage();
         }
     }
@@ -182,14 +181,14 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
                 LOG.info("close actuator...");
                 actuator.close();
             } catch (Exception e) {
-                LOG.error(e.getClass().getSimpleName() + " close actuator error：" + e.getMessage());
+                LOG.error(e.getClass().getSimpleName() + " close actuator error：", e);
             }
 
             try {
                 LOG.info("close task...");
                 close();
             } catch (Exception e) {
-                LOG.error(e.getClass().getSimpleName() + " close task error：" + e.getMessage());
+                LOG.error(e.getClass().getSimpleName() + " close task error：", e);
             }
 
             return;

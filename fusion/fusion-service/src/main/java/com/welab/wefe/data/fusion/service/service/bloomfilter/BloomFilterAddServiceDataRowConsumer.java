@@ -192,8 +192,8 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
             bloomFilterRepository.updateById(model.getId(), "process", this.process, BloomFilterMySqlModel.class);
             try {
                 generateFilter(model, rows);
-            } catch (IOException ex) {
-                ex.printStackTrace();
+            } catch (Exception e) {
+                LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
             }
         });
     }
@@ -224,7 +224,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
+                LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
             }
 
         }

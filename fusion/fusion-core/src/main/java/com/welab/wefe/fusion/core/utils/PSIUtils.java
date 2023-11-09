@@ -16,6 +16,9 @@
 
 package com.welab.wefe.fusion.core.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.math.BigInteger;
 import java.net.Socket;
@@ -28,6 +31,7 @@ import java.util.List;
  * @author hunter.zhao
  */
 public class PSIUtils {
+    protected final static Logger LOG = LoggerFactory.getLogger(PSIUtils.class);
 
     private static BufferedOutputStream out = null;
 
@@ -35,23 +39,23 @@ public class PSIUtils {
         if (begin == 0) {
             try {
                 out = new BufferedOutputStream(new FileOutputStream(file));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                LOG.error("PSIUtils writeLineToFile exception: ", e);
             }
         }
 
         try {
             out.write(line);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOG.error("PSIUtils writeLineToFile exception: ", e);
         }
 
         if (begin == end - 1) {
             try {
                 out.flush();
                 out.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                LOG.error("PSIUtils writeLineToFile exception: ", e);
             }
         }
     }
@@ -60,8 +64,8 @@ public class PSIUtils {
         try {
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             out.writeObject(bytes);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOG.error("PSIUtils sendBytes exception: ", e);
         }
     }
 
@@ -70,10 +74,8 @@ public class PSIUtils {
         try {
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
             bytes = (byte[]) in.readObject();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOG.error("PSIUtils receiveBytes exception: ", e);
         }
 
         return bytes;
@@ -84,10 +86,8 @@ public class PSIUtils {
         try {
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
             bytes = (byte[][]) in.readObject();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOG.error("PSIUtils receive2DBytes exception: ", e);
         }
 
         return bytes;
@@ -98,12 +98,9 @@ public class PSIUtils {
         try {
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
             bytes = (List<byte[]>) in.readObject();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOG.error("PSIUtils receive2DBytes2 exception: ", e);
         }
-
         return bytes;
     }
 
@@ -112,10 +109,8 @@ public class PSIUtils {
         try {
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
             stringList = (List<String>) in.readObject();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOG.error("PSIUtils receiveStringList exception: ", e);
         }
 
         return stringList;
@@ -124,8 +119,8 @@ public class PSIUtils {
     public static long receiveInteger(DataInputStream dIn) {
         try {
             return dIn.readLong();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOG.error("PSIUtils receiveInteger exception: ", e);
         }
         return 0;
     }
@@ -135,7 +130,7 @@ public class PSIUtils {
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             out.writeObject(bytes);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("PSIUtils send2DBytes exception: ", e);
         }
     }
 
@@ -144,7 +139,7 @@ public class PSIUtils {
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             out.writeObject(bytes);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("PSIUtils send2DBytes exception: ", e);
         }
     }
 
@@ -153,7 +148,7 @@ public class PSIUtils {
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             out.writeObject(stringList);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("PSIUtils sendStringList exception: ", e);
         }
     }
 
@@ -162,7 +157,7 @@ public class PSIUtils {
         try {
             dOut.writeLong(integer);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("PSIUtils sendInteger exception: ", e);
         }
     }
 
@@ -172,7 +167,7 @@ public class PSIUtils {
                     (new OutputStreamWriter(socket.getOutputStream())), true);
             out.println(s);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("PSIUtils sendString exception: ", e);
         }
     }
 
@@ -181,7 +176,7 @@ public class PSIUtils {
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             return in.readLine();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("PSIUtils receiveString exception: ", e);
         }
         return "";
     }
@@ -198,7 +193,7 @@ public class PSIUtils {
             fIn.close();
             dOut.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("PSIUtils sendFile exception: ", e);
         }
     }
 
@@ -208,7 +203,7 @@ public class PSIUtils {
             input = s.getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOG.error("PSIUtils stringToBigInteger exception: ", e);
         }
         return bytesToBigInteger(input, 0, input.length);
     }
