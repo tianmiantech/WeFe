@@ -107,7 +107,11 @@ public class CallbackService {
             throw new StatusCodeWithException("该任务不存在，请检查入参:" + businessId, DATA_NOT_FOUND);
         }
         PartnerMySqlModel partnerMySqlModel = partnerService.findByPartnerId(task.getPartnerMemberId());
+        if(null == partnerMySqlModel){
+            LOG.info("Find by partner id is empty, partner member id: {}", task.getPartnerMemberId());
+        }
         if (null != partnerMySqlModel && StringUtil.isNotEmpty(partnerMySqlModel.getBaseUrl())) {
+            LOG.info("Find by partner info by id: {}, url: {}", task.getPartnerMemberId(), partnerMySqlModel.getBaseUrl());
             String host = getUrlHost(partnerMySqlModel.getBaseUrl());
             ip = StringUtil.isNotEmpty(host) ? host : ip;
         }
