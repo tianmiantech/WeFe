@@ -17,9 +17,12 @@
 package com.welab.wefe.data.fusion.service.service;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.data.fusion.service.actuator.rsapsi.PsiClientActuator;
+import com.welab.wefe.data.fusion.service.actuator.rsapsi.PsiServerActuator;
 import com.welab.wefe.data.fusion.service.actuator.test.ClientActuator;
 import com.welab.wefe.data.fusion.service.api.thirdparty.CallbackApi;
+import com.welab.wefe.data.fusion.service.database.entity.PartnerMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.TaskMySqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.TaskRepository;
 import com.welab.wefe.data.fusion.service.enums.TaskStatus;
@@ -27,8 +30,12 @@ import com.welab.wefe.data.fusion.service.manager.ActuatorManager;
 import com.welab.wefe.data.fusion.service.task.AbstractTask;
 import com.welab.wefe.data.fusion.service.task.PsiClientTask;
 import com.welab.wefe.fusion.core.actuator.AbstractActuator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.net.URL;
 
 import static com.welab.wefe.common.StatusCode.DATA_NOT_FOUND;
 
@@ -37,6 +44,8 @@ import static com.welab.wefe.common.StatusCode.DATA_NOT_FOUND;
  */
 @Service
 public class CallbackService {
+    protected final static Logger LOG = LoggerFactory.getLogger(CallbackService.class);
+
     @Autowired
     private TaskService taskService;
 
@@ -97,6 +106,16 @@ public class CallbackService {
         if (task == null) {
             throw new StatusCodeWithException("该任务不存在，请检查入参:" + businessId, DATA_NOT_FOUND);
         }
+        PartnerMySqlModel partnerMySqlModel = partnerService.findByPartnerId(task.getPartnerMemberId());
+        if(null == partnerMySqlModel){
+            LOG.info("Find by partner id is empty, partner member id: {}", task.getPartnerMemberId());
+        }
+        if (null != partnerMySqlModel && StringUtil.isNotEmpty(partnerMySqlModel.getBaseUrl())) {
+            LOG.info("Find by partner info by id: {}, url: {}", task.getPartnerMemberId(), partnerMySqlModel.getBaseUrl());
+            String host = getUrlHost(partnerMySqlModel.getBaseUrl());
+            ip = StringUtil.isNotEmpty(host) ? host : ip;
+        }
+
         task.setStatus(TaskStatus.Running);
         taskRepository.save(task);
 
@@ -119,5 +138,18 @@ public class CallbackService {
         ActuatorManager.set(client);
 
         client.run();
+    }
+
+
+    /**
+     * 提取url中的域名
+     */
+    private String getUrlHost(String urlStr) {
+        try {
+            return new URL(urlStr).getHost();
+        } catch (Exception e) {
+            LOG.error("Get url host exception: ", e);
+        }
+        return null;
     }
 }
