@@ -43,17 +43,17 @@ rm -f wefe_fusion_website_$WEFE_VERSION.tar
 sudo docker save -o wefe_fusion_website_$WEFE_VERSION.tar wefe_fusion_website:$WEFE_VERSION
 echo "FUSION WEBSITE SAVED"
 
-echo "SAVING MANAGER SERVICE"
-cd $SERVICE_WORK_DIR/wefe_manager_service/resources
-rm -f wefe_manager_service_$WEFE_VERSION.tar
-sudo docker save -o wefe_manager_service_$WEFE_VERSION.tar wefe_manager_service:$WEFE_VERSION
-echo "MANAGER SERVICE SAVED"
-
-echo "SAVING MANAGER WEBSITE"
-cd $SERVICE_WORK_DIR/wefe_manager_website/resources
-rm -f wefe_manager_website_$WEFE_VERSION.tar
-sudo docker save -o wefe_manager_website_$WEFE_VERSION.tar wefe_manager_website:$WEFE_VERSION
-echo "MANAGER WEBSITE SAVED"
+#echo "SAVING MANAGER SERVICE"
+#cd $SERVICE_WORK_DIR/wefe_manager_service/resources
+#rm -f wefe_manager_service_$WEFE_VERSION.tar
+#sudo docker save -o wefe_manager_service_$WEFE_VERSION.tar wefe_manager_service:$WEFE_VERSION
+#echo "MANAGER SERVICE SAVED"
+#
+#echo "SAVING MANAGER WEBSITE"
+#cd $SERVICE_WORK_DIR/wefe_manager_website/resources
+#rm -f wefe_manager_website_$WEFE_VERSION.tar
+#sudo docker save -o wefe_manager_website_$WEFE_VERSION.tar wefe_manager_website:$WEFE_VERSION
+#echo "MANAGER WEBSITE SAVED"
 
 echo "SAVING SERVING SERVICE"
 cd $SERVICE_WORK_DIR/wefe_serving_service/resources
@@ -67,35 +67,35 @@ rm -f wefe_serving_website_$WEFE_VERSION.tar
 sudo docker save -o wefe_serving_website_$WEFE_VERSION.tar wefe_serving_website:$WEFE_VERSION
 echo "SERVING WEBSITE SAVED"
 
-echo "SAVING BLOCKCHAIN_DATA_SYNC"
-cd $SERVICE_WORK_DIR/wefe_blockchain_data_sync/resources
-rm -f wefe_blockchain_data_sync_$WEFE_VERSION.tar
-sudo docker save -o wefe_blockchain_data_sync_$WEFE_VERSION.tar wefe_blockchain_data_sync:$WEFE_VERSION
-echo "BLOCKCHAIN_DATA_SYNC SAVED"
-
-echo "SAVING UNION SERVICE"
-cd $SERVICE_WORK_DIR/wefe_union_service/resources
-rm -f wefe_union_service_$WEFE_VERSION.tar
-sudo docker save -o wefe_union_service_$WEFE_VERSION.tar wefe_union_service:$WEFE_VERSION
-echo "UNION SERVICE SAVED"
+#echo "SAVING BLOCKCHAIN_DATA_SYNC"
+#cd $SERVICE_WORK_DIR/wefe_blockchain_data_sync/resources
+#rm -f wefe_blockchain_data_sync_$WEFE_VERSION.tar
+#sudo docker save -o wefe_blockchain_data_sync_$WEFE_VERSION.tar wefe_blockchain_data_sync:$WEFE_VERSION
+#echo "BLOCKCHAIN_DATA_SYNC SAVED"
+#
+#echo "SAVING UNION SERVICE"
+#cd $SERVICE_WORK_DIR/wefe_union_service/resources
+#rm -f wefe_union_service_$WEFE_VERSION.tar
+#sudo docker save -o wefe_union_service_$WEFE_VERSION.tar wefe_union_service:$WEFE_VERSION
+#echo "UNION SERVICE SAVED"
 
 echo "packing welab_wefe tar "
 cd $SERVICE_WORK_DIR
 # 排除 gpu 版本 Python 包，另外打包
-sudo tar -cf welab_wefe_$WEFE_VERSION.tar *
+sudo tar -cf welab_wefe_$WEFE_VERSION.tar --exclude=wefe_blockchain_data_sync --exclude=wefe_manager_service --exclude=wefe_manager_website --exclude=wefe_union_service *
 echo "packed welab_wefe tar!"
 
-# 单独打包 gpu 镜像
-echo "SAVING GPU PYTHON SERVICE"
-cd $SERVICE_WORK_DIR/wefe_python_service/resources
-rm  -f wefe_python_gpu_service_$WEFE_VERSION.tar
-sudo docker save -o wefe_python_gpu_service_$WEFE_VERSION.tar wefe_python_gpu_service:$WEFE_VERSION
-echo "GPU PYTHON SERVICE SAVED"
-
-echo "COPY WELAB_WEFE AND GPU PYTHON SERVICE TAR"
-cp wefe_python_gpu_service_$WEFE_VERSION.tar /data/jenkins_docker_deploy/
-cd $SERVICE_WORK_DIR
-cp welab_wefe_${WEFE_VERSION}.tar /data/jenkins_docker_deploy/
-echo "COPY WELAB_WEFE AND GPU PYTHON SERVICE TAR FINISH"
+## 单独打包 gpu 镜像
+#echo "SAVING GPU PYTHON SERVICE"
+#cd $SERVICE_WORK_DIR/wefe_python_service/resources
+#rm  -f wefe_python_gpu_service_$WEFE_VERSION.tar
+#sudo docker save -o wefe_python_gpu_service_$WEFE_VERSION.tar wefe_python_gpu_service:$WEFE_VERSION
+#echo "GPU PYTHON SERVICE SAVED"
+#
+#echo "COPY WELAB_WEFE AND GPU PYTHON SERVICE TAR"
+#cp wefe_python_gpu_service_$WEFE_VERSION.tar /data/jenkins_docker_deploy/
+#cd $SERVICE_WORK_DIR
+#cp welab_wefe_${WEFE_VERSION}.tar /data/jenkins_docker_deploy/
+#echo "COPY WELAB_WEFE AND GPU PYTHON SERVICE TAR FINISH"
 
 echo 'The Final Package Build Success'

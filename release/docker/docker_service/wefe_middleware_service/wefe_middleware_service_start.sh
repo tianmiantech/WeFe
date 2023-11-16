@@ -6,9 +6,7 @@ source ../wefe.cfg
 
 # mysql 镜像配置修改
 sed -i "/mysql_port/s/-.*:/- $MYSQL_PORT:/g" ./resources/docker-compose.yml
-sed -i "/MYSQL_USER/s/:.*/: \"$MYSQL_USERNAME\"/g" ./resources/docker-compose.yml
-sed -i "/MYSQL_PASSWORD/s/:.*/: \"$MYSQL_PASSWORD\"/g" ./resources/docker-compose.yml
-sed -i "/MYSQL_DATABASE/s/:.*/: \"$MYSQL_DATABASE\"/g" ./resources/docker-compose.yml
+sed -i "/MYSQL_PASSWORD/s/:.*/: \"$MYSQL_ROOT_PASSWORD\"/g" ./resources/docker-compose.yml
 
 # clickhouse 镜像配置修改
 sed -i "/clickhouse_port/s/-.*:/- $CLICKHOUSE_PORT:/g" ./resources/docker-compose.yml

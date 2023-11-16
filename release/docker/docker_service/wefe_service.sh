@@ -32,23 +32,15 @@ edit_wefe_config(){
 
     mysql_ip=$INTRANET_IP
     mysql_port=$MYSQL_PORT
-    mysql_database=$MYSQL_DATABASE
-    mysql_username=$MYSQL_USERNAME
-    mysql_password=$MYSQL_PASSWORD
+    mysql_database=wefe_board
+    mysql_username=root
+    mysql_password=$MYSQL_ROOT_PASSWORD
     case $INPUT_SERVICE in
         fusion)
-            mysql_ip=$MYSQL_PORT_FUSION
-            mysql_port=$MYSQL_PORT_FUSION
-            mysql_database=$MYSQL_DATABASE_FUSION
-            mysql_username=$MYSQL_USERNAME_FUSION
-            mysql_password=$MYSQL_PASSWORD_FUSION
+            mysql_database=wefe_fusion
             ;;
         serving)
-            mysql_ip=$MYSQL_PORT_SERVING
-            mysql_port=$MYSQL_PORT_SERVING
-            mysql_database=$MYSQL_DATABASE_SERVING
-            mysql_username=$MYSQL_USERNAME_SERVING
-            mysql_password=$MYSQL_PASSWORD_SERVING
+            mysql_database=wefe_serving
             ;;
     esac
     # mysql
@@ -196,23 +188,9 @@ start(){
             cd ../wefe_serving_website
             sh wefe_serving_website_start.sh
             ;;
-        manager)
-            cd $PWD/wefe_manager_service
-            sh wefe_manager_service_start.sh
-            cd ../wefe_manager_website
-            sh wefe_manager_website_start.sh
-            ;;
-        union)
-            cd $PWD/wefe_union_service
-            sh wefe_union_service_start.sh
-            ;;
-        blockchain_data_sync)
-            cd $PWD/wefe_blockchain_data_sync
-            sh wefe_blockchain_data_sync_start.sh
-            ;;
         *)
             echo "Please Input a Legal Service"
-            echo "eg. { board | gateway | python | middleware | fusion | serving | manager | union | blockchain_data_sync}"
+            echo "eg. { board | gateway | python | middleware | fusion | serving }"
             exit -1
     esac
 }
@@ -273,14 +251,14 @@ restart(){
             ;;
         *)
             echo "Please Input a Legal Service"
-            echo "eg. {board | gateway | python | middleware | fusion | serving | manager | union | blockchain_data_sync}"
+            echo "eg. {board | gateway | python | middleware | fusion | serving }"
             exit -1
     esac
 }
 
 help(){
     echo "Support Action: start | stop | restart"
-    echo "Support Service: board | gateway | python | middleware | fusion | serving | manager | union | blockchain_data_sync"
+    echo "Support Service: board | gateway | python | middleware | fusion | serving "
     echo "sh service.sh [Action] [Service]"
 }
 
