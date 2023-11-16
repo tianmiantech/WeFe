@@ -14,7 +14,7 @@ const argvs = argv._[1] ? argv._[1].split('=') : '';
 const isProd = process.env.NODE_ENV === 'production';
 const resolve = dir => path.resolve(__dirname, dir);
 const CONTEXT_ENV = argvs[1] || context || '';
-const buildDate = '3.0.0';
+const buildDate = '2.4.0';
 
 module.exports = {
     assetsDir:           isProd ? `${CONTEXT_ENV}` : '',
