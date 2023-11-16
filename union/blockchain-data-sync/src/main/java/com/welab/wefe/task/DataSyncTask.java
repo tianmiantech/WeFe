@@ -170,13 +170,12 @@ public class DataSyncTask {
 
                 DataProcessor.parseBlockData(filterBlockInfoBO);
 
-                blockSyncHeightService.save(blockInfoBO);
-
                 blockSyncContractHeightService.save(filterBlockInfoBO);
 
                 blockSyncDetailInfoService.saveBlockDetailInfo(blockInfoBO);
                 break;
             }
+            blockSyncHeightService.save(blockInfoBO);
             transactionResponseService.save(blockInfoBO);
         }
 

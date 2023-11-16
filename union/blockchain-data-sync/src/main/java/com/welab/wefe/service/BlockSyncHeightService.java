@@ -35,6 +35,9 @@ public class BlockSyncHeightService extends BaseService {
      * Record the block height information that has been successfully synchronized
      */
     public void save(BlockInfoBO blockInfoBO) {
+        if (null == blockInfoBO) {
+            return;
+        }
         BlockSyncHeight blockSyncHeight = new BlockSyncHeight();
         blockSyncHeight.setBlockNumber(blockInfoBO.getBlockNumber().longValue());
         blockSyncHeight.setGroupId(blockInfoBO.getGroupId());
