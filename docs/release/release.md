@@ -1,9 +1,9 @@
 # v2.4.0
-`2023年11月16日`
+`2023年11月20日`
 
 阿里云 OSS 下载源：
 
-    https://welab-wefe-release.oss-cn-shenzhen.aliyuncs.com/welab_wefe_v.2.4.tar
+    https://welab-wefe-release.oss-cn-shenzhen.aliyuncs.com/welab_wefe_v.2.4.0.tar
 
 #### What's new
 
