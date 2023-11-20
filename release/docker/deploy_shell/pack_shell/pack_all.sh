@@ -96,8 +96,8 @@ echo 'FINISHED'
 echo 'PACK MANAGER-SERVICE'
 rm -rf $WORKSPACE/manager/manager-service/target
 mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl manager/manager-service
-if [[ ! -f $WORKSPACE/manager/manager-service/target/manager-service.jar ]]; then
-    echo '文件 manager-service.jar 不存在，请检查此模块打包流程是否正常'
+if [[ ! -f $WORKSPACE/manager/manager-service/target/wefe-manager-service.jar ]]; then
+    echo '文件 wefe-manager-service.jar 不存在，请检查此模块打包流程是否正常'
     exit 1
 fi
 echo 'FINISHED'
@@ -204,7 +204,7 @@ cp -r $WORKSPACE/python_project $WORKSPACE/deploy_package_resource
 cp $WORKSPACE/board/board-service/target/wefe-board-service.jar $WORKSPACE/deploy_package_resource/board-service.jar
 cp $WORKSPACE/gateway/target/wefe-gateway.jar $WORKSPACE/deploy_package_resource/gateway.jar
 cp $WORKSPACE/fusion/fusion-service/target/fusion-service.jar $WORKSPACE/deploy_package_resource/fusion-service.jar
-cp $WORKSPACE/manager/manager-service/target/manager-service.jar $WORKSPACE/deploy_package_resource/manager-service.jar
+cp $WORKSPACE/manager/manager-service/target/wefe-manager-service.jar $WORKSPACE/deploy_package_resource/wefe-manager-service.jar
 cp $WORKSPACE/serving/serving-service/target/serving-service.jar $WORKSPACE/deploy_package_resource/serving-service.jar
 cp $WORKSPACE/union/blockchain-data-sync/target/wefe-blockchain-data-sync.jar $WORKSPACE/deploy_package_resource/wefe-blockchain-data-sync.jar
 cp $WORKSPACE/union/union-service/target/wefe-union-service.jar $WORKSPACE/deploy_package_resource/wefe-union-service.jar

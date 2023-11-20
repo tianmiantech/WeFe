@@ -1,1 +1,1 @@
-java -jar manager-service.jar
+java -jar wefe-manager-service.jar

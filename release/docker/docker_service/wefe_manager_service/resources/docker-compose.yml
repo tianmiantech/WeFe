@@ -13,7 +13,7 @@ services:
       - "/data/wefe/docker-compose/logs/wefe-manager-service:/data/logs/wefe-manager-service" # service_logs
       - "./mount/start.sh:/opt/service/start.sh"
       - "./mount/application.properties:/opt/service/application.properties"
-      - "./mount/manager-service.jar:/opt/service/manager-service.jar"
+      - "./mount/wefe-manager-service.jar:/opt/service/wefe-manager-service.jar"
       - "./mount/cert:/opt/service/cert"
 
 networks:
