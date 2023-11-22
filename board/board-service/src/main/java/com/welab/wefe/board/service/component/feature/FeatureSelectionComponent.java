@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,11 +29,11 @@ import com.welab.wefe.board.service.dto.entity.MemberFeatureInfoModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.FederatedLearningType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
@@ -117,8 +117,6 @@ public class FeatureSelectionComponent extends AbstractComponent<FeatureSelectio
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
 
-        JSONObject taskParam = new JSONObject();
-
         // Reassemble front-end parameters
         List<MemberFeatureInfoModel> members = params.members;
         List<JObject> kernelParam = new ArrayList<>();
@@ -126,15 +124,18 @@ public class FeatureSelectionComponent extends AbstractComponent<FeatureSelectio
 
             JObject obj = JObject.create().append("member_id", member.getMemberId())
                     .append("role", member.getMemberRole())
-                    .append("features", member.getFeatures().stream().map(x -> x.getName()).collect(Collectors.toList()));
+                    .append("features",
+                            member.getFeatures()
+                                    .stream()
+                                    .map(x -> x.getName())
+                                    .collect(Collectors.toList())
+                    );
 
             kernelParam.add(obj);
         }
-        taskParam.put("params", JObject.create().append("members", kernelParam));
+        JObject output = JObject.create().append("members", kernelParam);
 
-        taskParam.put("env", "test");
-
-        return taskParam;
+        return output;
     }
 
     @Override

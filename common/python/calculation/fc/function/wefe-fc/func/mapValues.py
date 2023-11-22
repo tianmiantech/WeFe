@@ -14,7 +14,7 @@
 
 import json
 from comm import dataUtil
-from comm.dataUtil import TimeConsume
+from comm.stat import Stat
 from common.python.utils import cloudpickle
 
 
@@ -47,30 +47,22 @@ def handler(event, context):
 
     """
     evt = json.loads(event)
-    tc = TimeConsume()
+    stat = Stat()
+    # tc = TimeConsume()
+
     # get the source and destination fcStorage
     source_fcs, dest_fcs = dataUtil.get_fc_storages(evt)
+    func = cloudpickle.loads(bytes.fromhex(evt['func']))
+
     # get data
     partition = evt['partition']
-    source_k_v = source_fcs.collect(partition=partition, debug_info=dataUtil.get_request_id(context))
-    tc.end('get_data', evt, context)
-    # do mapValues
-    func = None
-    func_init = False
-    result = []
-    count = 0
+    source_k_v = source_fcs.collect(partition=partition)
+
+    dest_fcs.put_all(_do_map_values(source_k_v, func, stat))
+    return dataUtil.fc_result(partition=partition, count=stat.count)
+
+
+def _do_map_values(source_k_v, func, stat: Stat):
     for k, v in source_k_v:
-        # load the func when source_k_v is not None
-        if not func_init:
-            tc.start()
-            func = cloudpickle.loads(bytes.fromhex(evt['func']))
-            func_init = True
-            tc.end('cloudpickle.loads', evt, context)
-        count += 1
-        result.append((k, func(v)))
-    tc.end('mapValues:collect_and_map_values', evt, context)
-    # put result to destination fcStorage
-    if len(result) > 0:
-        dest_fcs.put_all(result)
-    tc.end(f'mapValues:put_all_consume,count:{len(result)}', evt, context)
-    return dataUtil.fc_result(partition=partition, count=count)
+        stat.incr()
+        yield k, func(v)

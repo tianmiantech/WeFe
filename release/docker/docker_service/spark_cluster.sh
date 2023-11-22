@@ -6,8 +6,8 @@ if [ $SPARK_MODE = "STANDALONE" ]
 then
   echo '当前为集群部署'
 else
-  echo '非集群模式，退出'
-  exit 0
+  echo '非集群模式'
+#  exit 0
 fi
 
 # 检查依赖环境

@@ -34,7 +34,7 @@
             padding-top: 0px;
         }
         :deep(ol,ul){
-            margin-left: 17px;
+            margin-left: 26px;
 
             li{padding-bottom: 3px;}
         }

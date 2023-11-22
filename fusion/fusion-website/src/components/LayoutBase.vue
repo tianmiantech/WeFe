@@ -83,8 +83,7 @@ export default {
     padding: 84px 20px 20px;
 }
 .id {
-    color: #999;
-    font-weight: 100;
+    color: #666;
     font-size: 12px;
 }
 .blod {

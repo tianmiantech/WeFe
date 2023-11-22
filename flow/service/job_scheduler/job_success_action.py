@@ -34,11 +34,14 @@ class JobSuccessAction:
         self.job = JobDao.get_by_job_id_and_role(job_id, my_role)
 
     def do(self, message):
+        self.logger.info('call job success, job_id={},message={}'.format(self.job.job_id,message))
         if self.job.status != JobStatus.WAIT_SUCCESS:
+            self.logger.info('call job fail, job_id={},status={}'.format(self.job.job_id, self.job.status))
             return
 
         # Check if all members are ready for success
         if not JobService.all_job_member_are_ready_to_success(self.job):
+            self.logger.info('call job fail, job_id={},not all_job_member_are_ready_to_success'.format(self.job.job_id))
             return
 
         # Enter the success status

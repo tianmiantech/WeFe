@@ -18,7 +18,7 @@
         </template>
 
         <template #output>
-            输出标准化后的数据集
+            输出标准化后的数据资源
         </template>
         <template #error-tip />
     </CommonHelp>

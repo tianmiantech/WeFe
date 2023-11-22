@@ -1,0 +1,32 @@
+syntax = "proto3";
+package visualfl;
+
+message PaddleFLAggregatorTask {
+  string scheduler_ep = 1;
+
+  bytes main_program = 2;
+  bytes startup_program = 3;
+
+  string config_string = 4;
+}
+
+
+message PaddleFLWorkerTask {
+  string scheduler_ep = 1;
+  uint32 trainer_id = 2;
+  string trainer_ep = 3;
+  string entrypoint = 4;
+
+  bytes main_program = 5;
+  bytes startup_program = 6;
+  bytes send_program = 7;
+  bytes recv_program = 8;
+  bytes feed_names = 9;
+  bytes target_names = 10;
+  bytes strategy = 11;
+  bytes feeds = 12;
+
+  string config_string = 13;
+  string algorithm_config_string = 14;
+}
+

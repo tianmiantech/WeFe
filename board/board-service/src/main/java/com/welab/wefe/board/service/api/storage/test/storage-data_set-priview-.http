@@ -1,6 +1,6 @@
 
 ### 预览数据集中的数据
-POST {{baseUrl}}/storage/data_set/preview
+POST http://localhost:8080/board-service/storage/data_set/preview
 Content-Type: application/json
 
 {

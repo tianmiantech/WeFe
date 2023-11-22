@@ -27,7 +27,7 @@
                     <p class="f12 mb10">{{ vData.jobId }}</p>
                     <DownloadJobLog
                         :job-id="vData.jobId"
-                        size="mini"
+                        size="small"
                     />
                 </div>
                 <template v-if="vData.jobHistoryList.length">
@@ -66,7 +66,7 @@
                                 </el-form-item>
                             </el-form>
                             <el-button
-                                size="mini"
+                                size="small"
                                 class="mt10"
                                 @click="methods.toJobDetails(item)"
                             >
@@ -80,7 +80,7 @@
                                 <el-button
                                     type="primary"
                                     class="mt10"
-                                    size="mini"
+                                    size="small"
                                     @click="methods.reEdit(item)"
                                 >
                                     编辑此任务

@@ -91,16 +91,18 @@
                     unread:     true,
                     page_index: 0,
                     page_size:  15,
+                    noMore:     false,
                 },
 
                 message_list: [],
             };
         },
-        async created() {
+        created() {
             this.loadMessageList();
         },
         methods: {
             async loadMessageList() {
+                if(this.noMore) return;
                 this.message_list_loading = true;
                 const { code, data } = await this.$http.post({
                     url:  '/message/query',
@@ -108,6 +110,7 @@
                 });
 
                 if(code === 0) {
+                    this.noMore = data.list.length < 15;
                     for(const i in data.list){
                         this.message_list.push(data.list[i]);
                     }
@@ -142,11 +145,6 @@
 <style lang="scss">
     .box-card{
         height: 455px;
-
-        .el-card__body {
-            height: 100%;
-            margin-top: -21px;
-        }
         .empty-message-list{
             text-align: center;
             padding-top:15px;
@@ -159,7 +157,7 @@
         .message_list {
             overflow-y: auto;
             width: 100%;
-            height: 100%;
+            height:335px;
             .el-collapse-item__header{
                 color: #aaa;
             }

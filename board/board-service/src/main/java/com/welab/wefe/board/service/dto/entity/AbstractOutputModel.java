@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,7 @@
 package com.welab.wefe.board.service.dto.entity;
 
 import com.welab.wefe.board.service.service.CacheObjects;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import org.apache.commons.lang3.StringUtils;
 
@@ -27,36 +28,39 @@ import java.util.Date;
  */
 public class AbstractOutputModel extends AbstractApiOutput {
 
-    /**
-     * 全局唯一标识
-     */
+    @Check(name = "全局唯一标识")
     private String id;
-    /**
-     * 创建人
-     */
+    @Check(name = "创建人")
     private String createdBy;
-    /**
-     * 创建时间
-     */
+    @Check(name = "创建时间")
     private Date createdTime;
-    /**
-     * 更新人
-     */
+    @Check(name = "更新人")
     private String updatedBy;
-    /**
-     * 更新时间
-     */
+    @Check(name = "更新时间")
     private Date updatedTime;
 
-    /**
-     * 创建者昵称
-     */
+    @Check(name = "创建者昵称")
     private String creatorNickname;
 
-    /**
-     * 修改者昵称
-     */
+    @Check(name = "修改者昵称")
     private String updaterNickname;
+
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+        this.creatorNickname = CacheObjects.getNickname(createdBy);
+        if (StringUtils.isBlank(this.creatorNickname)) {
+            this.creatorNickname = CacheObjects.getMemberName(createdBy);
+        }
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+        this.updaterNickname = CacheObjects.getNickname(updatedBy);
+        if (StringUtils.isBlank(this.updaterNickname)) {
+            this.updaterNickname = CacheObjects.getMemberName(updatedBy);
+        }
+    }
 
     //region getter/setter
 
@@ -72,14 +76,6 @@ public class AbstractOutputModel extends AbstractApiOutput {
         return createdBy;
     }
 
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-        this.creatorNickname = CacheObjects.getNickname(createdBy);
-        if (StringUtils.isBlank(this.creatorNickname)) {
-            this.creatorNickname = CacheObjects.getMemberName(createdBy);
-        }
-    }
-
     public Date getCreatedTime() {
         return createdTime;
     }
@@ -90,14 +86,6 @@ public class AbstractOutputModel extends AbstractApiOutput {
 
     public String getUpdatedBy() {
         return updatedBy;
-    }
-
-    public void setUpdatedBy(String updatedBy) {
-        this.updatedBy = updatedBy;
-        this.updaterNickname = CacheObjects.getNickname(updatedBy);
-        if (StringUtils.isBlank(this.updaterNickname)) {
-            this.updaterNickname = CacheObjects.getMemberName(updatedBy);
-        }
     }
 
     public Date getUpdatedTime() {

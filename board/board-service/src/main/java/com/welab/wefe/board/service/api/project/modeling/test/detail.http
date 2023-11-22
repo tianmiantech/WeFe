@@ -1,10 +1,10 @@
-POST {{baseUrl}}/project/modeling/detail
+POST http://localhost:8080/board-service/project/modeling/detail
 Content-Type: application/json
 
 {
   "jobId": "ac44d921de1146ac947ccfa862cdc632",
-  "flowNodeId":"16158855548416030",
-  "taskId":"ac44d921de1146ac947ccfa862cdc632_HorzLR_16158855548416030",
+  "flowNodeId": "16158855548416030",
+  "taskId": "ac44d921de1146ac947ccfa862cdc632_HorzLR_16158855548416030",
   "type": "ks"
 }
 

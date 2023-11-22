@@ -1,11 +1,11 @@
-POST {{baseUrl}}/flow/job/task/result
+POST http://localhost:8080/board-service/flow/job/task/result
 Content-Type: application/json
+token:{{token}}
 
 {
-  "jobId": "69e6df7d606c470a83dadf4ddd41d8d9",
-  "flowId": "a2e07682b5d74eaab1e0227743e6dbd2 ",
-  "flowNodeId": "16167496011639956",
-  "type": "ks"
+  "jobId": "e8bacfd9e1924e2ca9de019fc9efc039",
+  "flowNodeId": "16403319532745323",
+  "type": "loss"
 }
 
 ###

@@ -3,6 +3,7 @@
         <h4 class="mb10">MixLR参数设置</h4>
         <el-form
             ref="form"
+            class="flex-form"
             :model="vData.form"
             :disabled="disabled"
             @submit.prevent
@@ -254,9 +255,9 @@
         },
         other_param: {
             penalty:               'L2',
-            tol:                   0.00001,
+            tol:                   0.0001,
             alpha:                 1,
-            optimizer:             'sgd',
+            optimizer:             'adam',
             batch_size:            3000,
             learning_rate:         0.1,
             early_stop:            'diff',
@@ -352,7 +353,7 @@
                         },
                     });
 
-                    if (code === 0 && data && data.params) {
+                    if (code === 0 && data && data.params && Object.keys(data.params).length) {
                         vData.form = data.params;
                     }
                 },
@@ -379,10 +380,7 @@
 .el-form-item{
     margin-bottom: 10px;
     :deep(.el-form-item__label){
-        text-align: left;
-        font-size: 12px;
-        display: block;
-        float: none;
+        flex:1;
     }
 }
 .el-collapse-item {

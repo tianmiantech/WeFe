@@ -31,7 +31,7 @@ def handler(event, context):
     :return:
     """
     try:
-        print(f'FC Invoke Start RequestId:{dataUtil.get_request_id(context)}')
+        # print(f'FC Invoke Start RequestId:{dataUtil.get_request_id(context)}')
         evt = json.loads(event)
         cot = context
         ins = importlib.import_module("func." + evt['fc_name'])
@@ -42,19 +42,19 @@ def handler(event, context):
         result['total_consume'] = total_consume
         result['req_id'] = dataUtil.get_request_id(context)
         result['fc_name'] = evt['fc_name']
-        print(f'FC Invoke End RequestId:{dataUtil.get_request_id(context)}')
+        # print(f'FC Invoke End RequestId:{dataUtil.get_request_id(context)}')
         return json.dumps(result)
     except KeyError as e:
         print(e)
         import traceback
         traceback.print_exc()
-        print(f'FC Invoke End RequestId:{dataUtil.get_request_id(context)}')
+        # print(f'FC Invoke End RequestId:{dataUtil.get_request_id(context)}')
         return json.dumps(
             dataUtil.fc_result(code=ErrorCode.KEY_ERROR, message=str(e), req_id=dataUtil.get_request_id(context)))
     except Exception as inst:
-        print(inst)
+        # print(inst)
         import traceback
         traceback.print_exc()
-        print(f'FC Invoke End RequestId:{dataUtil.get_request_id(context)}')
+        # print(f'FC Invoke End RequestId:{dataUtil.get_request_id(context)}')
         return json.dumps(
             dataUtil.fc_result(code=ErrorCode.SYSTEM_ERROR, message=str(inst), req_id=dataUtil.get_request_id(context)))

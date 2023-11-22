@@ -17,8 +17,8 @@
 package com.welab.wefe.board.service.util;
 
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.DatabaseType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.wefe.enums.DatabaseType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ import java.util.function.Consumer;
  * @author Johnny.lin
  */
 public class JdbcManager {
-    private static final Logger LOG = LoggerFactory.getLogger(JdbcManager.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(JdbcManager.class);
 
     private JdbcManager() {
 
@@ -69,7 +69,7 @@ public class JdbcManager {
             conn = DriverManager.getConnection(url, userName, password);
         } catch (Exception e) {
             LOG.error("数据库连接失败", e);
-            throw new StatusCodeWithException("数据库连接失败：" + e.getMessage(), StatusCode.DATABASE_LOST);
+            throw new StatusCodeWithException("测试连接数据库失败，请检查数据库是否正常或者账号密码是否填写错误：" + e.getMessage(), StatusCode.DATABASE_LOST);
         }
 
         return conn;

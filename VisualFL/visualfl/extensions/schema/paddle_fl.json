@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PaddleFL",
+  "description": "PaddleFL job config",
+  "type": "object",
+  "properties": {
+    "program": {
+      "type": "string",
+      "description": "program to run"
+    },
+    "worker_num": {
+      "description": "number of worker",
+      "type": "integer"
+    },
+    "max_iter": {
+      "description": "max number of iteration",
+      "type": "integer"
+    },
+    "inner_step": {
+      "description": "inner step",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "worker_num"
+  ]
+}

@@ -74,7 +74,6 @@ class Handler(object):
         self.project_id = '001'
         self.model_id = "examples_0001"
         self.model_version = "1"
-        self.db_type = DBTypes.LMDB
         self._create_time = time.asctime(time.localtime(time.time()))
         self._initiator = None
         self._roles = {}
@@ -399,7 +398,7 @@ class Handler(object):
             head = upload_conf['head'] == 1
             file = upload_conf['file']
             upload = Upload(backend, work_mode, db_type)
-            upload.prevent_repeat_upload(table_name, namespace)
+            upload.prevent_repeat_upload(table_name, namespace, partition)
             data_table_count = upload.save_data_table(file, table_name, namespace, partition, head)
 
             LOGGER.debug(f"upload_data_count is {data_table_count}")

@@ -20,7 +20,7 @@ import time
 from common.python import Backend
 from common.python.common import consts
 from common.python.common.consts import JobStatus, TaskStatus
-from common.python.db.db_models import Task, Job
+from common.python.db.db_models import Task, Job, GlobalSetting
 from common.python.db.job_dao import JobDao
 from common.python.db.task_dao import TaskDao
 from common.python.db.task_progress_dao import TaskProgressDao
@@ -54,7 +54,6 @@ class RunTaskAction:
             return
 
         self.logger.info("Task {}（{}）满足执行条件，时间：{}".format(self.task.task_type, self.task.task_id, current_datetime()))
-
         subprocess = self.start_subprocess()
         if subprocess:
             self.logger.info(
@@ -219,7 +218,7 @@ class RunTaskAction:
         splicing the startup command
         """
         task_config_json = json.loads(self.task.task_conf)
-        backend = Backend.get(task_config_json)
+        backend = Backend.get_by_task_config(task_config_json)
 
         if backend.is_local() or backend.is_fc():
             process_cmd = self.build_process_cmd_for_local_or_fc()

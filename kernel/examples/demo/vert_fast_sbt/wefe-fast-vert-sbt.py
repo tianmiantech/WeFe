@@ -15,7 +15,8 @@
 
 
 import argparse
-
+import random
+import os
 from kernel.examples.handler.component import DataIO
 from kernel.examples.handler.component import Evaluation
 from kernel.examples.handler.component import Intersection
@@ -40,6 +41,7 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
     backend = config.backend
     work_mode = config.work_mode
     db_type = config.db_type
+    data_base = config.data_base_dir
 
     # data sets
     promoter_train_data = {"name": param['data_promoter_train'], "namespace": namespace}
@@ -47,8 +49,24 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
     promoter_validate_data = {"name": param['data_promoter_val'], "namespace": namespace}
     provider_validate_data = {"name": param['data_provider_val'], "namespace": namespace}
 
+    data_promoter = param["data_promoter"]
+    data_provider = param["data_provider"]
+    promoter_data_table = param.get("data_promoter_train")
+    provider_data_table = param.get("data_provider_train")
+
+    handler_upload = Handler().set_roles(promoter=promoter, provider=provider)
+    handler_upload.add_upload_data(file=os.path.join(data_base, data_promoter),
+                                   table_name=promoter_data_table,
+                                   namespace=namespace,
+                                   head=1, partition=1)
+    handler_upload.add_upload_data(file=os.path.join(data_base, data_provider),
+                                   table_name=provider_data_table,
+                                   namespace=namespace,
+                                   head=1, partition=1)
+    handler_upload.upload(work_mode=work_mode, backend=backend, db_type=db_type)
+
     # init handler
-    handler = Handler(job_id="job_fast-vertsbt_0002", backend=backend, work_mode=work_mode, db_type=db_type,
+    handler = Handler(job_id="job_fast-vertsbt_"+ str(random.randint(0, 999999999999)), backend=backend, work_mode=work_mode, db_type=db_type,
                       fl_type='vertical') \
         .set_initiator(role="promoter", member_id=promoter) \
         .set_roles(promoter=promoter, provider=provider)

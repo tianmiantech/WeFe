@@ -12,12 +12,9 @@ fi
 export WEFE_VERSION=$WEFE_VERSION
 export WORKSPACE=$1
 export GIT_BRANCH=$2
-export DEPLOY_MODE=$3
 # 服务器上生成存放部署目录的
 export BASE_DIR=/data/jenkins_docker_deploy
 export SHELL_DIR=$WORKSPACE'/release/docker/deploy_shell'
-# oss 上传工具地址
-export OSS_DIR=/data/aliyun_oss
 # FC 环境部署的工作空间
 export FC_WORKSPACE=/data/jenkins_workspace/workspace/wefe_fc_nas
 
@@ -31,7 +28,7 @@ if [[ ! -d $SHELL_DIR ]]; then
 fi
 
 # 更新 FC 环境，依赖于 wefe_fc_nas 项目部署
-cp -r $FC_WORKSPACE/common/python/calculation/fc/function/wefe-fc/.fun $WORKSPACE/common/python/calculation/fc/function/wefe-fc
+# cp -r $FC_WORKSPACE/common/python/calculation/fc/function/wefe-fc/.fun $WORKSPACE/common/python/calculation/fc/function/wefe-fc
 
 echo ' ___       __   _______   ________ _______      '
 echo '|\  \     |\  \|\  ___ \ |\  _____\\  ___ \     '
@@ -64,18 +61,6 @@ if [[ $? == 1 ]];then
 fi
 echo '====== DONE ======'
 echo ''
-
-if [[ $DEPLOY_MODE == 'pack' ]]; then
-  echo '====== ORIGIN DEPLOY MODE ======'
-  cd $WORKSPACE
-  tar -cvf deploy_package_resource.tar deploy_package_resource > /dev/null
-  cd $OSS_DIR
-  ./oss cp $WORKSPACE/deploy_package_resource.tar oss://welab-wefe-release/ > /dev/null
-  echo '====== DONE ======'
-  echo '====== DOWNLOAD LINK https://welab-wefe-release.oss-cn-shenzhen.aliyuncs.com/deploy_package_resource.tar ======'
-  exit 1
-fi
-
 echo '====== DOCKER BUILD ======'
 # 生成 Docker 镜像
 cd $SHELL_DIR/docker_shell

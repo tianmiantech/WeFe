@@ -18,7 +18,8 @@ package com.welab.wefe.board.service.scheduled;
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.OperationLogMysqlModel;
 import com.welab.wefe.board.service.database.entity.base.AbstractMySqlModel;
-import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.ImageDataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.JobMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectDataSetMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectFlowMySqlModel;
@@ -135,11 +136,21 @@ public class OnlineDemoScheduledService {
         );
 
         /**
-         * 清理 data_set
+         * 清理 table_data_set
          * 1. 无项目引用的删掉
          */
         delete(
-                DataSetMysqlModel.class,
+                TableDataSetMysqlModel.class,
+                commonWhere
+                        + "and id not in (select data_set_id from project_data_set)"
+        );
+
+        /**
+         * 清理 image_data_set
+         * 1. 无项目引用的删掉
+         */
+        delete(
+                ImageDataSetMysqlModel.class,
                 commonWhere
                         + "and id not in (select data_set_id from project_data_set)"
         );

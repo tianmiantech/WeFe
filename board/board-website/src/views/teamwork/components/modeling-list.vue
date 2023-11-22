@@ -3,9 +3,10 @@
         name="模型列表"
         shadow="never"
         class="nav-title mb30"
+        :show="project_type !== 'DeepLearning'"
     >
         <h3 class="mb10">模型列表</h3>
-        <el-form inline>
+        <el-form inline @submit.prevent>
             <el-form-item label="来源组件：">
                 <el-select v-model="search.component_type">
                     <el-option
@@ -36,6 +37,7 @@
                     搜索
                 </el-button>
                 <el-button
+                    hidden
                     type="primary"
                     @click="modelCompare"
                 >
@@ -160,25 +162,16 @@
                             <template v-if="scope.row.serving_model">
                                 <el-button
                                     type="primary"
-                                    size="mini"
+                                    size="small"
                                     class="mb5"
-                                    @click="syncModel($event, scope.row)"
-                                >
-                                    同步模型
-                                </el-button>
-                                <el-button
-                                    v-if="scope.row.component_type === 'HorzSecureBoost' || scope.row.component_type === 'HorzLR'"
-                                    type="success"
-                                    size="mini"
-                                    class="mb5"
-                                    @click="selectLanguage = true;selectedRow = scope.row;"
+                                    @click="modelExportChange(scope.row)"
                                 >
                                     模型导出
                                 </el-button>
                             </template>
                             <el-button
                                 v-if="scope.row.role === 'promoter' && scope.row.component_type !== 'HorzNN' && scope.row.component_type !== 'VertNN'"
-                                size="mini"
+                                size="small"
                                 @click="addOotFlew($event, scope.row)"
                             >打分验证</el-button>
                         </template>
@@ -203,24 +196,48 @@
         </div>
 
         <el-dialog
-            title="模型导出"
-            v-model="selectLanguage"
+            title="导出"
+            v-model="modelExportDialog"
             destroy-on-close
-            append-to-body
-            width="400px"
+            width="420px"
         >
-            <p class="mb10 f14">点击任意语言可下载对应的模型:</p>
-            <p class="color-danger mb10 f12">请使用浏览器默认下载器, 否则下载的文件格式可能有误</p>
-            <div v-loading="loading" class="select-lang">
-                <el-tag
-                    v-for="item in languages"
-                    :key="item"
-                    size="medium"
-                    @click="modelExport($event, item)"
-                >
-                    {{ item }}
-                </el-tag>
-            </div>
+            <el-tabs v-model="modelExportType">
+                <el-tab-pane v-if="selectedRow.component_type === 'HorzSecureBoost' || selectedRow.component_type === 'HorzLR'" label="导出为代码" :name="0">
+                    <p class="mb10 f14">点击任意语言可下载对应的模型:</p>
+                    <p class="color-danger mb10 f12">请使用浏览器默认下载器, 否则下载的文件格式可能有误</p>
+                    <div v-loading="loading" class="select-lang">
+                        <el-tag
+                            v-for="item in languages"
+                            :key="item"
+                            @click="modelExport($event, item)"
+                        >
+                            {{ item }}
+                        </el-tag>
+                    </div>
+                </el-tab-pane>
+                <el-tab-pane label="同步到serving" :name="1">
+                    <p>模型推送到 serving</p>
+                    <div class="text-c mt30">
+                        <el-button
+                            type="primary"
+                            @click="syncModel"
+                        >
+                            同步模型
+                        </el-button>
+                    </div>
+                </el-tab-pane>
+                <el-tab-pane label="下载模型" :name="2">
+                    <p>下载模型文件到本地</p>
+                    <div class="text-c mt30">
+                        <el-button
+                            type="primary"
+                            @click="downloadModel"
+                        >
+                            下载模型
+                        </el-button>
+                    </div>
+                </el-tab-pane>
+            </el-tabs>
         </el-dialog>
     </el-card>
 </template>
@@ -278,6 +295,12 @@
                 }, {
                     label: '横向深度学习',
                     value: 'HorzNN',
+                }, {
+                    label: '混合 XGBoost',
+                    value: 'MixSecureBoost',
+                }, {
+                    label: '混合 LR',
+                    value: 'MixLR',
                 }],
                 list:          [],
                 watchRoute:    false,
@@ -305,12 +328,14 @@
                     'visualBasic',
                     'pmml',
                 ],
-                selectedRow:    {},
-                selectLanguage: false,
+                selectedRow:       {},
+                modelExportDialog: false,
+                modelExportType:   0,
             };
         },
         created() {
             this.project_id = this.$route.query.project_id;
+            this.project_type = this.$route.query.project_type;
             this.search.project_id = this.project_id;
         },
         methods: {
@@ -341,13 +366,19 @@
                 this.show_result_panel = false;
             },
 
-            async syncModel($event, task) {
+            modelExportChange(row) {
+                this.modelExportDialog = true;
+                this.modelExportType = (row.component_type === 'HorzSecureBoost' || row.component_type === 'HorzLR') ? 0 : 1;
+                this.selectedRow = row;
+            },
+
+            async syncModel($event) {
                 this.loading = true;
                 const { code } = await this.$http.post({
                     url:  '/data_output_info/sync_model_to_serving',
                     data: {
-                        task_id: task.task_id,
-                        role:    task.role,
+                        task_id: this.selectedRow.task_id,
+                        role:    this.selectedRow.role,
                     },
                     btnState: {
                         target: $event,
@@ -383,6 +414,17 @@
 
             async modelExport(event, language) {
                 const href = `${window.api.baseUrl}/data_output_info/model_export?jobId=${this.selectedRow.job_id}&modelFlowNodeId=${this.selectedRow.flow_node_id}&role=${this.selectedRow.role}&language=${language}&token=${this.userInfo.token}`;
+                const link = document.createElement('a');
+
+                link.href = href;
+                link.target = '_blank';
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+            },
+
+            downloadModel(e) {
+                const href = `${window.api.baseUrl}/data_output_info/model_export_to_file?taskId=${this.selectedRow.task_id}&role=${this.selectedRow.role}&token=${this.userInfo.token}`;
                 const link = document.createElement('a');
 
                 link.href = href;

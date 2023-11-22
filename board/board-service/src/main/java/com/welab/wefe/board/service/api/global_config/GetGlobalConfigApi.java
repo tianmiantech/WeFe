@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +17,7 @@
 package com.welab.wefe.board.service.api.global_config;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.database.entity.GlobalConfigMySqlModel;
+import com.welab.wefe.board.service.database.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -46,7 +46,7 @@ public class GetGlobalConfigApi extends AbstractApi<GetGlobalConfigApi.Input, Ma
         Map<String, JSONObject> output = new HashMap<>();
 
         for (String group : input.groups) {
-            List<GlobalConfigMySqlModel> list = globalConfigService.list(group);
+            List<GlobalConfigMysqlModel> list = globalConfigService.list(group);
             JSONObject json = new JSONObject();
             list.forEach(x -> json.put(x.getName(), x.getValue()));
             output.put(group, json);

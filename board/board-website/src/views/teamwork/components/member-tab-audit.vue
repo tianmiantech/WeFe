@@ -12,7 +12,10 @@
     </p>
 
     <div v-if="member.exited">
-        <span class="member-exited">{{ member.member_name }}</span>
+        <span class="f13">
+            <span class="member-exited">{{ member.member_name }}</span>
+            已退出该项目
+        </span>
         <span v-if="member.audit_comment" class="f12 color-danger"> ({{member.audit_name}}意见为: {{ member.audit_comment }})</span>
     </div>
     <p
@@ -42,5 +45,4 @@
         color: $--color-danger;
         cursor: pointer;
     }
-    .member-exited{text-decoration: line-through;}
 </style>

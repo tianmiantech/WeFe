@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@ package com.welab.wefe.gateway.service.processors;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.base.Processor;
@@ -37,7 +38,7 @@ import java.util.Map;
  *
  * @author aaron.li
  **/
-@Processor(name = "boardHttpProcessor", desc = "push to the board module message processor in HTTP mode")
+@Processor(type = GatewayProcessorType.boardHttpProcessor, desc = "push to the board module message processor in HTTP mode")
 public class BoardHttpProcessor extends AbstractProcessor {
 
     @Autowired
@@ -60,15 +61,14 @@ public class BoardHttpProcessor extends AbstractProcessor {
 
             String boardBaseUrl = boardConfig.intranetBaseUri;
             boardBaseUrl = (boardBaseUrl.endsWith("/") ? boardBaseUrl : (boardBaseUrl + "/"));
-            url = boardBaseUrl + url;
-            LOG.info("Gateway access board address：" + url);
-            HttpResponse response = BoardHelper.push(url, method, headers, BoardHelper.generateReqParam(body));
+            String fullUrl = boardBaseUrl + url;
+            LOG.info("Gateway access board address：" + fullUrl);
+            HttpResponse response = BoardHelper.push(fullUrl, method, headers, BoardHelper.generateReqParam(body));
             if (response.success()) {
                 return ReturnStatusBuilder.ok(transferMeta.getSessionId(), response.getBodyAsString());
             } else {
-                String responseStr = response.getBodyAsString();
-                responseStr = (StringUtil.isEmpty(responseStr) ? response.getMessage() : responseStr);
-                return ReturnStatusBuilder.create(ReturnStatusEnum.SYS_EXCEPTION, transferMeta.getSessionId(), responseStr);
+                String errorMsg = "请求Board地址【" + url + "】失败，Http code: " + response.getCode() + ", errorMsg: " + response.getError().getMessage();
+                return ReturnStatusBuilder.sysExc(errorMsg, transferMeta.getSessionId());
             }
         } catch (Exception e) {
             LOG.error("BoardHttpProcessor fail, exception:", e);

@@ -22,7 +22,7 @@
                 <template v-if="myRole === 'promoter' && vData.promoterConfig.totalColumnCount">
                     <el-collapse-item title="皮尔逊热力图" name="2">
                         <el-button
-                            size="mini"
+                            size="small"
                             :disabled="vData.promoterConfig.totalColumnCount === 0"
                             @click="methods.showColumnListDialog('promoter')"
                         >
@@ -40,7 +40,7 @@
                     <template v-if="vData.localConfig.totalColumnCount">
                         <el-collapse-item title="本地热力图" name="3">
                             <el-button
-                                size="mini"
+                                size="small"
                                 :disabled="vData.localConfig.totalColumnCount === 0"
                                 @click="methods.showColumnListDialog('local')"
                             >
@@ -57,7 +57,7 @@
                     <template v-if="vData.providerConfig.totalColumnCount">
                         <el-collapse-item title="联合热力图" name="4">
                             <el-button
-                                size="mini"
+                                size="small"
                                 :disabled="vData.providerConfig.totalColumnCount === 0"
                                 @click="methods.showColumnListDialog('provider')"
                             >
@@ -116,6 +116,9 @@
     import {
         ref,
         reactive,
+        nextTick,
+        getCurrentInstance,
+        onBeforeMount,
     } from 'vue';
     import checkFeatureMixin from '../common/checkFeature';
     import CheckFeatureDialog from '../common/checkFeatureDialog';
@@ -143,6 +146,8 @@
             const promoterChart = ref();
             const providerChart = ref();
             const localChart = ref();
+            const { appContext } = getCurrentInstance();
+            const { $http } = appContext.config.globalProperties;
 
             let vData = reactive({
                 hasResult:                false,
@@ -189,6 +194,55 @@
             });
 
             let methods = {
+                async getNodeDetail (model) {
+                    if (vData.loading) return;
+                    vData.loading = true;
+
+                    const { code, data } = await $http.get({
+                        url:    '/project/flow/node/detail',
+                        params: {
+                            nodeId:  props.flowNodeId,
+                            flow_id: props.flowId,
+                        },
+                    });
+
+                    nextTick(_ => {
+                        vData.loading = false;
+                        if (code === 0 && data && data.params && Object.keys(data.params).length) {
+                            const {
+                                members,
+                            } = data.params;
+
+                            vData.feature_column_count = 0;
+                            vData.total_column_count = 0;
+
+                            vData.lastSelection = [];
+                            vData.featureSelectTab = members.map(member => {
+                                vData.feature_column_count += member.$checkedColumnsArr.length;
+                                vData.total_column_count += member.features.length;
+
+                                const $feature_list = member.$checkedColumnsArr.map(item => {
+                                    return {
+                                        name: item,
+                                    };
+                                });
+
+                                vData.lastSelection.push({
+                                    member_id:   member.member_id,
+                                    member_name: member.member_name,
+                                    member_role: member.member_role,
+                                    $feature_list,
+                                });
+
+                                return {
+                                    ...member,
+                                    $checkedColumns: '',
+                                    $feature_list:   member.features,
+                                };
+                            });
+                        }
+                    });
+                },
                 showResult(data) {
                     vData.promoterConfig.totalColumnCount = 0;
                     vData.providerConfig.totalColumnCount = 0;
@@ -198,7 +252,9 @@
                     vData.localFeatureSelectTab = [];
 
                     if(data[0].result) {
-                        const maxFeatureNum = 20;
+                        const maxFeatureNum = vData.feature_column_count > 30 ? 30 : vData.feature_column_count;
+
+                        console.log(maxFeatureNum);
                         const {
                             corr,
                             features,
@@ -207,6 +263,7 @@
                             mix_feature_names,
                             corr_feature_names,
                             remote_features_names,
+                            num_local_features,
                         } = data[0].result.statistics_pearson.data.corr.value;
 
                         if(props.myRole === 'promoter') {
@@ -242,7 +299,7 @@
                                 }
                             });
 
-                            vData.promoterConfig.featureColumnCount = vData.promoterConfig.xAxis.length;
+                            vData.promoterConfig.featureColumnCount = maxFeatureNum;
                             vData.promoterConfig.width = vData.promoterConfig.xAxis.length * (vData.promoterConfig.xAxis.length > 10 ? 60 : 100);
                             vData.promoterConfig.height = vData.promoterConfig.yAxis.length * 34 + (vData.promoterConfig.yAxis.length > 10 ? 50: 100);
 
@@ -301,7 +358,7 @@
                             features.forEach((item, index) => {
                                 if(index < maxFeatureNum) {
                                     vData.localConfig.xAxis.push(item);
-                                    vData.localConfig.yAxis.push(item);
+                                    vData.localConfig.yAxis.unshift(item);
                                 }
                             });
                             vData.localConfig.series = [];
@@ -309,13 +366,13 @@
                                 if(rowIndex < maxFeatureNum) {
                                     rows.forEach((row, index) => {
                                         if(index < maxFeatureNum) {
-                                            vData.localConfig.series.push([rowIndex, maxFeatureNum - index - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
+                                            vData.localConfig.series.push([rowIndex, vData.localConfig.yAxis.length - index - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
                                         }
                                     });
                                 }
                             });
 
-                            vData.localConfig.featureColumnCount = vData.localConfig.xAxis.length;
+                            vData.localConfig.featureColumnCount = num_local_features;
                             vData.localConfig.width = vData.localConfig.xAxis.length * (vData.localConfig.xAxis.length > 10 ? 60: 100);
                             vData.localConfig.height = vData.localConfig.yAxis.length * 34 + (vData.localConfig.yAxis.length > 10 ? 50 : 100);
 
@@ -364,13 +421,13 @@
                                 if(rowIndex < maxFeatureNum) {
                                     rows.forEach((row, index) => {
                                         if(index < maxFeatureNum) {
-                                            vData.providerConfig.series.push([rowIndex, maxFeatureNum - index - 1, row.toFixed(4)]);
+                                            vData.providerConfig.series.push([rowIndex, vData.providerConfig.yAxis.length - index - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
                                         }
                                     });
                                 }
                             });
 
-                            vData.providerConfig.featureColumnCount = vData.providerConfig.xAxis.length + vData.providerConfig.yAxis.length;
+                            vData.providerConfig.featureColumnCount = maxFeatureNum;
                             vData.providerConfig.width = vData.providerConfig.xAxis.length * (vData.providerConfig.xAxis.length > 10 ? 60 : 100);
                             vData.providerConfig.height = vData.providerConfig.yAxis.length * 34 + (vData.providerConfig.yAxis.length > 10 ? 50: 100);
 
@@ -477,7 +534,7 @@
                     chartData.featureColumnCount = 0;
 
                     if(role === 'provider') {
-                        chartData.xAxis.push(...list[1].$checkedColumnsArr);
+                        chartData.xAxis.unshift(...list[1].$checkedColumnsArr);
                         list[0].$checkedColumnsArr.forEach(name => {
                             chartData.yAxis.push(name);
                         });
@@ -487,9 +544,8 @@
                         const { length } = chartData.yAxis;
 
                         chartData.series = [];
-                        chartData.xAxis.forEach(($row, rowIndex) => {
-
-                            chartData.yAxis.forEach((column, columnIndex) => {
+                        chartData.yAxis.forEach(($row, rowIndex) => {
+                            chartData.xAxis.forEach((column, columnIndex) => {
                                 const row = chartData.mixCorr[$row][column];
 
                                 chartData.series.push([rowIndex, length - columnIndex - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
@@ -500,7 +556,7 @@
                         list.forEach(({ $checkedColumnsArr }) => {
                             chartData.xAxis.push(...$checkedColumnsArr);
                             $checkedColumnsArr.forEach(name => {
-                                chartData.yAxis.push(name);
+                                chartData.yAxis.unshift(name);
                             });
 
                             if(role !== 'local') {
@@ -517,11 +573,10 @@
 
                         chartData.series = [];
                         chartData.xAxis.forEach(($row, rowIndex) => {
-
-                            chartData.yAxis.forEach((column, columnIndex) => {
+                            chartData.xAxis.forEach((column, columnIndex) => {
                                 const row = chartData.mixCorr[$row][column];
 
-                                chartData.series.push([rowIndex, length - columnIndex - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
+                                chartData.series.unshift([rowIndex, length - columnIndex - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
                             });
                         });
                     }
@@ -546,6 +601,10 @@
                     }
                 },
             };
+
+            onBeforeMount(() => {
+                methods.getNodeDetail();
+            });
 
             // merge mixin
             const { $data, $methods } = checkFeatureMixins.mixin({

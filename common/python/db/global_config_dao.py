@@ -15,7 +15,8 @@
 import uuid
 
 from common.python.db.db_models import DB, GlobalConfigModel
-from common.python.dto.global_config import MailServerModel, GatewayConfigModel, MemberInfo, BoardConfigModel
+from common.python.dto.global_config import MailServerModel, GatewayConfigModel, \
+    MemberInfo, BoardConfigModel, FunctionComputeConfig
 
 
 class GlobalConfigDao:
@@ -112,6 +113,16 @@ class GlobalConfigDao:
             MailServerModel of GlobalConfig
         """
         return GlobalConfigDao.getModel("mail_server", MailServerModel)
+
+    @staticmethod
+    def get_function_compute_config() -> FunctionComputeConfig:
+        """
+        Get FunctionComputeConfig from database.
+
+        Returns:
+            FunctionComputeConfig of GlobalConfig
+        """
+        return GlobalConfigDao.getModel("function_compute_config", FunctionComputeConfig)
 
     @staticmethod
     def getModel(group, clazz):

@@ -20,38 +20,47 @@ const helpFilesArr = requireAll(helpFiles);
 const componentsList = {};
 
 for (const index in formKeyArr) {
-    const file = formFilesArr[index];
-    const { name } = file.default;
 
-    if (!componentsList[name]) {
-        componentsList[name] = {
-            params: true,
-            result: false,
-        };
+    if (formKeyArr.hasOwnProperty(index)) {
+        const file = formFilesArr[index];
+        const { name } = file.default;
+
+        if (!componentsList[name]) {
+            componentsList[name] = {
+                params: true,
+                result: false,
+            };
+        }
+        paramComponents[`${name}-params`] = file.default;
     }
-    paramComponents[`${name}-params`] = file.default;
 }
 
 for (const index in resultKeyArr) {
-    const file = resultFilesArr[index];
-    const { name } = file.default;
 
-    if (!componentsList[name]) {
-        componentsList[name] = {
-            params: false,
-            result: true,
-        };
-    } else {
-        componentsList[name].result = true;
+    if (resultKeyArr.hasOwnProperty(index)) {
+        const file = resultFilesArr[index];
+        const { name } = file.default;
+
+        if (!componentsList[name]) {
+            componentsList[name] = {
+                params: false,
+                result: true,
+            };
+        } else {
+            componentsList[name].result = true;
+        }
+        resultComponents[`${name}-result`] = file.default;
     }
-    resultComponents[`${name}-result`] = file.default;
 }
 
 for (const index in helpKeyArr) {
-    const file = helpFilesArr[index];
-    const { name } = file.default;
 
-    helpComponents[`${name}-help`] = file.default;
+    if (helpKeyArr.hasOwnProperty(index)) {
+        const file = helpFilesArr[index];
+        const { name } = file.default;
+
+        helpComponents[`${name}-help`] = file.default;
+    }
 }
 
 export {

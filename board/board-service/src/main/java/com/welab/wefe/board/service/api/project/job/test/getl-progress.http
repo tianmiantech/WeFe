@@ -1,4 +1,4 @@
-POST {{baseUrl}}/flow/job/get_progress
+POST http://localhost:8080/board-service/flow/job/get_progress
 Content-Type: application/json
 
 {

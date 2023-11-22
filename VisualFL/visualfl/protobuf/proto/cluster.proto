@@ -1,0 +1,94 @@
+syntax = "proto3";
+import "google/protobuf/any.proto";
+import "job.proto";
+
+package visualfl;
+
+
+//service in cluster manager called by worker
+service ClusterManager{
+  // service for worker: enroll and fetch tasks
+  rpc Enroll(Enroll.REQ) returns (stream Enroll.REP) {}
+  // service for worker: update status or heartbeat
+  rpc UpdateTaskStatus(UpdateStatus.REQ) returns (UpdateStatus.REP) {}
+  // service for master: submit task to cluster
+  rpc TaskSubmit(TaskSubmit.REQ) returns (TaskSubmit.REP) {}
+  rpc TaskResourceRequire(TaskResourceRequire.REQ) returns (TaskResourceRequire.REP) {}
+}
+
+message Enroll {
+  enum Status {
+    UNKNOWN = 0;
+    ENROLL_SUCCESS = 1;
+    ALREADY_ENROLL = 2;
+    TASK_READY = 3;
+  }
+  message REQ {
+    string worker_id = 1;
+    string worker_ip = 2;
+    int32 max_tasks = 3;
+    int32 port_start = 4;
+    int32 port_end = 5;
+  }
+  message REP {
+    Status status = 1;
+    visualfl.Task task = 2;
+  }
+}
+
+message UpdateStatus {
+  enum TaskStatus {
+    TASK_UNKNOWN = 0;
+    TASK_CANCEL = 1;
+    TASK_EXCEPTION = 2;
+    TASK_FINISH = 3;
+  }
+  enum Status {
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+  message REQ {
+    string worker_id = 1;
+    string job_id = 2;
+    string task_id = 3;
+    TaskStatus task_status = 4;
+    string exception_id = 5;
+    string exception = 6;
+    google.protobuf.Any exec_result = 7;
+  }
+  message REP {
+    Status status = 1;
+  }
+}
+
+message TaskSubmit {
+  enum Status {
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+  message REQ {
+    visualfl.Task task = 1;
+  }
+  message REP {
+    Status status = 1;
+  }
+}
+
+
+message TaskResourceRequire {
+  enum Status {
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+  message REQ {
+    int32 num_endpoints = 1;
+  }
+  message REP {
+    Status status = 1;
+    string worker_id = 2;
+    repeated string endpoints = 3;
+  }
+}

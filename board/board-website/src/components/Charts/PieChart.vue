@@ -81,6 +81,7 @@
                     data:     props.config.series || [],
                     width:    '50%',
                     left:     '25%',
+                    bottom:   '45%',
                     emphasis: {
                         itemStyle: {
                             shadowBlur:    10,

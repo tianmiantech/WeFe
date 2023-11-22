@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,8 +17,9 @@
 package com.welab.wefe.board.service.dto.entity.job;
 
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.JobMemberRole;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -29,19 +30,13 @@ import java.util.Date;
  */
 public class TaskProgressOuputModel extends AbstractOutputModel {
 
-    /**
-     * 项目id
-     */
+    @Check(name = "项目id")
     private String projectId;
 
-    /**
-     * 流程号
-     */
+    @Check(name = "流程号")
     private String flowId;
 
-    /**
-     * 任务id
-     */
+    @Check(name = "任务id")
     private String jobId;
 
     /**
@@ -50,14 +45,10 @@ public class TaskProgressOuputModel extends AbstractOutputModel {
     @Enumerated(EnumType.STRING)
     private JobMemberRole role;
 
-    /**
-     * 流程节点id
-     */
+    @Check(name = "流程节点id")
     private String flowNodeId;
 
-    /**
-     * 任务id
-     */
+    @Check(name = "任务id")
     private String taskId;
 
     /**
@@ -66,34 +57,22 @@ public class TaskProgressOuputModel extends AbstractOutputModel {
     @Enumerated(EnumType.STRING)
     private ComponentType taskType;
 
-    /**
-     * 预计总工程量
-     */
+    @Check(name = "预计总工程量")
     private int expectWorkAmount;
 
-    /**
-     * 实际总工程量
-     */
+    @Check(name = "实际总工程量")
     private int reallyWorkAmount;
 
-    /**
-     * 进度
-     */
+    @Check(name = "进度")
     private int progress;
 
-    /**
-     * 进度百分比
-     */
+    @Check(name = "进度百分比")
     private double progressRate;
 
-    /**
-     * updated_time - created_time，毫秒。
-     */
+    @Check(name = "updated_time - created_time，毫秒。")
     private int spend;
 
-    /**
-     * 预计结束时间
-     */
+    @Check(name = "预计结束时间")
     private Date expectEndTime;
 
 

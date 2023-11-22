@@ -71,7 +71,7 @@ class Builder(build.Builder):
     # noinspection PyUnresolvedReferences,PyProtectedMember
     def build_wrapper(self):
         if self._work_mode.is_standalone() or self._work_mode.is_cluster():
-            from common.python.storage.impl.dsource import _DSource
+            from common.python.p_session.base_impl.data_source import _DSource
             return FederationWrapped(session_id=self._session_id, dsource_cls=_DSource, table_cls=self._table_cls)
 
         raise ValueError(f"work_mode: ${self._work_mode} unknown")

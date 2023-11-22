@@ -5,6 +5,7 @@ export INPUT_SERVICE=$2
 export INPUT_DEPLOY=$3
 
 source ./wefe.cfg
+
 if [ $SPARK_MODE = "STANDALONE" ];then
   source ./spark_cluster.sh
 fi
@@ -29,20 +30,33 @@ edit_wefe_config(){
     sed -i "/clickhouse.username/s/=.*/=$CLICKHOUSE_USERNAME/g" ./config.properties
     sed -i "/clickhouse.password/s/=.*/=$CLICKHOUSE_PASSWORD/g" ./config.properties
 
+    mysql_ip=$INTRANET_IP
+    mysql_port=$MYSQL_PORT
+    mysql_database=wefe_board
+    mysql_username=root
+    mysql_password=$MYSQL_ROOT_PASSWORD
+    case $INPUT_SERVICE in
+        fusion)
+            mysql_database=wefe_fusion
+            ;;
+        serving)
+            mysql_database=wefe_serving
+            ;;
+    esac
     # mysql
-    sed -i "/mysql.url/s/:\/\/.*?/:\/\/$INTRANET_IP:$MYSQL_PORT\/$MYSQL_DATABASE?/g" ./config.properties
+    sed -i "/mysql.url/s/:\/\/.*?/:\/\/$INTRANET_IP:$mysql_port\/$mysql_database?/g" ./config.properties
     sed -i "/mysql.host/s/=.*/=$INTRANET_IP/g" ./config.properties
-    sed -i "/mysql.port/s/=.*/=$MYSQL_PORT/g" ./config.properties
-    sed -i "/mysql.database/s/=.*/=$MYSQL_DATABASE/g" ./config.properties
-    sed -i "/mysql.username/s/=.*/=$MYSQL_USERNAME/g" ./config.properties
-    sed -i "/mysql.password/s/=.*/=$MYSQL_PASSWORD/g" ./config.properties
+    sed -i "/mysql.port/s/=.*/=$mysql_port/g" ./config.properties
+    sed -i "/mysql.database/s/=.*/=$mysql_database/g" ./config.properties
+    sed -i "/mysql.username/s/=.*/=$mysql_username/g" ./config.properties
+    sed -i "/mysql.password/s/=.*/=$mysql_password/g" ./config.properties
 
     # ************
     # 计算引擎相关配置
     # ************
 
     # 计算引擎选择
-    sed -i "/wefe.job.backend/s/=.*/=$CALCULATION_ENGINE/g" ./config.properties
+#    sed -i "/wefe.job.backend/s/=.*/=$CALCULATION_ENGINE/g" ./config.properties
 
     # spark
     sed -i "/driver.memory/s/=.*/=$SPARK_DRIVER_MEMORY/g" ./config.properties
@@ -80,12 +94,18 @@ edit_wefe_config(){
 }
 
 send_wefe_config(){
-    cp -f ./config.properties wefe_board_service/resources/mount/
-    cp -f ./config.properties wefe_gateway_service/resources/mount/
-    cp -f ./config.properties wefe_python_service/resources/mount/
-    if [ ${ACCELERATION,,} = "gpu" ];then
-      cp -f ./config.properties wefe_python_gpu_service/resources/mount/
-    fi
+    case $INPUT_SERVICE in
+        fusion)
+            cp -f ./config.properties wefe_fusion_service/resources/mount/
+            ;;
+        serving)
+            cp -f ./config.properties wefe_serving_service/resources/mount/
+            ;;
+          *)
+            cp -f ./config.properties wefe_board_service/resources/mount/
+            cp -f ./config.properties wefe_gateway_service/resources/mount/
+            cp -f ./config.properties wefe_python_service/resources/mount/
+    esac
 }
 
 init(){
@@ -99,16 +119,21 @@ _run_python_service(){
     if [ ${ACCELERATION,,} = "gpu" ];then
       cd $PWD/wefe_python_service
       sh wefe_python_service_start.sh gpu
-    fi
-
-    if [ $SPARK_MODE = "STANDALONE" ]
-    then
-      # 集群方式启动
-      start_cluster
     else
-      # 单机启动
-      cd $PWD/wefe_python_service
-      sh wefe_python_service_start.sh
+      if [ $SPARK_MODE = "STANDALONE" ]; then
+        # 集群方式启动
+        start_cluster
+      else
+        if [ $CALCULATION_ENGINE = "FC" ]; then
+          # 函数计算启动
+          cd $PWD/wefe_python_service
+          sh wefe_python_service_start.sh fc
+        else
+          # 单机启动
+          cd $PWD/wefe_python_service
+          sh wefe_python_service_start.sh
+        fi
+      fi
     fi
 }
 
@@ -151,9 +176,21 @@ start(){
             sh wefe_service.sh start gateway
             sh wefe_service.sh start python
             ;;
+        fusion)
+            cd $PWD/wefe_fusion_service
+            sh wefe_fusion_service_start.sh
+            cd ../wefe_fusion_website
+            sh wefe_fusion_website_start.sh
+            ;;
+        serving)
+            cd $PWD/wefe_serving_service
+            sh wefe_serving_service_start.sh
+            cd ../wefe_serving_website
+            sh wefe_serving_website_start.sh
+            ;;
         *)
             echo "Please Input a Legal Service"
-            echo "eg. {board|gateway|python|middleware}"
+            echo "eg. { board | gateway | python | middleware | fusion | serving }"
             exit -1
     esac
 }
@@ -161,7 +198,7 @@ start(){
 stop(){
     # init
     case $INPUT_SERVICE in
-        board | gateway | python | middleware)
+        board | gateway | python | middleware | fusion | serving | manager | union | blockchain_data_sync)
             CONTAINER=$(docker ps -a | grep $WEFE_ENV | grep $INPUT_SERVICE | awk '{print $1}' | xargs)
             docker stop $CONTAINER
             if [ $INPUT_SERVICE = "python" ]; then
@@ -175,7 +212,7 @@ stop(){
             ;;
         *)
             echo "Please Input a Legal Service"
-            echo "eg. {board|gateway|python|middleware}"
+            echo "eg. { board | gateway | python | middleware | fusion | serving | manager | union | blockchain_data_sync}"
             exit -1
     esac
 }
@@ -183,7 +220,7 @@ stop(){
 remove(){
     # init
     case $INPUT_SERVICE in
-        board | gateway | python | middleware)
+        board | gateway | python | middleware | fusion | serving | manager | union | blockchain_data_sync)
             CONTAINER=$(docker ps -a | grep $WEFE_ENV | grep $INPUT_SERVICE | awk '{print $1}' | xargs)
             docker rm $CONTAINER
             if [ $INPUT_SERVICE = "python" ]; then
@@ -197,14 +234,14 @@ remove(){
             ;;
         *)
             echo "Please Input a Legal Service"
-            echo "eg. {board|gateway|python|middleware}"
+            echo "eg. {board | gateway | python | middleware | fusion | serving | manager | union | blockchain_data_sync}"
             exit -1
     esac
 }
 
 restart(){
     case $INPUT_SERVICE in
-        board | gateway | python | middleware)
+        board | gateway | python | middleware | fusion | serving | manager | union | blockchain_data_sync)
             CONTAINER=$(docker ps -a | grep $WEFE_ENV |grep $INPUT_SERVICE | awk '{print $1}' | xargs)
             docker restart $CONTAINER
             ;;
@@ -214,14 +251,14 @@ restart(){
             ;;
         *)
             echo "Please Input a Legal Service"
-            echo "eg. {board | gateway | python | middleware}"
+            echo "eg. {board | gateway | python | middleware | fusion | serving }"
             exit -1
     esac
 }
 
 help(){
     echo "Support Action: start | stop | restart"
-    echo "Support Service: board | gateway | python | middleware"
+    echo "Support Service: board | gateway | python | middleware | fusion | serving "
     echo "sh service.sh [Action] [Service]"
 }
 

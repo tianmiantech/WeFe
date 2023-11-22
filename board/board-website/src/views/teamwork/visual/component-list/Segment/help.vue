@@ -1,7 +1,7 @@
 <template>
     <CommonHelp>
         <template #intro>
-            将选择后的数据集按照一定比例进行划分得到 train set、test set，作为后续的算法组件的输入。
+            将选择后的数据资源按照一定比例进行划分得到 train set、test set，作为后续的算法组件的输入。
         </template>
         <template #params>
             <code>数据切分随机数</code>

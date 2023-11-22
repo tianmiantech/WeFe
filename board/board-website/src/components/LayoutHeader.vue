@@ -2,7 +2,7 @@
     <div class="layout-header">
         <div class="heading-bar flexbox">
             <span
-                v-if="vData.meta.titleParams"
+                v-show="vData.meta.titleParams"
                 class="heading-bar-title text-l f14"
             >
                 <el-button
@@ -12,20 +12,20 @@
                 >
                     <el-icon class="el-icon-arrow-left">
                         <elicon-arrow-left />
-                    </el-icon>返回{{ vData.meta.titleParams.parentTitle || vData.meta.title }}
+                    </el-icon>返回{{ vData.meta.titleParams ? (vData.meta.titleParams.parentTitle || vData.meta.title) : '' }}
                 </el-button>
                 <span
-                    v-if="vData.meta.titleParams.htmlTitle"
-                    v-html="vData.meta.titleParams.htmlTitle"
+                    v-show="vData.meta.titleParams && vData.meta.titleParams.htmlTitle"
+                    v-html="vData.meta.titleParams ? vData.meta.titleParams.htmlTitle: ''"
                     class="heading-title"
                 />
                 <span
-                    v-else
+                    v-show="vData.meta.titleParams && !vData.meta.titleParams.htmlTitle"
                     class="heading-title"
-                >{{ vData.meta.titleParams.title }}</span>
+                >{{ vData.meta.titleParams ? vData.meta.titleParams.title : '' }}</span>
             </span>
             <span
-                v-else
+                v-show="!vData.meta.titleParams"
                 v-html="vData.headingTitle || vData.meta.title"
                 class="heading-bar-title text-l f14"
             />
@@ -114,6 +114,7 @@
         reactive,
         getCurrentInstance,
         onBeforeMount,
+        nextTick,
         watch,
     } from 'vue';
     import { useStore } from 'vuex';
@@ -133,7 +134,7 @@
             const userInfo = computed(() => store.state.base.userInfo);
             const tagsList = computed(() => store.state.base.tagsList);
             const { appContext } = getCurrentInstance();
-            const { $bus, $http } = appContext.config.globalProperties;
+            const { $bus } = appContext.config.globalProperties;
 
             const VideoGuideDialog = ref();
             const vData = reactive({
@@ -173,10 +174,6 @@
 
                 const policy = {
                     async logout() {
-                        await $http.post({
-                            url: '/logout',
-                        });
-
                         vData.loading = false;
                         baseLogout();
                     },
@@ -290,7 +287,9 @@
             watch(
                 () => route.name,
                 () => {
-                    vData.meta = route.meta;
+                    nextTick(_ => {
+                        vData.meta = route.meta;
+                    });
                 },
             );
 

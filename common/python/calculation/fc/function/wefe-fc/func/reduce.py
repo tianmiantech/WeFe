@@ -47,18 +47,22 @@ def handler(event, context):
     """
 
     evt = json.loads(event)
+
     # get the source and destination fcStorage
     source_fcs, dest_fcs = dataUtil.get_fc_storages(evt)
     partition = evt['partition']
     source_k_v = source_fcs.collect(partition=partition, debug_info=dataUtil.get_request_id(context))
+
     # do reduce
-    result = []
+    # result = []
     if 'key_func' in evt.keys():
         result, count = has_key_func(source_k_v, evt)
     else:
         result, count = none_key_func(source_k_v, evt)
+
     # put result to destination fcStorage
-    dest_fcs.put_all(result)
+    if result is not None:
+        dest_fcs.put(partition, result)
 
     return dataUtil.fc_result(count=count, partition=partition)
 
@@ -73,7 +77,7 @@ def none_key_func(source_k_v, evt):
             reduce_v = v
         else:
             reduce_v = func(reduce_v, v)
-    return [(evt['partition'], reduce_v)] if reduce_v is not None else [], count
+    return reduce_v, count
 
 
 def has_key_func(source_k_v, evt):
@@ -85,7 +89,7 @@ def has_key_func(source_k_v, evt):
     for k, v in source_k_v:
         count += 1
         _k = key_func(k)
-        if _k not in k_v_list.keys():
+        if _k not in k_v_list:
             k_v_list[_k] = [v]
         else:
             k_v_list[_k].append(v)
@@ -101,4 +105,4 @@ def has_key_func(source_k_v, evt):
         if v_last is not None:
             k_v_list[k] = v_last
 
-    return [(evt['partition'], k_v_list)], count
+    return k_v_list, count

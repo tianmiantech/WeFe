@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,6 +16,7 @@
 
 package com.welab.wefe.gateway.service.processors;
 
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.base.Processor;
@@ -27,12 +28,14 @@ import com.welab.wefe.gateway.common.ReturnStatusBuilder;
  *
  * @author aaron.li
  **/
-@Processor(name = "refreshMemberBlacklistCacheProcessor", desc = "Refresh member blacklist cache processor")
+@Processor(type = GatewayProcessorType.refreshMemberBlacklistCacheProcessor, desc = "Refresh member blacklist cache processor")
 public class RefreshMemberBlacklistCacheProcessor extends AbstractProcessor {
 
     @Override
-    public BasicMetaProto.ReturnStatus preToRemoteProcess(GatewayMetaProto.TransferMeta transferMeta) {
+    public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
         boolean ret = MemberBlacklistCache.getInstance().refreshCache();
-        return ret ? ReturnStatusBuilder.ok(transferMeta.getSessionId()) : ReturnStatusBuilder.sysExc("刷新成员黑名单缓存失败", transferMeta.getSessionId());
+        return ret
+                ? ReturnStatusBuilder.ok(transferMeta.getSessionId())
+                : ReturnStatusBuilder.sysExc("刷新成员黑名单缓存失败", transferMeta.getSessionId());
     }
 }

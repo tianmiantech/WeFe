@@ -3,16 +3,16 @@
         <el-row :gutter="60">
             <el-col :xs="12" :sm="12" :md="10" :lg="10" :xl="10">
                 <h3 class="mb20">用户信息:</h3>
-                <el-form style="max-width: 300px">
+                <el-form style="max-width: 300px" @submit.prevent>
                     <el-form-item
                         label="用户昵称"
-                        required
+                        class="is-required"
                     >
                         <el-input v-model="accountInfo.nickname" />
                     </el-form-item>
                     <el-form-item
                         label="邮箱"
-                        required
+                        class="is-required"
                     >
                         <el-input v-model="accountInfo.email" />
                     </el-form-item>
@@ -30,6 +30,7 @@
                     ref="form"
                     :model="form"
                     style="max-width: 300px"
+                    @submit.prevent
                 >
                     <el-form-item
                         label="旧密码"
@@ -39,6 +40,9 @@
                         <el-input
                             v-model="form.old_password"
                             type="password"
+                            @paste.prevent
+                            @copy.prevent
+                            @contextmenu.prevent
                         />
                     </el-form-item>
                     <el-form-item
@@ -49,6 +53,13 @@
                         <el-input
                             v-model="form.new_password"
                             type="password"
+                            @paste.prevent
+                            @copy.prevent
+                            @contextmenu.prevent
+                        />
+                        <PasswordStrength
+                            ref="password-strength"
+                            :password="form.new_password"
                         />
                     </el-form-item>
                     <el-form-item
@@ -59,6 +70,9 @@
                         <el-input
                             v-model="form.repeat_password"
                             type="password"
+                            @paste.prevent
+                            @copy.prevent
+                            @contextmenu.prevent
                         />
                     </el-form-item>
                     <el-button
@@ -172,6 +186,9 @@
             submit() {
                 this.$refs['form'].validate(async valid => {
                     if(valid) {
+                        if(this.$refs['password-strength'].pwStrength < 3) {
+                            return this.$message.error('密码强度太弱');
+                        }
                         const oldPassword = [
                             this.userInfo.phone_number,
                             this.form.old_password,

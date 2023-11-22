@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,24 +16,23 @@
 
 package com.welab.wefe.board.service.api.project.flow;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.welab.wefe.board.service.api.project.flow.QueryFlowTemplateApi.TemplateListOutput;
 import com.welab.wefe.board.service.database.entity.flow.FlowTemplateMySqlModel;
 import com.welab.wefe.board.service.service.FlowTemplateService;
-import com.welab.wefe.board.service.util.ModelMapper;
-import com.welab.wefe.common.enums.FederatedLearningType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author winter.zou
@@ -74,18 +73,14 @@ public class QueryFlowTemplateApi extends AbstractNoneInputApi<TemplateListOutpu
     public static class TemplateOutput {
 
         private String id;
-        /**
-         * template name
-         */
+        @Check(name = "template name")
         private String name;
 
-        /**
-         * template name
-         */
+        @Check(name = "template name")
         private String description;
 
         private String enname;
-        
+
         @Enumerated(EnumType.STRING)
         private FederatedLearningType federatedLearningType;
 
@@ -121,12 +116,12 @@ public class QueryFlowTemplateApi extends AbstractNoneInputApi<TemplateListOutpu
             this.description = description;
         }
 
-		public FederatedLearningType getFederatedLearningType() {
-			return federatedLearningType;
-		}
+        public FederatedLearningType getFederatedLearningType() {
+            return federatedLearningType;
+        }
 
-		public void setFederatedLearningType(FederatedLearningType federatedLearningType) {
-			this.federatedLearningType = federatedLearningType;
-		}
+        public void setFederatedLearningType(FederatedLearningType federatedLearningType) {
+            this.federatedLearningType = federatedLearningType;
+        }
     }
 }

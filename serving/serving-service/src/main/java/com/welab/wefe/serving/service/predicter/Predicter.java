@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,9 +18,10 @@ package com.welab.wefe.serving.service.predicter;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.PredictFeatureDataSource;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
@@ -34,7 +35,6 @@ import com.welab.wefe.serving.service.predicter.single.ProviderPredicter;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelMemberService;
 import com.welab.wefe.serving.service.service.PredictLogService;
-import com.welab.wefe.serving.service.utils.ModelMapper;
 
 import java.util.List;
 import java.util.Map;
@@ -80,7 +80,7 @@ public class Predicter {
         long start = System.currentTimeMillis();
 
         String seqNo = "", memberId = "";
-        PredictResult result;
+        PredictResult result = null;
 
         boolean requestResult = false;
         PredictParams predictParams = PredictParams.of(featureDataMap);
@@ -98,7 +98,7 @@ public class Predicter {
             requestResult = true;
 
         } finally {
-            log(seqNo, modelId, memberId, predictParams, null, System.currentTimeMillis() - start, requestResult);
+            batchLog(seqNo, modelId, memberId, predictParams, result, System.currentTimeMillis() - start, requestResult);
         }
 
         return result;
@@ -115,7 +115,7 @@ public class Predicter {
 
         long start = System.currentTimeMillis();
 
-        PredictResult result;
+        PredictResult result = null;
 
         boolean requestResult = false;
 
@@ -131,7 +131,7 @@ public class Predicter {
             requestResult = true;
 
         } finally {
-            log(seqNo, modelId, memberId, predictParams, null, System.currentTimeMillis() - start, requestResult);
+            batchLog(seqNo, modelId, memberId, predictParams, result, System.currentTimeMillis() - start, requestResult);
         }
 
         return result;
@@ -283,13 +283,13 @@ public class Predicter {
         );
     }
 
-    private static void log(String seqNo,
-                            String modelId,
-                            String memberId,
-                            PredictParams predictParams,
-                            PredictResult result,
-                            long spend,
-                            boolean requestResult) {
+    private static void batchLog(String seqNo,
+                                 String modelId,
+                                 String memberId,
+                                 PredictParams predictParams,
+                                 PredictResult result,
+                                 long spend,
+                                 boolean requestResult) {
 
         JSONObject request = new JSONObject();
         request.put("seqNo", seqNo);
@@ -298,17 +298,35 @@ public class Predicter {
         request.put("predictParams", predictParams);
 
         //Call record warehousing
-        predictLogService.save(
-                seqNo,
-                modelId,
-                memberId,
-                result == null ? null : result.getAlgorithm(),
-                result == null ? null : result.getType(),
-                result == null ? null : result.getMyRole(),
-                JSON.toJSONString(request),
-                JSON.toJSONString(result),
-                spend,
-                requestResult
+        if (result == null) {
+            predictLogService.save(
+                    seqNo,
+                    modelId,
+                    memberId,
+                    result == null ? null : result.getAlgorithm(),
+                    result == null ? null : result.getType(),
+                    result == null ? null : result.getMyRole(),
+                    JSON.toJSONString(request),
+                    JSON.toJSONString(result),
+                    spend,
+                    requestResult
+            );
+        }
+
+        List<Object> list = (List<Object>) result.getData();
+        list.stream().forEach(x ->
+                predictLogService.save(
+                        seqNo,
+                        modelId,
+                        memberId,
+                        result.getAlgorithm(),
+                        result.getType(),
+                        result.getMyRole(),
+                        JSON.toJSONString(request),
+                        JSON.toJSONString(x),
+                        spend,
+                        requestResult
+                )
         );
     }
 

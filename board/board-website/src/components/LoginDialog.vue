@@ -5,6 +5,7 @@
         :close-on-press-escape="false"
         :show-close="false"
         destroy-on-close
+        append-to-body
         width="400px"
         title="登录"
         center
@@ -22,6 +23,9 @@
                 <el-input
                     v-model="form.password"
                     type="password"
+                    @paste.prevent
+                    @copy.prevent
+                    @contextmenu.prevent
                 />
             </el-form-item>
             <el-form-item label="验证码">
@@ -94,6 +98,7 @@
                     // hide the chat room
                     window.localStorage.setItem(`${window.api.baseUrl}_chat`, 'disconnect');
                     this.$store.commit('SYSTEM_INITED', false);
+                    this.$store.commit('UPDATE_USERINFO', {});
                     this.form.code = '';
                     this.show = true;
                     this.getImgCode();
@@ -182,12 +187,12 @@
     .form-code{
         :deep(.el-input-group__append){
             padding:0;
-            width: 85px;
+            width: 90px;
             overflow: hidden;
         }
     }
     .code-img{
-        width: 85px;
+        width: 90px;
         height: 30px;
         cursor: pointer;
     }

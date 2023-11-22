@@ -1,11 +1,13 @@
 
 ### 登录
-POST {{baseUrl}}/account/login
+POST http://localhost:8080/board-service/account/login
 Content-Type: application/json
 
 {
   "phone_number": "13100000001",
-  "password": "password"
+  "password": "password",
+  "code": "code",
+  "key": "key"
 }
 
 > {%
@@ -21,7 +23,7 @@ client.global.set("token", response.body.data.token);
 
 
 ### 修改密码
-POST {{baseUrl}}/account/update_password
+POST http://localhost:8080/board-service/account/update_password
 Content-Type: application/json
 token: {{token}}
 
@@ -33,7 +35,7 @@ token: {{token}}
 
 
 ### 修改密码后再次登录
-POST {{baseUrl}}/account/login
+POST http://localhost:8080/board-service/account/login
 Content-Type: application/json
 
 {
@@ -53,7 +55,7 @@ client.global.set("token", response.body.data.token);
 
 
 ### 再把密码改回去
-POST {{baseUrl}}/account/update_password
+POST http://localhost:8080/board-service/account/update_password
 Content-Type: application/json
 token: {{token}}
 
@@ -64,7 +66,7 @@ token: {{token}}
 
 
 ### 分页查询
-POST {{baseUrl}}/account/query
+POST http://localhost:8080/board-service/account/query
 Content-Type: application/json
 
 {

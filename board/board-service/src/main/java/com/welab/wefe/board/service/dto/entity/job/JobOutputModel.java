@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,9 +19,10 @@ package com.welab.wefe.board.service.dto.entity.job;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
-import com.welab.wefe.common.enums.FederatedLearningType;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.JobStatus;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.JobStatus;
 
 import java.util.Date;
 
@@ -29,73 +30,39 @@ import java.util.Date;
  * @author zane.luo
  */
 public class JobOutputModel extends AbstractOutputModel {
-    /**
-     * 联邦任务类型（横向/纵向）
-     */
+    @Check(name = "联邦任务类型（横向/纵向）")
     private FederatedLearningType federatedLearningType;
-    /**
-     * 项目ID
-     */
+    @Check(name = "项目ID")
     private String projectId;
-    /**
-     * 流程ID
-     */
+    @Check(name = "流程ID")
     private String flowId;
-    /**
-     * 任务ID
-     */
+    @Check(name = "任务ID")
     private String jobId;
-    /**
-     * 名称
-     */
+    @Check(name = "名称")
     private String name;
-    /**
-     * 我方身份 枚举（promoter/provider/arbiter）
-     */
+    @Check(name = "我方身份 枚举（promoter/provider/arbiter）")
     private JobMemberRole myRole;
-    /**
-     * 状态 枚举
-     */
+    @Check(name = "状态 枚举")
     private JobStatus status;
-    /**
-     * 状态更新时间
-     */
+    @Check(name = "状态更新时间")
     private Date statusUpdatedTime;
-    /**
-     * 开始时间
-     */
+    @Check(name = "开始时间")
     private Date startTime;
-    /**
-     * 结束时间
-     */
+    @Check(name = "结束时间")
     private Date finishTime;
-    /**
-     * 进度
-     */
+    @Check(name = "进度")
     private Integer progress;
-    /**
-     * 进度更新时间
-     */
+    @Check(name = "进度更新时间")
     private Date progressUpdatedTime;
-    /**
-     * 消息备注 失败原因/备注
-     */
+    @Check(name = "消息备注 失败原因/备注")
     private String message;
-    /**
-     * 有向无环图
-     */
+    @Check(name = "有向无环图")
     private JSONObject graph;
-    /**
-     * 是否包含建模结果
-     */
+    @Check(name = "是否包含建模结果")
     private Boolean hasModelingResult;
-    /**
-     * 收藏/置顶/标记
-     */
+    @Check(name = "收藏/置顶/标记")
     private Boolean star;
-    /**
-     * 备注
-     */
+    @Check(name = "备注")
     private String remark;
 
     public JSONObject getGraph() {

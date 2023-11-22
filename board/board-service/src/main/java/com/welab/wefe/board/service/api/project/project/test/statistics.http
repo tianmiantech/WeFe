@@ -1,9 +1,9 @@
 ###
-POST {{baseUrl}}/project/count_statistics
+POST http://localhost:8080/board-service/project/count_statistics
 Content-Type: application/json
 
 {
 }
 
 ###
-GET {{baseUrl}}/project/count_statistics?name=&member_id=1b750c545b494242997e0d0a054fd853&member_name=%E5%85%8B%E5%8A%B3%E5%BE%B7002&member_role=&audit_status=&start_create_time=&end_create_time=&page_index=1&page_size=20&activeTab=myProjects
+GET http://localhost:8080/board-service/project/count_statistics?name=&member_id=1b750c545b494242997e0d0a054fd853&member_name=%E5%85%8B%E5%8A%B3%E5%BE%B7002&member_role=&audit_status=&start_create_time=&end_create_time=&page_index=1&page_size=20&activeTab=myProjects

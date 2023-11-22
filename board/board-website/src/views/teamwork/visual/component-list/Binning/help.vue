@@ -15,7 +15,7 @@
         </template>
 
         <template #output>
-            输出分箱和woe编码后的数据集
+            输出分箱和woe编码后的数据资源
         </template>
 
         <template #error-tip>

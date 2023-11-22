@@ -12,10 +12,10 @@ prod/
 
 config.properties
 template.yml
-Funfile
-ots_init.py
+Funfile_bak
 fc_deploy.sh
-nas.sh
 requirements.txt
 s.yaml
 .fcignore
+apt-get.list
+requirements.txt

@@ -48,48 +48,37 @@ def handler(event, context):
     """
 
     evt = json.loads(event)
-    # get the source,others,destination fcStorage
-    source_fcs_dict, others_fcs_dict, dest_fcs = dataUtil.get_fc_storages_has_other(evt, context)
-    # get data
+
+    source_fcs, dest_fcs = dataUtil.get_fc_storages(evt)
+    other_fcs = dataUtil.get_other_fc_storage(evt)
+
     partition = evt['partition']
-    func = cloudpickle.loads(bytes.fromhex(evt['func']))
-    # do union
-    result = []
-    source_count = len(source_fcs_dict)
-    others_count = len(others_fcs_dict)
-    count = 0
-    if source_count >= others_count:
-        count = others_count
-        result = union(source_fcs_dict, others_fcs_dict, func, True)
+    source_count = source_fcs.count(partition)
+    other_count = other_fcs.count(partition)
+
+    # left more than right
+    left_is_source = True
+    if source_count >= other_count:
+        left_fcs = source_fcs
+        right_fcs = other_fcs
     else:
-        count = source_count
-        result = union(others_fcs_dict, source_fcs_dict, func, False)
-    # put result to destination fcStorage
-    dest_fcs.put_all(result)
-    return dataUtil.fc_result(count=count, partition=partition)
+        left_fcs = other_fcs
+        right_fcs = source_fcs
+        left_is_source = False
+
+    left_dict = dict(dataUtil.get_data_from_fcs(left_fcs, partition))
+    func = cloudpickle.loads(bytes.fromhex(evt['func']))
+
+    right_kv = right_fcs.collect(partition=partition)
+    dest_fcs.put_all(_do_union(right_kv, left_dict, left_is_source, func))
+    return dataUtil.fc_result(count=source_count + other_count, partition=partition)
 
 
-def union(self_k_v, others_k_v, func, self_is_source):
-    """
-
-    Parameters
-    ----------
-    self_k_v: [(k,v)]
-    others_k_v: [(k,v)]
-    func: deal with the self and other's value
-    self_is_source: boolean
-
-    Returns
-    -------
-
-    """
-    self_keys = self_k_v.keys()
-    for k, v in others_k_v.items():
-        if k in self_keys:
-            if self_is_source:
-                self_k_v[k] = func(self_k_v[k], v)
-            else:
-                self_k_v[k] = func(v, self_k_v[k])
+def _do_union(right_kv, left_dict: dict, left_is_source: bool, func):
+    for right_k, right_v in right_kv:
+        if right_k in left_dict:
+            left_v = left_dict.get(right_k)
+            left_dict[right_k] = func(left_v, right_v) if left_is_source else func(right_v, left_v)
         else:
-            self_k_v[k] = others_k_v[k]
-    return self_k_v.items()
+            left_dict[right_k] = right_v
+    return left_dict.items()

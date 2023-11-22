@@ -96,7 +96,7 @@ class PaillierPublicKey(object):
             raise TypeError("plaintext should be int, but got: %s" %
                             type(plaintext))
 
-        if plaintext >= (self.n - self.max_int) and plaintext < self.n:
+        if (self.n - self.max_int) <= plaintext < self.n:
             # Very large plaintext, take a sneaky shortcut using inverses
             neg_plaintext = self.n - plaintext  # = abs(plaintext - nsquare)
             neg_ciphertext = (self.n * neg_plaintext + 1) % self.nsquare
@@ -111,6 +111,8 @@ class PaillierPublicKey(object):
     def encrypt(self, value, precision=None, random_value=None):
         """Encode and Paillier encrypt a real number value.
         """
+        if isinstance(value, FixedPointNumber):
+            value = value.decode()
         encoding = FixedPointNumber.encode(value, self.n, self.max_int, precision)
         obfuscator = random_value or 1
         ciphertext = self.raw_encrypt(encoding.encoding, random_value=obfuscator)
@@ -228,6 +230,12 @@ class PaillierEncryptedNumber(object):
         if not isinstance(self.public_key, PaillierPublicKey):
             raise TypeError("public_key should be a PaillierPublicKey, not: %s" % type(self.public_key))
 
+    def update(self, ciphertext, exponent):
+        self.__ciphertext = ciphertext
+        self.exponent = exponent
+        self.__is_obfuscator = False
+        return self
+
     def ciphertext(self, be_secure=True):
         """return the ciphertext of the PaillierEncryptedNumber.
         """
@@ -266,7 +274,8 @@ class PaillierEncryptedNumber(object):
     def __mul__(self, scalar, in_gpu=False):
         """return Multiply by an scalar(such as int, float)
         """
-
+        if isinstance(scalar, FixedPointNumber):
+            scalar = scalar.decode()
         encode = FixedPointNumber.encode(scalar, self.public_key.n, self.public_key.max_int)
         plaintext = encode.encoding
 
@@ -297,7 +306,7 @@ class PaillierEncryptedNumber(object):
 
         return PaillierEncryptedNumber(self.public_key, ciphertext, exponent)
 
-    def increase_exponent_to(self, new_exponent):
+    def increase_exponent_to(self, new_exponent, in_gpu=False):
         """return PaillierEncryptedNumber:
            new PaillierEncryptedNumber with same value but having great exponent.
         """
@@ -305,6 +314,9 @@ class PaillierEncryptedNumber(object):
             raise ValueError("New exponent %i should be great than old exponent %i" % (new_exponent, self.exponent))
 
         factor = pow(FixedPointNumber.BASE, new_exponent - self.exponent)
+        if in_gpu:
+            mul_param = self.__mul__(factor, in_gpu)
+            return mul_param[0], new_exponent
         new_encryptednumber = self.__mul__(factor)
         new_encryptednumber.exponent = new_exponent
 
@@ -323,6 +335,8 @@ class PaillierEncryptedNumber(object):
     def __add_scalar(self, scalar, in_gpu=False):
         """return PaillierEncryptedNumber: z = E(x) + y
         """
+        if isinstance(scalar, FixedPointNumber):
+            scalar = scalar.decode()
         encoded = FixedPointNumber.encode(scalar,
                                           self.public_key.n,
                                           self.public_key.max_int,
@@ -370,9 +384,9 @@ class PaillierEncryptedNumber(object):
     def __raw_add(self, e_x, e_y, exponent):
         """return the integer E(x + y) given ints E(x) and E(y).
         """
-        ciphertext = e_x * e_y % self.public_key.nsquare
+        ciphertext = gmpy_math.mpz(e_x) * gmpy_math.mpz(e_y) % self.public_key.nsquare
 
-        return PaillierEncryptedNumber(self.public_key, ciphertext, exponent)
+        return PaillierEncryptedNumber(self.public_key, int(ciphertext), exponent)
 
     """
         gpu support
@@ -393,7 +407,7 @@ class PaillierEncryptedNumber(object):
         """
         return self.__mul__(scalar, in_gpu=True)
 
-    def gpu_mul_after(self, ciphertext, encode_exponent):
+    def gpu_mul_after(self, ciphertext, encode_exponent, new_instance=True):
         """
         Restore to struct `PaillierEncryptedNumber` after gpu calculated
         Parameters
@@ -406,7 +420,10 @@ class PaillierEncryptedNumber(object):
 
         """
         exponent = self.exponent + encode_exponent
-        return PaillierEncryptedNumber(self.public_key, ciphertext, exponent)
+        if new_instance:
+            return PaillierEncryptedNumber(self.public_key, ciphertext, exponent)
+        else:
+            return self.update(ciphertext, exponent)
 
     def gpu_add_before(self, other):
         """
@@ -422,7 +439,7 @@ class PaillierEncryptedNumber(object):
         """
         return self.__add__(other, in_gpu=True)
 
-    def gpu_add_after(self, ciphertext, encode_exponent):
+    def gpu_add_after(self, ciphertext, encode_exponent, new_instance=True):
         """
         Restore to struct `PaillierEncryptedNumber` after gpu calculated
 
@@ -435,4 +452,16 @@ class PaillierEncryptedNumber(object):
         -------
 
         """
-        return PaillierEncryptedNumber(self.public_key, ciphertext, encode_exponent)
+        if new_instance:
+            return PaillierEncryptedNumber(self.public_key, ciphertext, encode_exponent)
+        else:
+            return self.update(ciphertext, encode_exponent)
+
+    def gpu_increase_exponent_before(self, new_exponent):
+        return self.increase_exponent_to(new_exponent, in_gpu=True)
+
+    def gpu_increase_exponent_after(self, ciphertext, new_exponent, new_instance=True):
+        if new_instance:
+            return PaillierEncryptedNumber(self.public_key, ciphertext, new_exponent)
+        else:
+            return self.update(ciphertext, new_exponent)

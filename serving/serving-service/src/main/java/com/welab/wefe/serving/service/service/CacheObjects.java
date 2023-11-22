@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,15 +16,16 @@
 
 package com.welab.wefe.serving.service.service;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import org.springframework.data.domain.Sort;
+
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.GlobalSettingMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
 import com.welab.wefe.serving.service.database.serving.repository.GlobalSettingRepository;
-import org.springframework.data.domain.Sort;
-
-import java.util.LinkedHashMap;
-import java.util.List;
 
 /**
  * Global cache
@@ -111,5 +112,22 @@ public class CacheObjects {
         for (AccountMySqlModel item : list) {
             ACCOUNT_MAP.put(item.getId(), item.getNickname());
         }
+    }
+
+    public static LinkedHashMap<String, String> getAccountMap() {
+        if (ACCOUNT_MAP.isEmpty()) {
+            refreshAccountMap();
+        }
+        return ACCOUNT_MAP;
+    }
+
+    /**
+     * Get the account's nickname
+     */
+    public static String getNickname(String accountId) {
+        if (accountId == null) {
+            return null;
+        }
+        return getAccountMap().get(accountId) == null ? "未知" : getAccountMap().get(accountId);
     }
 }

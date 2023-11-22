@@ -58,7 +58,7 @@ export default {
                     const route = this.$router.options.routes.find(route => route.path === `${prefixPath}task`);
 
                     if (route) {
-                        const menu = route.children.find(child => child.name === 'task-pending-list');
+                        const menu = route.children.find(child => child.name === 'task-list');
 
                         if (menu) {
                             menu.meta.tips = data.total;

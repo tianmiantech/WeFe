@@ -18,6 +18,8 @@ import random
 import gmpy2
 
 from common.python import session
+from common.python.calculation.acceleration.aclr import dh_encrypt_id
+from common.python.calculation.acceleration.utils import aclr_utils
 from common.python.utils import log_utils
 from kernel.components.intersection.intersect import DhIntersect
 from kernel.security.diffie_hellman import DiffieHellman
@@ -54,6 +56,7 @@ class DhIntersectionProvider(DhIntersect):
         LOGGER.info("Start dh intersection")
         abnormal_detection.empty_table_detection(data_instances)
         _, self.p = self.get_dh_key()
+        self.p = self.p + 1 if self.p % 2 == 0 else self.p         # force to odd
         LOGGER.info("Get dh key!")
         public_mod = {"p": self.p}
 
@@ -63,14 +66,22 @@ class DhIntersectionProvider(DhIntersect):
         LOGGER.info("Remote public mod to Promoter.")
 
         # (provider_eid, id)
-        provider_ids = data_instances.map(lambda k, v: self.encrypt_ids_process(k, True))
+        if aclr_utils.check_aclr_support():
+            provider_ids = dh_encrypt_id(data_instances, int(self.r), int(self.p), True)
+        else:
+            provider_ids = data_instances.map(lambda k, v: self.encrypt_ids_process(k, True))
         raw_provider_ids = provider_ids.mapValues(lambda v: 1, need_send=True)
         self.transfer_variable.intersect_provider_ids_process.remote(raw_provider_ids,
                                                                      role=consts.PROMOTER,
                                                                      idx=0)
 
         promoter_ids = self.transfer_variable.intersect_promoter_ids.get(idx=0)
-        encrypt_promoter_ids = promoter_ids.map(lambda k, v: self.encrypt_ids_process(k), need_send=True)
+
+        if aclr_utils.check_aclr_support():
+            encrypt_promoter_ids = dh_encrypt_id(promoter_ids, int(self.r), int(self.p))
+        else:
+            encrypt_promoter_ids = promoter_ids.map(lambda k, v: self.encrypt_ids_process(k), need_send=True)
+
         self.transfer_variable.intersect_promoter_ids_process.remote(encrypt_promoter_ids,
                                                                      role=consts.PROMOTER,
                                                                      idx=0)

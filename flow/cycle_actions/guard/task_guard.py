@@ -47,6 +47,8 @@ class TaskGuard(threading.Thread):
                 # Detect the heartbeat of each task, temporarily use the task.update field
                 self.check_task_alive(task)
 
+            time.sleep(5)
+
     def check_task_alive(self, task):
         time_format_str = "%Y-%m-%d %H:%M:%S"
         now = datetime.datetime.strptime(

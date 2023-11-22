@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author hunter.zhao
  */
-@Api(path = "partner/paging", name = "任务列表", desc = "任务列表", login = true)
+@Api(path = "partner/paging", name = "合作伙伴", desc = "任务列表")
 public class PagingApi extends AbstractApi<PagingApi.Input, PagingOutput<PartnerMySqlModel>> {
     @Autowired
     PartnerService partnerService;
@@ -42,29 +42,29 @@ public class PagingApi extends AbstractApi<PagingApi.Input, PagingOutput<Partner
 
 
     public static class Input extends PagingInput {
-        @Check(name = "指定操作的taskId")
-        private String partnerId;
+        @Check(name = "合作伙伴id")
+        private String memberId;
 
-        @Check(name = "任务状态")
-        private String name;
+        @Check(name = "合作方名称")
+        private String memberName;
 
 
         //region
 
-        public String getPartnerId() {
-            return partnerId;
+        public String getMemberId() {
+            return memberId;
         }
 
-        public void setPartnerId(String partnerId) {
-            this.partnerId = partnerId;
+        public void setMemberId(String memberId) {
+            this.memberId = memberId;
         }
 
-        public String getName() {
-            return name;
+        public String getMemberName() {
+            return memberName;
         }
 
-        public void setName(String name) {
-            this.name = name;
+        public void setMemberName(String memberName) {
+            this.memberName = memberName;
         }
 
 

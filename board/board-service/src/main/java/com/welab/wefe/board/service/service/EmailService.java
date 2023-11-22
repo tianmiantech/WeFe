@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,14 +16,14 @@
 
 package com.welab.wefe.board.service.service;
 
-import com.welab.wefe.board.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.entity.MessageMysqlModel;
 import com.welab.wefe.board.service.dto.globalconfig.MailServerModel;
 import com.welab.wefe.board.service.service.account.AccountService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.common.enums.MessageLevel;
-import com.welab.wefe.common.enums.ProducerType;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.enums.MessageLevel;
+import com.welab.wefe.common.wefe.enums.ProducerType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSendException;
@@ -48,9 +48,9 @@ import java.util.Set;
 public class EmailService extends AbstractService {
     private static final String MAIL_DEFAULT_ENCODING = "UTF-8";
     private static final String MAIL_SMTP_AUTH = "true";
-    private static final String MAIL_SMTP_WRITE_TIMEOUT = "5000";
-    private static final String MAIL_SMTP_TIMEOUT = "5000";
-    private static final String MAIL_SMTP_CONNECTION_TIMEOUT = "5000";
+    private static final String MAIL_SMTP_WRITE_TIMEOUT = "30000";
+    private static final String MAIL_SMTP_TIMEOUT = "30000";
+    private static final String MAIL_SMTP_CONNECTION_TIMEOUT = "30000";
 
     @Autowired
     private MessageService messageService;
@@ -136,6 +136,33 @@ public class EmailService extends AbstractService {
         return new HashSet<>(16);
     }
 
+    /**
+     * Send multiple emails
+     *
+     * @param from    Sender
+     * @param to      Recipient
+     * @param subject subject
+     * @param content content
+     */
+    public void sendMail(String from, String to, String subject, String content) throws Exception {
+        JavaMailSenderImpl javaMailSender = getMailSender();
+
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper mineHelper = new MimeMessageHelper(mimeMessage, true);
+        mineHelper.setFrom(from);
+        mineHelper.setTo(to);
+        mineHelper.setSubject(subject);
+        mineHelper.setText(content, true);
+
+        try {
+            javaMailSender.send(mimeMessage);
+        } catch (Exception e) {
+            LOG.error("Sending mail exception：", e);
+            throw e;
+        }
+    }
+
+
 
     /**
      * Get message sender
@@ -171,6 +198,8 @@ public class EmailService extends AbstractService {
         mailProperties.setProperty("mail.smtp.writetimeout", MAIL_SMTP_WRITE_TIMEOUT);
         mailProperties.setProperty("mail.smtp.timeout", MAIL_SMTP_TIMEOUT);
         mailProperties.setProperty("mail.smtp.connectiontimeout", MAIL_SMTP_CONNECTION_TIMEOUT);
+        mailProperties.setProperty("mail.smtp.ssl.enable", "true");
+        mailProperties.setProperty("mail.debug", "true");
         javaMailSender.setJavaMailProperties(mailProperties);
 
         return javaMailSender;
@@ -182,9 +211,9 @@ public class EmailService extends AbstractService {
      */
     private Set<String> getTotalEmails() {
         Set<String> totalEmails = new HashSet<>(16);
-        List<AccountMySqlModel> accountMySqlModelList = accountService.queryAll();
-        if (CollectionUtils.isNotEmpty(accountMySqlModelList)) {
-            for (AccountMySqlModel model : accountMySqlModelList) {
+        List<AccountMysqlModel> accountMysqlModelList = accountService.queryAll();
+        if (CollectionUtils.isNotEmpty(accountMysqlModelList)) {
+            for (AccountMysqlModel model : accountMysqlModelList) {
                 if (StringUtil.isNotEmpty(model.getEmail())) {
                     totalEmails.add(model.getEmail());
                 }

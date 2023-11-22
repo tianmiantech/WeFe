@@ -1,4 +1,4 @@
-POST {{baseUrl}}/project/flow/update/graph
+POST http://localhost:8080/board-service/project/flow/update/graph
 Content-Type: application/json
 token: {{token}}
 

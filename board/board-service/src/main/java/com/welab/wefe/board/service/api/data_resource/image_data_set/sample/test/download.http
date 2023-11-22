@@ -1,0 +1,8 @@
+
+### 修改数据集
+POST http://localhost:8080/board-service/image_data_set_sample/download
+Content-Type: application/json
+
+{
+  "id": "02ad0876389241e58a846069508ce1d3"
+}

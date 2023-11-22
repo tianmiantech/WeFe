@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,10 +20,10 @@ import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.database.entity.job.JobMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectFlowNodeMySqlModel;
-import com.welab.wefe.board.service.exception.FlowNodeException;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.JobMemberRole;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -155,8 +155,8 @@ public class FlowGraphNode extends ProjectFlowNodeMySqlModel {
         try {
             paramsModel = Components
                     .get(super.getComponentType())
-                    .deserializationParam(this, super.getParams());
-        } catch (FlowNodeException e) {
+                    .deserializationParam(super.getParams());
+        } catch (StatusCodeWithException e) {
             return null;
         }
         return paramsModel;

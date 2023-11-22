@@ -15,6 +15,7 @@
 import json
 import numpy as np
 from comm import dataUtil
+from comm.stat import Stat
 
 
 def handler(event, context):
@@ -46,21 +47,23 @@ def handler(event, context):
     """
 
     evt = json.loads(event)
+    stat = Stat()
+
     # get the source and destination fcStorage
     source_fcs, dest_fcs = dataUtil.get_fc_storages(evt)
     partition = evt['partition']
     source_k_v = source_fcs.collect(partition=partition, debug_info=dataUtil.get_request_id(context))
     seed = int(evt['seed'])
     fraction = float(evt['fraction'])
-    random_state = np.random.RandomState(seed)
+
     # do sample
-    result = []
-    count = 0
+    dest_fcs.put_all(_do_sample(source_k_v, seed, fraction, stat))
+    return dataUtil.fc_result(count=stat.count, partition=partition)
+
+
+def _do_sample(source_k_v, seed, fraction, stat: Stat):
+    random_state = np.random.RandomState(seed)
     for k, v in source_k_v:
-        count += 1
+        stat.incr()
         if random_state.rand() < fraction:
-            result.append((k, v))
-    # put result to destination fcStorage
-    if len(result) > 0:
-        dest_fcs.put_all(result)
-    return dataUtil.fc_result(count=count, partition=partition)
+            yield k, v

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package com.welab.wefe.board.service.api.member;
 
 import com.welab.wefe.board.service.service.SystemInitializeService;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.StandardFieldType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -65,6 +66,9 @@ public class InitializeApi extends AbstractNoneOutputApi<InitializeApi.Input> {
         @Check(name = "是否允许对外公开数据集基础信息", require = true)
         private Boolean memberAllowPublicDataSet;
 
+        @Check(name = "密钥类型")
+        private SecretKeyType secretKeyType = SecretKeyType.rsa;
+
         //region getter/setter
 
         public String getMemberName() {
@@ -99,6 +103,13 @@ public class InitializeApi extends AbstractNoneOutputApi<InitializeApi.Input> {
             this.memberAllowPublicDataSet = memberAllowPublicDataSet;
         }
 
+        public SecretKeyType getSecretKeyType() {
+            return secretKeyType;
+        }
+
+        public void setSecretKeyType(SecretKeyType secretKeyType) {
+            this.secretKeyType = secretKeyType;
+        }
         //endregion
     }
 

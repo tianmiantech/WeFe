@@ -1,4 +1,4 @@
-POST {{baseUrl}}/gateway/test/redirect
+POST http://localhost:8080/board-service/gateway/test/redirect
 Content-Type: application/json
 
 {

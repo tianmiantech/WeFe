@@ -13,6 +13,7 @@
             </el-form-item> -->
             <el-button
                 type="primary"
+                class="inline-block"
                 native-type="submit"
                 @click="getList({ resetPagination: true })"
             >
@@ -44,7 +45,7 @@
                                 class="link"
                                 :to="{ name: member.id === userInfo.member_id ? 'data-list' : 'union-data-list', query: { member_id: member.id }}"
                             >
-                                查看数据集
+                                查看数据资源
                             </router-link>
                         </div>
                     </MemberCard>

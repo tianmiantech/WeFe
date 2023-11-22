@@ -1,9 +1,17 @@
-POST {{baseUrl}}/project/modeling/query
+POST http://localhost:8080/board-service/project/modeling/query
 Content-Type: application/json
 
 {
   "projectId": "ac6c60a15875487f8b32864512920653",
-  "componentType":"HorzLR"
+  "componentType": "HorzLR"
 }
 
 ###
+POST http://localhost:8080/board-service/project/modeling/query
+Content-Type: application/json
+token: {{token}}
+
+{
+  "projectId": "35ef81d771e24bd09c77a432652061b3",
+  "job_id": "eded9797545a4cfa93faa5e2af3b30fc"
+}

@@ -66,7 +66,6 @@ export default {
                 id:   '',
                 name: '',
             },
-            // hideRelateSourceTab: false,
         };
     },
     watch: {
@@ -98,10 +97,12 @@ export default {
             });
         },
 
-        async loadDataList() {
-            const ref = this.$refs['raw'];
+        loadDataList() {
+            this.$nextTick(() => {
+                const ref = this.$refs['raw'];
 
-            ref.getDataList();
+                ref.getDataList();
+            });
         },
 
 

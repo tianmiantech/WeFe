@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,16 +16,17 @@
 
 package com.welab.wefe.serving.service.api.model;
 
-import com.welab.wefe.common.enums.Algorithm;
-import com.welab.wefe.common.enums.FederatedLearningType;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.PredictFeatureDataSource;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.Algorithm;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostDecisionTreeModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostNodeModel;
@@ -42,7 +43,8 @@ import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelService;
 import com.welab.wefe.serving.service.service.ModelSqlConfigService;
-import com.welab.wefe.serving.service.utils.ModelMapper;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
@@ -68,11 +70,10 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
     @Override
     protected ApiResult<DetailApi.Output> handle(Input input) {
 
-        Optional<ModelMySqlModel> modelMySqlModel = modelRepository.findById(input.getId());
-        if (modelMySqlModel == null) {
+        ModelMySqlModel model = modelRepository.findOne("id", input.getId(), ModelMySqlModel.class);
+        if (model == null) {
             return fail("No model was found");
         }
-        ModelMySqlModel model = modelMySqlModel.get();
 
         DetailApi.Output output = ModelMapper.map(model, DetailApi.Output.class);
 
@@ -146,6 +147,14 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
             List<XgboostNodeModel> tree = trees.get(i).getTree();
             Map<Integer, Double> splitMaskdict = trees.get(i).getSplitMaskdict();
 
+            //When the tree is on each other
+            if (CollectionUtils.isEmpty(tree)) {
+                TreeNode node = new TreeNode();
+                node.setId(i + "-" + 0);
+                xgboost.add(node);
+                continue;
+            }
+
             //Composite node
             for (XgboostNodeModel xgboostNodeModel : tree) {
                 //Find child nodes
@@ -161,7 +170,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
                 data.setSitename(xgboostNodeModel.getSitename().split(":", -1)[0]);
                 data.setWeight(xgboostNodeModel.getWeight());
                 data.setThreshold(
-                        output.flType == FederatedLearningType.vertical ?
+                        output.flType == FederatedLearningType.vertical && MapUtils.isNotEmpty(splitMaskdict) ?
                                 splitMaskdict.get(xgboostNodeModel.getId()) : xgboostNodeModel.getBid());
 
                 map.put(xgboostNodeModel.getId(), node);
@@ -169,8 +178,9 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
             //Traversing the processing node tree
             TreeNode root = map.get(0);
-            recursive(map, root);
-
+            if (root.getData().getLeftNode() != -1 && root.getData().getRightNode() != -1) {
+                recursive(map, root);
+            }
             xgboost.add(root);
         }
     }

@@ -14,6 +14,7 @@
 
 import json
 from comm import dataUtil
+from comm.stat import Stat
 from common.python.utils import cloudpickle
 
 
@@ -47,22 +48,24 @@ def handler(event, context):
     """
 
     evt = json.loads(event)
+    stat = Stat()
+
     # get the source and destination fcStorage
     source_fcs, dest_fcs = dataUtil.get_fc_storages(evt)
+
     # get data
     partition = evt['partition']
     source_k_v = source_fcs.collect(partition=partition, debug_info=dataUtil.get_request_id(context))
+
     # do filter
     func = cloudpickle.loads(bytes.fromhex(evt['func']))
-    result = []
 
-    count = 0
+    dest_fcs.put_all(_do_filter(source_k_v, func, stat))
+    return dataUtil.fc_result(count=stat.count, partition=partition)
+
+
+def _do_filter(source_k_v, func, stat: Stat):
     for k, v in source_k_v:
-        count += 1
+        stat.incr()
         if func(k, v):
-            result.append((k, v))
-    # put result
-    if len(result) > 0:
-        dest_fcs.put_all(result)
-
-    return dataUtil.fc_result(count=count, partition=partition)
+            yield k, v

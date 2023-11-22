@@ -3,11 +3,10 @@
         <h4 class="mb10">VertSecureBoost参数设置</h4>
         <el-form
             ref="form"
+            class="flex-form"
             :model="vData.form"
             :disabled="disabled"
-            label-width="130px"
             @submit.prevent
-            inline
         >
             <el-collapse v-model="vData.activeNames">
                 <el-collapse-item title="模型参数" name="1">
@@ -41,6 +40,7 @@
                         <el-input
                             v-model.trim="vData.form.tree_param.max_depth"
                             placeholder="5"
+                            :disabled="vData.form.other_param.work_mode === 'layered'"
                         />
                     </el-form-item>
                     <el-form-item label="特征随机采样比率">
@@ -67,7 +67,7 @@
 
                     <el-form-item
                         prop="tol"
-                        label="收敛阀值"
+                        label="收敛阈值"
                     >
                         <el-input
                             v-model="vData.form.other_param.tol"
@@ -101,9 +101,64 @@
                             placeholder="5"
                         />
                     </el-form-item>
+
+                    <el-form-item
+                        prop="work_mode"
+                        label="工作模式"
+                    >
+                        <el-select
+                            v-model="vData.form.other_param.work_mode"
+                            clearable
+                        >
+                            <el-option
+                                label="普通模式"
+                                value="normal"
+                            />
+                            <template v-if="vData.member_list.length === 2">
+                                <el-option
+                                    label="layered 模式"
+                                    value="layered"
+                                />
+                            </template>
+                            <el-option
+                                label="skip 模式"
+                                value="skip"
+                            />
+                            <el-option
+                                label="dp 模式"
+                                value="dp"
+                            />
+                        </el-select>
+                    </el-form-item>
+                    <template v-if="vData.form.other_param.work_mode === 'dp'">
+                        <el-form-item label="隐私预算">
+                            <el-input v-model="vData.form.other_param.epsilon" />
+                        </el-form-item>
+                        <p
+                            v-if="vData.form.other_param.epsilon && vData.form.other_param.bin_num"
+                            style="padding-left:90px;"
+                            class="f12"
+                        >
+                            有 {{ ((vData.form.other_param.bin_num - 1) / (Math.E ** vData.form.other_param.epsilon + vData.form.other_param.bin_num - 1) * 100).toFixed(2) }}% 的概率移动到其他箱中
+                        </p>
+                    </template>
+                    <el-form-item
+                        v-if="vData.form.other_param.work_mode === 'skip'"
+                        label="单方每次构建树的数量"
+                    >
+                        <el-input v-model="vData.tree_num_per_member" />
+                    </el-form-item>
+                    <template v-if="vData.form.other_param.work_mode === 'layered'">
+                        <el-form-item label="promoter深度">
+                            <el-input v-model="vData.promoter_depth" @change="methods.depthChange" />
+                        </el-form-item>
+                        <el-form-item label="provider深度">
+                            <el-input v-model="vData.provider_depth" @change="methods.depthChange" />
+                        </el-form-item>
+                    </template>
                 </el-collapse-item>
                 <el-collapse-item title="tree param" name="2">
-                    <el-form-item label="标准函数">
+                    <el-form-item label="L2 正则项系数">
                         <el-input
                             v-model="vData.form.tree_param.criterion_method"
                             placeholder="如 xgboost"
@@ -113,6 +168,7 @@
                         <el-input
                             v-model="vData.form.tree_param.criterion_params"
                             placeholder="支持 0.1,0.2 区间范围"
+                            @input="methods.replaceComma"
                         />
                     </el-form-item>
                     <el-form-item label="分裂一个内部节点(非叶子节点)需要的最小样本">
@@ -131,12 +187,6 @@
                         <el-input
                             v-model="vData.form.tree_param.min_impurity_split"
                             placeholder="0.001"
-                        />
-                    </el-form-item>
-                    <el-form-item label="可拆分的最大并样本量">
-                        <el-input
-                            v-model="vData.form.tree_param.max_split_nodes"
-                            placeholder="65536"
                         />
                     </el-form-item>
                 </el-collapse-item>
@@ -162,7 +212,11 @@
                         />
                     </el-form-item>
                 </el-collapse-item>
-                <el-collapse-item title="encrypt param" name="4">
+                <el-collapse-item
+                    v-if="vData.form.other_param.work_mode !== 'dp'"
+                    title="encrypt param"
+                    name="4"
+                >
                     <el-form-item
                         prop="encrypt_param__method"
                         label="同态加密方法"
@@ -225,18 +279,16 @@
 </template>
 
 <script>
-    import { reactive } from 'vue';
+    import { getCurrentInstance, reactive } from 'vue';
     import dataStore from '../data-store-mixin';
 
     const XGBoost = {
         tree_param: {
-            criterion_method:   'xgboost',
-            criterion_params:   '0.1',
-            max_depth:          5,
+            criterion_params:   0.1,
+            max_depth:          3,
             min_sample_split:   2,
             min_leaf_node:      1,
             min_impurity_split: 0.001,
-            max_split_nodes:    65536,
         },
         objective_param: {
             objective: 'cross_entropy',
@@ -253,13 +305,15 @@
         other_param: {
             task_type:              'classification',
             learning_rate:          0.1,
-            num_trees:              100,
-            subsample_feature_rate: 0.8,
+            subsample_feature_rate: 1.0,
             n_iter_no_change:       true,
             tol:                    0.0001,
+            num_trees:              10,
             bin_num:                50,
             validation_freqs:       10,
             early_stopping_rounds:  5,
+            work_mode:              'dp',
+            epsilon:                3,
         },
     };
 
@@ -275,7 +329,11 @@
             class:        String,
         },
         setup(props) {
+            const { appContext } = getCurrentInstance();
+            const { $http } = appContext.config.globalProperties;
+
             let vData = reactive({
+                member_list: [],
                 penaltyList: [
                     { value: 'L1',text: 'L1' },
                     { value: 'L2',text: 'L2' },
@@ -322,19 +380,70 @@
                     { value: 'Paillier', text: 'Paillier' },
                 ],
 
-                originForm:  { ...XGBoost },
-                form:        { ...XGBoost },
-                activeNames: ['1'],
+                originForm:          { ...XGBoost },
+                form:                { ...XGBoost },
+                activeNames:         ['1'],
+                tree_num_per_member: 1,
+                promoter_depth:      1,
+                provider_depth:      2,
             });
 
             let methods = {
+                replaceComma(val) {
+                    if (val.indexOf('，') !== -1) {
+                        val = val.replace(/，/ig, ',');
+                    }
+                    vData.form.tree_param.criterion_params = val;
+                },
+                depthChange() {
+                    vData.form.tree_param.max_depth =  Number(vData.promoter_depth) + Number(vData.provider_depth);
+                },
                 formatter(params) {
                     vData.form = params;
+                    vData.tree_num_per_member = params.other_param.tree_num_per_member || 1;
+                    vData.promoter_depth = params.other_param.promoter_depth || 1;
+                    vData.provider_depth = params.other_param.provider_depth || 2;
+
                     if(Array.isArray(params.tree_param.criterion_params)) {
                         vData.form.tree_param.criterion_params = params.tree_param.criterion_params.join('');
                     }
                     if(Array.isArray(params.objective_param.params)) {
                         vData.form.objective_param.params = params.objective_param.params.join('');
+                    }
+                },
+                async getNodeDetail(model) {
+                    const { code, data } = await $http.get({
+                        url:    '/project/flow/node/detail',
+                        params: {
+                            nodeId:  model.id,
+                            flow_id: props.flowId,
+                        },
+                    });
+
+                    if (code === 0 && data && data.params && data.params.tree_param.criterion_params) {
+                        vData.form.cv_param = data.params.cv_param;
+                        vData.form.encrypt_param = data.params.encrypt_param;
+                        vData.form.objective_param = data.params.objective_param;
+                        vData.form.other_param = data.params.other_param;
+                        vData.form.tree_param = data.params.tree_param;
+                        vData.form.tree_param.criterion_params = data.params.tree_param.criterion_params.join(',');
+                    }
+                },
+                async getNodeData() {
+                    const { code, data } = await $http.get({
+                        url:    '/flow/dataset/info',
+                        params: {
+                            flow_id: props.flowId,
+                        },
+                    });
+
+                    if (code === 0) {
+                        if (data.flow_data_set_features.length) {
+                            const members = data.flow_data_set_features[0].members || [];
+
+                            // eslint-disable-next-line require-atomic-updates
+                            vData.member_list = members;
+                        }
                     }
                 },
                 checkParams() {
@@ -350,7 +459,7 @@
                         },
                     } = vData.form;
 
-                    if(criterion_params.includes(',')) {
+                    if(String(criterion_params).includes(',')) {
                         $params.tree_param.criterion_params = criterion_params.split(',').map(str => +str);
                     } else {
                         $params.tree_param.criterion_params = [+criterion_params];
@@ -361,11 +470,23 @@
                         $params.objective_param.params = [+params];
                     }
 
+                    if($params.other_param.work_mode === 'skip') {
+                        $params.other_param.tree_num_per_member = vData.tree_num_per_member;
+                    }
+
+                    if($params.other_param.work_mode === 'layered') {
+                        $params.other_param.promoter_depth = +vData.promoter_depth;
+                        $params.other_param.provider_depth = +vData.provider_depth;
+                        $params.tree_param.max_depth = +vData.promoter_depth + (+vData.provider_depth);
+                    }
+
                     return {
                         params: $params,
                     };
                 },
             };
+
+            methods.getNodeData();
 
             const { $data, $methods } = dataStore.mixin({
                 props,
@@ -388,9 +509,8 @@
     .el-form-item{
         margin-bottom: 10px;
         :deep(.el-form-item__label){
-            text-align: left;
-            font-size: 12px;
-            display: block;
+            max-width:200px;
+            flex: 1;
         }
     }
     .el-collapse-item {

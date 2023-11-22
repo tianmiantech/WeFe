@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,8 +19,9 @@ package com.welab.wefe.board.service.dto.entity.job;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.TaskStatus;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.TaskStatus;
 
 import java.util.Date;
 
@@ -28,65 +29,35 @@ import java.util.Date;
  * @author seven.zeng
  */
 public class TaskOutputModel extends AbstractOutputModel {
-    /**
-     * 名称
-     */
+    @Check(name = "名称")
     private String name;
-    /**
-     * 任务Id
-     */
+    @Check(name = "任务Id")
     private String jobId;
-    /**
-     * 业务ID，多方唯一
-     */
+    @Check(name = "业务ID，多方唯一")
     private String taskId;
-    /**
-     * 流程号
-     */
+    @Check(name = "流程号")
     private String flowId;
-    /**
-     * 任务在流程中的节点Id
-     */
+    @Check(name = "任务在流程中的节点Id")
     private String flowNodeId;
-    /**
-     * 子任务的父节点
-     */
+    @Check(name = "子任务的父节点")
     private String parentTaskIdList;
-    /**
-     * 子任务依赖
-     */
+    @Check(name = "子任务依赖")
     private String dependenceList;
-    /**
-     * 子任务类型;枚举（DataIO/Intersection/HeteroLR...）
-     */
+    @Check(name = "子任务类型;枚举（DataIO/Intersection/HeteroLR...）")
     private ComponentType taskType;
-    /**
-     * 任务conf_json
-     */
+    @Check(name = "任务conf_json")
     private JSONObject taskConf;
-    /**
-     * 状态;枚举（created/running/canceled/success/error）
-     */
+    @Check(name = "状态;枚举（created/running/canceled/success/error）")
     private TaskStatus status;
-    /**
-     * 开始时间
-     */
+    @Check(name = "开始时间")
     private Date startTime;
-    /**
-     * 结束时间
-     */
+    @Check(name = "结束时间")
     private Date finishTime;
-    /**
-     * 消息备注;失败原因/备注
-     */
+    @Check(name = "消息备注;失败原因/备注")
     private String message;
-    /**
-     * 发生错误的详细原因，通常是堆栈信息。
-     */
+    @Check(name = "发生错误的详细原因，通常是堆栈信息。")
     private String errorCause;
-    /**
-     * task执行顺序
-     */
+    @Check(name = "task执行顺序")
     private Integer position;
     private Integer spend;
 

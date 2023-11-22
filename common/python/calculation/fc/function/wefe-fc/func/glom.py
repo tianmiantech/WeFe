@@ -57,7 +57,7 @@ def handler(event, context):
     for k, v in source_k_v:
         count += 1
         result.append((k, v))
-    # put result to ots
+    # put result to storage
     if len(result) == 0:
         return dataUtil.fc_result(count=count, partition=partition)
     dest_fcs.put_all([(partition, result)])

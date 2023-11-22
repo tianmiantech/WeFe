@@ -14,7 +14,8 @@ import App from './App.vue';
 
 const context = process.env.CONTEXT_ENV.replace(/\//g, '');
 const tail = process.env.NODE_ENV === 'production' && process.env.TAIL ? `-${context.substr(context.length - 2)}` : '';
-const proxyPrefix = process.env.NODE_ENV === 'development' ? '/api' : process.env[`VUE_APP_${process.env.DEPLOY_ENV.toUpperCase()}`] + `${!process.env.DEPLOY_ENV.includes('prod') ? tail : ''}`; // http(s) url + context, e.g. https://test.com/[context/]login
+const apiPrefix = process.env.NODE_ENV === 'development' ? '/api' : process.env[`VUE_APP_${process.env.DEPLOY_ENV.toUpperCase()}`] + `${!process.env.DEPLOY_ENV.includes('prod') ? tail : ''}`; // http(s) url + context, e.g. https://test.com/[context/]login
+const proxyPrefix = apiPrefix === '/api' ? apiPrefix : /^http[s]{0,1}:./.test(apiPrefix) ? apiPrefix : location.origin;
 const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV}`;
 
 // global api
@@ -39,8 +40,8 @@ app.use(components)
     .use(store(app))
     .mount('#app');
 // global error handler
-app.config.errorHandler = ({ message }, vm, info) => {
-    console.log(message);
+app.config.errorHandler = (error, vm, info) => {
+    console.log(error);
     /* setTimeout(() => {
         app.config.globalProperties.$message.error(`发生错误: ${message}, 请刷新重试`);
     }, 200); */

@@ -1,20 +1,26 @@
 cmake_minimum_required(VERSION 3.6)
 
 project(gpu_lib)
+
+# to replace you environment
+set(MY_PYTHON_ROOT "/data/miniconda3/envs/wefe_python37")
+set(MY_PROJECT_ROOT "/home/xxx/data/code/wefe.git")
+
 # set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}")
 
 find_package(CUDA)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+
 # find_package(GMP REQUIRED)
-
 # find_package(PythonLibs 3.6 REQUIRED)
-set(PYTHON_INCLUDE_DIRS "/data/environment/miniconda3/envs/wefe-python37/include/python3.7m")
-set(PYTHON_LIBRARIES "/data/environment/miniconda3/envs/wefe-python37/lib")
 
-set(CGBN_INCLUDES "/home/welab/PycharmProjects/Wefe/acceleration/GPU/CGBN/include")
-set(PYBIND11_INCLUDE "/home/welab/PycharmProjects/Wefe/acceleration/tools/pybind11/include")
+set(PYTHON_INCLUDE_DIRS "${MY_PYTHON_ROOT}/include/python3.7m")
+set(PYTHON_LIBRARIES "${MY_PYTHON_ROOT}/lib")
+
+set(CGBN_INCLUDES "${MY_PROJECT_ROOT}/common/python/calculation/acceleration/libs/GPU/CGBN/include")
+set(PYBIND11_INCLUDE "${MY_PROJECT_ROOT}/common/python/calculation/acceleration/libs/tools/pybind11/include")
 
 SET(CUDA_NVCC_FLAGS -arch=sm_61)
 # SET(CUDA_NVCC_FLAGS arch=sm_35)

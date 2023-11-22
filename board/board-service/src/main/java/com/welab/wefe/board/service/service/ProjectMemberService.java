@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,20 +17,20 @@
 package com.welab.wefe.board.service.service;
 
 import com.welab.wefe.board.service.api.project.member.AddApi;
-import com.welab.wefe.board.service.api.project.member.ListApi;
+import com.welab.wefe.board.service.api.project.member.ListInProjectApi;
 import com.welab.wefe.board.service.database.entity.job.*;
 import com.welab.wefe.board.service.database.repository.ProjectMemberAuditRepository;
 import com.welab.wefe.board.service.database.repository.ProjectMemberRepository;
 import com.welab.wefe.board.service.dto.entity.ProjectMemberInput;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.AuditStatus;
-import com.welab.wefe.common.enums.FederatedLearningType;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.OrderBy;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -346,7 +346,7 @@ public class ProjectMemberService {
 
     }
 
-    public List<ProjectMemberMySqlModel> findList(ListApi.Input input) throws StatusCodeWithException {
+    public List<ProjectMemberMySqlModel> findList(ListInProjectApi.Input input) throws StatusCodeWithException {
         List<ProjectMemberMySqlModel> projectMemberMySqlModelList = findListByProjectId(input.getProjectId());
         if (StringUtil.isEmpty(input.getOotJobId())) {
             return projectMemberMySqlModelList;
@@ -386,5 +386,19 @@ public class ProjectMemberService {
         return resultList;
     }
 
+    /**
+     * Get the list of official providers in the project
+     */
+    public List<ProjectMemberMySqlModel> listFormalProjectProviders(String projectId) {
+        Specification<ProjectMemberMySqlModel> where = Where
+                .create()
+                .equal("projectId", projectId)
+                .equal("auditStatus", AuditStatus.agree)
+                .equal("exited", false)
+                .equal("memberRole", JobMemberRole.provider)
+                .build(ProjectMemberMySqlModel.class);
+
+        return projectMemberRepo.findAll(where);
+    }
 
 }

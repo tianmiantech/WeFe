@@ -1,4 +1,4 @@
-POST {{baseUrl}}/project/flow/delete
+POST http://localhost:8080/board-service/project/flow/delete
 Content-Type: application/json
 
 {

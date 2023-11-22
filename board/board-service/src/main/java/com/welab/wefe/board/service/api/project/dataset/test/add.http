@@ -1,4 +1,4 @@
-POST {{baseUrl}}/project/data_set/add
+POST http://localhost:8080/board-service/project/data_set/add
 Content-Type: application/json
 
 {
@@ -8,6 +8,22 @@ Content-Type: application/json
       "member_role": "provider",
       "member_id": "682d087e965a4c5d8a2807a772a571c1",
       "data_set_id": "bc7a824f64da488ab4e849504f3cd270"
+    }
+  ]
+}
+
+###
+
+POST http://localhost:8080/board-service/project/data_set/add
+Content-Type: application/json
+
+{
+  "project_id": "76c0bab0068f4ff9989592b3185e6ea9",
+  "dataSetList": [
+    {
+      "member_role": "provider",
+      "member_id": "cbd2c82da50d4408877061e3e981f8ae",
+      "data_set_type": "ImageDataSet"
     }
   ]
 }

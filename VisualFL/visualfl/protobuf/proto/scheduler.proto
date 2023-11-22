@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package visualfl;
+
+service Scheduler {
+  rpc Init(Init.REQ) returns (Init.REP) {}
+  rpc WorkerJoin(WorkerJoin.REQ) returns (WorkerJoin.REP) {}
+  rpc WorkerFinish(WorkerFinish.REQ) returns (WorkerFinish.REP) {}
+}
+
+message Init {
+  enum Status {
+    REJECT = 0;
+    INIT = 1;
+  }
+  message REQ {
+    string name = 1;
+  }
+
+  message REP {
+    Status status = 1;
+  }
+}
+
+message WorkerJoin {
+  enum Status {
+    REJECT = 0;
+    NOT_SELECTED = 1;
+    ACCEPT = 2;
+  }
+  message REQ {
+    string name = 1;
+    uint32 step = 2;
+  }
+
+  message REP {
+    Status status = 1;
+  }
+}
+
+message WorkerFinish {
+   enum Status {
+    REJECT = 0;
+    DONE = 1;
+  }
+  message REQ {
+    string name = 1;
+  }
+
+  message REP {
+    Status status = 1;
+  }
+}

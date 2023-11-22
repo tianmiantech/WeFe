@@ -167,7 +167,8 @@
             async getChartsData() {
                 const { tabName } = this;
                 const { type } = this.charts[tabName].config;
-                const ref = this.$refs[this.tabName];
+                const $ref = this.$refs[this.tabName];
+                const ref = Array.isArray($ref) ? $ref[0] : $ref;
                 const Queue = [];
 
                 ref.loading = true;
@@ -340,7 +341,7 @@
                     }
                 }
 
-                ref.chartResize();
+                ref && ref.chartResize && ref.chartResize();
 
                 setTimeout(_ => {
                     ref.loading = false;
@@ -361,8 +362,8 @@
                       validate_roc = [],
                       xAxis = [];
 
-                this.charts[tabName].config.validate.auc = validate.data.auc.value;
-                this.charts[tabName].config.validate.ks = validate.data.ks.value;
+                if (validate.data.auc) this.charts[tabName].config.validate.auc = validate.data.auc.value;
+                if (validate.data.ks) this.charts[tabName].config.validate.ks = validate.data.ks.value;
                 this.charts[tabName].config.legend = legend;
                 this.charts[tabName].config.xAxis = xAxis;
                 this.charts[tabName].config.series = [validate_roc];
@@ -379,14 +380,16 @@
                     this.charts[tabName].config.series.unshift(train_roc);
                 }
 
-                validate_ks_tpr.data.forEach((row, index) => {
-                    if(xAxis.length === 0) xAxis.push(row[0]);
-                    validate_roc.push(validate_ks_tpr.data[index][1]);
-                });
+                if (validate_ks_tpr) {
+                    validate_ks_tpr.data.forEach((row, index) => {
+                        if(xAxis.length === 0) xAxis.push(row[0]);
+                        validate_roc.push(validate_ks_tpr.data[index][1]);
+                    });
+                }
 
-                const ref = this.$refs[this.tabName];
+                const ref = this.$refs[this.tabName] || 'roc';
 
-                ref && ref.chartResize();
+                ref[0] && ref[0].chartResize && ref[0].chartResize();
             },
 
             renderChart(tabName, lineNames, { result }) {

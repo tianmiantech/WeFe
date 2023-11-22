@@ -1,4 +1,4 @@
-POST {{baseUrl}}/project/member/all
+POST http://localhost:8080/board-service/project/member/all
 Content-Type: application/json
 
 {

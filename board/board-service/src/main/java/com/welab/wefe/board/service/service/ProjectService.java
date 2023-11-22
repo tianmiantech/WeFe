@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,11 +16,10 @@
 
 package com.welab.wefe.board.service.service;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.project.dataset.AddDataSetApi;
 import com.welab.wefe.board.service.api.project.dataset.RemoveDataSetApi;
 import com.welab.wefe.board.service.api.project.member.ExitProjectApi;
-import com.welab.wefe.board.service.api.project.member.ListApi;
+import com.welab.wefe.board.service.api.project.member.ListInProjectApi;
 import com.welab.wefe.board.service.api.project.member.RemoveApi;
 import com.welab.wefe.board.service.api.project.project.*;
 import com.welab.wefe.board.service.database.entity.job.*;
@@ -28,25 +27,29 @@ import com.welab.wefe.board.service.database.repository.*;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.ProjectDataSetInput;
 import com.welab.wefe.board.service.dto.entity.ProjectMemberInput;
-import com.welab.wefe.board.service.dto.entity.project.*;
+import com.welab.wefe.board.service.dto.entity.project.ProjectDetailMemberOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.ProjectMemberOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.ProjectOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.ProjectQueryOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataResourceOutputModel;
 import com.welab.wefe.board.service.dto.vo.AuditStatusCounts;
 import com.welab.wefe.board.service.dto.vo.RoleCounts;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
-import com.welab.wefe.board.service.util.ModelMapper;
+import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.AuditStatus;
-import com.welab.wefe.common.enums.FederatedLearningType;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.ProjectFlowStatus;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
-import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.ProjectFlowStatus;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,10 +92,6 @@ public class ProjectService extends AbstractService {
 
     @Autowired
     private ProjectDataSetRepository projectDataSetRepo;
-
-    @Autowired
-    private DataSetService dataSetService;
-
     @Autowired
     private ProjectMemberAuditRepository projectMemberAuditRepository;
     @Autowired
@@ -103,6 +102,8 @@ public class ProjectService extends AbstractService {
 
     @Autowired
     private ProjectFlowNodeRepository projectFlowNodeRepository;
+    @Autowired
+    private DataResourceService dataResourceService;
 
     /**
      * New Project
@@ -157,6 +158,7 @@ public class ProjectService extends AbstractService {
                 .append(ProjectFlowStatus.editing.name(), 0)
                 .append(ProjectFlowStatus.running.name(), 0)
                 .append(ProjectFlowStatus.finished.name(), 0).toJSONString());
+        project.setProjectType(input.getProjectType());
         projectRepo.save(project);
 
         // create and save ProjectMember to database
@@ -193,12 +195,13 @@ public class ProjectService extends AbstractService {
                 dataSet.setStatusUpdatedTime(new Date());
                 dataSet.setAuditStatus(auditStatus);
                 dataSet.setSourceType(null);
+                dataSet.setDataResourceType(dataSetInput.getDataResourceType());
 
                 projectDataSetRepo.save(dataSet);
 
                 // Update the usage count of the dataset in the project
-                if (auditStatus == AuditStatus.agree) {
-                    dataSetService.updateUsageCountInProject(dataSet.getDataSetId());
+                if (auditStatus == AuditStatus.agree && CacheObjects.isCurrentMember(dataSetInput.getMemberId())) {
+                    dataResourceService.updateUsageCountInProject(dataSet.getDataSetId());
                 }
             }
 
@@ -272,12 +275,12 @@ public class ProjectService extends AbstractService {
                 .map(x -> ModelMapper.map(x, ProjectDetailMemberOutputModel.class))
                 .collect(Collectors.toList());
 
-        List<ProjectDataSetOutputModel> allDataSetList = projectDataSetService.listRawDataSet(projectId, null, null, null);
+        List<ProjectDataResourceOutputModel> allDataSetList = projectDataSetService.listRawDataSet(projectId, null, null, null, null);
 
 
         // Populate the member's data set list
         allMemberList.forEach(member ->
-                member.setDataSetList(
+                member.setDataResourceList(
                         allDataSetList
                                 .stream()
                                 .filter(dataSet ->
@@ -307,9 +310,9 @@ public class ProjectService extends AbstractService {
                 .filter(x -> x.getMemberRole() == JobMemberRole.provider).collect(Collectors.toList());
 
         ProjectOutputModel output = ModelMapper.map(project, ProjectOutputModel.class);
-        ProjectDetailMemberOutputModel newPromoter = JSONObject.parseObject(JSONObject.toJSONString(promoter),
-                ProjectDetailMemberOutputModel.class);
-        output.setPromoter(newPromoter);
+//        ProjectDetailMemberOutputModel newPromoter = JSONObject.parseObject(JSONObject.toJSONString(promoter),
+//                ProjectDetailMemberOutputModel.class);
+        output.setPromoter(promoter);
         output.setProviderList(providers);
         output.setPromoterList(promoters);
         output.setIsCreator(
@@ -346,7 +349,7 @@ public class ProjectService extends AbstractService {
         projectDataSetService
                 .listAllRawDataSet(project.getProjectId(), member.getMemberId())
                 .stream()
-                .forEach(x -> dataSetService.updateUsageCountInProject(x.getDataSetId()));
+                .forEach(x -> dataResourceService.updateUsageCountInProject(x.getDataSetId()));
 
         checkAuditingRecord(input.getProjectId(), input.getMemberId());
 
@@ -453,11 +456,11 @@ public class ProjectService extends AbstractService {
             }
         }
 
-        if (CollectionUtils.isEmpty(input.getDataSetList())) {
+        if (CollectionUtils.isEmpty(input.getDataResourceList())) {
             throw new StatusCodeWithException("数据集不能为空", StatusCode.ILLEGAL_REQUEST);
         }
 
-        for (ProjectDataSetInput item : input.getDataSetList()) {
+        for (ProjectDataSetInput item : input.getDataResourceList()) {
             // Determine whether the member exists
             ProjectMemberMySqlModel member = projectMemberService.findOneByMemberId(input.getProjectId(), item.getMemberId(), item.getMemberRole());
             if (member == null) {
@@ -490,13 +493,13 @@ public class ProjectService extends AbstractService {
                 projectDataSet.setMemberRole(item.getMemberRole());
                 projectDataSet.setStatusUpdatedTime(new Date());
                 projectDataSet.setSourceType(null);
-
+                projectDataSet.setDataResourceType(item.getDataResourceType());
             }
 
             projectDataSetRepo.save(projectDataSet);
             // Update the usage count of the dataset in the project
             if (projectDataSet.getAuditStatus() == AuditStatus.agree) {
-                dataSetService.updateUsageCountInProject(projectDataSet.getDataSetId());
+                dataResourceService.updateUsageCountInProject(projectDataSet.getDataSetId());
             }
 
         }
@@ -546,8 +549,7 @@ public class ProjectService extends AbstractService {
                 if (project.getMyRole() != JobMemberRole.promoter) {
                     throw new StatusCodeWithException("只有 promoter 才能删除衍生数据集", StatusCode.ILLEGAL_REQUEST);
                 }
-
-                dataSetService.delete(projectDataSet.getDataSetId());
+                dataResourceService.delete(projectDataSet.getDataSetId(), projectDataSet.getDataResourceType());
             }
 
         }
@@ -556,7 +558,7 @@ public class ProjectService extends AbstractService {
         projectDataSetRepo.deleteById(projectDataSet.getId());
 
         // Update the usage count of the dataset in the project
-        dataSetService.updateUsageCountInProject(projectDataSet.getDataSetId());
+        dataResourceService.updateUsageCountInProject(projectDataSet.getDataSetId());
 
         gatewayService.syncToNotExistedMembers(input.getProjectId(), input, RemoveDataSetApi.class);
 
@@ -623,7 +625,7 @@ public class ProjectService extends AbstractService {
     public PagingOutput<ProjectQueryOutputModel> query(QueryApi.Input input) {
 
         StringBuffer sql = new StringBuffer(
-                "select distinct(p.id),p.flow_status_statistics,p.deleted,p.name,p.project_desc,p.audit_status,p.status_updated_time"
+                "select distinct(p.id),p.project_type,p.flow_status_statistics,p.deleted,p.name,p.project_desc,p.audit_status,p.status_updated_time"
                         + ",p.audit_status_from_myself,p.audit_status_from_others,p.audit_comment,p.exited,p.closed"
                         + ",p.closed_by,p.closed_time,p.exited_by,p.exited_time"
                         + ",p.project_id,p.member_id,p.my_role"
@@ -658,6 +660,11 @@ public class ProjectService extends AbstractService {
 
 
         where.append(" and p.deleted != true ");
+
+        if (input.getProjectType() != null) {
+            where.append(" and p.project_type = '" + input.getProjectType() + "'");
+        }
+
         if (StringUtil.isNotBlank(input.getName())) {
             where.append(" and p.name like '%" + input.getName() + "%'");
         }
@@ -918,9 +925,13 @@ public class ProjectService extends AbstractService {
             throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到promoter成员信息");
         }
 
-        ApiResult<?> detailResult = gatewayService.sendToBoardRedirectApi(promoterProjectMember.getMemberId(), JobMemberRole.provider, new DataInfoApi.Input(projectId), DataInfoApi.class);
-
-        DataInfoApi.Output dataInfoOutput = JSONObject.toJavaObject(JObject.create(detailResult.data), DataInfoApi.Output.class);
+        DataInfoApi.Output dataInfoOutput = gatewayService.callOtherMemberBoard(
+                promoterProjectMember.getMemberId(),
+                JobMemberRole.provider,
+                DataInfoApi.class,
+                new DataInfoApi.Input(projectId),
+                DataInfoApi.Output.class
+        );
 
         for (ProjectMemberMySqlModel projectMemberMySqlModel : dataInfoOutput.getProjectMembers()) {
 
@@ -940,12 +951,12 @@ public class ProjectService extends AbstractService {
 
         }
 
-        for (ProjectDataSetMySqlModel dataSetMySqlModel : dataInfoOutput.getProjectDataSets()) {
+        for (ProjectDataSetMySqlModel item : dataInfoOutput.getProjectDataSets()) {
             // Filter derived data sets
-            if (dataSetMySqlModel.getSourceType() != null) {
+            if (item.getSourceType() != null) {
                 continue;
             }
-            ProjectDataSetMySqlModel projectDataSet = projectDataSetService.findOne(dataSetMySqlModel.getProjectId(), dataSetMySqlModel.getDataSetId(), dataSetMySqlModel.getMemberRole());
+            ProjectDataSetMySqlModel projectDataSet = projectDataSetService.findOne(item.getProjectId(), item.getDataSetId(), item.getMemberRole());
             if (projectDataSet != null) {
                 projectDataSetService.update(projectDataSet, dataSet -> {
                     dataSet.setAuditStatus(projectDataSet.getAuditStatus());
@@ -953,8 +964,7 @@ public class ProjectService extends AbstractService {
                 });
 
             } else {
-
-                projectDataSetRepo.save(dataSetMySqlModel);
+                projectDataSetRepo.save(item);
             }
         }
         List<String> excludeFlowIds = new ArrayList<>();
@@ -970,7 +980,6 @@ public class ProjectService extends AbstractService {
             if (projectFlowService.findOne(projectFlowMySqlModel.getFlowId()) == null) {
                 projectFlowMySqlModel.setMyRole(project.getMyRole());
                 projectFlowMySqlModel.setFlowStatus(ProjectFlowStatus.editing);
-                // todo: put creator_member_id on next version
                 projectFlowMySqlModel.setCreatedBy("");
                 projectFlowRepository.save(projectFlowMySqlModel);
             }
@@ -1021,6 +1030,7 @@ public class ProjectService extends AbstractService {
                     .append(ProjectFlowStatus.editing.name(), 0)
                     .append(ProjectFlowStatus.running.name(), 0)
                     .append(ProjectFlowStatus.finished.name(), 0).toJSONString());
+            project.setProjectType(projectMySqlModel.getProjectType());
             projectRepo.save(project);
 
             // save ProjectMember to database
@@ -1056,6 +1066,7 @@ public class ProjectService extends AbstractService {
                         dataSet.setStatusUpdatedTime(x.getStatusUpdatedTime());
                         dataSet.setAuditStatus(x.getMemberId().equals(CacheObjects.getMemberId()) ? AuditStatus.auditing : x.getAuditStatus());
                         dataSet.setAuditComment(x.getMemberId().equals(CacheObjects.getMemberId()) ? "" : x.getAuditComment());
+                        dataSet.setDataResourceType(x.getDataResourceType());
                         projectDataSetRepo.save(dataSet);
                     });
 
@@ -1121,7 +1132,7 @@ public class ProjectService extends AbstractService {
                             params.put("auditStatus",
                                     model.getMemberId().equals(CacheObjects.getMemberId())
                                             && model.getMemberRole() == myRole ? AuditStatus.auditing
-                                                    : model.getAuditStatus());
+                                            : model.getAuditStatus());
                             params.put("auditComment", model.getMemberId().equals(CacheObjects.getMemberId()) ? ""
                                     : model.getAuditComment());
                             projectDataSetRepo.updateById(model.getId(), params, ProjectDataSetMySqlModel.class);
@@ -1137,13 +1148,17 @@ public class ProjectService extends AbstractService {
 
     public DataInfoApi.Output getPromoterDataInfo(String projectId, String callerMemberId) throws StatusCodeWithException {
         // Get all project members from the sender
-        ApiResult<?> membersResult = gatewayService.sendToBoardRedirectApi(callerMemberId, JobMemberRole.provider, new ListApi.Input(projectId), ListApi.class);
+        ListInProjectApi.Output output = gatewayService.callOtherMemberBoard(
+                callerMemberId,
+                JobMemberRole.provider,
+                ListInProjectApi.class,
+                new ListInProjectApi.Input(projectId),
+                ListInProjectApi.Output.class
+        );
 
         // Find the promoter in the current project from all members of the sender
-        ProjectMemberOutputModel promoterMember = JObject.create(membersResult.data)
-                .getJSONList("list")
+        ProjectMemberOutputModel promoterMember = output.getList()
                 .stream()
-                .map(x -> JSONObject.toJavaObject(x, ProjectMemberOutputModel.class))
                 .filter(x -> x.getMemberRole() == JobMemberRole.promoter)
                 .findFirst()
                 .orElse(null);
@@ -1155,11 +1170,13 @@ public class ProjectService extends AbstractService {
         String promoterMemberId = promoterMember.getMemberId();
 
         // Get project details from the promoter
-        ApiResult<?> detailResult = gatewayService.sendToBoardRedirectApi(promoterMemberId, JobMemberRole.provider, new DataInfoApi.Input(projectId), DataInfoApi.class);
-
-        DataInfoApi.Output projectOutputModel = JSONObject.toJavaObject(JObject.create(detailResult.data), DataInfoApi.Output.class);
-
-        return projectOutputModel;
+        return gatewayService.callOtherMemberBoard(
+                promoterMemberId,
+                JobMemberRole.provider,
+                DataInfoApi.class,
+                new DataInfoApi.Input(projectId),
+                DataInfoApi.Output.class
+        );
     }
 
 
@@ -1206,7 +1223,7 @@ public class ProjectService extends AbstractService {
         projectDataSetService
                 .listAllRawDataSet(project.getProjectId(), memberId)
                 .stream()
-                .forEach(x -> dataSetService.updateUsageCountInProject(x.getDataSetId()));
+                .forEach(x -> dataResourceService.updateUsageCountInProject(x.getDataSetId()));
     }
 
 
@@ -1237,7 +1254,7 @@ public class ProjectService extends AbstractService {
         projectDataSetService
                 .listAllRawDataSet(project.getProjectId(), null)
                 .stream()
-                .forEach(x -> dataSetService.updateUsageCountInProject(x.getDataSetId()));
+                .forEach(x -> dataResourceService.updateUsageCountInProject(x.getDataSetId()));
 
         // Notify other members that the project is closed
         try {

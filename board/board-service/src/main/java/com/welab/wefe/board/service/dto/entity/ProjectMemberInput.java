@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,9 +16,10 @@
 
 package com.welab.wefe.board.service.dto.entity;
 
-import com.welab.wefe.common.enums.JobMemberRole;
+
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
 import java.util.List;
 
@@ -28,7 +29,7 @@ import java.util.List;
 public class ProjectMemberInput extends AbstractCheckModel {
     @Check(name = "成员Id", require = true, messageOnEmpty = "请选择项目合作方")
     private String memberId;
-    @Check(name = "成员角色", hiddenForFrontEnd = true)
+    @Check(name = "成员角色", donotShow = true)
     private JobMemberRole memberRole;
 
     @Check(name = "数据集列表")

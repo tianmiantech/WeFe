@@ -17,7 +17,7 @@
             >
                 <el-form-item
                     label="联邦成员名称："
-                    required
+                    class="is-required"
                 >
                     <el-input
                         v-model.trim="form.member_name"
@@ -41,7 +41,7 @@
                         clearable
                     />
                 </el-form-item>
-                <el-form-item label="是否允许对外公开数据集基础信息：">
+                <el-form-item label="是否允许对外公开数据资源基础信息：">
                     <el-radio
                         v-model="form.member_allow_public_data_set"
                         :label="true"
@@ -57,7 +57,7 @@
                 </el-form-item>
                 <!-- <el-form-item
                     label="Board Service Address："
-                    required
+                    class="is-required"
                 >
                     <el-input
                         v-model.trim="form.board_uri"
@@ -67,7 +67,7 @@
                 </el-form-item> -->
                 <!-- <el-form-item
                     label="Gateway Uri："
-                    required
+                    class="is-required"
                 >
                     <el-input
                         v-model.trim="form.gateway_uri"
@@ -89,7 +89,6 @@
                 <el-button
                     round
                     type="primary"
-                    size="medium"
                     class="btn-submit ml10"
                     @click="submit"
                 >

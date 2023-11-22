@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,7 +40,7 @@ public class XgboostModelExportService {
      * @param modelParam model param
      * @param language   language
      */
-    public String export(JObject modelParam, String language) {
+    public String export(JObject modelMeta, JObject modelParam, String language) {
         // Get the corresponding language interpreter
         BaseXgboostLanguage baseXgboostLanguage = getXgboostLanguage(language);
 
@@ -54,7 +54,7 @@ public class XgboostModelExportService {
         JSONArray initScoreArray = modelParam.getJSONArray("initScore");
         String initScore = (null != initScoreArray && initScoreArray.size() > 0) ? initScoreArray.getString(0) : "0";
 
-        return baseXgboostLanguage.buildWholeCode(treeMapList, treeDim, numClasses, initScore, featureNameFidMappingObj);
+        return baseXgboostLanguage.buildWholeCode(modelMeta, treeMapList, treeDim, numClasses, initScore, featureNameFidMappingObj);
     }
 
 

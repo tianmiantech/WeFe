@@ -2,6 +2,7 @@
     <el-form
         v-loading="vData.loading"
         class="flex-form"
+        @submit.prevent
     >
         <el-form-item label="案例:">
             <p class="f12"><span class="color-danger">x1</span>>2<span class="strong">&</span><span class="color-danger">x1</span>&lt;50<span class="strong">&</span><span class="color-danger">x3</span>=100<span class="strong">&</span><span class="color-danger">x5</span>!=30</p>
@@ -45,7 +46,7 @@
                     </template>
                     <el-button
                         v-if="member.features.length > 20"
-                        size="mini"
+                        size="small"
                         type="primary"
                         class="check-features"
                         @click="methods.checkFeatures(member)"
@@ -144,18 +145,14 @@
                         },
                     });
 
-                    if (code === 0 && data) {
-                        const { params } = data;
+                    if (code === 0 && data && data.params && Object.keys(data.params).length) {
+                        vData.members.forEach(member => {
+                            const item = data.params.members.find(item => item.member_id === member.member_id && item.member_role === member.member_role);
 
-                        if(params) {
-                            vData.members.forEach(member => {
-                                const item = params.members.find(item => item.member_id === member.member_id && item.member_role === member.member_role);
-
-                                if(item) {
-                                    member.filter_rules = item.filter_rules || '';
-                                }
-                            });
-                        }
+                            if(item) {
+                                member.filter_rules = item.filter_rules || '';
+                            }
+                        });
                         vData.inited = true;
                     }
                 },

@@ -63,5 +63,5 @@ def maybe_create_storage_client():
 
     from common.python import _STORAGE_VERSION
     if _STORAGE_VERSION < 2:
-        from common.python.storage.impl.dsource import DBRuntime
+        from common.python.p_session.base_impl.db_runtime import DBRuntime
         DBRuntime(storage_session)

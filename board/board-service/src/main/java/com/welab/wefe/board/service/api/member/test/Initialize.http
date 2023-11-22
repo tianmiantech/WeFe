@@ -1,6 +1,6 @@
 
 ### 登录
-POST {{baseUrl}}/account/login
+POST http://localhost:8080/board-service/account/login
 Content-Type: application/json
 
 {
@@ -20,7 +20,7 @@ client.test("Request executed successfully", function() {
 
 
 ### 初始化系统
-POST {{baseUrl}}/system/initialize
+POST http://localhost:8080/board-service/system/initialize
 Content-Type: application/json
 token: {{token}}
 

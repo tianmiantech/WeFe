@@ -5,10 +5,11 @@
         title="请选择成员"
         destroy-on-close
         :close-on-click-modal="false"
+        top="10vh"
     >
         <el-form
             inline
-            size="mini"
+            size="small"
             @submit.prevent
         >
             <el-form-item

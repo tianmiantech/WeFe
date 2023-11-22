@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,6 +16,8 @@
 
 package com.welab.wefe.board.service.dto.entity;
 
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+
 /**
  * Recent chat account object output entity
  *
@@ -23,45 +25,27 @@ package com.welab.wefe.board.service.dto.entity;
  **/
 public class ChatLastAccountOutputModel extends AbstractOutputModel {
 
-    /**
-     * account id
-     */
+    @Check(name = "account id")
     private String accountId;
-    /**
-     * account name
-     */
+    @Check(name = "account name")
     private String accountName;
 
-    /**
-     * member id
-     */
+    @Check(name = "member id")
     private String memberId;
-    /**
-     * member name
-     */
+    @Check(name = "member name")
     private String memberName;
 
-    /**
-     * liaison member id
-     */
+    @Check(name = "liaison member id")
     private String liaisonMemberId;
-    /**
-     * liaison member name
-     */
+    @Check(name = "liaison member name")
     private String liaisonMemberName;
 
-    /**
-     * liaison account id
-     */
+    @Check(name = "liaison account id")
     private String liaisonAccountId;
-    /**
-     * liaison account name
-     */
+    @Check(name = "liaison account name")
     private String liaisonAccountName;
 
-    /**
-     * unread num
-     */
+    @Check(name = "unread num")
     private Integer unreadNum = 0;
 
     public String getAccountId() {

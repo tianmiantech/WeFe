@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import traceback
-
 import grpc
+import traceback
 
 from common.python.common.consts import GatewayTransferProcess
 from common.python.db.global_config_dao import GlobalConfigDao
@@ -35,7 +34,7 @@ class GatewayService:
         """
         Report the local IP to the gateway ip whitelist
         """
-        GatewayService.logger.info("开始上报IP地址到 gateway")
+        GatewayService.logger.info("开始登记 board-service IP 到 gateway 的 IP 白名单")
 
         try:
             # Intranet IP
@@ -44,18 +43,18 @@ class GatewayService:
             array = local_ip.split('.')
             array[len(array) - 1] = '*'
             local_ip = '.'.join(array)
-            GlobalConfigDao.append_gateway_white_ip(local_ip, "flow 内网IP地址，由 flow 自主上报。")
+            GlobalConfigDao.append_gateway_white_ip(local_ip, "flow 内网IP地址，由 flow 自主登记。")
 
             # Internet IP
             internet_ip = network_utils.get_internet_ip()
-            GlobalConfigDao.append_gateway_white_ip(internet_ip, "flow 外网IP地址，由 flow 自主上报。")
+            GlobalConfigDao.append_gateway_white_ip(internet_ip, "flow 外网IP地址，由 flow 自主登记。")
 
             GatewayService.send_to_myself(GatewayTransferProcess.REFRESH_SYSTEM_CONFIG_CACHE_PROCESS)
 
-            GatewayService.logger.info("上报IP地址完成.")
+            GatewayService.logger.info("flow 服务的 IP 地址登记到 gateway IP 白名单完成.")
         except Exception as e:
             traceback.print_exc()
-            GatewayService.logger.exception("上报IP地址异常:%s", e)
+            GatewayService.logger.exception("登记IP地址异常:%s", e)
 
     @staticmethod
     def alive() -> (bool, object):

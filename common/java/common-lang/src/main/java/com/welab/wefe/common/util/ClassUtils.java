@@ -1,11 +1,11 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package com.welab.wefe.common.util;
 
 import com.alibaba.fastjson.JSONObject;
+import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -32,22 +33,22 @@ public class ClassUtils {
     /**
      * build a readable type name for field
      */
-    public static String getFieldTypeName(Field field) {
-        Class<?> type = field.getType();
+    public static String getTypeSimpleName(Class<?> type) {
         String name = type.getCanonicalName();
-
-        if (field.getType().equals(List.class)) {
-
-            Type genericType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-            String genericTypeName = genericType.getTypeName();
-            genericTypeName = genericTypeName.contains(".") ? StringUtil.substringAfterLast(genericTypeName, ".") : genericTypeName;
-            genericTypeName = genericTypeName.replace("$", ".");
-            name = "List<" + genericTypeName + ">";
-
-        } else if (name.contains(".")) {
-            name = StringUtil.substringAfterLast(field.getType().getCanonicalName(), ".");
-        }
+        name = name.contains(".") ? StringUtil.substringAfterLast(name, ".") : name;
+        name = name.replace("$", ".");
         return name;
+    }
+
+    public static Type getListFieldGenericType(Field field) {
+        Class<?> type = field.getType();
+
+        if (!type.equals(List.class)) {
+            throw new UnsupportedOperationException();
+        }
+
+        Type genericType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+        return genericType;
     }
 
     /**
@@ -55,6 +56,7 @@ public class ClassUtils {
      */
     public static Class<?> createClassFromName(String name) {
         try {
+
             return Class.forName(name);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -110,10 +112,28 @@ public class ClassUtils {
      */
     public static Class<?> getGenericClass(Class<?> clazz, int index) {
         Type genericSuperclass = clazz.getGenericSuperclass();
+
+        // 接口没有 GenericSuperclass，需要取 GenericInterfaces。
+        if (genericSuperclass == null) {
+            Type[] types = clazz.getGenericInterfaces();
+            if (types.length > 0) {
+                genericSuperclass = types[0];
+            }
+        }
+
         while (true) {
+            if (genericSuperclass == null) {
+                return null;
+            }
 
             if (genericSuperclass instanceof ParameterizedType) {
-                return (Class<?>) ((ParameterizedType) genericSuperclass).getActualTypeArguments()[index];
+                Type actualTypeArgument = ((ParameterizedType) genericSuperclass).getActualTypeArguments()[index];
+                if (actualTypeArgument instanceof TypeVariableImpl) {
+                    return null;
+                } else {
+                    return (Class<?>) actualTypeArgument;
+                }
+
             } else {
                 try {
                     genericSuperclass = Class.forName(genericSuperclass.getTypeName()).getGenericSuperclass();

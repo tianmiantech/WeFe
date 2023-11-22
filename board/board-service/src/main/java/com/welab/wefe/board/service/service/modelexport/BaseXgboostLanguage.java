@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -61,7 +61,7 @@ public class BaseXgboostLanguage {
      *
      * @param treeMapList One dimensional array structure of tree
      */
-    public String buildWholeCode(List<Map<String, Node>> treeMapList, int treeDim, int numClasses, String initScore, JObject featureNameFidMappingObj) {
+    public String buildWholeCode(JObject modelMeta, List<Map<String, Node>> treeMapList, int treeDim, int numClasses, String initScore, JObject featureNameFidMappingObj) {
         // Preprocessing (that is, the code corresponding to each node of the spanning tree)
         preGenerateTreeNodeCode(treeMapList);
 
@@ -83,7 +83,7 @@ public class BaseXgboostLanguage {
         }
 
         // Method body code
-        String methodBodyCode = buildMethodBodyCode(treeMapList, treeDim, numClasses, initScore);
+        String methodBodyCode = buildMethodBodyCode(treeMapList, treeDim, numClasses, initScore, modelMeta.getDoubleByPath("learningRate"));
         // Method complete code
         return preMethodSignNameCode.replace(METHOD_BODY_PLACEHOLDER, methodBodyCode);
     }
@@ -125,7 +125,7 @@ public class BaseXgboostLanguage {
      *
      * @param preTreeMapList Preprocessing list of all trees
      */
-    protected String buildMethodBodyCode(List<Map<String, Node>> preTreeMapList, int treeDim, int numClasses, String initScore) {
+    protected String buildMethodBodyCode(List<Map<String, Node>> preTreeMapList, int treeDim, int numClasses, String initScore, double learningRate) {
         StringBuilder bodyCode = new StringBuilder();
         if (CollectionUtils.isEmpty(preTreeMapList)) {
             return bodyCode.toString();
@@ -134,7 +134,7 @@ public class BaseXgboostLanguage {
             bodyCode.append(buildTreeCode(preTreeMapList.get(i), i));
             bodyCode.append("\n");
         }
-        bodyCode.append(buildMethodResultLogicCode(preTreeMapList.size(), treeDim, numClasses, initScore));
+        bodyCode.append(buildMethodResultLogicCode(preTreeMapList.size(), treeDim, numClasses, initScore, learningRate));
         return bodyCode.toString();
     }
 
@@ -143,15 +143,15 @@ public class BaseXgboostLanguage {
      *
      * @param treeNum tree number
      */
-    protected String buildMethodResultLogicCode(int treeNum, int treeDim, int numClasses, String initScore) {
+    protected String buildMethodResultLogicCode(int treeNum, int treeDim, int numClasses, String initScore, double learningRate) {
         StringBuilder methodSummaryCode = new StringBuilder();
 
         // Second classification
         if (numClasses <= NUM_CLASSES_2_CLASSIFICATIONS) {
-            methodSummaryCode.append(build2ClassificationsResultLogicCode(treeNum, initScore));
+            methodSummaryCode.append(build2ClassificationsResultLogicCode(treeNum, initScore, learningRate));
         } else {
             // Multi classification
-            methodSummaryCode.append(buildMultipleClassificationsResultLogicCode(treeNum, treeDim, initScore));
+            methodSummaryCode.append(buildMultipleClassificationsResultLogicCode(treeNum, treeDim, initScore, learningRate));
         }
 
         return methodSummaryCode.toString();
@@ -160,7 +160,7 @@ public class BaseXgboostLanguage {
     /**
      * Generate the result logic code of the second classification
      */
-    protected String build2ClassificationsResultLogicCode(int treeNum, String initScore) {
+    protected String build2ClassificationsResultLogicCode(int treeNum, String initScore, double learningRate) {
         StringBuilder methodCalcCode = new StringBuilder();
         String summaryVar = "s1";
         methodCalcCode.append(indentationByNodeLayer(1, true));
@@ -169,7 +169,7 @@ public class BaseXgboostLanguage {
                 .append(indentationByNodeLayer(1, true))
                 .append(summaryVar)
                 .append(" = 1 / (1 + Math.exp(0 - (")
-                .append(generateTreeSum(treeNum, initScore))
+                .append(generateTreeSum(treeNum, initScore, learningRate))
                 .append(")))")
                 .append(lineEndSymbol())
                 .append("\n")
@@ -195,7 +195,7 @@ public class BaseXgboostLanguage {
     /**
      * Generate multi classification result logic code
      */
-    protected String buildMultipleClassificationsResultLogicCode(int treeNum, int treeDim, String initScore) {
+    protected String buildMultipleClassificationsResultLogicCode(int treeNum, int treeDim, String initScore, double learningRate) {
         StringBuilder methodCalcCode = new StringBuilder();
         // Tree result variable classification map (key: module; value: variable name of each tree)
         Map<Integer, List<String>> treeClassificationMap = treeMultipleClassificationsModMap(treeNum, treeDim);
@@ -211,7 +211,7 @@ public class BaseXgboostLanguage {
                     .append(resultIndentationNum(2))
                     .append(rVarName)
                     .append(" = 1 / (1 + ")
-                    .append(buildExpFunction(entry.getValue(), initScore))
+                    .append(buildExpFunction(entry.getValue(), initScore, learningRate))
                     .append(")")
                     .append(lineEndSymbol())
                     .append("\n");
@@ -248,9 +248,9 @@ public class BaseXgboostLanguage {
      * @param treeNum   tree number
      * @param initScore init score
      */
-    protected String generateTreeSum(int treeNum, String initScore) {
+    protected String generateTreeSum(int treeNum, String initScore, double learningRate) {
         List<String> treeVarNameList = buildTreeVarNameList(treeNum);
-        return generateTreeSum(treeVarNameList, initScore);
+        return generateTreeSum(treeVarNameList, initScore, learningRate);
     }
 
 
@@ -260,7 +260,7 @@ public class BaseXgboostLanguage {
      * @param treeVarNameList List of variable names for all trees
      * @param initScore       init score
      */
-    protected String generateTreeSum(List<String> treeVarNameList, String initScore) {
+    protected String generateTreeSum(List<String> treeVarNameList, String initScore, double learningRate) {
         StringBuilder sumSb = new StringBuilder();
         sumSb.append("(" + initScore + ")");
         if (CollectionUtils.isNotEmpty(treeVarNameList)) {
@@ -268,6 +268,8 @@ public class BaseXgboostLanguage {
             for (int i = 0; i < treeVarNameList.size(); i++) {
                 sumSb.append("(")
                         .append(treeVarNameList.get(i))
+                        .append(" * ")
+                        .append(learningRate)
                         .append(")");
                 if (i < treeVarNameList.size() - 1) {
                     sumSb.append(" + ");
@@ -282,10 +284,10 @@ public class BaseXgboostLanguage {
     /**
      * Calculation of double power function generating Euler number e
      */
-    protected String buildExpFunction(List<String> treeVarNameList, String initScore) {
+    protected String buildExpFunction(List<String> treeVarNameList, String initScore, double learningRate) {
         StringBuilder code = new StringBuilder();
         code.append("Math.exp(0 - (")
-                .append(generateTreeSum(treeVarNameList, initScore))
+                .append(generateTreeSum(treeVarNameList, initScore, learningRate))
                 .append("))");
 
         return code.toString();

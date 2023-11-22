@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,11 +22,11 @@ import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.JobMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectFlowNodeMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
-import com.welab.wefe.board.service.util.ModelMapper;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.FederatedLearningType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
@@ -61,12 +61,15 @@ public abstract class BaseFlowGraph {
      * Nodes that will be executed in the current graph
      */
     protected List<FlowGraphNode> jobSteps = new ArrayList<>();
+    
+    protected String creatorMemberId;
 
-    public BaseFlowGraph(JobMySqlModel job, JobMySqlModel lastJob, List<JobMemberMySqlModel> members, List<ProjectFlowNodeMySqlModel> mysqlNodes) throws StatusCodeWithException {
+    public BaseFlowGraph(JobMySqlModel job, JobMySqlModel lastJob, List<JobMemberMySqlModel> members, List<ProjectFlowNodeMySqlModel> mysqlNodes, String creatorMemberId) throws StatusCodeWithException {
         this(job.getFederatedLearningType(), lastJob, mysqlNodes);
 
         this.job = job;
         this.members = members;
+        this.creatorMemberId = creatorMemberId;
 
     }
 
@@ -383,5 +386,12 @@ public abstract class BaseFlowGraph {
         return federatedLearningType;
     }
 
+    public String getCreatorMemberId() {
+        return creatorMemberId;
+    }
+
+    public void setCreatorMemberId(String creatorMemberId) {
+        this.creatorMemberId = creatorMemberId;
+    }
     //endregion
 }

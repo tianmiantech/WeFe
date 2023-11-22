@@ -1,6 +1,6 @@
 
 ### 更新 member 信息
-POST {{baseUrl}}/member/update
+POST http://localhost:8080/board-service/member/update
 Content-Type: application/json
 token: {{token}}
 

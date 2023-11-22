@@ -10,11 +10,11 @@
             :key="`${member.member_id}-${member.member_role}`"
         >
             <h4 class="f14 mb5">{{member.member_role === 'promoter' ? '发起方' : '协作方'}}:</h4>
-            <el-form-item>
+            <div class="el-form-item">
                 <div class="el-form-item__label">
                     <span class="mr10">{{ member.member_name }}</span>
                     <el-button
-                        size="mini"
+                        size="small"
                         @click="methods.checkColumns(member, $index)"
                     >
                         选择特征（{{ member.features.length }}/{{ member.columns }}）
@@ -38,6 +38,7 @@
                     </template>
                     <el-button
                         v-if="member.features.length > 20"
+                        size="small"
                         type="primary"
                         class="check-features"
                         @click="methods.checkFeatures(member.features)"
@@ -45,7 +46,7 @@
                         查看更多
                     </el-button>
                 </div>
-            </el-form-item>
+            </div>
         </template>
 
         <el-alert v-if="!vData.colChecked" :title="`请选出所有 [发起方] 共有的特征! ${vData.colUnCheckedMsg}`" type="error" effect="dark" show-icon :closable="false" style="width: 260px;" />
@@ -87,8 +88,9 @@
                     </el-checkbox>
                     <el-button
                         type="primary"
-                        size="mini"
+                        size="small"
                         class="ml10"
+                        style="margin-top: -7px;"
                         @click="methods.revertCheck"
                     >
                         反选
@@ -107,7 +109,7 @@
                             <label
                                 v-if="list[index * 5 + i - 1]"
                                 :for="`label-${index * 5 + i - 1}`"
-                                class="el-checkbox el-checkbox--small"
+                                class="el-checkbox"
                                 @click.prevent.stop="methods.checkboxChange($event, list[index * 5 + i - 1])"
                             >
                                 <span :class="['el-checkbox__input', { 'is-checked': vData.checkedColumnsArr.includes(list[index * 5 + i - 1]) }]">
@@ -221,20 +223,16 @@
                     });
 
                     vData.loading = false;
-                    if (code === 0) {
-                        const { params } = data || {};
+                    if (code === 0 && data && data.params && Object.keys(data.params).length) {
+                        const { members } = data.params;
 
-                        if(params) {
-                            const { members } = params;
+                        members.forEach(member => {
+                            const item = vData.data_set_list.find(row => row.member_id === member.member_id && row.member_role === member.member_role);
 
-                            members.forEach(member => {
-                                const item = vData.data_set_list.find(row => row.member_id === member.member_id && row.member_role === member.member_role);
-
-                                if(item) {
-                                    item.features.push(...member.features);
-                                }
-                            });
-                        }
+                            if(item) {
+                                item.features.push(...member.features);
+                            }
+                        });
                         vData.inited = true;
                     }
                 },

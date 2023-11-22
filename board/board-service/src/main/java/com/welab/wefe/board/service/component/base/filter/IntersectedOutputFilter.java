@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,10 +19,11 @@ package com.welab.wefe.board.service.component.base.filter;
 import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.base.io.IODataType;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
-import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
-import com.welab.wefe.common.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+
 
 /**
  * Query condition: aligned data
@@ -65,16 +66,16 @@ public class IntersectedOutputFilter implements OutputItemFilterFunction {
         FlowGraphNode dataIONode = graph.findOneNodeFromParent(node, ComponentType.DataIO);
         if (dataIONode != null) {
             DataIOComponent.Params params = (DataIOComponent.Params) dataIONode.getParamsModel();
-            DataSetMysqlModel myDataSet = params.getMyDataSet();
+            TableDataSetMysqlModel myDataSet = params.getMyDataSet();
 
             // If it is not a derived data set, it must have been misaligned.
-            if (myDataSet == null || myDataSet.getSourceType() == null) {
+            if (myDataSet == null || !myDataSet.isDerivedResource()) {
                 return false;
             }
 
 
             // If the derived data set comes from alignment
-            if (myDataSet.getSourceType() == ComponentType.Intersection) {
+            if (myDataSet.getDerivedFrom() == ComponentType.Intersection) {
                 return true;
             }
 

@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -330,6 +330,15 @@ public class DateUtil {
         return sdf.format(new Date());
     }
 
+    public static long currentDateMillis() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY,0);
+        calendar.set(Calendar.MINUTE,0);
+        calendar.set(Calendar.SECOND,0);
+        calendar.set(Calendar.MILLISECOND,0);
+        return calendar.getTimeInMillis();
+    }
+
     /**
      * Calculate the number of days between two dates
      *
@@ -605,21 +614,9 @@ public class DateUtil {
         return dateFlag;
     }
 
-    public static String addYears(String dateStr, int y) {
-        if (StringUtil.isEmpty(dateStr)) {
-            return dateStr;
-        }
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
-        try {
-            Date data = sdf.parse(dateStr);
-            Calendar ca = Calendar.getInstance();
-            ca.setTime(data);
-            ca.add(Calendar.YEAR, y);
-            return sdf.format(ca.getTime());
-        } catch (Throwable e) {
-            LOG.info(e.getMessage(), e);
-        }
-        return null;
+    public static Date addYears(Date date, long years) {
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+        return Date.from(localDateTime.plusYears(years).atZone(ZoneId.systemDefault()).toInstant());
     }
 
     /**
@@ -660,6 +657,19 @@ public class DateUtil {
     public static Date addMinutes(Date date, long minutes) {
         LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
         return Date.from(localDateTime.plusMinutes(minutes).atZone(ZoneId.systemDefault()).toInstant());
+    }
+
+
+    /**
+     * minus days to the current date
+     *
+     * @param date Current time date
+     * @param days Days minus
+     * @return Time after increase
+     */
+    public static Date minusDays(Date date, long days) {
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+        return Date.from(localDateTime.minusDays(days).atZone(ZoneId.systemDefault()).toInstant());
     }
 
     /**

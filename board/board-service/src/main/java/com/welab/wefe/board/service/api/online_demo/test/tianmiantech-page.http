@@ -1,4 +1,4 @@
-POST {{baseUrl}}/tianmiantech/page_url
+POST http://localhost:8080/board-service/tianmiantech/page_url
 Content-Type: application/json
 
 {

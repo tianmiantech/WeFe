@@ -46,8 +46,8 @@ def from_32bit_to_bigint(values: list):
     return int(result, 2)
 
 
-def to_bytes(value: int):
-    return value.to_bytes(BITS // 8, "little")
+def to_bytes(value: int, bits):
+    return value.to_bytes(bits // 8, "little")
 
 
 def check_aclr_support():

@@ -1,13 +1,13 @@
 
 ### 查询全部消息
-POST {{baseUrl}}/message/query
+POST http://localhost:8080/board-service/message/query
 Content-Type: application/json
 
 {}
 
 
 ### 查未读消息
-POST {{baseUrl}}/message/query
+POST http://localhost:8080/board-service/message/query
 Content-Type: application/json
 
 {
@@ -16,7 +16,7 @@ Content-Type: application/json
 
 
 ### 按 level 查
-POST {{baseUrl}}/message/query
+POST http://localhost:8080/board-service/message/query
 Content-Type: application/json
 
 {

@@ -5,8 +5,10 @@
         <h4 class="mb10">HorzLR参数设置</h4>
         <el-form
             ref="form"
+            class="flex-form"
             :model="vData.form"
             :disabled="disabled"
+            @submit.prevent
         >
             <el-collapse v-model="vData.activeNames">
                 <el-collapse-item title="模型参数" name="1">
@@ -221,9 +223,9 @@
         },
         other_param: {
             penalty:       'L2',
-            tol:           0.00001,
+            tol:           0.0001,
             alpha:         1,
-            optimizer:     'sgd',
+            optimizer:     'adam',
             early_stop:    'diff',
             batch_size:    3000,
             learning_rate: 0.1,
@@ -300,6 +302,9 @@
             });
 
             let methods = {
+                formatter(params) {
+                    vData.form = params;
+                },
                 checkParams() {
                     return {
                         params: vData.form,
@@ -328,9 +333,7 @@
 .el-form-item{
     margin-bottom: 10px;
     :deep(.el-form-item__label){
-        text-align: left;
-        font-size: 12px;
-        display: block;
+        flex:1;
     }
 }
 .el-collapse-item {

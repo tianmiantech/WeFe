@@ -35,6 +35,8 @@ from common.python.common import consts
 from common.python.common.consts import NAMESPACE
 from common.python.p_session.session import WefeSession
 from common.python.utils import conf_utils
+from common.python import RuntimeInstance
+
 
 __all__ = ["WefeSessionImpl"]
 
@@ -97,8 +99,10 @@ class WefeSessionImpl(WefeSession):
         _iter = data if include_key else enumerate(data)
         from pyspark import SparkContext
 
-        partition = conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_NUM_SLICES)
-        rdd = SparkContext.getOrCreate().parallelize(_iter, partition)
+        # partition = conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_NUM_SLICES)
+        runtime_partition = RuntimeInstance.get_spark_partition()
+        num_partition = int(runtime_partition)
+        rdd = SparkContext.getOrCreate().parallelize(_iter, num_partition)
         rdd = util.materialize(rdd)
         if namespace is None:
             namespace = NAMESPACE.PROCESS

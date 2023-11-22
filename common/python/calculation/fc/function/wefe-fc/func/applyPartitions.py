@@ -15,7 +15,6 @@
 import json
 
 from comm import dataUtil
-from comm.dataUtil import TimeConsume
 from common.python.utils import cloudpickle
 
 
@@ -49,25 +48,23 @@ def handler(event, context):
     """
 
     evt = json.loads(event)
-    tc = TimeConsume()
+    # tc = TimeConsume()
 
     # get the source and destination fcStorage
     source_fcs, dest_fcs = dataUtil.get_fc_storages(evt)
+
     # get data
     partition = evt['partition']
     source_k_v = source_fcs.collect(partition=partition)
-    tc.end('get data', evt, context)
 
     # do applyPartitions
     func = cloudpickle.loads(bytes.fromhex(evt['func']))
-    tc.end('cloudpickle.loads', evt, context)
 
     # save result
     result = func(source_k_v)
     if result is None:
         return dataUtil.fc_result(partition=partition)
-    tc.end('applyPartitions:', evt, context)
 
     # put result
-    dest_fcs.put_all([(partition, result)])
+    dest_fcs.put(partition, result)
     return dataUtil.fc_result(partition=partition)

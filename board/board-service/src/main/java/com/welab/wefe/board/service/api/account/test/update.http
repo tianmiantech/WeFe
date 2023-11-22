@@ -1,4 +1,4 @@
-POST {{baseUrl}}/account/update
+POST http://localhost:8080/board-service/account/update
 Content-Type: application/json
 token: {{token}}
 

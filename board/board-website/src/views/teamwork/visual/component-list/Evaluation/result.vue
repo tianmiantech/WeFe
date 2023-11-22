@@ -37,7 +37,7 @@
                 </el-collapse-item>
                 <template v-if="vData.hasResult">
                     <el-collapse-item title="模型准确率表现" name="2">
-                        <TopN ref="topnRef"></TopN>
+                        <TopN ref="topnRef" />
                     </el-collapse-item>
                     <el-collapse-item title="模型评估" name="3">
                         <ChartsWithTabs
@@ -154,8 +154,10 @@
                     });
 
                     if (code === 0) {
-                        if (data.length) {
-                            topnRef.value.renderTopnTable(data[0].result);
+                        const { result } = Array.isArray(data) ? data[0]: data;
+
+                        if (result) {
+                            topnRef.value.renderTopnTable(result);
                         }
                     }
                 },

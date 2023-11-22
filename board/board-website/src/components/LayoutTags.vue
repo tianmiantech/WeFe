@@ -21,7 +21,7 @@
             </el-tag>
         </div>
         <el-button
-            size="mini"
+            size="small"
             type="warning"
             class="tags-close-box"
             @click="closeOthers"
@@ -77,7 +77,7 @@
                 },
                 // set tags
                 setTags(route) {
-                    if(route.meta.requiresLogout) return; // not remember for login/register
+                    if(route.meta.requiresLogout || route.meta.notshowattag) return; // not remember for login/register
 
                     const tagIndex = tagsList.value.findIndex(item => item.name === route.name);
                     const result = {
@@ -88,9 +88,13 @@
                     };
 
                     if (~tagIndex) {
-                        tagsList.value[tagIndex] = result;
-                    } else {
-                        tagsList.value.push(result);
+                        tagsList.value.splice(tagIndex, 1);
+                    }
+
+                    tagsList.value.push(result);
+
+                    if(tagsList.value.length > 5) {
+                        tagsList.value.shift();
                     }
 
                     methods.commitStore(tagsList.value);

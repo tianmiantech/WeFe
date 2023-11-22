@@ -5,6 +5,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import baseRoutes from './routes';
+import guards from './guards';
 
 const originalPush = Router.prototype.push;
 const originalReplace = Router.prototype.replace;
@@ -25,5 +26,8 @@ const router = new Router({
         return { x: 0, y: 0 };
     },
 });
+
+// 路由守卫
+guards(router);
 
 export default router;

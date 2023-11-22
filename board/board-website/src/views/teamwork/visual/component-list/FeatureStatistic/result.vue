@@ -4,7 +4,6 @@
             <el-collapse v-model="activeName">
                 <el-collapse-item title="基础信息" name="1">
                     <CommonResult :result="vData.commonResultData"  :currentObj="currentObj" :jobDetail="jobDetail"/>
-                    autoReadResult: {{ autoReadResult }}
                 </el-collapse-item>
                 <el-collapse-item v-if="vData.members.length" title="成员信息" name="2">
                     <el-tabs v-model="vData.tabName">
@@ -13,7 +12,11 @@
                             <el-table :data="member.table" stripe :border="true" style="width :100%" class="fold-table">
                                 <el-table-column type="expand">
                                     <template #default="props">
-                                        <el-tabs type="border-card" v-model="vData.activeTab" @tab-click="methods.tabChangeEvent(props.$index, mIdx, $event)">
+                                        <el-tabs
+                                            type="border-card"
+                                            v-model="vData.activeTab"
+                                            @tab-click="methods.tabChangeEvent(props.$index, mIdx, $event)"
+                                        >
                                             <el-tab-pane label="Overview" name="overview">
                                                 <el-table :data="member.table[props.$index].overviewtable" stripe border>
                                                     <el-table-column label="最小值" prop="min"/>
@@ -50,7 +53,7 @@
                                             <!--Continuous type-->
                                             <el-tab-pane v-if="JSON.stringify(props.row.unique_count) === '{}'" label="Statistics" name="statistics">
                                                 <div class="flexbox">
-                                                    <el-descriptions class="margin-top" title="Quantile statistics" :column="1" size="medium" border style="flex: 1">
+                                                    <el-descriptions class="margin-top" title="Quantile statistics" :column="1" size="small" border style="flex: 1">
                                                         <el-descriptions-item label="Minimum">{{props.row.min}}</el-descriptions-item>
                                                         <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="5-th percentile">{{props.row.percentile[5]}}</el-descriptions-item>
                                                         <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="Q1">{{props.row.percentile[25]}}</el-descriptions-item>
@@ -60,7 +63,7 @@
                                                         <el-descriptions-item label="Maximum">{{props.row.max}}</el-descriptions-item>
                                                         <el-descriptions-item label="Variance">{{props.row.variance}}</el-descriptions-item>
                                                     </el-descriptions>
-                                                    <el-descriptions class="margin-top" title="Descriptive statistics" :column="1" size="medium" border style="flex: 1">
+                                                    <el-descriptions class="margin-top" title="Descriptive statistics" :column="1" size="small" border style="flex: 1">
                                                         <el-descriptions-item label="Standard deviation">{{props.row.std_variance}}</el-descriptions-item>
                                                         <el-descriptions-item label="Coefficient of variation（CV）">{{props.row.cv}}</el-descriptions-item>
                                                         <el-descriptions-item label="kurtosis">{{props.row.kurtosis}}</el-descriptions-item>
@@ -75,7 +78,7 @@
                                                     label="Histogram"
                                                     name="histogram"
                                                 >
-                                                    <BarChart ref="BarChart" v-if="`${member.member_id}-${member.member_role}` === vData.tabName"  :config="props.row.distributionChart"/>
+                                                    <BarChart ref="BarChart" v-if="vData.isBarChart" :config="props.row.distributionChart"/>
                                                 </el-tab-pane>
                                                 <!--Discrete type-->
                                                 <el-tab-pane v-else label="Categories" name="categories">
@@ -85,7 +88,7 @@
                                                             <el-table-column prop="count" label="count" width="180"></el-table-column>
                                                             <el-table-column prop="frequency" label="frequency"></el-table-column>
                                                         </el-table>
-                                                        <PieChart ref="PieChart" style="flex: 1" v-if="`${member.member_id}-${member.member_role}` === vData.tabName" :config="props.row.pieChartData"/>
+                                                        <PieChart ref="PieChart" v-if="`${member.member_id}-${member.member_role}` === vData.tabName" style="flex: 1" :config="props.row.pieChartData"/>
                                                     </div>
                                                 </el-tab-pane>
                                             </template>
@@ -137,9 +140,10 @@
                 members:     [],
                 resultTypes: [],
                 activeTab:   'overview',
-            });
-            const PieChart = ref(), BarChart = ref();
-            const { appContext } = getCurrentInstance();
+                isBarChart:  false,
+            }), BarChart = {};
+            const PieChart = ref();
+            const { appContext, ctx } = getCurrentInstance();
             const { $bus } = appContext.config.globalProperties;
 
             let methods = {
@@ -266,14 +270,20 @@
                     }
                 },
                 tabChangeEvent(idx, mIdx, $event){
-                    switch (vData.activeTab) {
-                    case 'categories':
-                        PieChart.value.chartResize();
-                        break;
-                    case 'histogram':
-                        BarChart.value.chartResize();
-                        break;
-                    }
+                    nextTick(_ => {
+                        switch (vData.activeTab) {
+                        case 'categories':
+                            PieChart.value.chartResize();
+                            break;
+                        case 'histogram':
+                            vData.isBarChart = true;
+                            setTimeout(()=>{
+                                BarChart = ctx.$refs.BarChart[0];
+                                BarChart.chartResize();
+                            }, 200);
+                            break;
+                        }
+                    });
                 },
             };
 
@@ -282,8 +292,6 @@
                 context,
                 vData,
                 methods,
-                PieChart,
-                BarChart,
             });
 
             onBeforeMount(() => {

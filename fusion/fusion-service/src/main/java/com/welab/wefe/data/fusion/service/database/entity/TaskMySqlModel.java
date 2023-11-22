@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,10 +16,7 @@
 
 package com.welab.wefe.data.fusion.service.database.entity;
 
-import com.welab.wefe.data.fusion.service.enums.AlgorithmType;
-import com.welab.wefe.data.fusion.service.enums.DataResourceType;
-import com.welab.wefe.data.fusion.service.enums.PSIActuatorRole;
-import com.welab.wefe.data.fusion.service.enums.TaskStatus;
+import com.welab.wefe.data.fusion.service.enums.*;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -41,7 +38,7 @@ public class TaskMySqlModel extends AbstractBaseMySqlModel {
 
     String error;
 
-    String partnerId;
+    String partnerMemberId;
 
     String dataResourceId;
 
@@ -75,16 +72,26 @@ public class TaskMySqlModel extends AbstractBaseMySqlModel {
     /**
      * Number of aligned samples
      */
-    public int dataCount;
+    public Integer dataCount;
 
     /**
      * Number of fusion
      */
-    public int fusionCount;
+    public Integer fusionCount;
+
+    /**
+     * Number of processed
+     */
+    public Integer processedCount;
 
     public long spend;
 
     public String description;
+
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "my_role")
+    public RoleType myRole;
 
 
     public String getBusinessId() {
@@ -119,12 +126,12 @@ public class TaskMySqlModel extends AbstractBaseMySqlModel {
         this.error = error;
     }
 
-    public String getPartnerId() {
-        return partnerId;
+    public String getPartnerMemberId() {
+        return partnerMemberId;
     }
 
-    public void setPartnerId(String partnerId) {
-        this.partnerId = partnerId;
+    public void setPartnerMemberId(String partnerMemberId) {
+        this.partnerMemberId = partnerMemberId;
     }
 
     public String getDataResourceId() {
@@ -143,62 +150,6 @@ public class TaskMySqlModel extends AbstractBaseMySqlModel {
         this.dataResourceType = dataResourceType;
     }
 
-    public int getRowCount() {
-        return rowCount;
-    }
-
-    public void setRowCount(int rowCount) {
-        this.rowCount = rowCount;
-    }
-
-    public AlgorithmType getAlgorithm() {
-        return algorithm;
-    }
-
-    public void setAlgorithm(AlgorithmType algorithm) {
-        this.algorithm = algorithm;
-    }
-
-    public int getDataCount() {
-        return dataCount;
-    }
-
-    public void setDataCount(int dataCount) {
-        this.dataCount = dataCount;
-    }
-
-    public int getFusionCount() {
-        return fusionCount;
-    }
-
-    public void setFusionCount(int fusionCount) {
-        this.fusionCount = fusionCount;
-    }
-
-    public long getSpend() {
-        return spend;
-    }
-
-    public void setSpend(long spend) {
-        this.spend = spend;
-    }
-
-    public PSIActuatorRole getPsiActuatorRole() {
-        return psiActuatorRole;
-    }
-
-    public void setPsiActuatorRole(PSIActuatorRole psiActuatorRole) {
-        this.psiActuatorRole = psiActuatorRole;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public boolean isTrace() {
         return isTrace;
     }
@@ -213,5 +164,77 @@ public class TaskMySqlModel extends AbstractBaseMySqlModel {
 
     public void setTraceColumn(String traceColumn) {
         this.traceColumn = traceColumn;
+    }
+
+    public int getRowCount() {
+        return rowCount;
+    }
+
+    public void setRowCount(int rowCount) {
+        this.rowCount = rowCount;
+    }
+
+    public PSIActuatorRole getPsiActuatorRole() {
+        return psiActuatorRole;
+    }
+
+    public void setPsiActuatorRole(PSIActuatorRole psiActuatorRole) {
+        this.psiActuatorRole = psiActuatorRole;
+    }
+
+    public AlgorithmType getAlgorithm() {
+        return algorithm;
+    }
+
+    public void setAlgorithm(AlgorithmType algorithm) {
+        this.algorithm = algorithm;
+    }
+
+    public Integer getDataCount() {
+        return dataCount;
+    }
+
+    public void setDataCount(Integer dataCount) {
+        this.dataCount = dataCount;
+    }
+
+    public Integer getFusionCount() {
+        return fusionCount;
+    }
+
+    public void setFusionCount(Integer fusionCount) {
+        this.fusionCount = fusionCount;
+    }
+
+    public Integer getProcessedCount() {
+        return processedCount;
+    }
+
+    public void setProcessedCount(Integer processedCount) {
+        this.processedCount = processedCount;
+    }
+
+    public long getSpend() {
+        return spend;
+    }
+
+    public void setSpend(long spend) {
+        this.spend = spend;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public RoleType getMyRole() {
+        return myRole;
+    }
+
+    public void setMyRole(RoleType myRole) {
+        this.myRole = myRole;
     }
 }

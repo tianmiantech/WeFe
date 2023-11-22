@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -65,7 +65,7 @@ public class XgboostVisualBasicLanguage extends XgboostPythonLanguage {
 
 
     @Override
-    protected String build2ClassificationsResultLogicCode(int treeNum, String initScore) {
+    protected String build2ClassificationsResultLogicCode(int treeNum, String initScore, double learningRate) {
         StringBuilder methodCalcCode = new StringBuilder();
         String summaryVar = "s1";
         methodCalcCode.append(indentationByNodeLayer(1, false));
@@ -74,7 +74,7 @@ public class XgboostVisualBasicLanguage extends XgboostPythonLanguage {
                 .append(indentationByNodeLayer(1, false))
                 .append(summaryVar)
                 .append(" = 1 / (1 + Math.Exp(0 - (")
-                .append(generateTreeSum(treeNum, initScore));
+                .append(generateTreeSum(treeNum, initScore, learningRate));
 
         String summaryVar2 = "s2";
         methodCalcCode.append(")))")
@@ -98,10 +98,10 @@ public class XgboostVisualBasicLanguage extends XgboostPythonLanguage {
     }
 
     @Override
-    protected String buildExpFunction(List<String> treeVarNameList, String initScore) {
+    protected String buildExpFunction(List<String> treeVarNameList, String initScore, double learningRate) {
         StringBuilder code = new StringBuilder();
         code.append("Math.Exp(0 - (")
-                .append(generateTreeSum(treeVarNameList, initScore))
+                .append(generateTreeSum(treeVarNameList, initScore, learningRate))
                 .append("))");
 
         return code.toString();

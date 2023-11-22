@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -48,7 +48,7 @@ public abstract class AbstractStorage extends Storage {
         try {
             conn = dataSource.getConnection();
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(),e);
         }
         return conn;
     }
@@ -68,21 +68,21 @@ public abstract class AbstractStorage extends Storage {
             try {
                 rs.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(),e);
             }
         }
         if (stat != null) {
             try {
                 stat.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(),e);
             }
         }
         if (conn != null) {
             try {
                 conn.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(),e);
             }
         }
     }

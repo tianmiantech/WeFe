@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,14 +18,10 @@ package com.welab.wefe.common.data.mongodb.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -43,7 +39,7 @@ public class QueryBuilder {
     private Map<String, Object> gteMap = new LinkedHashMap<>();
     private Map<String, List<?>> inMap = new LinkedHashMap<>();
     private Map<String, String> likeMap = new LinkedHashMap<>();
-
+    private Map<String, Date[]> dateBetweenMap = new LinkedHashMap<>();
 
     private long[] timeBetween = new long[2];
     private long timeWithin;
@@ -117,6 +113,14 @@ public class QueryBuilder {
         return this;
     }
 
+    public QueryBuilder betweenByDate(String key, Date start, Date end) {
+        Date[] dateBetween = new Date[2];
+        dateBetween[0] = start;
+        dateBetween[1] = end;
+        dateBetweenMap.put(key, dateBetween);
+        return this;
+    }
+
     public QueryBuilder sort(String key, boolean asc) {
         sortMap.put(key, asc);
         return this;
@@ -146,8 +150,8 @@ public class QueryBuilder {
 
         eqMap.forEach((k, v) -> {
             if (null != v) {
-                if(v instanceof String){
-                    if(StringUtils.isNotEmpty(v.toString())){
+                if (v instanceof String) {
+                    if (StringUtils.isNotEmpty(v.toString())) {
                         criteria.and(k).is(v);
                     }
                 } else {
@@ -180,14 +184,25 @@ public class QueryBuilder {
                 criteria.and(k).in(v);
             }
         });
-        likeMap.forEach((k, v) -> {
-            if (StringUtils.isNotEmpty(v)) {
-                criteria.and(k).regex(".*?" + v + ".*");
+
+        dateBetweenMap.forEach((k, v) -> {
+            if (Arrays.stream(v).allMatch(Objects::nonNull)) {
+                criteria.and(k).gte(v[0]).lte(v[1]);
             }
         });
+
+        for (Map.Entry<String, String> entry : likeMap.entrySet()) {
+            String k = entry.getKey();
+            String v = entry.getValue();
+            if (StringUtils.isNotEmpty(v)) {
+                v = escapeExprSpecialWord(v);
+                criteria.and(k).regex(".*?" + v + ".*");
+            }
+        }
         if (Arrays.stream(timeBetween).allMatch(time -> time > 0)) {
             criteria.and("logTime").gt(timeBetween[0]).lt(timeBetween[1]);
         }
+
 
         if (timeWithin > 0) {
             criteria.and("logTime").gt(timeWithin);
@@ -207,6 +222,26 @@ public class QueryBuilder {
         }
 
         return query;
+    }
+
+    String escapeExprSpecialWord(String keyword) {
+
+        if (StringUtils.isNotBlank(keyword)) {
+
+            String[] fbsArr = {"\\", "$", "(", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|"};
+
+            for (String key : fbsArr) {
+
+                if (keyword.contains(key)) {
+
+                    keyword = keyword.replace(key, "\\" + key);
+
+                }
+
+            }
+
+        }
+        return keyword;
     }
 
 }

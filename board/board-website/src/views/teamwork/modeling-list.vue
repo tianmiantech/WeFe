@@ -7,7 +7,7 @@
         name="模型列表"
     >
         <h3 class="mb10">模型列表</h3>
-        <el-form inline>
+        <el-form inline @submit.prevent>
             <el-form-item label="来源组件：">
                 <el-select v-model="vData.search.component_type">
                     <el-option
@@ -54,7 +54,7 @@
             <el-tag
                 v-for="item in vData.languages"
                 :key="item"
-                size="medium"
+                size="small"
                 @click="modelExport($event, item)"
             >
                 {{ item }}
@@ -71,12 +71,8 @@
     } from 'vue';
     import { useRoute } from 'vue-router';
     import table from '@src/mixins/table';
-    // import RoleTag from '@src/components/views/role-tag';
 
     export default {
-        components: {
-            // RoleTag,
-        },
         mixins: [table],
         setup(props, context) {
             const route = useRoute();
@@ -104,6 +100,18 @@
                 }, {
                     label: '横向 LR',
                     value: 'HorzLR',
+                }, {
+                    label: '纵向深度学习',
+                    value: 'VertNN',
+                }, {
+                    label: '横向深度学习',
+                    value: 'HorzNN',
+                }, {
+                    label: '混合 XGBoost',
+                    value: 'MixSecureBoost',
+                }, {
+                    label: '混合 LR',
+                    value: 'MixLR',
                 }],
                 list:       [],
                 isShowTopN: true, // show topn

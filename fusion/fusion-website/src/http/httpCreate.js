@@ -1,15 +1,30 @@
 /*!
  * @author claude
+ * http serve creater
  */
 
 import axios from 'axios';
+import { baseLogout, clearUserInfo } from '@src/router/auth';
 import { deepMerge } from '@src/utils/types';
 
-const cancelTokenQueue = {};
+function setStorage() {
+    /* const { baseUrl } = window.api;
+    const KEEPALIVE = `${baseUrl}_keepAlive`;
+
+    let keepAlive = localStorage.getItem(KEEPALIVE);
+
+    keepAlive = keepAlive ? JSON.parse(keepAlive) : false;
+
+    return keepAlive ? localStorage : sessionStorage; */
+    return window.localStorage;
+}
+
+const cancelTokenQueue = {}; // cancel token queue
+// create axios instance
 const httpInstance = axios.create({
     baseURL: '',
-    timeout: 1000 * 60,
-    headers: {},
+    headers: {}, // global request headers
+    timeout: 1000 * 20,
     // withCredentials: true,
     // responseType: 'json', // default
     // responseEncoding: 'utf8', // default
@@ -17,78 +32,137 @@ const httpInstance = axios.create({
     // xsrfHeaderName: 'X-XSRF-TOKEN', // default
 });
 
-httpInstance.interceptors.request.use(config => {
-    config.baseURL = window.api.baseUrl;
-    return config;
-}, error => {
-    window.$app.$message.error(error);
-    return { msg: error };
-});
+// request interceptors
+httpInstance.interceptors.request.use(
+    (config) => {
+        config.baseURL = window.api.baseUrl;
+        // must logged in before sending request
+        if (config.isLogin) {
+            // cancel all requests first
+            for (const key in cancelTokenQueue) {
+                cancelTokenQueue[key].cancel();
+            }
+            // to login
+            baseLogout();
+        }
+        return config;
+    },
+    (error) => {
+        window.$app.$message.error({ message: error });
+        return {
+            msg: error,
+        };
+    },
+);
 
+// time stamp for last message dialog
+let lastErrorMessageTime = 0;
+
+// respones interceptors
 httpInstance.interceptors.response.use(
-    response => {
+    (response) => {
         const { config, data } = response;
 
+        // global error for request
         if (config.systemError !== false) {
-            if (data && data.code !== 0 && data.message) {
-                window.$app.$message.error(data.message);
+            if (config.responseType !== 'blob' && data && data.code !== 0) {
+                // login dialog
+                if (data.code === 10006) {
+                    window.$app.$bus.$emit('show-login-dialog');
+
+                    clearUserInfo();
+                    if (new Date().valueOf() - lastErrorMessageTime > 2000) {
+                        lastErrorMessageTime = new Date().valueOf();
+                        window.$app.$message.error({ message: data.message });
+                    }
+                } else if (data.code === 10000) {
+                    // system is not inited, logout
+                    baseLogout();
+                } else if (data.code === 30001) {
+                    // graph node has exception occurred
+                    window.$app.$bus.$emit(
+                        'node-error',
+                        {
+                            ...data.data,
+                            message: data.message,
+                        },
+                    );
+                } else if (data.code === 10017) {
+                    window.$app.$message.error(data.message || '未知错误!');
+                } else if (data.code === -1 || data.code === 10003) {
+                    window.$app.$message.error(data.message || '未知错误!');
+                } else {
+                    window.$app.$message.error({ message: data.message || '未知错误!' });
+                }
             }
         }
 
+        // compatible the error data
         if (data.code == null) {
-
+            // Convert to standard structure
             return {
                 code: 0,
                 data,
+                response,
             };
         }
+
+        // 添加自定义字段以备用
+        data._axios_response = response;
         return data;
     },
-    result => {
+    (result) => {
         const { $message } = window.$app;
         const { code, response, isCancel, systemError, message } = result;
 
         if (systemError !== false) {
             if (isCancel) {
+                // Actively cancel pop-up prompt
+                const msg = isCancel.msg ? `请求已取消: ${isCancel.msg}` : '请求已取消';
 
-                const msg = isCancel.msg ? `Cancel menually: ${isCancel.msg}` : 'Cancel menually';
-
-                $message.error(msg);
+                $message.error({ message: msg });
                 return {
-                    code: 'canceled',
+                    code: 'cancelled',
                     msg,
                 };
             } else if (code === 'ECONNABORTED') {
+                // Capture error
+                const msg = '请求超时 !';
 
-                const msg = 'request timeout !';
-
-                $message.error(msg);
+                $message.error({ message: msg });
                 return {
                     code: 'timeout',
                     msg,
                 };
             } else if (response) {
-
                 const status = +response.status;
                 const msg = `${status}: ${response.statusText}`;
 
                 switch (status) {
+                    case 401:
+                        // to login
+                        $message.error({ message: '登录已过期, 请重新登录' });
+                        baseLogout();
+                        break;
                     /* case 504:
-                        $message.error(msg);
+                        $message.error({ message: msg, });
                         break; */
                     default:
-                        $message.error(msg);
+                        $message.error({ message: msg });
                 }
                 return {
                     code: status,
                     msg,
                 };
             } else if (message) {
-
-                $message.error(message);
+                // Cross domain / network error...
+                $message.error({ message });
+                return {
+                    code: 1,
+                    msg:  message,
+                };
             }
         }
-
         return {
             code: 1,
             msg:  message,
@@ -96,8 +170,11 @@ httpInstance.interceptors.response.use(
     },
 );
 
-let loadingCount = 0;
-const btnQueue = {};
+/**
+ * public service function
+ */
+let loadingCount = 0; // loading count
+const btnQueue = {}; // request queue for buttons
 const policy = {
     isCancel(options, state, msg) {
         if (state === true) {
@@ -106,11 +183,11 @@ const policy = {
             if (cancelToken) {
                 cancelToken.cancel();
                 if (msg) {
-                    window.$app.$message.error(msg);
+                    window.$app.$message.error({ message: msg });
                 }
             }
         } else if (state === 'all') {
-
+            // cancel all requests
             for (const key in cancelTokenQueue) {
                 cancelTokenQueue[key].cancel();
             }
@@ -120,7 +197,9 @@ const policy = {
         if (options.urltail) {
             const { url, urltail } = options;
 
-            options.url = `${url}/${urltail.substr(0, 1) === '/' ? urltail.substr(1) : urltail}`;
+            options.url = `${url}/${
+                urltail.substr(0, 1) === '/' ? urltail.substr(1) : urltail
+            }`;
         }
     },
     btnState(btnState) {
@@ -140,18 +219,20 @@ const policy = {
 
         if (!locker) {
             if (btnState.type !== false) {
-                srcElement.classList.add('is-loading');
                 srcElement.setAttribute('locker', +Date.now());
+                srcElement.classList.add('is-loading');
+                // insert loading element
+                const loadingMask = document.createElement('div');
 
-                const icon = document.createElement('i');
+                loadingMask.classList.add('el-loading-mask');
+                loadingMask.innerHTML = '<div class="el-loading-spinner"><svg viewBox="25 25 50 50" class="circular"><circle cx="50" cy="50" r="20" fill="none" class="path"></circle></svg></div>';
 
-                icon.classList.add('el-icon-loading');
-                srcElement.insertBefore(icon, srcElement.children[0]);
-
+                srcElement.insertBefore(loadingMask, srcElement.children[0]);
+                // add to queue
                 btnQueue[locker] = srcElement;
             }
         } else {
-
+            // Block duplicate requests
             return false;
         }
 
@@ -162,21 +243,49 @@ const policy = {
 
         if (options.loading && loadingCount === 0) {
             delete options.loading;
-            loadingInstance = window.$app.$loading({ fullscreen: true });
+            loadingInstance = window.$app.$loading({
+                fullscreen: true,
+            });
             loadingCount++;
         }
         return loadingInstance;
     },
 };
+const createTimeoutLayer = () => {
+    const now = Date.now();
+    const timer = setTimeout((_) => {
+        // check the global loading
+        if (!document.body.classList.contains('el-loading-parent--relative')) {
+            const loadingLayer = document.createElement('div');
+
+            loadingLayer.id = now;
+            loadingLayer.className = 'el-loading-mask is-fullscreen';
+            loadingLayer.style.zIndex = 20000000;
+            loadingLayer.innerHTML = `<div class="el-loading-spinner">
+                <svg viewBox="25 25 50 50" class="circular">
+                    <circle cx="50" cy="50" r="20" fill="none" class="path"></circle>
+                </svg>
+                <p class="text-c mt10" style="color:#4D84F7;">等待服务器响应, 请稍候...</p>
+            </div>`;
+            document.body.appendChild(loadingLayer);
+        }
+    }, 10000);
+
+    return {
+        timer,
+        now,
+    };
+};
 
 const baseService = (config = {}) => {
-
-    const options = deepMerge({
-        loading: false,
-        isLogin: false,
-    }, config);
-
-
+    const options = deepMerge(
+        {
+            loading:      false,
+            isLogin:      false,
+            timeoutLayer: false,
+        },
+        config,
+    );
     const { isCancel } = options;
 
     policy.isCancel(options, isCancel);
@@ -189,39 +298,59 @@ const baseService = (config = {}) => {
     cancelTokenQueue[`${options.url}`] = source;
     options.cancelToken = source.token;
 
-
+    // add url tail
     policy.urlTail(options);
 
-    const srcElement = policy.btnState(config.btnState);
+    const srcElement = policy.btnState(config.btnState); // must be config
 
+    // Block duplicate requests
     if (srcElement === false) {
         return false;
     }
 
-    if (options.headers !== false) {
-        const userInfo = window.localStorage.getItem('userInfo') || window.sessionStorage.getItem('userInfo');
+    // set default headers
+    const { headers } = options;
 
-        if (userInfo) {
+    if (headers !== false) {
+        const { baseUrl } = window.api;
+        const userInfo = setStorage().getItem(`${baseUrl}_userInfo`);
+
+        if (userInfo && userInfo !== 'undefined') {
             options.headers = {
+                ...headers,
                 token: JSON.parse(userInfo).token,
             };
         }
     }
 
+    // add global loading
     const loadingInstance = policy.loading(options);
 
+    // call httpInstance
     return new Promise((resolve, reject) => {
+        let timeout = null;
+
+        if (options.timeoutLayer) {
+            // request tiemout after 5s, then create global loading
+            timeout = createTimeoutLayer();
+        }
+
         httpInstance({ ...options })
             .then((res) => {
                 resolve(res);
             })
-            .catch(error => {
+            .catch((error) => {
                 reject(error);
             })
             .finally(() => {
+                if (timeout) {
+                    clearTimeout(timeout.timer);
+                    const layer = document.getElementById(timeout.now);
 
+                    layer && document.body.removeChild(layer);
+                }
                 setTimeout(() => {
-
+                    // restore button status
                     if (srcElement) {
                         const locker = srcElement.getAttribute('locker');
 
@@ -233,6 +362,7 @@ const baseService = (config = {}) => {
                         srcElement.removeAttribute('locker');
                     }
 
+                    // close global loading
                     if (loadingInstance) {
                         loadingCount--;
                         loadingInstance.close();

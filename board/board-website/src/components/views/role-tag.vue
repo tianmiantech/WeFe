@@ -4,7 +4,7 @@
         class="job_member_role_tag"
         type="success"
         effect="dark"
-        size="mini"
+        size="small"
     >
         <el-icon>
             <elicon-star />
@@ -15,7 +15,7 @@
         v-else-if="role === 'provider'"
         class="job_member_role_tag"
         effect="dark"
-        size="mini"
+        size="small"
     >
         <el-icon>
             <elicon-medal />
@@ -26,7 +26,7 @@
         v-else
         class="job_member_role_tag"
         effect="dark"
-        size="mini"
+        size="small"
     >
         <el-icon>
             <elicon-connection />

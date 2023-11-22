@@ -16,6 +16,7 @@
 
 import argparse
 import os
+import random
 
 import tensorflow
 import tensorflow.keras.layers
@@ -67,7 +68,7 @@ def main(config="../../config.yaml", param="./param_conf_binary.yaml", namespace
     handler_upload.upload(work_mode=work_mode, backend=backend, db_type=db_type)
 
     # initialize handler
-    handler = Handler(job_id="job_hozrnn_001", work_mode=work_mode, backend=backend, db_type=db_type,
+    handler = Handler(job_id="job_hozrnn_"+str(random.randint(0,9999999)), work_mode=work_mode, backend=backend, db_type=db_type,
                       fl_type="horizontal")
     # set job initiator
     handler.set_initiator(role='promoter', member_id=promoter)
@@ -95,12 +96,16 @@ def main(config="../../config.yaml", param="./param_conf_binary.yaml", namespace
 
     horz_nn_0 = HorzNN(name="horz_nn_0", encode_label=encode_label, max_iter=epoch, batch_size=batch_size,
                        early_stop={"early_stop": "diff", "eps": 0.0})
-    for layer_config in layers:
-        layer = getattr(tensorflow.keras.layers, layer_config["name"])
-        layer_params = layer_config["params"]
-        horz_nn_0.add(layer(**layer_params))
-        horz_nn_0.compile(optimizer=getattr(optimizers, optimizer_name)(learning_rate=lr), metrics=metrics,
-                          loss=loss)
+
+
+    # for layer_config in layers:
+    #     layer = getattr(tensorflow.keras.layers, layer_config["name"])
+    #     layer_params = layer_config["params"]
+    #     horz_nn_0.add(layer(**layer_params))
+    nn_define = {}
+    nn_define["layers"] = layers
+    optimizer = {'learning_rate': lr,'optimizer': optimizer_name}
+    horz_nn_0.compile(nn_define=nn_define,optimizer=optimizer, metrics=metrics,loss=loss,config_type="keras")
     # if param["loss"] == "categorical_crossentropy":
     #     eval_type = "multi"
     # else:

@@ -1,5 +1,5 @@
 #ntos，版本为7，build镜像时会自动下载
-FROM wefe_python_base
+FROM wefe_python_base:v1.0
 
 #语言编码设置
 RUN localedef -c -f UTF-8 -i zh_CN zh_CN.utf8

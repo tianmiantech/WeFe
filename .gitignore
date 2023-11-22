@@ -8,8 +8,8 @@ gen
 .settings/
 .classpath
 .vscode/
+**/sdk.zip
 .factorypath
-
 # 排除编译输出
 *.class
 target/
@@ -44,5 +44,8 @@ build/
 *.properties
 venv/
 /docker/
-**/assembly/
-/assembly/
+
+# 排除环境配置文件
+.env.local
+/.env.local
+.env.*.local

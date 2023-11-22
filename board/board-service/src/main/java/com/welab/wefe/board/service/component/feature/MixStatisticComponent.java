@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,14 +15,6 @@
  */
 
 package com.welab.wefe.board.service.component.feature;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
@@ -37,10 +29,17 @@ import com.welab.wefe.board.service.dto.entity.MemberModel;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.TaskResultType;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.TaskResultType;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Winter
@@ -49,7 +48,7 @@ import com.welab.wefe.common.util.JObject;
 public class MixStatisticComponent extends AbstractComponent<MixStatisticComponent.Params> {
     @Override
     protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
-            Params params) {
+                                        Params params) {
     }
 
     @Override
@@ -61,19 +60,18 @@ public class MixStatisticComponent extends AbstractComponent<MixStatisticCompone
     public boolean canSelectFeatures() {
         return true;
     }
-    
+
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
-            Params params) {
-        JSONObject taskParam = new JSONObject();
-        List<MemberFeatureInfoModel> members = params.members;
-        for (MemberFeatureInfoModel member : members) {
-            if (CacheObjects.getMemberId().equals(member.getMemberId())) {
-                List<String> features = member.features;
-                taskParam.put("params", JObject.create("col_names", features));
-            }
-        }
-        return taskParam;
+                                          Params params) {
+
+        MemberFeatureInfoModel me = params.members
+                .stream()
+                .filter(member -> CacheObjects.getMemberId().equals(member.getMemberId()))
+                .findFirst()
+                .orElse(null);
+
+        return JObject.create("col_names", me.features);
     }
 
     @Override

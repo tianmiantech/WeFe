@@ -9,7 +9,7 @@ data_provider_val: "breast_vert_provider"
 eval_type: "binary"
 task_type: "classification"
 loss_func: "cross_entropy"
-tree_depth: 5
-tree_num: 30
+tree_depth: 3
+tree_num: 3
 learning_rate: 0.1
 

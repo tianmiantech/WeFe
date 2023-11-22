@@ -1,5 +1,5 @@
 
 ### 获取 member 信息
-GET {{baseUrl}}/member/detail
+GET http://localhost:8080/board-service/member/detail
 Content-Type: application/json
 token: {{token}}

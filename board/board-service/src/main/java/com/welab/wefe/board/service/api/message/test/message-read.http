@@ -1,6 +1,6 @@
 
 ### 将消息标记为已读
-POST {{baseUrl}}/message/read
+POST http://localhost:8080/board-service/message/read
 Content-Type: application/json
 
 {

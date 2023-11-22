@@ -1,8 +1,8 @@
-POST {{baseUrl}}/project/flow/get_progress
+POST http://localhost:8080/board-service/project/flow/get_progress
 Content-Type: application/json
 
 {
-  "flowIdList":[
+  "flowIdList": [
     "81576f08c5fc48cca66f0f7c7834e7be"
   ]
 }

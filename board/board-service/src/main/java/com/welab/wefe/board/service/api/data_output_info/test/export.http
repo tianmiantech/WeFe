@@ -1,0 +1,13 @@
+
+###
+
+POST http://localhost:8080/board-service/data_output_info/model_export_to_file
+Content-Type: application/json
+token:{{token}}
+
+{
+  "taskId": "test",
+  "role": "promoter"
+}
+
+###

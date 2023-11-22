@@ -1,8 +1,9 @@
-POST {{baseUrl}}/flow/start
+POST http://localhost:8080/board-service/flow/start
 Content-Type: application/json
+token:{{token}}
 
 {
-  "flow_id": "34bb11fb249c4181a62c9b0743a7cd9f",
+  "flow_id": "f4847e9317164b86a564f98d71841272",
   "use_cache": false
 }
 

@@ -1,11 +1,11 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,12 +44,12 @@ import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.TaskResultType;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.TaskResultType;
 
 /**
  * @author lonnie
@@ -64,7 +64,7 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
         if (intersectionNode == null) {
             throw new FlowNodeException(node, "请在前面添加样本对齐组件。");
         }
-        
+
         if (CollectionUtils.isEmpty(params.getMembers())) {
             throw new FlowNodeException(node, "请添加分箱策略");
         }
@@ -96,8 +96,6 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
 
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
-
-        JSONObject taskParam = new JSONObject();
 
         // Reassemble front-end parameters
         JObject transformParam = JObject.create()
@@ -221,9 +219,7 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
                 .append("optimal_binning_param", optimalBinningParam)
                 .append("modes", modesObj);
 
-        taskParam.put("params", binningParam);
-
-        return taskParam;
+        return binningParam;
     }
 
     @Override
@@ -270,32 +266,32 @@ public class BinningComponent extends AbstractComponent<BinningComponent.Params>
                 }
 
                 List<JObject> providerResults = modelParam.getJSONList("providerResults");
-				Map<String, JObject> biningResultMap = new HashMap<>();
-				if (CollectionUtils.isNotEmpty(providerResults)) {
-					for (JObject providerResult : providerResults) {
-						String memberName = CacheObjects.getMemberName(providerResult.getString("memberId"));
-						String key = memberName + "_" + providerResult.getString("memberId") + "_"
-								+ providerResult.getString("role");
-						if (biningResultMap.containsKey(key)) {
-							// merge
-							JObject result = biningResultMap.get(key);
-							JObject temp = result.getJObject("binningResult");
-							temp.putAll(providerResult.getJObject("binningResult"));
-							result.put("binningResult", temp);
-							biningResultMap.put(key, result);
-						} else {
-							// add
-							providerResult.append("member_name", memberName)
-									.append("member_id", providerResult.getString("memberId"))
-									.append("member_role", providerResult.getString("role"));
-							biningResultMap.put(key, providerResult);
-						}
+                Map<String, JObject> biningResultMap = new HashMap<>();
+                if (CollectionUtils.isNotEmpty(providerResults)) {
+                    for (JObject providerResult : providerResults) {
+                        String memberName = CacheObjects.getMemberName(providerResult.getString("memberId"));
+                        String key = memberName + "_" + providerResult.getString("memberId") + "_"
+                                + providerResult.getString("role");
+                        if (biningResultMap.containsKey(key)) {
+                            // merge
+                            JObject result = biningResultMap.get(key);
+                            JObject temp = result.getJObject("binningResult");
+                            temp.putAll(providerResult.getJObject("binningResult"));
+                            result.put("binningResult", temp);
+                            biningResultMap.put(key, result);
+                        } else {
+                            // add
+                            providerResult.append("member_name", memberName)
+                                    .append("member_id", providerResult.getString("memberId"))
+                                    .append("member_role", providerResult.getString("role"));
+                            biningResultMap.put(key, providerResult);
+                        }
 
-					}
-					for (Map.Entry<String, JObject> entry : biningResultMap.entrySet()) {
-						resultList.add(entry.getValue());
-					}
-				}
+                    }
+                    for (Map.Entry<String, JObject> entry : biningResultMap.entrySet()) {
+                        resultList.add(entry.getValue());
+                    }
+                }
 
                 taskResultMySqlModel.setResult(JObject.create().append("result", resultList).toJSONString());
             }

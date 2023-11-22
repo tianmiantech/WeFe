@@ -137,3 +137,25 @@ def calc_woe(self):
         non_event_rate = 1.0 * self.non_event_count / max(self.non_event_total, 1)
     woe = math.log(non_event_rate / event_rate)
     return event_rate, non_event_rate, woe
+
+def shuffle_bin_index_with_dpnoise(bin_index, bin_size,epsilon):
+    num_list = np.arange(0,bin_size)
+    num_list[0], num_list[bin_index] = num_list[bin_index], num_list[0]
+
+    # with probability p = e^ε/(e^ε+q-1) stays in the ith bucket,
+    # with probability q = 1/(e^ε+q-1) moves to another bucket
+    p = np.exp(epsilon) / (np.exp(epsilon) + bin_size -1.0)
+    q = 1.0 / (np.exp(epsilon) + bin_size - 1.0)
+
+    probabilities = np.append(np.array(p),np.full(bin_size-1,q))
+    return random_pick(num_list,probabilities)
+
+def random_pick(some_list, probabilities):
+    import random
+    x = random.uniform(0, 1)
+    cumulative_probability = 0.0
+    for item, item_probability in zip(some_list, probabilities):
+        cumulative_probability += item_probability
+        if x < cumulative_probability:
+            break
+    return item

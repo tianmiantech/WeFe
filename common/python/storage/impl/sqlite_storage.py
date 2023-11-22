@@ -22,7 +22,7 @@ from common.python.utils.core_utils import bytes_to_string, deserialize
 
 
 def _get_data_dir():
-    data_dir = os.path.join(file_utils.get_project_base_directory(), 'data/sqlite')
+    data_dir = os.path.join(file_utils.get_project_base_directory(), 'data/SQLite')
     return data_dir
 
 
@@ -110,7 +110,7 @@ class SqliteStorage(Storage):
         return None if old_value_bytes is None else (
             deserialize(old_value_bytes) if use_serialize else old_value_bytes)
 
-    def collect(self, min_chunk_size=0, use_serialize=True) -> list:
+    def collect(self, min_chunk_size=0, use_serialize=True, partition=None) -> list:
         sql = f"SELECT id,value FROM '{self._name}'"
         conn, cursor = self.exec(sql, None)
         data = cursor.fetchall()
@@ -134,7 +134,7 @@ class SqliteStorage(Storage):
         print(f"destory :{sql}")
 
         _table_key = ".".join([self._type, self._namespace, self._name])
-        from common.python.storage.impl.dsource import DBRuntime
+        from common.python.p_session.base_impl.db_runtime import DBRuntime
         DBRuntime.get_instance().meta_table.delete(_table_key)
 
     def count(self):
@@ -176,7 +176,7 @@ class SqliteStorage(Storage):
 
         dsource.set_gc_disable()
 
-        from common.python.storage.impl.dsource import DBRuntime
+        from common.python.p_session.base_impl.db_runtime import DBRuntime
         dup = DBRuntime.get_instance().table(name, namespace, partition,
                                              persistent=persistent, persistent_engine=persistent_engine)
 

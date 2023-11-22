@@ -3,6 +3,7 @@
         ref="form"
         v-loading="vData.loading"
         :disabled="disabled"
+        @submit.prevent
     >
         <el-form-item
             v-for="(item, index) in vData.selectList"
@@ -30,7 +31,6 @@
                 @change="methods.changeMethodCount(item, index)"
             />
             <el-button
-                size="mini"
                 class="ml10"
                 style="margin-top:2px;"
                 :disabled="vData.total_column_count === 0"
@@ -139,16 +139,16 @@
                     { value: 'min', label: '最小值' },
                     { value: 'const', label: '常量' },
                     { value: 'mean', label: '平均值' },
-                    { value: 'median', label: '中位数' },
+                    // { value: 'median', label: '中位数' },
                     // { value: 'mode', label: '众数' },
                 ],
                 methodObj: {
-                    'max':    '最大值',
-                    'min':    '最小值',
-                    'const':  '常量',
-                    'mean':   '平均值',
-                    'median': '中位数',
-                    'mode':   '众数',
+                    'max':   '最大值',
+                    'min':   '最小值',
+                    'const': '常量',
+                    'mean':  '平均值',
+                    // 'median': '中位数',
+                    'mode':  '众数',
                 },
                 columnListType:   'max',
                 selectListIndex:  0,

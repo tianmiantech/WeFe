@@ -1,11 +1,11 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,14 +18,16 @@ package com.welab.wefe.service;
 
 import com.welab.wefe.bo.data.BlockInfoBO;
 import com.welab.wefe.bo.data.TransactionResponseBO;
-import com.welab.wefe.common.data.mongodb.entity.contract.tool.TransactionResponseDetailInfo;
+import com.welab.wefe.common.data.mongodb.entity.union.TransactionResponseDetailInfo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
@@ -73,10 +75,17 @@ public class TransactionResponseService extends BaseService {
                 detailInfo.setData(JObject.create(JObject.toJSONString(transactionResponseBO.getTransactionResponse())));
 
                 String collectionName = buildCollectionName(contractName, eventName);
+                Index index = new Index();
+                index.on("transaction_hash", Sort.Direction.ASC);
+                index.background();
+                mongoTemplate.indexOps(collectionName).ensureIndex(index);
+
                 TransactionResponseDetailInfo historyDetailInfo = getByTransactionHash(collectionName, transactionResponseBO.getTransactionHash());
                 if (null != historyDetailInfo) {
                     detailInfo.setId(historyDetailInfo.getId());
                 }
+
+
                 mongoTemplate.save(detailInfo, collectionName);
             }
         } catch (Exception e) {

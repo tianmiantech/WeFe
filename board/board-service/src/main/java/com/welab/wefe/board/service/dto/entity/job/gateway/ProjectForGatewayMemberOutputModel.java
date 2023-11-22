@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,8 +16,10 @@
 
 package com.welab.wefe.board.service.dto.entity.job.gateway;
 
-import com.welab.wefe.common.enums.AuditStatus;
-import com.welab.wefe.common.enums.JobMemberRole;
+
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -27,13 +29,9 @@ import javax.persistence.Enumerated;
  */
 public class ProjectForGatewayMemberOutputModel {
 
-    /**
-     * 成员 Id
-     */
+    @Check(name = "成员 Id")
     private String memberId;
-    /**
-     * 成员名称
-     */
+    @Check(name = "成员名称")
     private String memberName;
 
     /**
@@ -47,9 +45,7 @@ public class ProjectForGatewayMemberOutputModel {
      */
     @Enumerated(EnumType.STRING)
     private AuditStatus auditResult;
-    /**
-     * 审核意见
-     */
+    @Check(name = "审核意见")
     private String auditComment;
 
     public String getMemberId() {

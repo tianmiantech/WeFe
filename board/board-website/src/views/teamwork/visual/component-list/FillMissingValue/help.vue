@@ -1,7 +1,7 @@
 <template>
     <CommonHelp>
         <template #intro>
-            把数据集中缺失的数据进行填充，输出填充后数据集。
+            把数据资源中缺失的数据进行填充，输出填充后数据资源。
         </template>
         <template #params>
             填充策略：最大值、最小值、均值、常量
@@ -16,7 +16,7 @@
         </template>
 
         <template #output>
-            输出填充后的数据集
+            输出填充后的数据资源
         </template>
 
         <template #error-tip />

@@ -186,8 +186,3 @@
         @include text-overflow($val)
     }
 }
-
-@mixin inlineblock{
-    display: inline-block;
-    vertical-align: top;
-}

@@ -37,36 +37,9 @@ def get_fc_storages_has_other(evt, context=None):
     -------
     source_fcs, others_fcs, dest_fcs: the source ,other ,destination fcStorage Object
     """
-
-    # source storage args
-    source_name = evt['source']['name']
-    source_namespace = evt['source']['namespace']
-    source_partitions = evt['source']['partitions']
-    source_fcs = None
-    if evt['source']['cloud_store_temp_auth'] is not None:
-        cloud_store_temp_auth = evt['source']['cloud_store_temp_auth']
-        source_fcs = FCStorage(source_namespace, source_name, partitions=source_partitions,
-                               cloud_store_temp_auth=cloud_store_temp_auth)
-    else:
-        source_fcs = FCStorage(source_namespace, source_name, partitions=source_partitions)
-
-    # destination storage args
-    dest_name = evt['dest']['name']
-    dest_namespace = evt['dest']['namespace']
-    dest_partitions = evt['dest']['partitions']
-    # others storage args
-    others_name = evt['others']['name']
-    others_namespace = evt['others']['namespace']
-    others_partitions = evt['others']['partitions']
-    others_fcs = None
-    if evt['others']['cloud_store_temp_auth'] is not None:
-        cloud_store_temp_auth = evt['others']['cloud_store_temp_auth']
-        others_fcs = FCStorage(others_namespace, others_name, partitions=others_partitions,
-                               cloud_store_temp_auth=cloud_store_temp_auth)
-    else:
-        others_fcs = FCStorage(others_namespace, others_name, partitions=others_partitions)
-
-    dest_fcs = FCStorage(dest_namespace, dest_name, partitions=dest_partitions)
+    source_fcs = get_source_fc_storage(evt)
+    others_fcs = get_other_fc_storage(evt)
+    dest_fcs = get_dest_fc_storage(evt)
 
     partition = evt['partition']
     with ThreadPoolExecutor() as t:
@@ -97,25 +70,50 @@ def get_fc_storages(evt):
     -------
     source_fcs, dest_fcs: the source and destination fcStorage Object
     """
-
-    # source storage args
-    source_name = evt['source']['name']
-    source_namespace = evt['source']['namespace']
-    source_partitions = evt['source']['partitions']
-    source_fcs = None
-    if evt['source']['cloud_store_temp_auth'] is not None:
-        cloud_store_temp_auth = evt['source']['cloud_store_temp_auth']
-        source_fcs = FCStorage(source_namespace, source_name, partitions=source_partitions,
-                               cloud_store_temp_auth=cloud_store_temp_auth)
-    else:
-        source_fcs = FCStorage(source_namespace, source_name, partitions=source_partitions)
-
-    # destination storage args
-    dest_name = evt['dest']['name']
-    dest_namespace = evt['dest']['namespace']
-    dest_partitions = evt['dest']['partitions']
-    dest_fcs = FCStorage(dest_namespace, dest_name, partitions=dest_partitions)
+    source_fcs = get_source_fc_storage(evt)
+    dest_fcs = get_dest_fc_storage(evt)
     return source_fcs, dest_fcs
+
+
+def get_source_fc_storage(evt):
+    return _get_assign_fc_storage(evt, name="source")
+
+
+def get_other_fc_storage(evt):
+    return _get_assign_fc_storage(evt, name="others")
+
+
+def get_dest_fc_storage(evt):
+    return _get_assign_fc_storage(evt, name="dest")
+
+
+def _get_assign_fc_storage(evt, name='source'):
+    """
+    get assign fc storage
+
+    Parameters
+    ----------
+    evt :
+    name : source、other、dest
+
+    Returns
+    -------
+
+    """
+    info = evt[name]
+    name = info['name']
+    namespace = info['namespace']
+    partitions = info['partitions']
+    cloud_store_temp_auth = info['cloud_store_temp_auth'] \
+        if "cloud_store_temp_auth" in info else None
+    return FCStorage(namespace,
+                     name,
+                     partitions=partitions,
+                     cloud_store_temp_auth=cloud_store_temp_auth)
+
+
+def get_data_from_fcs(fcs, partition, only_key=False):
+    return fcs.collect(partition=partition, only_key=only_key)
 
 
 def get_execution_id(evt):
@@ -132,8 +130,7 @@ def get_execution_id(evt):
 
 
 def get_request_id(cot):
-    if cot:
-        return cot.requestId
+    return cot.requestId if cot else None
 
 
 def fc_print(evt, info, cot=None):

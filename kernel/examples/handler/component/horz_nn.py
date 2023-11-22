@@ -70,15 +70,16 @@ class HorzNN(Component):
         self._model.add(layer)
         return self
 
-    def compile(self, optimizer, loss=None, metrics=None):
+    def compile(self, nn_define,optimizer, loss=None, metrics=None,config_type=None):
         if metrics and not isinstance(metrics, list):
             raise ValueError("metrics should be a list")
 
-        self.optimizer = self._model.get_optimizer_config(optimizer)
-        self.loss = self._model.get_loss_config(loss)
+        self.optimizer = optimizer
+        self.loss = loss
         self.metrics = metrics
-        self.config_type = self._model.get_layer_type()
-        self.nn_define = self._model.get_network_config()
+        self.config_type = config_type
+        # self.nn_define = self._model.get_network_config()
+        self.nn_define = nn_define
         return self
 
     def __getstate__(self):

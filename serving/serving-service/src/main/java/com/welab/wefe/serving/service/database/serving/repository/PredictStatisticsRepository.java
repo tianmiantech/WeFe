@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -65,7 +65,7 @@ public interface PredictStatisticsRepository extends BaseRepository<PredictStati
      * @param endDate
      * @return List<PredictStatisticsMySqlModel>
      */
-    @Query(value = "select id,member_id,model_id,month,day,hour,minute,sum(total) total,sum(success) success,sum(fail) fail,created_time,updated_time " +
+    @Query(value = "select max(id) as id,max(member_id) as member_id,max(model_id) as model_id,max(month) as month,day,max(hour) as hour,max(minute) as minute,sum(total) total,sum(success) success,sum(fail) fail,max(created_time) as created_time,max(updated_time) as updated_time " +
             "from predict_statistics where 1=1 " +
             "and if(:modelId != '', model_id = :modelId, 1 = 1) " +
             "and if(:memberId != '', member_id = :memberId, 1 = 1) " +
@@ -85,7 +85,7 @@ public interface PredictStatisticsRepository extends BaseRepository<PredictStati
      * @param endDate
      * @return List<PredictStatisticsMySqlModel>
      */
-    @Query(value = "select id,member_id,model_id,month,day,hour,minute,sum(total) total,sum(success) success,sum(fail) fail,created_time,updated_time " +
+    @Query(value = "select max(id) as id,max(member_id) as member_id,max(model_id) as model_id,max(month) as month,max(day) as day,hour,max(minute) as minute,sum(total) total,sum(success) success,sum(fail) fail,max(created_time) as created_time,max(updated_time) as updated_time " +
             "from predict_statistics where 1=1 " +
             "and if(:modelId != '', model_id = :modelId, 1 = 1) " +
             "and if(:memberId != '', member_id = :memberId, 1 = 1) " +
@@ -105,7 +105,7 @@ public interface PredictStatisticsRepository extends BaseRepository<PredictStati
      * @param endDate
      * @return List<PredictStatisticsMySqlModel>
      */
-    @Query(value = "select id,member_id,model_id,month,day,hour,minute,sum(total) total,sum(success) success,sum(fail) fail,created_time,updated_time " +
+    @Query(value = "select max(id) as id,max(member_id) as member_id,max(model_id) as model_id,month,max(day) as day,max(hour) as hour,max(minute) as minute,sum(total) total,sum(success) success,sum(fail) fail,max(created_time) as created_time,max(updated_time) as updated_time " +
             "from predict_statistics where 1=1 " +
             "and if(:modelId != '', model_id = :modelId, 1 = 1) " +
             "and if(:memberId != '', member_id = :memberId, 1 = 1) " +
@@ -125,7 +125,7 @@ public interface PredictStatisticsRepository extends BaseRepository<PredictStati
      * @param endDate
      * @return List<PredictStatisticsMySqlModel>
      */
-    @Query(value = "select id,member_id,model_id,month,day,hour,minute,sum(total) total,sum(success) success,sum(fail) fail,created_time,updated_time " +
+    @Query(value = "select max(id) as id,max(member_id) as member_id,max(model_id) as model_id,max(month) as month,max(day) as day,max(hour) as hour,minute,sum(total) total,sum(success) success,sum(fail) fail,max(created_time) as created_time,max(updated_time) as updated_time " +
             "from predict_statistics where 1=1 " +
             "and if(:modelId != '', model_id = :modelId, 1 = 1) " +
             "and if(:memberId != '', member_id = :memberId, 1 = 1) " +

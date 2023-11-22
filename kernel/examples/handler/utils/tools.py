@@ -165,8 +165,8 @@ class Upload(object):
             dst_table_namespace)
 
     @staticmethod
-    def prevent_repeat_upload(table_name, namespace):
-        data_table = session.get_data_table(table_name, namespace)
+    def prevent_repeat_upload(table_name, namespace, partition=1):
+        data_table = session.get_data_table(table_name, namespace, partition)
         if not data_table.take():
             print("{}".format("Not Repeat"))
         else:

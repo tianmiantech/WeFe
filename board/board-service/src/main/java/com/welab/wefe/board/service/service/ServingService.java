@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,19 +26,19 @@ import com.welab.wefe.board.service.database.repository.JobRepository;
 import com.welab.wefe.board.service.dto.entity.job.JobMemberOutputModel;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.dto.globalconfig.ServingConfigModel;
-import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.Algorithm;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.TaskResultType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.enums.Algorithm;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.TaskResultType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,9 +56,6 @@ import java.util.TreeMap;
 public class ServingService extends AbstractService {
 
     private static final String SEPARATOR = "_";
-
-    @Autowired
-    UnionService unionService;
 
     @Autowired
     JobRepository jobRepository;
@@ -84,7 +81,6 @@ public class ServingService extends AbstractService {
             try {
                 refreshMemberInfo(model);
             } catch (StatusCodeWithException e) {
-                e.printStackTrace();
                 LOG.error("serving 响应失败：" + e.getMessage(), StatusCode.REMOTE_SERVICE_ERROR);
             }
         });
@@ -126,7 +122,6 @@ public class ServingService extends AbstractService {
             try {
                 sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey());
             } catch (Exception e) {
-                e.printStackTrace();
                 throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
             }
 
@@ -170,12 +165,19 @@ public class ServingService extends AbstractService {
      * Modeling synchronization to serving
      */
     public void syncModelToServing(SyncModelToServingApi.Input input) throws StatusCodeWithException {
+        TreeMap<String, Object> jobj = setBody(input.getTaskId(), input.getRole());
 
-        TaskResultMySqlModel taskResult = taskResultService.findByTaskIdAndTypeAndRole(input.getTaskId(), TaskResultType.model_train.name(), input.getRole());
+        request("model_save", jobj, true);
+    }
+
+
+    public TreeMap<String, Object> setBody(String taskId, JobMemberRole role) throws StatusCodeWithException {
+
+        TaskResultMySqlModel taskResult = taskResultService.findByTaskIdAndTypeAndRole(taskId, TaskResultType.model_train.name(), role);
 
         if (taskResult == null) {
             LOG.error("查询task任务异常");
-            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("task 不存在！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
 
@@ -183,32 +185,27 @@ public class ServingService extends AbstractService {
 
         if (CollectionUtils.isEmpty(memberList)) {
             LOG.error("查询job_member异常");
-            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("查询job_member异常！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        JobMySqlModel job = jobRepository.findByJobId(taskResult.getJobId(), input.getRole().name());
+        JobMySqlModel job = jobRepository.findByJobId(taskResult.getJobId(), role.name());
 
         if (job == null) {
             LOG.error("查询job异常");
-            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("查询job异常！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         // Feature engineering
-        List<TaskResultMySqlModel> featureEngineerResults = taskResultService.findByTaskIdAndRoleNotEqualType(input.getTaskId(), TaskResultType.model_train.name(), input.getRole());
-        Map<Integer, Object> featrueEngineerMap = new TreeMap<>();
+        List<TaskResultMySqlModel> featureEngineerResults = taskResultService.findByTaskIdAndRoleNotEqualType(taskId, TaskResultType.model_train.name(), role);
+        Map<Integer, Object> featureEngineerMap = new TreeMap<>();
         for (TaskResultMySqlModel fe : featureEngineerResults) {
             TaskMySqlModel taskMySqlModel = taskService.findOne(fe.getTaskId());
             if (taskMySqlModel == null) {
                 LOG.error("查询task任务异常");
                 throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID);
             }
-            featrueEngineerMap.put(taskMySqlModel.getPosition(), getModelParam(fe.getResult()));
+            featureEngineerMap.put(taskMySqlModel.getPosition(), getModelParam(fe.getResult()));
         }
-
-        request(memberList, taskResult, featrueEngineerMap, job);
-    }
-
-    private void request(List<JobMemberOutputModel> memberList, TaskResultMySqlModel taskResult, Map<Integer, Object> featrueEngineerMap, JobMySqlModel job) throws StatusCodeWithException {
 
         List<JSONObject> members = new ArrayList<>();
 
@@ -229,7 +226,7 @@ public class ServingService extends AbstractService {
                         getJSONObject(0).
                         getString("public_key"));
             } catch (StatusCodeWithException e) {
-                e.printStackTrace();
+                super.log(e);
             }
 
             members.add(member);
@@ -244,23 +241,26 @@ public class ServingService extends AbstractService {
         params.put("flType", job.getFederatedLearningType().name());
         params.put("modelParam", taskResult.getResult());
         params.put("memberParams", members);
-        params.put("featrueEngineerMap", featrueEngineerMap);
+        params.put("featureEngineerMap", featureEngineerMap);
 
-        request("model_save", params, true);
+        return params;
     }
 
     private Algorithm getAlgorithm(ComponentType componentType) {
         switch (componentType) {
             case HorzLR:
             case VertLR:
+            case MixLR:
                 return Algorithm.LogisticRegression;
             case HorzSecureBoost:
             case VertSecureBoost:
+            case MixSecureBoost:
                 return Algorithm.XGBoost;
             default:
                 throw new RuntimeException("预算之外的组件类型");
         }
     }
+
 
     private String getModelParam(String taskResult) {
         return JObject.create(taskResult).getString("model_param");

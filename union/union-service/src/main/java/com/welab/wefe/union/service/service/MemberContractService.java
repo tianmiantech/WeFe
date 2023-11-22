@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,22 +17,27 @@
 package com.welab.wefe.union.service.service;
 
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
+import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.union.service.api.member.UpdateExcludeLogoApi;
-import com.welab.wefe.union.service.common.BlockChainContext;
 import com.welab.wefe.union.service.contract.MemberContract;
 import com.welab.wefe.union.service.entity.Member;
 import org.apache.commons.collections4.CollectionUtils;
 import org.fisco.bcos.sdk.abi.datatypes.generated.tuples.generated.Tuple2;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,22 +50,26 @@ import java.util.List;
 public class MemberContractService extends AbstractContractService {
     private static final Logger LOG = LoggerFactory.getLogger(MemberContractService.class);
 
+    @Autowired
+    private MemberMongoReop memberMongoReop;
+    @Autowired
+    private CryptoSuite cryptoSuite;
+    @Autowired
+    private MemberContract memberContract;
+
     /**
      * add member
      */
     public void add(Member member) throws StatusCodeWithException {
         try {
-            String extJson = " ";
-            // get contract
-            MemberContract memberContract = getContract();
             // send transaction
             TransactionReceipt transactionReceipt = memberContract.insert(
                     generateParams(member, true),
-                    extJson
+                    member.getExtJson()
             );
 
             // get receipt result
-            TransactionResponse transactionResponse = BlockChainContext.getInstance().getUnionTransactionDecoder()
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
                     .decodeReceiptWithValues(MemberContract.ABI, MemberContract.FUNC_INSERT, transactionReceipt);
 
             LOG.info("Member contract insert transaction, member id: {},  receipt response: {}", member.getId(), JObject.toJSON(transactionResponse).toString());
@@ -91,18 +100,16 @@ public class MemberContractService extends AbstractContractService {
      */
     public void upsert(Member member) throws StatusCodeWithException {
         try {
-            String extJson = " ";
-            MemberContract memberContract = getContract();
 
             LOG.info("MemberContractService upsert: {}" + member.getId());
             // Send transaction
             TransactionReceipt transactionReceipt = memberContract.updateExcludePublicKey(
                     generateParams(member, false),
-                    extJson
+                    member.getExtJson()
             );
 
             // Get receipt result
-            TransactionResponse transactionResponse = BlockChainContext.getInstance().getUnionTransactionDecoder()
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
                     .decodeReceiptWithValues(MemberContract.ABI, MemberContract.FUNC_UPDATEEXCLUDEPUBLICKEY, transactionReceipt);
 
             LOG.info("Member contract update transaction, member id: {}, receipt response: {}, values: {}", member.getId(), transactionResponse, transactionResponse.getValues());
@@ -127,8 +134,7 @@ public class MemberContractService extends AbstractContractService {
      */
     public void updateExcludeLogo(UpdateExcludeLogoApi.Input input) throws StatusCodeWithException {
         try {
-            String extJson = " ";
-            MemberContract memberContract = getContract();
+            JObject extJson = JObject.create(memberMongoReop.findMemberId(input.curMemberId).getExtJson());
 
             List<String> params = new ArrayList<>();
             params.add(input.getId());
@@ -147,9 +153,9 @@ public class MemberContractService extends AbstractContractService {
 
             LOG.info("MemberContractService updateExcludeLogo: {}" + input.getId());
             // Send transaction
-            TransactionReceipt transactionReceipt = memberContract.updateExcludeLogo(params, extJson);
+            TransactionReceipt transactionReceipt = memberContract.updateExcludeLogo(params, extJson.toString());
 
-            TransactionResponse transactionResponse = BlockChainContext.getInstance().getUnionTransactionDecoder()
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
                     .decodeReceiptWithValues(MemberContract.ABI, MemberContract.FUNC_UPDATEEXCLUDELOGO, transactionReceipt);
 
             LOG.info("updateExcludeLogo update transaction , member id: {}, receipt response: {}, values: {}", input.getId(), transactionResponse, transactionResponse.getValues());
@@ -175,10 +181,9 @@ public class MemberContractService extends AbstractContractService {
     public void updateLastActivityTimeById(String id, String lastActivityTime) throws StatusCodeWithException {
         try {
             LOG.info("MemberContractService updateLastActivityTimeById: {}" + id);
-            MemberContract memberContract = getContract();
             // Send transaction
             TransactionReceipt transactionReceipt = memberContract.updateLastActivityTimeById(id, lastActivityTime);
-            TransactionResponse transactionResponse = BlockChainContext.getInstance().getUnionTransactionDecoder()
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
                     .decodeReceiptWithValues(MemberContract.ABI, MemberContract.FUNC_UPDATELASTACTIVITYTIMEBYID, transactionReceipt);
 
             LOG.info("updateLastActivityTimeById transaction , member id: {}, receipt response: {}, values: {}", id, transactionResponse, transactionResponse.getValues());
@@ -208,8 +213,8 @@ public class MemberContractService extends AbstractContractService {
         try {
             LOG.info("MemberContractService updateLogoById: {}" + id);
             // Send transaction
-            TransactionReceipt transactionReceipt = getContract().updateLogoById(id, StringUtil.isEmptyToBlank(logo));
-            TransactionResponse transactionResponse = BlockChainContext.getInstance().getUnionTransactionDecoder()
+            TransactionReceipt transactionReceipt = memberContract.updateLogoById(id, StringUtil.isEmptyToBlank(logo));
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
                     .decodeReceiptWithValues(MemberContract.ABI, MemberContract.FUNC_UPDATELOGOBYID, transactionReceipt);
 
             LOG.info("updateLogoById transaction , member id: {}, receipt response: {}, values: {}", id, transactionResponse, transactionResponse.getValues());
@@ -236,11 +241,10 @@ public class MemberContractService extends AbstractContractService {
      */
     public void updatePublicKey(String id, String publicKey) throws StatusCodeWithException {
         try {
-            MemberContract memberContract = getContract();
             // Send transaction
             TransactionReceipt transactionReceipt = memberContract.updatePublicKey(id, publicKey);
 
-            TransactionResponse transactionResponse = BlockChainContext.getInstance().getUnionTransactionDecoder()
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
                     .decodeReceiptWithValues(MemberContract.ABI, MemberContract.FUNC_UPDATEPUBLICKEY, transactionReceipt);
 
             LOG.info("Member contract updatePublicKey transaction , member id: {}, receipt response: {}", id, transactionResponse);
@@ -267,7 +271,6 @@ public class MemberContractService extends AbstractContractService {
      */
     public boolean isExist(String id) throws StatusCodeWithException {
         try {
-            MemberContract memberContract = getContract();
             Boolean ret = memberContract.isExist(id);
             return (null != ret && ret);
         } catch (Exception e) {
@@ -282,7 +285,6 @@ public class MemberContractService extends AbstractContractService {
      */
     public List<Member> queryAll(String id) throws StatusCodeWithException {
         try {
-            MemberContract memberContract = getContract();
 
             if (StringUtil.isNotEmpty(id)) {
                 return dataStrListToMember(memberContract.selectById(id).getValue2());
@@ -307,14 +309,6 @@ public class MemberContractService extends AbstractContractService {
             LOG.error("queryAll member failed: ", e);
             throw new StatusCodeWithException("queryAll member failed", StatusCode.SYSTEM_ERROR);
         }
-    }
-
-    /**
-     * get contract
-     */
-    private MemberContract getContract() throws StatusCodeWithException {
-        BlockChainContext blockChainContext = BlockChainContext.getInstance();
-        return blockChainContext.getLatestVersionMemberContract();
     }
 
 
@@ -360,6 +354,7 @@ public class MemberContractService extends AbstractContractService {
         member.setUpdatedTime(DateUtil.stringToDate(StringUtil.strTrim(dataStrArray[12]), DateUtil.YYYY_MM_DD_HH_MM_SS2));
         member.setLastActivityTime(Long.parseLong(dataStrArray[13]));
         member.setLogTime(Long.parseLong(dataStrArray[14]));
+        member.setExtJson(StringUtil.strTrim(dataStrArray[15]));
         return member;
     }
 
@@ -384,5 +379,32 @@ public class MemberContractService extends AbstractContractService {
         list.add(StringUtil.isEmptyToBlank(String.valueOf(System.currentTimeMillis())));
         return list;
     }
+
+
+    public void updateExtJson(String memberId, MemberExtJSON extJSON) throws StatusCodeWithException {
+        try {
+            JObject extJson = JObject.create(memberMongoReop.findMemberId(memberId).getExtJson());
+            Field[] fields = extJSON.getClass().getDeclaredFields();
+            for (int i = 0; i < fields.length; i++) {
+                fields[i].setAccessible(true);
+                if (null != fields[i].get(extJSON)) {
+                    extJson.put(StringUtil.camelCaseToUnderLineCase(fields[i].getName()), fields[i].get(extJSON));
+                }
+            }
+            TransactionReceipt transactionReceipt = memberContract.updateExtJson(memberId,
+                    extJson.toString());
+
+            // Get receipt result
+            TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
+                    .decodeReceiptWithValues(MemberContract.ABI, MemberContract.FUNC_UPDATEEXTJSON, transactionReceipt);
+
+            transactionIsSuccess(transactionResponse);
+
+        } catch (
+                Exception e) {
+            throw new StatusCodeWithException("Failed to updateExtJson set information: " + e, StatusCode.SYSTEM_ERROR);
+        }
+    }
+
 
 }

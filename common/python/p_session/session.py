@@ -109,11 +109,12 @@ class WefeSession(object):
         pass
 
     @staticmethod
-    def get_data_table(name, namespace):
+    def get_data_table(name, namespace, partition=1):
         """
         return data table instance by table name and table name space
         :param name: table name of data table
         :param namespace: table name space of data table
+        :param partition: table default partition
         :return:
             data table instance
         """
@@ -123,7 +124,7 @@ class WefeSession(object):
                                                 persistent=True,
                                                 error_if_exist=False,
                                                 in_place_computing=False,
-                                                partition=1)
+                                                partition=partition)
 
     @staticmethod
     def save_data_table_meta(kv, data_table_name, data_table_namespace):

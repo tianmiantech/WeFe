@@ -85,37 +85,33 @@ export default () => {
 
                     nextTick(() => {
                         vData.loading = false;
-                        if (code === 0) {
-                            const { params } = data || {};
+                        if (code === 0 && data && data.params && Object.keys(data.params).length) {
+                            const { strategies, members } = data.params;
 
-                            if (params) {
-                                const { strategies, members } = params;
-
-                                vData.feature_column_count = 0;
-                                if (strategies && strategies.length) {
-                                    vData.selectList = strategies;
-                                    strategies.forEach(row => {
-                                        vData.feature_column_count += row.feature_column_count;
-                                    });
-                                }
-                                members.forEach(row => {
-                                    const member = vData.featureSelectTab.find(item => item.member_id === row.member_id && item.member_role === row.member_role);
-
-                                    if (member) {
-                                        row.features.forEach(x => {
-                                            const item = member.$feature_list.find(m => m.name === x.name);
-
-                                            if (item) {
-                                                item.id = x.id;
-                                                item.count = x.count;
-                                                item.method = x.method;
-                                                // for binning
-                                                item.points = x.points || '';
-                                            }
-                                        });
-                                    }
+                            vData.feature_column_count = 0;
+                            if (strategies && strategies.length) {
+                                vData.selectList = strategies;
+                                strategies.forEach((row) => {
+                                    vData.feature_column_count += row.feature_column_count;
                                 });
                             }
+                            members.forEach((row) => {
+                                const member = vData.featureSelectTab.find(item => item.member_id === row.member_id && item.member_role === row.member_role);
+
+                                if (member) {
+                                    row.features.forEach((x) => {
+                                        const item = member.$feature_list.find((m) => m.name === x.name);
+
+                                        if (item) {
+                                            item.id = x.id;
+                                            item.count = x.count;
+                                            item.method = x.method;
+                                            // for binning
+                                            item.points = x.points || '';
+                                        }
+                                    });
+                                }
+                            });
                             vData.inited = true;
                         }
                     });

@@ -35,3 +35,4 @@ class DBTypes(object):
     LMDB = "LMDB"
     CLICKHOUSE = "CLICKHOUSE"
     SQLITE = "SQLITE"
+    LOCAL_FS = "LFS"

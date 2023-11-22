@@ -61,7 +61,7 @@ def create_tree_plan(work_mode: str, k=1, tree_num=10, provider_list=None):
     LOGGER.info('boosting_core trees work mode is {}'.format(work_mode))
     tree_plan = []
 
-    if work_mode == consts.MIX_TREE:
+    if work_mode == consts.SKIP_TREE:
         assert k > 0
         assert len(provider_list) > 0
 
@@ -114,6 +114,6 @@ def decode_plan(s, split_token='_'):
     result = []
     for string in s:
         t = string.split(split_token)
-        result.append((int(t[0]), int(t[1])))
+        result.append((int(t[0]), t[1]))
 
     return result

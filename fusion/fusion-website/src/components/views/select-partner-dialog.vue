@@ -3,6 +3,7 @@
         :visible.sync="show"
         class="dataset-dialog"
         title="请选择合作方"
+        width="1000px"
     >
         <el-form
             inline
@@ -98,10 +99,12 @@ export default {
             });
         },
 
-        async loadDataList() {
-            const ref = this.$refs['PartnerList'];
+        loadDataList() {
+            this.$nextTick(() => {
+                const ref = this.$refs['PartnerList'];
 
-            ref.getDataList();
+                ref.getDataList();
+            });
         },
 
         selectPartner(item) {

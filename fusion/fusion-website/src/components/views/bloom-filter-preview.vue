@@ -44,16 +44,21 @@ export default {
             this.loading = true;
 
             const { code, data } = await this.$http.get({
-                url: '/filter/preview?id=' + id,
+                url: '/filter/detail_and_preview?id=' + id,
             });
 
             if (code === 0) {
-                if(data.list){
-                    const rows = data.list;
+                if (data.preview_data.raw_data_list) {
+                    const rows = data.preview_data.raw_data_list;
 
-                    this.table_data.rows = rows;
+                    // 默认显示前15条记录
+                    if (rows.length >= 15) {
+                        this.table_data.rows = rows.slice(0, 15)
+                    } else {
+                        this.table_data.rows = rows;
+                    }
 
-                    this.table_data.header = data.header;
+                    this.table_data.header = data.preview_data.header;
 
                 }
             }

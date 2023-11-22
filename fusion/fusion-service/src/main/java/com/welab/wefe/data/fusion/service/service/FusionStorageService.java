@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,13 +16,11 @@
 
 package com.welab.wefe.data.fusion.service.service;
 
-import com.welab.wefe.data.fusion.service.enums.DBType;
 import com.welab.wefe.data.fusion.service.repo.Storage;
 import com.welab.wefe.data.fusion.service.repo.impl.MysqlStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,24 +37,22 @@ public class FusionStorageService {
     @Autowired
     private MysqlStorage mysqlStorage;
 
-    @Value(value = "${db.storage.type}")
-    private DBType dbType;
 
     public Storage getStorage() {
-        Storage result = null;
-        switch (dbType) {
-            case MYSQL_FUSION:
-                result = mysqlStorage;
-                break;
-            default:
-                break;
-        }
-        return result;
+        return mysqlStorage;
     }
 
     public void createTable(String dbName, String tbName, List<String> rows) {
         try {
             getStorage().createTable(dbName, tbName, rows);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+    }
+
+    public void dropTable(String dbName, String tbName) {
+        try {
+            getStorage().dropTable(dbName, tbName);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
@@ -95,14 +91,4 @@ public class FusionStorageService {
     public int count(String dbName, String tbName) throws Exception {
         return getStorage().count(dbName, tbName);
     }
-//
-//    public <K, V> void saveList(List<DataItemModel<K, V>> data, Map<String, Object> args) {
-//        try {
-//            getStorage().putAll(data, args);
-//        } catch (Exception e) {
-//            LOG.error(e.getMessage(), e);
-//        }
-//    }
-
-
 }

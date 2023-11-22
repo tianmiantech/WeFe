@@ -30,7 +30,6 @@
 # limitations under the License.
 
 
-
 from common.python.utils import log_utils
 
 LOGGER = log_utils.get_logger()
@@ -146,6 +145,12 @@ class BinInnerParam(object):
             if idx not in self.category_indexes:
                 self.category_indexes.append(idx)
                 self.category_names.append(self.header[idx])
+
+    def get_need_cal_iv_cols_map(self):
+        names = self.bin_names + self.category_names
+        indexs = self.bin_indexes + self.category_indexes
+        assert len(names) == len(indexs)
+        return dict(zip(names, indexs))
 
     @property
     def bin_cols_map(self):

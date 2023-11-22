@@ -1,26 +1,18 @@
 /*!
  * @author claude
- * date 07/05/2019
  * 用户认证相关
  */
 
 const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `/${process.env.CONTEXT_ENV}/`;
 
-function setStorage () {
-    const { baseUrl } = window.api;
-    const KEEPALIVE = `${baseUrl}_keepAlive`;
-
-    let keepAlive = localStorage.getItem(KEEPALIVE);
-
-    keepAlive = keepAlive ? JSON.parse(keepAlive) : false;
-
-    return keepAlive ? localStorage : sessionStorage;
-}
+export const setStorage = () => {
+    return localStorage;
+};
 
 /**
  * 清空用户信息
  */
-export const clearuserInfo = () => {
+export const clearUserInfo = () => {
     const { baseUrl } = window.api;
 
     setStorage().removeItem(`${baseUrl}_userInfo`);
@@ -37,7 +29,7 @@ export const baseIsLogin = () => {
         // 同步存储信息
         syncLogin(userInfo);
     } else {
-        clearuserInfo();
+        clearUserInfo();
     }
     return Boolean(userInfo);
 };
@@ -65,13 +57,22 @@ export const syncLogin = async (userInfo = {}) => {
 /**
  * 强制用户下线, 清除登录信息并跳转到登录页面
  */
-export const baseLogout = () => {
+export const baseLogout = async () => {
 
-    const { $router } = window.$app;
+    const { baseUrl } = window.api;
+    const { $router, $http } = window.$app;
     const { location: { href, pathname } } = window;
+    const userInfo = setStorage().getItem(`${baseUrl}_userInfo`);
 
     // 重置 store 和 localstorage
-    clearuserInfo();
+    if (userInfo) {
+        await $http.get({
+            url:         `/logout?token=${JSON.parse(userInfo).token}`,
+            systemError: false,
+        });
+    }
+    clearUserInfo();
+    setStorage().removeItem(`${baseUrl}_system_inited`);
 
     let query = {};
 

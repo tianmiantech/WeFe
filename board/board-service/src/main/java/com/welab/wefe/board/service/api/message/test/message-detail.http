@@ -1,6 +1,6 @@
 
 ### 获取消息详情
-POST {{baseUrl}}/message/detail
+POST http://localhost:8080/board-service/message/detail
 Content-Type: application/json
 
 {

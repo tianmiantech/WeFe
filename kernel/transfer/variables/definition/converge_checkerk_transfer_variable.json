@@ -1,0 +1,16 @@
+{
+  "ConvergeCheckerTransferVariable": {
+    "square_sum": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "converge_info": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    }
+  }
+}

@@ -54,13 +54,16 @@ class JobGuard(threading.Thread):
 
             for job in job_list:
                 try:
+                    self.logger.info("observe job {}".format(job.job_id))
                     self.observe(job)
-
                 except Exception as e:
                     # When an exception is encountered, close the job.
                     message = "observe job error:" + repr(e)
-                    self.logger.error(message, e)
+                    self.logger.error(message)
+                    self.logger.error(e)
                     JobStopAction(job.job_id, job.my_role).do(JobStatus.ERROR_ON_RUNNING, message)
+
+            time.sleep(5)
 
     def observe(self, job):
         """
@@ -69,7 +72,7 @@ class JobGuard(threading.Thread):
         # Observe the status of the other party, if something goes wrong, stop.
         if self.observe_other_member_maybe_errored(job):
             return
-
+        self.logger.info("observe job {}, {}".format(job.job_id, job.status))
         if job.status == JobStatus.RUNNING:
             self.observe_myself_running_job(job)
         elif job.status == JobStatus.WAIT_SUCCESS:
@@ -83,19 +86,23 @@ class JobGuard(threading.Thread):
 
         # Observe whether the job is successful
         if self.assert_job_success(job, task_list):
+            self.logger.info("observe job {}, all task success!".format(job.job_id))
             JobWaitSuccessAction(job.job_id, job.my_role).do("all task success!")
 
         # If the task is not running, no longer observe.
         if not JobService.job_is_running(job):
+            self.logger.info("observe job {}, job is not running".format(job.job_id))
             return
 
         # Observe whether the job fails
         failed, message = self.assert_job_fail(job, task_list)
         if failed:
+            self.logger.info("observe job {}, job is fail".format(job.job_id))
             JobStopAction(job.job_id, job.my_role) \
                 .do(JobStatus.ERROR_ON_RUNNING, message)
 
         if not JobService.job_is_running(job):
+            self.logger.info("observe job {}, job is not running1".format(job.job_id))
             return
 
         # Neither succeeded nor failed, indicating that it is still running, update the progress.

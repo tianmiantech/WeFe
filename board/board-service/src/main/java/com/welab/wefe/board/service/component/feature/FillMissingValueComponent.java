@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,19 +25,19 @@ import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
-import com.welab.wefe.board.service.dto.kernel.KernelTask;
 import com.welab.wefe.board.service.dto.kernel.Member;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelTask;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.board.service.util.ModelMapper;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.TaskResultType;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.TaskResultType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -82,8 +82,6 @@ public class FillMissingValueComponent extends AbstractComponent<FillMissingValu
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
 
-        JSONObject taskParam = new JSONObject();
-
         // Need to find DataIO data set
         FlowGraphNode dataIONode = graph.findOneNodeFromParent(node, ComponentType.DataIO);
         TaskMySqlModel dataIOTask = findTaskFromPretasks(preTasks, dataIONode);
@@ -93,10 +91,10 @@ public class FillMissingValueComponent extends AbstractComponent<FillMissingValu
 
         // Get the withLabel field in the dataIO node
         JObject taskConfig = JObject.create(dataIOTask.getTaskConf());
-        if (taskConfig.getJObject("params") == null) {
+        if (taskConfig == null) {
             throw new FlowNodeException(node, "找不到DataIO_task中的with_label字段");
         }
-        boolean withLabel = taskConfig.getJObject("params").getBooleanValue("with_label");
+        boolean withLabel = taskConfig.getBooleanValue("with_label");
 
         List<Params.Member> members = params.members;
 
@@ -117,14 +115,12 @@ public class FillMissingValueComponent extends AbstractComponent<FillMissingValu
                 break;
             }
         }
-        JObject resultObj = JObject.create()
+        JObject output = JObject.create()
                 .append("features", featuresObj.toJSONString())
                 .append("with_label", withLabel)
                 .append("save_dataset", true);
 
-        taskParam.put("params", resultObj);
-
-        return taskParam;
+        return output;
     }
 
     @Override

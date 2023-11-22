@@ -34,7 +34,6 @@
                 />箱
             </span>
             <el-button
-                size="mini"
                 style="margin-top:2px;"
                 :disabled="vData.total_column_count === 0"
                 @click="methods.showColumnListDialog(item, index)"

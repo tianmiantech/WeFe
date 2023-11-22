@@ -81,6 +81,31 @@ def send(dst_member_id, processor=None, action=None, content_str=""):
     return result
 
 
+def send_fl(dst_member_id, processor=None, action=None, content_str="", session_id=None):
+    """
+    Send message to gateway service.
+
+    Obsolete, please use GatewayService.send()
+    """
+
+    dst = gateway_meta_pb2.Member(memberId=dst_member_id)
+    content = gateway_meta_pb2.Content(objectData=content_str)
+    transfer_meta = TransferMeta(sessionId=session_id, dst=dst, content=content,
+                                 action=action,
+                                 taggedVariableName=None,
+                                 processor=processor)
+    result = JOB_GRPC.send(transfer_meta)
+    schedule_logger().debug("[REMOTE] send result:%s", result.message)
+
+    return result
+
+
+def receive_fl(session_id=None):
+    transfer_meta = TransferMeta(sessionId=session_id)
+    result = JOB_GRPC.recv(transfer_meta)
+    return str(result.content.objectData)
+
+
 def mail(host, port=25, username=None, password=None, sender=None, sender_alias='WEFE', receivers=None, subject=None,
          content=None):
     message = MIMEText(content, 'plain', 'utf-8')

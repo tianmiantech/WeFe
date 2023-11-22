@@ -1,4 +1,4 @@
-POST {{baseUrl}}/tianmiantech/call_api
+POST http://localhost:8080/board-service/tianmiantech/call_api
 Content-Type: application/json
 
 {

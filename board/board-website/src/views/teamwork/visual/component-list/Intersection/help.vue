@@ -1,12 +1,12 @@
 <template>
     <CommonHelp>
         <template #intro>
-            对多个数据集根据主键 ID 求交集，输出对齐后的样本集。
+            对多个数据资源根据主键 ID 求交集，输出对齐后的样本集。
         </template>
         <template #params>
             <code>是否保存对齐后数据</code>
             <br>
-            当选择是时，对齐后的数据集会作为衍生数据集被保存，衍生数据集可以在其他流程中被使用。
+            当选择是时，对齐后的数据资源会作为衍生数据资源被保存，衍生数据资源可以在其他流程中被使用。
         </template>
 
         <template #desc>
@@ -18,7 +18,7 @@
         </template>
 
         <template #output>
-            对齐后的数据集
+            对齐后的数据资源
         </template>
 
         <template #error-tip>

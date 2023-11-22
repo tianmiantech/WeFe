@@ -47,18 +47,24 @@ def handler(event, context):
     """
 
     evt = json.loads(event)
+
     # get the source and destination fcStorage
     source_fcs, dest_fcs = dataUtil.get_fc_storages(evt)
+
     # get data
     partition = evt['partition']
     source_k_v = source_fcs.collect(partition=partition, debug_info=dataUtil.get_request_id(context))
+
     # do mapPartitions
     func = cloudpickle.loads(bytes.fromhex(evt['func']))
+
     # save result
     result = func(source_k_v)
+
     if result is None:
         return dataUtil.fc_result(partition=partition)
-    # put result to ots
+
+    # put result to storage
     dest_fcs.put_all(result)
 
     return dataUtil.fc_result(partition=partition)

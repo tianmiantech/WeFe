@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -46,13 +46,13 @@ public class XgboostPmmlLanguage extends BaseXgboostLanguage {
     protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public String buildWholeCode(List<Map<String, Node>> treeMapList, int treeDim, int numClasses, String initScore, JObject featureNameFidMappingObj) {
+    public String buildWholeCode(JObject modelMeta, List<Map<String, Node>> treeMapList, int treeDim, int numClasses, String initScore, JObject featureNameFidMappingObj) {
         PMML pmml = new PMML();
         pmml.setVersion("4.3");
         pmml.setHeader(buildHeader());
         pmml.setMiningBuildTask(buildMiningBuildTask());
         pmml.setDataDictionary(buildDataDictionary(featureNameFidMappingObj));
-        pmml.addModels(buildTopMiningModel(treeMapList, featureNameFidMappingObj, initScore));
+        pmml.addModels(buildTopMiningModel(treeMapList, featureNameFidMappingObj, initScore, modelMeta.getDoubleByPath("learningRate")));
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             PMMLUtil.marshal(pmml, outputStream);
             return outputStream.toString();
@@ -69,7 +69,7 @@ public class XgboostPmmlLanguage extends BaseXgboostLanguage {
     private Header buildHeader() {
         Header header = new Header();
         header.setApplication(new Application("Xgboost Regression Model")
-                .setVersion("1.0"))
+                        .setVersion("1.0"))
                 .setTimestamp(new Timestamp());
         return header;
     }
@@ -111,7 +111,7 @@ public class XgboostPmmlLanguage extends BaseXgboostLanguage {
     /**
      * Build the top-level mining model
      */
-    private MiningModel buildTopMiningModel(List<Map<String, Node>> treeMapList, JObject featureNameFidMappingObj, String initScore) {
+    private MiningModel buildTopMiningModel(List<Map<String, Node>> treeMapList, JObject featureNameFidMappingObj, String initScore, double learningRate) {
         MiningModel miningModel = new MiningModel();
         miningModel.setMiningFunction(MiningFunction.CLASSIFICATION)
                 .setAlgorithmName("XGBoost (GBTree)")
@@ -127,7 +127,7 @@ public class XgboostPmmlLanguage extends BaseXgboostLanguage {
         }
 
         miningModel.setMiningSchema(miningSchema)
-                .setSegmentation(buildTopSegmentation(treeMapList, featureNameFidMappingObj, initScore));
+                .setSegmentation(buildTopSegmentation(treeMapList, featureNameFidMappingObj, initScore, learningRate));
 
         return miningModel;
     }
@@ -139,10 +139,10 @@ public class XgboostPmmlLanguage extends BaseXgboostLanguage {
      * @param treeMapList              All tree information
      * @param featureNameFidMappingObj feature name fid mapping
      */
-    private Segmentation buildTopSegmentation(List<Map<String, Node>> treeMapList, JObject featureNameFidMappingObj, String initScore) {
+    private Segmentation buildTopSegmentation(List<Map<String, Node>> treeMapList, JObject featureNameFidMappingObj, String initScore, double learningRate) {
         Segmentation segmentation = new Segmentation();
         segmentation.setMultipleModelMethod(Segmentation.MultipleModelMethod.MODEL_CHAIN)
-                .addSegments(buildTreeLogicSegment(treeMapList, featureNameFidMappingObj, initScore))
+                .addSegments(buildTreeLogicSegment(treeMapList, featureNameFidMappingObj, initScore, learningRate))
                 .addSegments(buildClassificationSegmen());
 
         return segmentation;
@@ -155,11 +155,11 @@ public class XgboostPmmlLanguage extends BaseXgboostLanguage {
      * @param treeMapList              All tree information
      * @param featureNameFidMappingObj feature name fid mapping
      */
-    private Segment buildTreeLogicSegment(List<Map<String, Node>> treeMapList, JObject featureNameFidMappingObj, String initScore) {
+    private Segment buildTreeLogicSegment(List<Map<String, Node>> treeMapList, JObject featureNameFidMappingObj, String initScore, double learningRate) {
         Segment segment = new Segment();
         segment.setId("1")
                 .setPredicate(new True())
-                .setModel(buildMiningModel(treeMapList, featureNameFidMappingObj, initScore));
+                .setModel(buildMiningModel(treeMapList, featureNameFidMappingObj, initScore, learningRate));
         return segment;
     }
 
@@ -226,14 +226,14 @@ public class XgboostPmmlLanguage extends BaseXgboostLanguage {
      * @param treeMapList              All tree information
      * @param featureNameFidMappingObj feature name fid mapping
      */
-    private MiningModel buildMiningModel(List<Map<String, Node>> treeMapList, JObject featureNameFidMappingObj, String initScore) {
+    private MiningModel buildMiningModel(List<Map<String, Node>> treeMapList, JObject featureNameFidMappingObj, String initScore, double learningRate) {
         MiningModel miningModel = new MiningModel();
         miningModel.setMiningFunction(MiningFunction.REGRESSION)
                 .setMathContext(MathContext.DOUBLE)
                 .setMiningSchema(buildMiningSchema(featureNameFidMappingObj))
                 .setOutput(buildOutput())
                 .setLocalTransformations(buildLocalTransformations(featureNameFidMappingObj))
-                .setSegmentation(buildSegmentation(treeMapList, initScore));
+                .setSegmentation(buildSegmentation(treeMapList, initScore, learningRate));
 
         return miningModel;
     }
@@ -299,12 +299,12 @@ public class XgboostPmmlLanguage extends BaseXgboostLanguage {
      *
      * @param treeMapList All tree information
      */
-    private Segmentation buildSegmentation(List<Map<String, Node>> treeMapList, String initScore) {
+    private Segmentation buildSegmentation(List<Map<String, Node>> treeMapList, String initScore, double learningRate) {
         Segmentation segmentation = new Segmentation();
         segmentation.setMultipleModelMethod(Segmentation.MultipleModelMethod.SUM);
         segmentation.addSegments(buildInitScoreSegment(initScore));
         for (int i = 0; i < treeMapList.size(); i++) {
-            segmentation.addSegments(buildTreeSegment(treeMapList.get(i), i + 1));
+            segmentation.addSegments(buildTreeSegment(treeMapList.get(i), i + 1, learningRate));
         }
         return segmentation;
     }
@@ -316,11 +316,11 @@ public class XgboostPmmlLanguage extends BaseXgboostLanguage {
      * @param treeMap   All node information of the tree
      * @param treeIndex tree index
      */
-    private Segment buildTreeSegment(Map<String, Node> treeMap, int treeIndex) {
+    private Segment buildTreeSegment(Map<String, Node> treeMap, int treeIndex, double learningRate) {
         Segment segment = new Segment();
         segment.setPredicate(new True())
                 .setId(treeIndex + "")
-                .setModel(buildTreeModel(treeMap));
+                .setModel(buildTreeModel(treeMap, learningRate));
 
         return segment;
     }
@@ -351,13 +351,13 @@ public class XgboostPmmlLanguage extends BaseXgboostLanguage {
      *
      * @param treeMap All node information of the tree
      */
-    private TreeModel buildTreeModel(Map<String, Node> treeMap) {
+    private TreeModel buildTreeModel(Map<String, Node> treeMap, double learningRate) {
         // root node
         Node root = treeMap.get("0");
         org.dmg.pmml.tree.Node rootPmmlNode = new org.dmg.pmml.tree.Node();
         rootPmmlNode.setScore("0.0");
         rootPmmlNode.setPredicate(new True());
-        buildNode(root, rootPmmlNode);
+        buildNode(root, rootPmmlNode, learningRate);
 
         TreeModel treeModel = new TreeModel();
         treeModel.setMiningFunction(MiningFunction.REGRESSION)
@@ -392,11 +392,13 @@ public class XgboostPmmlLanguage extends BaseXgboostLanguage {
     /**
      * XML of node structure of spanning tree
      */
-    private void buildNode(Node treeNode, org.dmg.pmml.tree.Node parentPmmlNode) {
+    private void buildNode(Node treeNode, org.dmg.pmml.tree.Node parentPmmlNode, double learningRate) {
         // Leaf node
         if (treeNode.isLeaf()) {
             org.dmg.pmml.tree.Node pmmlNode = new org.dmg.pmml.tree.Node();
-            pmmlNode.setScore(treeNode.getWeight());
+            //pmmlNode.setScore(treeNode.getWeight());
+            double weight = Double.parseDouble(treeNode.getWeight()) * learningRate;
+            pmmlNode.setScore(weight + "");
             pmmlNode.setPredicate(new True());
             parentPmmlNode.addNodes(pmmlNode);
         } else {
@@ -418,10 +420,10 @@ public class XgboostPmmlLanguage extends BaseXgboostLanguage {
             Node rightTreeNode = treeNode.getRigthNode();
 
             if (null != leftTreeNode) {
-                buildNode(leftTreeNode, leftPmmlNode);
+                buildNode(leftTreeNode, leftPmmlNode, learningRate);
             }
             if (null != rightTreeNode) {
-                buildNode(rightTreeNode, rightPmmlNode);
+                buildNode(rightTreeNode, rightPmmlNode, learningRate);
             }
         }
     }

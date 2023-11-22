@@ -24,9 +24,11 @@
                 <router-link
                     v-for="item in list"
                     :key="item.project_id"
-                    :to="{name: 'project-detail', query: { project_id: item.project_id }}"
+                    :to="{name: 'project-detail', query: { project_id: item.project_id, project_type: item.project_type }}"
                     class="li"
                 >
+                    <p v-if="item.project_type" class="project_type" :style="{color: item.project_type === 'DeepLearning' ? '#E89B00' : '#438BFF'}">{{item.project_type === 'DeepLearning' ? '视觉处理' : item.project_type === 'MachineLearning' ? '机器学习' : ''}}
+                    </p>
                     <p class="p-name">
                         {{ item.name }}
                         <el-tooltip
@@ -202,6 +204,7 @@
         }
     }
     .li{
+        position: relative;
         flex: 1;
         margin-left: 20px;
         min-height: 220px;
@@ -221,6 +224,28 @@
         &:hover{
             box-shadow: 0 6px 10px -6px rgba(0, 0, 0, 0.1);
             .el-icon-delete{display: block;}
+        }
+        .project_type {
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 26px;
+            line-height: 26px;
+            font-size: 14px;
+            background: #f5f5f5;
+            padding-right: 5px;
+            border-radius: 0 3px 0 0;
+            &::before {
+                position: absolute;
+                left: -16px;
+                content: '';
+                height: 0;
+                width: 0;
+                border-top: 13px solid transparent;
+                border-right: 16px solid #f5f5f5;
+                border-bottom: 13px solid transparent;
+            }
+
         }
     }
     @media screen and (min-width: 1000px) and (max-width: 1387px) {

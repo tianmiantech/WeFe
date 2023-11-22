@@ -7,17 +7,11 @@
             class="mb20"
             inline
         >
-            <el-form-item
-                label="源Id:"
-                label-width="80px"
-            >
+            <el-form-item label="源Id:">
                 <el-input v-model="search.id" />
             </el-form-item>
 
-            <el-form-item
-                label="源名称:"
-                label-width="100px"
-            >
+            <el-form-item label="源名称:">
                 <el-input v-model="search.name" />
             </el-form-item>
 
@@ -30,6 +24,7 @@
 
             <router-link
                 :to="{name: 'data-source-view'}"
+                class="ml20"
             >
                 <el-button>
                     新增
@@ -53,15 +48,15 @@
                 min-width="120px"
             >
                 <template slot-scope="scope">
+                    <strong>{{ scope.row.name }}</strong>
                     <p class="id">{{ scope.row.id }}</p>
-                    {{ scope.row.name }}
                 </template>
             </el-table-column>
 
             <el-table-column
                 label="Host"
                 prop="host"
-                width="300px"
+                width="100px"
             />
 
             <el-table-column
@@ -75,10 +70,9 @@
                 width="100px"
             />
 
-
             <el-table-column
                 label="创建时间"
-                min-width="50px"
+                min-width="140px"
             >
                 <template slot-scope="scope">
                     {{ scope.row.created_time | dateFormat }}
@@ -87,7 +81,7 @@
 
             <el-table-column
                 label="更新时间"
-                min-width="50px"
+                min-width="140px"
             >
                 <template slot-scope="scope">
                     {{ scope.row.updated_time | dateFormat }}
@@ -106,12 +100,6 @@
                     >
                         编辑
                     </el-button>
-                    <!-- <router-link
-                        :to="{ name: 'data-source-view', query: {id: scope.row.id} }"
-                        class="tags-li-title"
-                    >
-                        编辑
-                    </router-link> -->
                     <el-button
                         type="danger"
                         @click="deleteSource(scope.row.id)"
@@ -224,14 +212,3 @@
         },
     };
 </script>
-
-<style lang="scss">
-    .structure-table{
-        .ant-table-title{
-            font-weight: bold;
-            text-align: center;
-            padding: 10px;
-            font-size:16px;
-        }
-    }
-</style>

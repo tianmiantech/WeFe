@@ -1,12 +1,12 @@
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,10 +31,11 @@ import java.nio.charset.Charset;
  * <p>
  * Copyright 2015 WeLab Holdings, Inc. All rights reserved.
  * WELAB PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
  * @author andy.zhang
  */
 public class Base64Util {
-    private static final Logger LOG = LoggerFactory.getLogger(Base64Util.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(Base64Util.class);
 
 
     /**
@@ -69,7 +70,7 @@ public class Base64Util {
         if (!StringUtil.isEmpty(zipType)) {
             switch (zipType.toLowerCase()) {
                 case ZipType.ZIP:
-                    bytes = ZipUtil.zip(bytes);
+                    bytes = ZipUtil.zipBytes(bytes);
                     break;
                 case ZipType.GZIP:
                     bytes = GzipUtil.zip(bytes);
@@ -120,7 +121,7 @@ public class Base64Util {
         if (!StringUtil.isEmpty(unZipType)) {
             switch (unZipType.toLowerCase()) {
                 case ZipType.ZIP:
-                    bytes = ZipUtil.unzip(bytes);
+                    bytes = ZipUtil.unzipBytes(bytes);
                     break;
                 case ZipType.GZIP:
                     bytes = GzipUtil.unzip(bytes);

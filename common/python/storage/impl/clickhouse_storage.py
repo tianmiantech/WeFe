@@ -138,7 +138,7 @@ class ClickHouseStorage(Storage):
         finally:
             client.disconnect()
 
-    def collect(self, min_chunk_size=0, use_serialize=True) -> list:
+    def collect(self, min_chunk_size=0, use_serialize=True, partition=None) -> list:
         use_serialize = set_force_serialize(use_serialize)
         sql = f"SELECT k,v FROM {self.table_name} ORDER BY id DESC"
         try:
@@ -176,7 +176,7 @@ class ClickHouseStorage(Storage):
             client.disconnect()
 
         _table_key = ".".join([self._type, self._namespace, self._name])
-        from common.python.storage.impl.dsource import DBRuntime
+        from common.python.p_session.base_impl.db_runtime import DBRuntime
         DBRuntime.get_instance().meta_table.delete(_table_key)
 
     def count(self):
@@ -228,7 +228,7 @@ class ClickHouseStorage(Storage):
 
         dsource.set_gc_disable()
 
-        from common.python.storage.impl.dsource import DBRuntime
+        from common.python.p_session.base_impl.db_runtime import DBRuntime
         dup = DBRuntime.get_instance().table(name, namespace, partition,
                                              persistent=persistent, persistent_engine=persistent_engine)
 

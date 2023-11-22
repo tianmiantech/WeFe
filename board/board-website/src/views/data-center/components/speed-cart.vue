@@ -26,7 +26,7 @@
                     placement="bottom"
                 >
                     <template #content>
-                        <p>1, 添加数据集到此处可快速创建项目</p>
+                        <p>1, 添加资源到此处可快速创建项目</p>
                         <p>2, 多个发起方请前往项目详情添加</p>
                     </template>
 
@@ -37,7 +37,7 @@
             </h4>
         </template>
 
-        <el-form class="flex-form">
+        <el-form class="flex-form" @submit.prevent>
             <el-form-item label="项目名称:" label-width="74px">
                 <el-input v-model.trim="vData.name" clearable />
             </el-form-item>
@@ -63,7 +63,7 @@
                         v-for="(dataset, index) in promoterDataSetList"
                         :key="dataset.id"
                     >
-                        <el-form>
+                        <el-form @submit.prevent>
                             <el-form-item>
                                 <router-link :to="{ name: 'data-view', query: { id: dataset.id }}" class="data-link">
                                     {{ dataset.name }}
@@ -71,6 +71,10 @@
                             </el-form-item>
                             <el-form-item>
                                 <p class="p-id f12">{{ dataset.id }}</p>
+                            </el-form-item>
+                            <el-form-item>
+                                <span class="f12 mr10">数据资源类型:</span>
+                                <span class="p-id f12 under-line">{{ dataset.data_resource_type }}</span>
                             </el-form-item>
                             <el-form-item>
                                 <span class="f12 mr10">是否含 Y:</span>
@@ -101,7 +105,7 @@
                             v-for="(dataset, index) in providerListMap[member.member_id]"
                             :key="dataset.id"
                         >
-                            <el-form>
+                            <el-form @submit.prevent>
                                 <el-form-item>
                                     <router-link :to="{ name: 'union-data-view', query: { id: dataset.id }}" class="data-link">
                                         {{ dataset.name }}
@@ -109,6 +113,10 @@
                                 </el-form-item>
                                 <el-form-item>
                                     <p class="p-id f12">{{ dataset.id }}</p>
+                                </el-form-item>
+                                <el-form-item>
+                                    <span class="f12 mr10">数据资源类型:</span>
+                                    <span class="p-id f12">{{ dataset.data_resource_type }}</span>
                                 </el-form-item>
                                 <el-form-item>
                                     <span class="f12 mr10">是否含 Y:</span>
@@ -162,12 +170,14 @@
             const router = useRouter();
             const store = useStore();
             const { appContext } = getCurrentInstance();
-            const { $http } = appContext.config.globalProperties;
+            const { $http, $message } = appContext.config.globalProperties;
             const userInfo = computed(() => store.state.base.userInfo);
             const promoterDataSetList = ref([]);
             const providerList = ref([]);
             const providerListMap = ref({});
             const cartList = ref(props.list);
+            const allDataSetList = ref([]);
+            const projectType = ref();
             const drawer = ref(false);
             const count = ref(0);
             const methods = {
@@ -209,15 +219,17 @@
             const addDataSet = (item) => {
                 const dataset = {
                     member_role: item.member_id === userInfo.value.member_id ? 'promoter' : 'provider',
-                    data_set_id: item.id,
+                    data_set_id: item.id ? item.id : item.data_resource_id,
+                    id:          item.id ? item.id : item.data_resource_id,
                     ...item,
                 };
 
                 if(item.member_id === userInfo.value.member_id) {
-                    const index = promoterDataSetList.value.findIndex(x => x.id === item.id);
+                    const index = promoterDataSetList.value.findIndex(x => x.id === item.id || x.id === item.data_resource_id);
 
                     if(index < 0) {
                         promoterDataSetList.value.push(dataset);
+                        allDataSetList.value.push(dataset);
                         // update count
                         count.value++;
                     }
@@ -229,6 +241,7 @@
 
                     if(index < 0) {
                         providerListMap.value[item.member_id].push(dataset);
+                        allDataSetList.value.push(dataset);
                         // update count
                         count.value++;
                     }
@@ -254,10 +267,23 @@
                     }
                 }
                 count.value--;
+                allDataSetList.value.forEach((i, idx) => {
+                    if (i.data_set_id === item.data_set_id) {
+                        allDataSetList.value.splice(idx, 1);
+                    }
+                });
             };
             const create = async () => {
                 if(loading.value) return;
                 loading = true;
+
+                // 判断是否为同一格式的数据资源 ImageDataSet / TableDataSet
+                if (!isAllEqual(allDataSetList.value)) {
+                    $message.error('项目中的数据资源必须为同一类型的数据');
+                    return;
+                } else {
+                    projectType.value = allDataSetList.value[0].data_resource_type === 'ImageDataSet' ? 'DeepLearning' : allDataSetList.value[0].data_resource_type === 'TableDataSet' ? 'MachineLearning' : '';
+                }
 
                 const list = providerList.value.map(item => {
                     const provider = {
@@ -272,11 +298,15 @@
                     return provider;
                 });
 
+
+                const timestamp = methods.dateFormat();
+                const time = methods.dateFormat(true);
                 const { code, data } = await $http.post({
                     url:  '/project/add',
                     data: {
-                        name:                vData.name,
-                        desc:                vData.desc,
+                        name:                `快捷项目-${timestamp}`,
+                        desc:                `创建自快捷项目, 创建时间: ${time}`,
+                        projectType:         projectType.value,
                         promoterDataSetList: promoterDataSetList.value,
                         providerList:        list,
                     },
@@ -295,7 +325,15 @@
                 });
             };
 
-            initDesc();
+            const isAllEqual = (arr) => {
+                if (arr.length > 0) {
+                    return !arr.some(function(value, index) {
+                        return value.data_resource_type !== arr[0].data_resource_type;
+                    });
+                } else {
+                    return true;
+                }
+            };
 
             return {
                 vData,
@@ -310,6 +348,8 @@
                 removeDataSet,
                 loading,
                 count,
+                isAllEqual,
+                projectType,
             };
         },
     };
@@ -337,7 +377,7 @@
         z-index: 10;
         width: 44px;
         height: 44px;
-        padding-top: 10px;
+        padding-top: 13px;
         overflow: visible;
         &:hover{background: #f0f0f0;}
         .num{
@@ -395,6 +435,9 @@
             font-size: 18px;
             color:$--color-danger;
             cursor: pointer;
+        }
+        .under-line {
+            text-decoration: underline;
         }
     }
     .data-link{word-break: break-all;}

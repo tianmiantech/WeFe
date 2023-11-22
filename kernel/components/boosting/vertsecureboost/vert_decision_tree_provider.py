@@ -38,7 +38,7 @@ from common.python.utils import log_utils
 from kernel.components.boosting import DecisionTree
 from kernel.components.boosting import Node
 from kernel.components.boosting import SplitInfo
-from kernel.components.boosting.core.splitinfo_cipher_compressor import ProviderSplitInfoCompressor
+from kernel.components.boosting.core.g_h_optim import PackedGHCompressor
 from kernel.protobuf.generated.boosting_tree_model_meta_pb2 import DecisionTreeModelMeta
 from kernel.protobuf.generated.boosting_tree_model_param_pb2 import DecisionTreeModelParam
 from kernel.transfer.variables.transfer_class.vert_decision_tree_transfer_variable import \
@@ -95,18 +95,6 @@ class VertDecisionTreeProvider(DecisionTree):
         # code version control
         self.new_ver = True
 
-    def init_compressor(self):
-        para = self.transfer_inst.cipher_compressor_para.get(idx=0)
-        max_sample_weight, max_capcity_int, en_type = para['max_sample_weight'], para['max_capacity_int'], para[
-            'en_type']
-        LOGGER.info(
-            'got para from promoter: max sample weight {}; max capacity int {}; en type {}'.format(max_sample_weight,
-                                                                                                   max_capcity_int,
-                                                                                                   en_type))
-        self.cipher_compressor = ProviderSplitInfoCompressor(max_capcity_int, en_type, consts.CLASSIFICATION,
-                                                             round_decimal=self.round_decimal,
-                                                             max_sample_weights=max_sample_weight)
-
     def report_init_status(self):
 
         LOGGER.info('reporting initialization status')
@@ -128,7 +116,6 @@ class VertDecisionTreeProvider(DecisionTree):
              goss_subsample=False,
              run_sprase_opt=False,
              cipher_compressing=False,
-             round_decimal=7,
              new_ver=True):
 
         super(VertDecisionTreeProvider, self).init_variables(flowid, runtime_idx, data_bin, bin_split_points,
@@ -141,11 +128,7 @@ class VertDecisionTreeProvider(DecisionTree):
         self.data_bin_dense = data_bin_dense
         self.bin_num = bin_num
         self.run_cipher_compressing = cipher_compressing
-        self.round_decimal = round_decimal
         self.feature_num = self.bin_split_points.shape[0]
-
-        if self.run_cipher_compressing:
-            self.init_compressor()
 
         self.new_ver = new_ver
 
@@ -236,15 +219,13 @@ class VertDecisionTreeProvider(DecisionTree):
 
         return TypeError("decode type %s is not support!" % (str(dtype)))
 
-    def sync_encrypted_grad_and_hess(self):
+    def init_compressor_and_sync_gh(self):
         LOGGER.info("get encrypted grad and hess")
+
+        if self.run_cipher_compressing:
+            self.cipher_compressor = PackedGHCompressor()
+
         self.grad_and_hess = self.transfer_inst.encrypted_grad_and_hess.get(idx=0)
-        """
-        self.grad_and_hess = federation.get(name=self.transfer_inst.encrypted_grad_and_hess.name,
-                                            tag=self.transfer_inst.generate_transferid(
-                                                self.transfer_inst.encrypted_grad_and_hess),
-                                            idx=0)
-        """
 
     def sync_node_positions(self, dep=-1):
         LOGGER.info("get node positions of depth {}".format(dep))
@@ -560,22 +541,16 @@ class VertDecisionTreeProvider(DecisionTree):
                                                        sparse_opt=self.run_sparse_opt, hist_sub=True,
                                                        bin_num=self.bin_num)
 
-            if self.run_cipher_compressing:
-                self.cipher_compressor.renew_compressor(node_sample_count, node_map)
-            cipher_compressor = self.cipher_compressor if self.run_cipher_compressing else None
-
             split_info_table = self.splitter.provider_prepare_split_points(histograms=acc_histograms,
                                                                            use_missing=self.use_missing,
                                                                            valid_features=self.valid_features,
                                                                            sitename=self.sitename,
-                                                                           left_missing_dir=self.missing_dir_mask_left[
-                                                                               dep],
+                                                                           left_missing_dir=self.missing_dir_mask_left[dep],
                                                                            right_missing_dir=
-                                                                           self.missing_dir_mask_right[
-                                                                               dep],
+                                                                           self.missing_dir_mask_right[dep],
                                                                            mask_id_mapping=self.fid_bid_random_mapping,
                                                                            batch_size=self.bin_num,
-                                                                           cipher_compressor=cipher_compressor,
+                                                                           cipher_compressor=self.cipher_compressor,
                                                                            shuffle_random_seed=np.abs(
                                                                                hash((dep, batch)))
                                                                            )
@@ -673,7 +648,7 @@ class VertDecisionTreeProvider(DecisionTree):
 
     def fit(self):
         LOGGER.info("begin to fit provider decision tree")
-        self.sync_encrypted_grad_and_hess()
+        self.init_compressor_and_sync_gh()
 
         for dep in range(self.max_depth):
             self.sync_tree_node_queue(dep)
@@ -754,14 +729,14 @@ class VertDecisionTreeProvider(DecisionTree):
         model_param = DecisionTreeModelParam()
         for node in self.tree_:
             model_param.tree_.add(id=node.id,
-                                  sitename=node.sitename,
-                                  fid=node.fid,
-                                  bid=node.bid,
-                                  weight=node.weight,
-                                  is_leaf=node.is_leaf,
-                                  left_nodeid=node.left_nodeid,
-                                  right_nodeid=node.right_nodeid,
-                                  missing_dir=node.missing_dir)
+                                      sitename=node.sitename,
+                                      fid=node.fid,
+                                      bid=node.bid,
+                                      weight=node.weight,
+                                      is_leaf=node.is_leaf,
+                                      left_nodeid=node.left_nodeid,
+                                      right_nodeid=node.right_nodeid,
+                                      missing_dir=node.missing_dir)
 
         model_param.split_maskdict.update(self.split_maskdict)
         model_param.missing_dir_maskdict.update(self.missing_dir_maskdict)

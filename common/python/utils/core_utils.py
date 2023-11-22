@@ -34,6 +34,7 @@ import pickle
 import socket
 import time
 import uuid
+import platform
 
 import numpy as np
 
@@ -212,3 +213,7 @@ def hash_code(s):
         return np.int32(h)
     else:
         return 0
+
+
+def is_windows_sys():
+    return platform.system().lower() == "windows"

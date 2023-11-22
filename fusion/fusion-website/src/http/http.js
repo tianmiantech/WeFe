@@ -54,7 +54,7 @@ methods.forEach(method => {
         const result = deepMerge(config, options);
 
         result.method = method;
-        result.btnState = options.btnState;
+        result.btnState = config.btnState || options.btnState;
         return baseService(result);
     };
 });

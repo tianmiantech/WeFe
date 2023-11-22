@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,13 +17,16 @@
 package com.welab.wefe.common.data.mongodb.repo;
 
 import com.mongodb.client.result.UpdateResult;
-import com.welab.wefe.common.data.mongodb.entity.contract.data.DataSetMemberPermission;
+import com.welab.wefe.common.data.mongodb.entity.union.DataSetMemberPermission;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetMemberPermissionExtJSON;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -32,10 +35,18 @@ import java.util.List;
  **/
 @Repository
 public class DataSetMemberPermissionMongoRepo extends AbstractMongoRepo {
+    @Autowired
+    protected MongoTemplate mongoUnionTemplate;
+
+    @Override
+    protected MongoTemplate getMongoTemplate() {
+        return mongoUnionTemplate;
+    }
+
     public boolean deleteByDataSetId(String dataSetId) {
         Query query = new QueryBuilder().append("dataSetId", dataSetId).build();
         Update udpate = new UpdateBuilder().append("status", "1").build();
-        UpdateResult updateResult = mongoTemplate.updateMulti(query, udpate, DataSetMemberPermission.class);
+        UpdateResult updateResult = mongoUnionTemplate.updateMulti(query, udpate, DataSetMemberPermission.class);
         return updateResult.wasAcknowledged();
     }
 
@@ -44,18 +55,28 @@ public class DataSetMemberPermissionMongoRepo extends AbstractMongoRepo {
             return null;
         }
         Query query = new QueryBuilder().append("memberId", memberId).build();
-        List<DataSetMemberPermission> list = mongoTemplate.find(query, DataSetMemberPermission.class);
+        List<DataSetMemberPermission> list = mongoUnionTemplate.find(query, DataSetMemberPermission.class);
         return list;
     }
 
 
     public void upsert(DataSetMemberPermission dataSetMemberPermission) {
         Query query = new QueryBuilder().append("dataSetMemberPermissionId", dataSetMemberPermission.getDataSetMemberPermissionId()).build();
-        DataSetMemberPermission dbDataSetMemberPermission = mongoTemplate.findOne(query, DataSetMemberPermission.class);
+        DataSetMemberPermission dbDataSetMemberPermission = mongoUnionTemplate.findOne(query, DataSetMemberPermission.class);
         if (dbDataSetMemberPermission != null) {
             dataSetMemberPermission.setId(dbDataSetMemberPermission.getId());
         }
-        mongoTemplate.save(dataSetMemberPermission);
+        mongoUnionTemplate.save(dataSetMemberPermission);
+    }
+
+    public boolean updateExtJSONById(String dataSetId, DataSetMemberPermissionExtJSON extJSON) {
+        if (StringUtils.isEmpty(dataSetId)) {
+            return false;
+        }
+        Query query = new QueryBuilder().append("dataSetId", dataSetId).build();
+        Update update = new UpdateBuilder().append("extJson", extJSON).build();
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, DataSetMemberPermission.class);
+        return updateResult.wasAcknowledged();
     }
 
 }

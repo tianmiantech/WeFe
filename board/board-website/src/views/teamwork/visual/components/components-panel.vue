@@ -46,7 +46,7 @@
                         </div>
                         <el-form-item
                             label="流程名称："
-                            required
+                            class="is-required"
                         >
                             <el-input
                                 v-model="flow_name"
@@ -134,6 +134,7 @@
                                                 :learning-type="learningType"
                                                 :ootModelFlowNodeId="ootModelFlowNodeId"
                                                 :ootJobId="ootJobId"
+                                                :project-type="projectType"
                                             >
                                             </component>
                                         </template>
@@ -170,6 +171,7 @@
                                         :my-role="myRole"
                                         :flow-id="flowId"
                                         :job-id="jobId"
+                                        :project-type="projectType"
                                     />
                                 </el-scrollbar>
                             </el-tab-pane>
@@ -217,6 +219,7 @@
             myRole:             String,
             isCreator:          Boolean,
             projectId:          String,
+            projectType:        String,
             flowId:             String,
             jobId:              String,
             oldLearningType:    String,
@@ -263,7 +266,8 @@
             },
 
             tabChange({ paneName }) {
-                const child = this.$refs[`${this.componentType.split('-')[0]}-${paneName}`];
+                const ref = this.$refs[`${this.componentType.split('-')[0]}-${paneName}`];
+                const child = Array.isArray(ref) ? ref[0]: ref;
 
                 if(paneName === 'result') {
                     child.methods.readData(this.nodeModel);
@@ -321,7 +325,9 @@
                             // switched
                             if(lastNodeId !== id) {
                                 // call readData
-                                const ref = this.$refs[this.componentType];
+                                let ref = this.$refs[this.componentType];
+
+                                ref = Array.isArray(ref) ? ref[0]: ref;
 
                                 if(ref) {
                                     let readData;
@@ -395,11 +401,14 @@
 
             // save component form
             saveComponentData($event) {
-                if(this.currentObj.nodeId) {
-                    const ref = this.$refs[this.componentType];
+                const type = this.componentType.split('-')[1] === 'params' ? this.componentType : this.componentType.split('-')[0] + '-params';
 
-                    if(ref) {
-                        const formData = ref.methods.checkParams();
+                if(this.currentObj.nodeId) {
+                    const ref = this.$refs[type];
+                    const refInstance = Array.isArray(ref) ? ref[0]: ref;
+
+                    if(refInstance) {
+                        const formData = refInstance.methods.checkParams();
 
                         if(formData) {
                             this.submitFormData($event, formData.params);
@@ -419,7 +428,7 @@
                     url:  '/project/flow/node/update',
                     data: {
                         nodeId:        this.currentObj.nodeId,
-                        componentType: this.currentObj.componentType.replace('-params', ''),
+                        componentType: this.componentType.indexOf('result') !== -1 ? this.componentType.replace('-result', '') : this.currentObj.componentType.replace('-params', ''),
                         flowId,
                         params,
                     },
@@ -494,11 +503,10 @@
     height:100%;
     :deep(.el-form-item__label){
         color:#909399;
-        margin-bottom: 6px;
         font-size: 13px;
     }
-    :deep(.el-input__inner),
-    :deep(.el-textarea__inner){max-width: 300px;}
+    :deep(.el-input),
+    :deep(.el-textarea){max-width: 300px;}
 }
 #pane-help, .component-panel-content{height: 100%;}
 #pane-params, #pane-result{
@@ -510,8 +518,6 @@
             position: static !important;
         }
     }
-    :deep(.el-form-item__label),
-    :deep(.el-form-item__content){line-height: 20px;}
 }
 .el-tabs--border-card{
     box-shadow: none;

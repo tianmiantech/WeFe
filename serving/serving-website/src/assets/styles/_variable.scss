@@ -1,24 +1,25 @@
 /* base color
 -------------------------- */
 
-$color-primary                     : #1b223c;
-$color-light                       : #6c757d;
+$--color-primary                   : #1890ff;
+$color-light                       : #909399;
 $color-primary-darken              : #978755;
 
-$color-success                     : #5BBA69;
-$color-warning                     : #FFB403;
-$color-danger                      : #FF5757;
-$color-error                       : #FF001F;
+$--color-info                      : #28c2d7;
+$--color-success                   : #35c895;
+$--color-warning                   : #FFB403;
+$--color-danger                    : #f85564;
+$--color-error                     : #f85564;
 
 /* layout navigate
 -------------------------- */
-$nav-background                    : #212a39;
-$nav-background-active             : #5088fc;
-$nav-text-color                    : rgba(255, 255, 255, 0.7);
+$nav-background                    : #041527;
+$nav-background-active             : #448EF7;
+$nav-text-color                    : #a6aaae;
 $nav-active-color                  : #fff;
 $header-background                 : #fff;
-$layout-main-background            : #f5f6fa;
-$sub-menu-list_bg                  : #1d2531;
+$layout-main-background            : #F5F7FA;
+$sub-menu-list_bg                  : #041527;
 
 /* link
 -------------------------- */
@@ -27,7 +28,7 @@ $color-link-base-hover             : #0050ff;
 
 /* text color
 -------------------------- */
-$color-text-base                   : #495057;
+$color-text-base                   : #303133;
 $color-text-light                  : #666;
 $color-text-placeholder            : #999;
 $color-text-disabled               : #D8D8D8;
@@ -42,7 +43,6 @@ $background-color-light            : #FBFBFB;
 
 /* border
 -------------------------- */
-$border-radius                     : 4px;
 $border-color-base                 : #e5e9f2;
 $border-color-light                : #D8D8D8;
 $border-base-style                 : 1px solid $border-color-base;
@@ -61,3 +61,5 @@ $font-line-height                  : 1;
 -------------------------- */
 $animation-transition-time          : 300ms;
 $animation-transition-timing        : ease-in-out;
+
+.color-danger{color:$--color-danger;}

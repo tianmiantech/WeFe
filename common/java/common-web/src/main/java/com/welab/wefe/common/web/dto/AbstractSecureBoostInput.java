@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,8 +38,6 @@ public class AbstractSecureBoostInput extends AbstractCheckModel {
     }
 
     public static class TreeParam extends AbstractCheckModel {
-        @Check(name = "xgboost标准函数正则项系数", require = true)
-        private String criterionMethod;
 
         @Check(name = "xgboost标准函数正则项系数", require = true)
         private List<Double> criterionParams;
@@ -55,17 +53,6 @@ public class AbstractSecureBoostInput extends AbstractCheckModel {
 
         @Check(name = "单次拆分的要达到的最小增益", require = true)
         private float minImpuritySplit;
-
-        @Check(name = "可分叉的最大节点数", require = true)
-        private int maxSplitNodes;
-
-        public String getCriterionMethod() {
-            return criterionMethod;
-        }
-
-        public void setCriterionMethod(String criterionMethod) {
-            this.criterionMethod = criterionMethod;
-        }
 
         public List<Double> getCriterionParams() {
             return criterionParams;
@@ -107,13 +94,6 @@ public class AbstractSecureBoostInput extends AbstractCheckModel {
             this.minImpuritySplit = minImpuritySplit;
         }
 
-        public int getMaxSplitNodes() {
-            return maxSplitNodes;
-        }
-
-        public void setMaxSplitNodes(int maxSplitNodes) {
-            this.maxSplitNodes = maxSplitNodes;
-        }
     }
 
     @Check(require = true)

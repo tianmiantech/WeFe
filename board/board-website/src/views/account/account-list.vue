@@ -51,12 +51,13 @@
             </el-form-item>
             <el-button
                 type="primary"
+                class="inline-block"
                 native-type="submit"
                 @click="getList({ to: true, resetPagination: true })"
             >
                 查询
             </el-button>
-            <div>
+            <div class="mb20">
                 <el-button
                     v-if="userInfo.super_admin_role"
                     type="danger"
@@ -72,6 +73,7 @@
             :data="list"
             stripe
             border
+            :style="{width: userInfo.admin_role ? '100%' : '60%'}"
         >
             <template #empty>
                 <EmptyData />
@@ -79,7 +81,6 @@
             <el-table-column
                 label="姓名"
                 prop="nickname"
-                min-width="100"
             />
             <el-table-column
                 v-if="userInfo.admin_role"
@@ -89,7 +90,7 @@
             />
             <el-table-column
                 v-if="userInfo.admin_role"
-                min-width="200"
+                min-width="180"
                 label="email"
                 prop="email"
             />
@@ -97,7 +98,7 @@
                 v-if="userInfo.admin_role"
                 label="管理员"
                 align="center"
-                width="70"
+                min-width="70"
             >
                 <template v-slot="scope">
                     <span
@@ -111,6 +112,29 @@
                     <span
                         v-else
                         class="not_super_admin_role"
+                    >
+                        <el-icon>
+                            <elicon-close />
+                        </el-icon>
+                    </span>
+                </template>
+            </el-table-column>
+            <el-table-column
+                v-if="userInfo.super_admin_role"
+                label="已注销"
+                align="center"
+                min-width="70"
+            >
+                <template v-slot="scope">
+                    <span
+                        v-if="scope.row.cancelled"
+                    >
+                        <el-icon>
+                            <elicon-check />
+                        </el-icon>
+                    </span>
+                    <span
+                        v-else
                     >
                         <el-icon>
                             <elicon-close />
@@ -144,16 +168,41 @@
                 </template>
             </el-table-column>
             <el-table-column
+                label="审核状态"
+                width="100"
+            >
+                <template v-slot="scope">
+                    <el-tag :type="scope.row.audit_status === 'agree' ? 'success' : scope.row.audit_status === 'disagree' ? 'danger' : 'warning'" class="status_tag">
+                        {{ auditStatusType(scope.row.audit_status) }}
+                    </el-tag>
+                    <el-tooltip
+                        v-if="scope.row.audit_status === 'disagree'"
+                        placement="top"
+                        effect="light"
+                    >
+                        <template #content>
+                            <p v-html="scope.row.audit_comment"></p>
+                        </template>
+                        <el-icon class="ml5">
+                            <elicon-info-filled />
+                        </el-icon>
+                    </el-tooltip>
+                </template>
+            </el-table-column>
+            <el-table-column
                 label="注册时间"
-                min-width="140"
+                width="150"
+                align="center"
             >
                 <template v-slot="scope">
                     {{ dateFormat(scope.row.created_time) }}
                 </template>
             </el-table-column>
             <el-table-column
+                v-if="userInfo.admin_role"
                 min-width="340"
                 label="操作"
+                fixed="right"
             >
                 <template v-slot="scope">
                     <template v-if="userInfo.admin_role && userInfo.id !== scope.row.id">
@@ -167,7 +216,7 @@
                         <template v-else>
                             <template v-if="userInfo.super_admin_role">
                                 <el-button
-                                    v-if="!scope.row.admin_role"
+                                    v-if="!scope.row.admin_role && !scope.row.super_admin_role && scope.row.audit_status !== 'disagree'"
                                     type="primary"
                                     @click="changeUserRole(scope.row)"
                                 >
@@ -181,23 +230,25 @@
                                     设为普通用户
                                 </el-button>
                             </template>
-                            <el-button @click="resetPassword(scope.row)">
-                                重置密码
-                            </el-button>
-                            <el-button
-                                v-if="scope.row.enable"
-                                type="danger"
-                                @click="disableUser(scope.row)"
-                            >
-                                禁用
-                            </el-button>
-                            <el-button
-                                v-else
-                                type="danger"
-                                @click="disableUser(scope.row)"
-                            >
-                                取消禁用
-                            </el-button>
+                            <template v-if="!scope.row.super_admin_role">
+                                <el-button @click="resetPassword(scope.row)">
+                                    重置密码
+                                </el-button>
+                                <el-button
+                                    v-if="scope.row.enable"
+                                    type="danger"
+                                    @click="disableUser(scope.row)"
+                                >
+                                    禁用
+                                </el-button>
+                                <el-button
+                                    v-else
+                                    type="danger"
+                                    @click="disableUser(scope.row)"
+                                >
+                                    取消禁用
+                                </el-button>
+                            </template>
                         </template>
                     </template>
                 </template>
@@ -269,32 +320,27 @@
             将重置 <strong class="primary-color">
                 {{ resetPwDialog.nickname }}
             </strong> 的登录密码!
-            <p class="mt10 mb10">原密码将失效, <strong class="color-danger">新密码仅可查看一次!</strong></p>
-            <p>是否继续操作?</p>
+            <p class="mt10 mb10 color-danger">原密码将失效, 请谨慎操作</p>
+            <span class="color-danger">*</span> 操作人登录密码:
+            <el-input
+                v-model="resetPwDialog.operatorPassword"
+                style="width: 200px;"
+                type="password"
+                @paste.prevent
+                @copy.prevent
+                @contextmenu.prevent
+            />
             <template #footer>
                 <el-button
                     type="danger"
                     @click="confirmReset"
                 >
-                    是
+                    确定
                 </el-button>
                 <el-button @click="resetPwDialog.visible = false">
-                    否
+                    取消
                 </el-button>
             </template>
-        </el-dialog>
-
-        <el-dialog
-            width="340px"
-            title="新用户密码"
-            v-model="resetPwDialog.result"
-            destroy-on-close
-        >
-            <div style="margin-top:-15px">
-                密码已重置为:
-                <p class="new_password">{{ resetPwDialog.new_password }}</p>
-                <p class="color-danger f12">请勿随意传播!</p>
-            </div>
         </el-dialog>
 
         <el-dialog
@@ -360,7 +406,7 @@
             >
                 <el-form-item
                     label="选择目标用户"
-                    required
+                    class="is-required"
                 >
                     <el-autocomplete
                         v-model="transformSuperUserDialog.user"
@@ -390,6 +436,7 @@
 </template>
 
 <script>
+    import md5 from 'js-md5';
     import { mapGetters } from 'vuex';
     import table from '@src/mixins/table.js';
     import { baseLogout } from '@src/router/auth';
@@ -419,11 +466,10 @@
                     audit_comment: '',
                 },
                 resetPwDialog: {
-                    visible:      false,
-                    id:           '',
-                    nickname:     '',
-                    result:       false,
-                    new_password: '',
+                    visible:          false,
+                    id:               '',
+                    nickname:         '',
+                    operatorPassword: '',
                 },
                 userRoleDialog: {
                     id:         '',
@@ -446,6 +492,11 @@
         },
         computed: {
             ...mapGetters(['userInfo']),
+            auditStatusType(val) {
+                return function(val) {
+                    return val === 'agree' ? '已通过' : val === 'disagree' ? '已拒绝' : '审核中';
+                };
+            },
         },
         created() {
             this.getList();
@@ -480,10 +531,24 @@
                 this.resetPwDialog.visible = true;
             },
             async confirmReset($event) {
+                const { operatorPassword } = this.resetPwDialog;
+                const { phone_number } = this.userInfo;
+
+                if(!operatorPassword) {
+                    return this.$message.error('请输入你的帐号密码');
+                }
+
                 const { code, data } = await this.$http.post({
                     url:  '/account/reset/password',
                     data: {
-                        id: this.resetPwDialog.id,
+                        id:               this.resetPwDialog.id,
+                        operatorPassword: md5([
+                            phone_number,
+                            operatorPassword,
+                            phone_number,
+                            phone_number.substr(0, 3),
+                            operatorPassword.substr(operatorPassword.length - 3),
+                        ].join('')),
                     },
                     btnState: {
                         target: $event,
@@ -491,9 +556,16 @@
                 });
 
                 if(code === 0) {
+                    this.resetPwDialog.operatorPassword = '';
                     this.resetPwDialog.visible = false;
-                    this.resetPwDialog.result = true;
-                    this.resetPwDialog.new_password = data;
+                    this.$alert(`该用户密码已重置为 <strong>${data}</strong> <p class="color-danger">此密码仅可查看一次, 请勿随意传播</p>`, '操作成功', {
+                        type:                     'warning',
+                        dangerouslyUseHTMLString: true,
+                        confirmButtonText:        '确定',
+                    });
+                    setTimeout(() => {
+                        this.refresh();
+                    }, 300);
                 }
             },
             changeUserRole(row) {
@@ -614,5 +686,9 @@
         border-radius: 2px;
         border: 1px solid #e5e5e5;
         background: #f9f9f9;
+    }
+    .status_tag {
+        padding-top: 4px;
+        padding-bottom: 4px;
     }
 </style>

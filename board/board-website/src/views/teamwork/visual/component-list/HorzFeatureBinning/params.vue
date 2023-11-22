@@ -31,7 +31,7 @@
                 @change="methods.changeMethodCount(item, index)"
             />箱
             <el-button
-                size="mini"
+                size="small"
                 class="mt5"
                 :disabled="vData.total_column_count === 0"
                 @click="methods.showColumnListDialog(item, index)"

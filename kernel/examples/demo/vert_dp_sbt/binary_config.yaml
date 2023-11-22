@@ -1,0 +1,16 @@
+data_promoter: "data/breast_vert_promoter.csv"
+data_provider: "data/breast_vert_provider.csv"
+idx: "id"
+label_name: "y"
+data_promoter_train: "breast_vert_promoter"
+data_promoter_val: "breast_vert_promoter"
+data_provider_train: "breast_vert_provider"
+data_provider_val: "breast_vert_provider"
+eval_type: "binary"
+task_type: "classification"
+loss_func: "cross_entropy"
+tree_depth: 3
+tree_num: 100
+learning_rate: 0.1
+epsilon: 3
+
