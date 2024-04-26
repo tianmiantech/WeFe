@@ -52,7 +52,7 @@ docker-ce.x86_64 docker-ce-cli.x86_64
 ### Docker 安装
 # 复制后注意检查粘贴后的代码是否正确
 yum install -y \
-yum-utilsdevice-mapper-persistent-data lvm2
+yum-utils device-mapper-persistent-data lvm2
 
 yum-config-manager \
 --add-repo http://mirrors.aliyun.com\
