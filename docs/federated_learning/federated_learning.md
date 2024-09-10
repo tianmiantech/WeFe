@@ -36,12 +36,12 @@ WeFe 联邦学习系统中共有三种角色：
 1. **以扩充样本数为目的，各方数据集需要提供相同的特征列表，都需要有 label。**
 2. **训练后所有成员都能得到完整且相同的模型。**
 
-<img src="//assets.processon.com/chart_image/6141ecabe0b34d66cf7f4b12.png" style="width:600px" />
+<img src="_media/federated_learning/horz.png" style="width:600px" />
 
 横向联邦学习建模以扩充样本数量为目的，所有参与者提供的数据集都需要有 **label** 和 **相同的特征列表**
 ，如果各成员提供的原始数据集存在额外的特征，需要进行特征对齐，即特征列表取交集，丢弃其他特征列，特征对齐后的数据集才能参与横向联邦建模。
 
-<img src="//assets.processon.com/chart_image/6141f1c6079129629e0f2c84.png" style="width:600px"/>
+<img src="_media/federated_learning/horizontal_modeling_diagram.png" style="width:600px"/>
 
 横向联邦需要借助一个虚拟的成员 arbiter 来进行安全聚合， arbiter 是一个中立的服务，部署在何处并不影响整体的安全性，所以在 WeFe 系统中 arbiter 由发起方启动。
 
@@ -54,13 +54,13 @@ WeFe 联邦学习系统中共有三种角色：
 1. **以扩充特征数为目的，各方数据集需要提供相同主键的样本，仅一方有 label。**
 2. **训练后所有成员都只能得到与己方特征相关的部分的模型。**
 
-<img src="//assets.processon.com/chart_image/60f7f0b5e401fd4cdec54b5c.png" style="width:600px" />
+<img src="_media/federated_learning/vert.png" style="width:600px" />
 
 纵向联邦学习建模以扩充特征数量为目的，所有参与者提供的数据集都需要进行主键对齐，也叫样本对齐，样本对齐后的数据集才能参与纵向联邦建模。
 
 > 样本对齐是指，多个数据集按主键求交集，各数据集仅保留主键在交集中的样本。
 
-<img src="//assets.processon.com/chart_image/6145efc30e3e74524c92afd4.png" style="width:600px"/>
+<img src="_media/federated_learning/vertical_modeling_diagram.png" style="width:600px"/>
 
 纵向联邦不需要 arbiter 服务的存在，建模结束后不存在完整的模型，所有参与者都只能得到与己方特征相关的部分的模型，模型的后续使用需要所有成员的参与。
 
@@ -71,7 +71,7 @@ WeFe 联邦学习系统中共有三种角色：
 1. **以同时扩充特征数和样本数为目的，是横向联邦与纵向联邦的结合。**
 2. **训练后所有成员都只能得到与己方特征相关的部分的模型。**
 
-<img src="//assets.processon.com/chart_image/6141ecb563768941d2762e7a.png" style="width:600px" />
+<img src="_media/federated_learning/mix.png" style="width:600px" />
 
 混合联邦在一个建模任务中同时包含了横向联邦与纵向联邦，由于包含纵向联邦，所以所有参与者都只能得到与己方特征相关的部分的模型。
 
