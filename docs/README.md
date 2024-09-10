@@ -38,6 +38,8 @@ WeFe 不仅支持本地部署运行测试，并且提供了一套完整的线上
 前往体验：https://tianmiantech.com/federal?from=opensource
 
 
+# 产品操作手册
+[智能联合建模平台操作手册v3.8](_media/operation_manual_v3.8.pdf)
 
 # 加入交流群
 
