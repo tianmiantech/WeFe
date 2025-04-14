@@ -47,6 +47,7 @@ public class SecureAggregation {
             request.setP(dhKey.getP().toString(16));
             request.setG(dhKey.getG().toString(16));
             request.setQueryParams(serverConfig.getQueryParams());
+            request.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
             QueryDiffieHellmanKeyResponse response = transferVariables.get(i).queryDiffieHellmanKey(request);
             if(response.getCode() != 0) {
                 throw new Exception(response.getMessage());

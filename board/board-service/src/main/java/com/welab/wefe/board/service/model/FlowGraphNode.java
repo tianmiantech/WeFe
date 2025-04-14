@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.model;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.database.entity.job.JobMySqlModel;
@@ -64,7 +65,10 @@ public class FlowGraphNode extends ProjectFlowNodeMySqlModel {
      * children nodes
      */
     private List<FlowGraphNode> children = new ArrayList<>();
-
+    /**
+     * 是否是叶子节点
+     */
+    private boolean leafNode = false;
 
     public String getTaskName() {
         if (StringUtils.isBlank(this.taskName)) {
@@ -104,8 +108,7 @@ public class FlowGraphNode extends ProjectFlowNodeMySqlModel {
      * create task id
      */
     public static String createTaskId(JobMySqlModel job, ComponentType componentType, String nodeId, int index) {
-        return job.getJobId() + "_" + job.getMyRole().name() + "_" + createTaskName(componentType, nodeId) + "_"
-                + index;
+        return job.getJobId() + "_" + job.getMyRole().name() + "_" + createTaskName(componentType, nodeId) + "_" + index;
     }
 
     /**
@@ -119,10 +122,7 @@ public class FlowGraphNode extends ProjectFlowNodeMySqlModel {
             return "";
         }
 
-        return getParents()
-                .stream()
-                .map(x -> x.createTaskId(job))
-                .collect(Collectors.joining(","));
+        return getParents().stream().map(x -> x.createTaskId(job)).collect(Collectors.joining(","));
     }
 
     /**
@@ -147,19 +147,17 @@ public class FlowGraphNode extends ProjectFlowNodeMySqlModel {
     /**
      * Get form parameter object
      */
-    public AbstractCheckModel getParamsModel() {
+    public <T extends AbstractCheckModel> T getParamsModel() {
         if (paramsModel != null) {
-            return paramsModel;
+            return (T)paramsModel;
         }
 
         try {
-            paramsModel = Components
-                    .get(super.getComponentType())
-                    .deserializationParam(super.getParams());
+            paramsModel = Components.get(super.getComponentType()).deserializationParam(super.getParams());
         } catch (StatusCodeWithException e) {
             return null;
         }
-        return paramsModel;
+        return (T)paramsModel;
     }
 
     //region getter/setter
@@ -217,9 +215,21 @@ public class FlowGraphNode extends ProjectFlowNodeMySqlModel {
     }
 
     public void setChildren(List<FlowGraphNode> children) {
+        // 没有子节点，标记为叶子节点。
+        if (CollectionUtil.isEmpty(children)) {
+            leafNode = true;
+        }
+
         this.children = children;
     }
 
+    public boolean isLeafNode() {
+        return leafNode;
+    }
+
+    public void setLeafNode(boolean leafNode) {
+        this.leafNode = leafNode;
+    }
 
     //endregion
 }

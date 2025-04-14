@@ -182,7 +182,7 @@
                 3. auding is agree
              -->
             <el-button
-                v-if="!form.closed && !member.exited && ((member.member_id === userInfo.member_id && member.audit_status === 'agree') || (form.isPromoter && member.audit_status === 'agree'))"
+                v-if="!form.closed && !member.exited && form.is_project_admin && ((member.member_id === userInfo.member_id && member.audit_status === 'agree') || (form.isPromoter && member.audit_status === 'agree'))"
                 type="primary"
                 @click="methods.addDataSet(role, memberIndex, member.member_id, member.$data_set)"
             >
@@ -222,11 +222,6 @@
                     </template>
                 </el-table-column>
 
-                <el-table-column label="数据类型" min-width="100">
-                    <template v-slot="scope">
-                        {{ vData.sourceTypeMap[scope.row.data_resource_type] }}
-                    </template>
-                </el-table-column>
                 <el-table-column label="关键词">
                     <template v-slot="scope">
                         <template v-if="scope.row.data_resource && scope.row.data_resource.tags">
@@ -250,10 +245,10 @@
                             <br>
                             主键组合方式: {{ scope.row.data_resource.hash_function }}
                         </p>
-                        <template v-else>
-                            特征量：{{ scope.row.data_resource.feature_count }}
+                        <template v-if="scope.row.data_resource">
+                            特征量：{{ scope.row.data_resource.feature_count || 0 }}
                             <br>
-                            样本量：{{ scope.row.data_resource.total_data_count }}
+                            样本量：{{ scope.row.data_resource.total_data_count || 0 }}
                         </template>
                     </template>
                 </el-table-column>
@@ -262,7 +257,7 @@
                     v-if="form.project_type === 'DeepLearning'"
                     label="样本分类"
                     prop="for_job_type"
-                    width="100"
+                    min-width="100"
                 >
                     <template v-slot="scope">
                         <template v-if="scope.row.data_resource">
@@ -273,48 +268,26 @@
 
                 <el-table-column
                     v-if="form.project_type === 'DeepLearning'"
-                    label="数据总量"
-                    width="80"
-                >
-                    <template v-slot="scope">
-                        {{ scope.row.data_resource ? scope.row.data_resource.total_data_count : 0 }}
-                    </template>
-                </el-table-column>
-                <el-table-column
-                    v-if="form.project_type === 'DeepLearning'"
-                    label="已标注"
-                    prop="labeled_count"
-                    width="100"
+                    label="已标注/样本量"
+                    min-width="120"
                 >
                     <template v-slot="scope">
                         <template v-if="scope.row.data_resource">
-                            {{scope.row.data_resource ? scope.row.data_resource.labeled_count   : scope.row.labeled_count}}
-                        </template>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                    v-if="form.project_type === 'DeepLearning'"
-                    label="标注状态"
-                    prop="label_completed"
-                    width="100"
-                >
-                    <template v-slot="scope">
-                        <template v-if="scope.row.data_resource">
-                            {{scope.row.data_resource.label_completed ? '已完成' : '标注中'}}
+                            {{scope.row.data_resource.labeled_count}}/{{ scope.row.data_resource.total_data_count }}
                         </template>
                     </template>
                 </el-table-column>
 
                 <el-table-column
                     label="使用次数"
-                    width="80"
+                    min-width="90"
                 >
                     <template v-slot="scope">
                         {{ scope.row.data_resource ? scope.row.data_resource.usage_count_in_job : 0 }}
                     </template>
                 </el-table-column>
 
-                <el-table-column v-if="form.project_type === 'MachineLearning'" label="是否包含 Y">
+                <el-table-column v-if="form.project_type === 'MachineLearning'" label="是否包含 Y" min-width="100">
                     <template v-slot="scope">
                         {{ scope.row.data_resource && scope.row.data_resource.contains_y ? '是' : '否' }}
                     </template>
@@ -374,7 +347,7 @@
                             </template>
                         </template>
                         <el-tooltip
-                            v-if="scope.row.member_id === userInfo.member_id && scope.row.data_resource_type === 'TableDataSet' && scope.row.audit_status !== 'auditing' && form.project_type === 'MachineLearning'"
+                            v-if="(scope.row.data_resource && !scope.row.data_resource.deleted) && scope.row.member_id === userInfo.member_id && scope.row.data_resource_type === 'TableDataSet' && scope.row.audit_status !== 'auditing' && form.project_type === 'MachineLearning'"
                             :disabled="scope.row.data_resource_type === 'BloomFilter'"
                             content="预览数据"
                             placement="top"
@@ -396,14 +369,14 @@
                             2. member is promoter || member is myself
                          -->
                         <el-button
-                            v-if="form.isPromoter || scope.row.member_id === userInfo.member_id"
+                            v-if="(scope.row.data_resource && !scope.row.data_resource.deleted) && form.is_project_admin && (form.isPromoter || scope.row.member_id === userInfo.member_id)"
                             circle
                             type="danger"
                             class="mr10"
                             icon="elicon-delete"
                             @click="methods.removeDataSet(scope.row, scope.$index)"
                         />
-                        <template v-if="scope.row.deleted">
+                        <template v-if="scope.row.data_resource && scope.row.data_resource.deleted">
                             该数据资源已被移除
                         </template>
                     </template>
@@ -429,9 +402,9 @@
         destroy-on-close
         v-model="vData.cooperAuthDialog.show"
     >
-        <div class="el-message-box__container">
-            <i class="el-message-box__status el-icon-warning" />
-            <div class="el-message-box__message">{{ vData.cooperAuthDialog.flag ? '同意加入合作' : (form.isPromoter ? '退出此次项目合作' : '拒绝与发起方的此次项目合作') }}</div>
+        <div class="board-message-box__container">
+            <i class="board-message-box__status board-icon-warning" />
+            <div class="board-message-box__message">{{ vData.cooperAuthDialog.flag ? '同意加入合作' : (form.isPromoter ? '退出此次项目合作' : '拒绝与发起方的此次项目合作') }}</div>
         </div>
         <p class="f14 mt20 mb10 color-danger">审核意见:</p>
         <el-input
@@ -570,7 +543,7 @@
                     // vData.cooperAuthDialog.show = true;
                     vData.cooperAuthDialog.flag = flag;
 
-                    $confirm(`确定${ flag ? '同意' : '拒绝' }协作方参与合作吗'`, '提示', {
+                    $confirm(`确定${ flag ? '同意' : '拒绝' }协作方参与合作吗？`, '提示', {
                         type: 'warning',
                     }).then(action => {
                         if(action === 'confirm') {

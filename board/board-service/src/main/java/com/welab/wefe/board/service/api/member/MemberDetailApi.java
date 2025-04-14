@@ -16,12 +16,12 @@
 
 package com.welab.wefe.board.service.api.member;
 
-import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.dto.global_config.MemberInfoModel;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -35,7 +35,7 @@ public class MemberDetailApi extends AbstractNoneInputApi<MemberInfoModel> {
 
     @Override
     protected ApiResult<MemberInfoModel> handle() throws StatusCodeWithException {
-        MemberInfoModel output = globalConfigService.getMemberInfo();
+        MemberInfoModel output = globalConfigService.getModel(MemberInfoModel.class);
         output.setRsaPrivateKey(null);
         return success(output);
     }

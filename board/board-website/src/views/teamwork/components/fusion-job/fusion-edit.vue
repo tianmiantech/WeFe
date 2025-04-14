@@ -21,7 +21,7 @@
         />
 
         <h3 class="mb30">新建融合任务</h3>
-        <el-form @submit.prevent style="max-width:700px;">
+        <el-form @submit.prevent style="max-width:700px;" :disabled="!vData.is_project_admin || vData.is_project_admin === 'false'">
             <el-form-item label="任务名称:" class="is-required">
                 <el-input
                     v-model="vData.name"
@@ -82,7 +82,7 @@
                     RSA-PSI 算法要求至少一方需要选择布隆过滤器资源, 另一方则必须为数据资源资源
                 </span>
 
-                <el-form class="el-card p20 flex-form mt10">
+                <el-form class="board-card p20 flex-form mt10">
                     <!-- promoter -->
                     <h4 class="f14">发起方:</h4>
                     <p class="f14 mt5 mb5">{{ vData.promoter.member_name }} <span style="color:#999;">({{ vData.promoter.member_id }})</span></p>
@@ -132,6 +132,7 @@
                             >
                                 <el-button
                                     type="danger"
+                                    :disabled="!vData.is_project_admin || vData.is_project_admin === 'false'"
                                     @click="methods.removeDataSet('promoter')"
                                 >
                                     移除
@@ -206,6 +207,7 @@
                         >
                             <el-button
                                 type="danger"
+                                :disabled="!vData.is_project_admin || vData.is_project_admin === 'false'"
                                 @click="methods.removeDataSet('provider')"
                             >
                                 移除
@@ -246,7 +248,7 @@
                             <el-button
                                 v-if="!vData.export_status || vData.export_status !== 'exporting'"
                                 type="primary"
-                                :disabled="vData.status !== 'Success' || vData.fusion_count <= 0"
+                                :disabled="vData.status !== 'Success' || vData.fusion_count <= 0 || (!vData.is_project_admin || vData.is_project_admin === 'false')"
                                 @click="vData.exportDialog.visible = true"
                             >
                                 导出融合结果
@@ -320,6 +322,7 @@
                 <el-button
                     v-if="vData.myRole === 'promoter' && (vData.status === 'Refuse' || vData.status === 'Interrupt' || vData.status === 'Failure' || vData.status === 'Success')"
                     type="primary"
+                    :disabled="!vData.is_project_admin || vData.is_project_admin === 'false'"
                     @click="methods.submit"
                 >
                     重新发起融合
@@ -433,6 +436,7 @@
         nextTick,
         reactive,
         getCurrentInstance,
+        onBeforeUnmount
     } from 'vue';
     import { useStore } from 'vuex';
     import { useRoute, useRouter } from 'vue-router';
@@ -462,11 +466,15 @@
             const {
                 id,
                 project_id,
+                is_project_admin = 'true',
             } = route.query;
+            
+            let exportTimer = null;
 
             const vData = reactive({
                 id,
                 project_id,
+                is_project_admin,
                 business_id:       '',
                 comment:           '',
                 finish_time:       '',
@@ -904,7 +912,7 @@
                         },
                     });
 
-                    if(code === 0) {
+                    if(code === 0 && data) {
                         nextTick(_ => {
                             vData.table_name = data.table_name;
                             vData.finish_time = data.finish_time;
@@ -913,15 +921,18 @@
                             vData.exportDialog.total_data_count = data.total_data_count;
                             vData.export_status = data.status;
 
-                            if(data.progress !== opt.progress) {
+                            // if(data.progress !== opt.progress) {
                                 if(data.progress === 100) {
                                     vData.exportDialog.onProcess = false;
+                                    if (exportTimer) {
+                                        clearTimeout(exportTimer);
+                                    }
                                 } else {
-                                    setTimeout(() => {
+                                    exportTimer = setTimeout(() => {
                                         methods.getExportProgress({ progress: data.progress });
                                     }, 3000);
                                 }
-                            }
+                            // }
                         });
                     }
                 },
@@ -935,6 +946,12 @@
                 methods.getProviders();
             }
 
+            onBeforeUnmount(_ => {
+                if (exportTimer) {
+                    clearTimeout(exportTimer);
+                }
+            });
+
             return {
                 vData,
                 methods,
@@ -947,12 +964,12 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-input,
-    .el-textarea{max-width: 400px;}
+    .board-input,
+    .board-textarea{max-width: 400px;}
     .member-list{max-width: 650px;
         .flex-form {
-            .el-form-item{margin-bottom: 0;}
-            :deep(.el-form-item__label){
+            .board-form-item{margin-bottom: 0;}
+            :deep(.board-form-item__label){
                 color:#999;
                 font-size: 12px;
             }

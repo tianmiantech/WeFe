@@ -137,6 +137,7 @@
 
 <script>
     import table from '@src/mixins/table.js';
+    import { getHeader } from '@src/http/utils';
     // import jsonView from 'vue-json-views';
 
     export default {
@@ -151,7 +152,8 @@
                     status: '',
                 },
                 headers: {
-                    token: localStorage.getItem('token') || '',
+                    // token: localStorage.getItem('token') || '',
+                    ... getHeader(),
                 },
                 getListApi:     '/data_source/query',
                 userList:       [],

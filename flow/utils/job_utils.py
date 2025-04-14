@@ -70,9 +70,8 @@ def send(dst_member_id, processor=None, action=None, content_str=""):
     """
 
     dst = gateway_meta_pb2.Member(memberId=dst_member_id)
-    content = gateway_meta_pb2.Content(objectData=content_str)
+    content = gateway_meta_pb2.Content(strData=content_str)
     transfer_meta = TransferMeta(sessionId=get_commit_id(), dst=dst, content=content,
-                                 action=action,
                                  taggedVariableName=None,
                                  processor=processor)
     result = JOB_GRPC.send(transfer_meta)
@@ -89,9 +88,8 @@ def send_fl(dst_member_id, processor=None, action=None, content_str="", session_
     """
 
     dst = gateway_meta_pb2.Member(memberId=dst_member_id)
-    content = gateway_meta_pb2.Content(objectData=content_str)
+    content = gateway_meta_pb2.Content(strData=content_str)
     transfer_meta = TransferMeta(sessionId=session_id, dst=dst, content=content,
-                                 action=action,
                                  taggedVariableName=None,
                                  processor=processor)
     result = JOB_GRPC.send(transfer_meta)
@@ -103,7 +101,7 @@ def send_fl(dst_member_id, processor=None, action=None, content_str="", session_
 def receive_fl(session_id=None):
     transfer_meta = TransferMeta(sessionId=session_id)
     result = JOB_GRPC.recv(transfer_meta)
-    return str(result.content.objectData)
+    return str(result.content.strData)
 
 
 def mail(host, port=25, username=None, password=None, sender=None, sender_alias='WEFE', receivers=None, subject=None,

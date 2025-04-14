@@ -18,7 +18,6 @@ from typing import Iterable
 
 from common.python import RuntimeInstance
 from common.python.calculation.fc.fc_storage import FCStorage
-from common.python.calculation.spark import util
 from common.python.common import consts
 from common.python.common.consts import NAMESPACE
 from common.python.common.exception.custom_exception import FCCommonError
@@ -99,7 +98,7 @@ class FCSource(Table):
         """
 
         self._valid_param_check(fcs, dsource, namespace, partitions)
-        setattr(self, util.RDD_ATTR_NAME, fcs)
+        setattr(self, "_rdd", fcs)
         self._fcs = fcs
         self._partitions = partitions
         self._dsource = dsource
@@ -400,8 +399,9 @@ class FCSource(Table):
                 return self._get_rtn_fcs(input_param)
 
             except Exception as ex:
-                # if used oss ，reset dst name
-                if conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_STORAGE_TYPE) == consts.STORAGETYPE.OSS:
+                # if used oss cos，reset dst name
+                if conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_STORAGE_TYPE) == consts.STORAGETYPE.OSS \
+                        or conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_STORAGE_TYPE) == consts.STORAGETYPE.COS:
                     input_param = self._reset_dest_name(input_param)
 
                 LOGGER.error(f"function`{fc_name}`error,execution_name:{execution_name}", ex)
@@ -582,7 +582,8 @@ class FCSource(Table):
         if self._dsource:
             return self._dsource.count()
         else:
-            if self._fcs.get_storage_type() == consts.STORAGETYPE.OSS:
+            if self._fcs.get_storage_type() == consts.STORAGETYPE.OSS \
+                    or self._fcs.get_storage_type() == consts.STORAGETYPE.COS:
                 return self._fcs.count()
 
             rtn_fcs = self._call_fc(fc_name='count')

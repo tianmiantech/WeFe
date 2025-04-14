@@ -18,10 +18,10 @@ package com.welab.wefe.data.fusion.service.api.datasource;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.jdbc.base.DatabaseType;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.data.fusion.service.dto.base.PagingInput;
 import com.welab.wefe.data.fusion.service.dto.base.PagingOutput;
 import com.welab.wefe.data.fusion.service.dto.entity.AbstractOutputModel;
@@ -43,8 +43,17 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
     }
 
     public static class Input extends PagingInput {
+        @Check(name = "数据源Id")
+        private String id;
         @Check(name = "数据源名称")
         private String name;
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
 
         public String getName() {
             return name;

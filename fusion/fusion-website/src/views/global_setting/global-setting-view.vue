@@ -46,6 +46,15 @@
                                     autosize
                                 />
                             </el-form-item>
+
+                            <el-form-item
+                                label="公钥："
+                            >
+                                <el-input
+                                    v-model="form.member_info.rsa_public_key"
+                                    :disabled="true"
+                                />
+                            </el-form-item>
                         </fieldset>
 
                         <fieldset>

@@ -16,19 +16,20 @@
 
 package com.welab.wefe.mpc.trasfer;
 
-import cn.hutool.http.HttpGlobalConfig;
-import cn.hutool.http.HttpRequest;
-import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpStatus;
+import java.util.TreeMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.util.SignUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
+import cn.hutool.http.HttpGlobalConfig;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpStatus;
 
 /**
  * @Author: eval
@@ -47,7 +48,8 @@ public abstract class AbstractHttpTransferVariable {
         params = new JSONObject(new TreeMap(params));
         String data = params.toJSONString();
         if (mConfig.isNeedSign()) {
-            String sign = SignUtil.sign(data, mConfig.getSignPrivateKey());
+            //String sign = SignUtil.sign(data, mConfig.getSignPrivateKey());
+            String sign = SignUtil.sign(data, mConfig.getSignPrivateKey(), mConfig.getSecretKeyType());
             JSONObject body = new JSONObject();
             body.put("customer_id", mConfig.getCommercialId());
             body.put("sign", sign);
@@ -60,24 +62,44 @@ public abstract class AbstractHttpTransferVariable {
             body.put("data", params);
             data = body.toJSONString();
         }
-        logger.info("request:" + data + ",url=" + url);
+        logger.info("request url=" + url);
         HttpResponse response = HttpRequest.post(url).timeout(HttpGlobalConfig.getTimeout()).body(data).execute();
-        logger.info("response:" + response);
-        while (response == null || response.getStatus() != HttpStatus.HTTP_OK) {
-            try {
-                TimeUnit.MILLISECONDS.sleep(100);
-            } catch (InterruptedException e) {
-                logger.error(e.getMessage(), e);
-            }
-            response = HttpRequest.post(url).timeout(HttpGlobalConfig.getTimeout()).body(data).execute();
-            logger.debug("response:" + response);
+//        int tryCount = 0;
+//        while (response == null || response.getStatus() != HttpStatus.HTTP_OK) {
+//            try {
+//                TimeUnit.MILLISECONDS.sleep(100);
+//            } catch (InterruptedException e) {
+//                logger.error(e.getMessage(), e);
+//            }
+//            response = HttpRequest.post(url).timeout(HttpGlobalConfig.getTimeout()).body(data).execute();
+//            tryCount++;
+//            if (tryCount > 3) {
+//                String errorMessage = "request errror" + ",customer_id=" + mConfig.getCommercialId() + ",url=" + url;
+//                JSONObject res = new JSONObject();
+//                res.put("code", -1);
+//                res.put("message", errorMessage);
+//                return res.toJSONString();
+//            }
+//        }
+        if (response == null || response.getStatus() != HttpStatus.HTTP_OK) {
+            logger.info("response:" + response);
+            String errorMessage = "request error" + ",customer_id=" + mConfig.getCommercialId() + ",url=" + url;
+            JSONObject res = new JSONObject();
+            res.put("code", -1);
+            res.put("message", errorMessage);
+            return res.toJSONString();
         }
-
+        logger.info("request url=" + url + ", response status:" + response.getStatus());
         String responseString = response.body();
         JSONObject res = JSONObject.parseObject(responseString);
+        if (res.getIntValue("code") != 0) {
+            logger.info("response:" + response);
+            String errorMessage = res.getString("message") + ",customer_id=" + mConfig.getCommercialId() + ",url="
+                    + url;
+            res.put("message", errorMessage);
+            return res.toJSONString();
+        }
         String result = res.getString("data");
-        logger.debug(url);
-        logger.debug(JSONObject.toJSONString(res, true));
         return result;
     }
 }

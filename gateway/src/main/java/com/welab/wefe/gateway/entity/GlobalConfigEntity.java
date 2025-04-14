@@ -17,8 +17,10 @@
 package com.welab.wefe.gateway.entity;
 
 import com.welab.wefe.common.data.mysql.entity.AbstractUniqueIDEntity;
+import com.welab.wefe.gateway.util.DatabaseEncryptConverter;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
@@ -42,6 +44,7 @@ public class GlobalConfigEntity extends AbstractUniqueIDEntity {
     /**
      * Value of configuration item
      */
+    @Convert(converter= DatabaseEncryptConverter.class)
     private String value;
     /**
      * Explanation of configuration items

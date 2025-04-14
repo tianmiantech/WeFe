@@ -28,6 +28,7 @@
                         v-model="vData.form.training_ratio"
                         style="width:100px"
                         size="small"
+                        @change="methods.handleTrainingChange"
                     />
                 </div>
 
@@ -111,6 +112,10 @@
                 onDataSetVerificationRatioChange(newVaule) {
                     vData.form.training_ratio = 100 - newVaule;
                 },
+                // traning rate change
+                handleTrainingChange(newVaule) {
+                    vData.form.verification_ratio = 100 - newVaule;
+                },
                 // Event: drag the training and validation data scale slider
                 onDataSetTrainingVerificationRatioChange(newVaule) {
                     vData.form.verification_ratio = 100 - newVaule;
@@ -131,10 +136,10 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-form-item{
+    .board-form-item{
         margin-bottom: 10px;
     }
-    .el-slider{
+    .board-slider{
         margin:0 14px;
     }
 </style>

@@ -1,4 +1,5 @@
-import { reactive, nextTick, getCurrentInstance } from 'vue';
+import { reactive, nextTick, getCurrentInstance, computed } from 'vue';
+import { useStore } from 'vuex';
 
 export default () => {
     return {
@@ -20,6 +21,9 @@ export default () => {
                 inited:           false,
                 featureSelectTab: [],
             });
+            const store = useStore();
+            const featureType = computed(() => store.state.base.featureType);
+
             const $methods = {
                 async readData (model) {
                     if (vData.loading) return;
@@ -43,6 +47,7 @@ export default () => {
                             vData.total_column_count = 0;
                             if (data.members && data.members.length) {
                                 data.members.forEach(row => {
+                                    const {data_set_id} = row;
                                     // cache display list fields
                                     const $feature_list = row.features.map(feature => {
                                         return {
@@ -50,6 +55,7 @@ export default () => {
                                             count:  1,
                                             method: '',
                                             id:     '',
+                                            data_type: (featureType.value[data_set_id]||{})[feature.name],
                                         };
                                     });
 
@@ -58,6 +64,7 @@ export default () => {
                                         member_id:          row.member_id,
                                         member_name:        row.member_name,
                                         member_role:        row.member_role,
+                                        data_set_id:        row.data_set_id,
                                         $checkedAll:        false,
                                         $indeterminate:     false,
                                         $checkedColumnsArr: [],
@@ -128,6 +135,7 @@ export default () => {
                 },
 
                 removeRow ({ id }, index) {
+                    vData.feature_column_count--;
                     vData.selectList.splice(index, 1);
                     vData.featureSelectTab.forEach(member => {
                         member.$feature_list.forEach(row => {
@@ -167,6 +175,7 @@ export default () => {
                 },
 
                 autoCheck (item) {
+                    if(!item) return;
                     vData.columnListLoading = true;
 
                     setTimeout(() => {

@@ -117,7 +117,7 @@
                                                 </span>
                                             </p>
 
-                                            <el-icon class="el-icon-close" @click="deleteSelectedMember(item, index)">
+                                            <el-icon class="board-icon-close" @click="deleteSelectedMember(item, index)">
                                                 <elicon-close />
                                             </el-icon>
                                         </li>
@@ -213,7 +213,7 @@
                 </el-col>
                 <el-col :span="14">
                     <h4 class="m5">数据资源预览：</h4>
-                    <DataSetPreview ref="DataSetPreview" />
+                    <DataSetPreview ref="DataSetPreview" :featureType="featureType"/>
                 </el-col>
             </el-row>
             <el-row v-if="addType === 'img'" :gutter="30" style="padding: 0 20px;">
@@ -293,6 +293,7 @@
                     labeled:    '',
                     total:      1,
                 },
+                featureType: {},
             };
         },
         computed: {
@@ -325,6 +326,10 @@
                 }
             },
             dataTypeChange(row) {
+                this.featureType = {
+                    ... this.featureType,
+                    [row.name]: row.data_type,
+                };
                 this.metadata_list[row.$index].data_type = row.data_type;
             },
             dataTypeFill(val) {
@@ -353,11 +358,15 @@
                     this.raw_data_list = data.list;
                     this.metadata_list = [];
                     this.metadata_pagination.list = [];
+                    const featureType = {};
+
                     this.metadata_list = data.list.map((item, index) => {
+                        featureType[item.name] = item.data_type;
                         item.$index = index;
                         item.comment = item.comment || '';
                         return item;
                     });
+                    this.featureType = featureType;
                     this.metadata_pagination.total = data.list.length;
 
                     const length = this.metadata_pagination.page_size;
@@ -402,7 +411,7 @@
                     url: `${map[this.addType]}?id=` + this.id,
                 });
 
-                if (code === 0) {
+                if (code === 0 && data) {
                     this.form = Object.assign(this.form, data);
                     if (this.form.public_level === 'PublicWithMemberList') {
                         for (const key in data.public_member_info_list) {
@@ -510,9 +519,9 @@
 
 <style lang="scss" scoped>
     .page{overflow: visible;}
-    .el-pagination{overflow: auto;}
-    .el-upload {position: relative;}
-    .el-upload__input {
+    .board-pagination{overflow: auto;}
+    .board-upload {position: relative;}
+    .board-upload__input {
         position: absolute;
         top: 0;
         right: 0;
@@ -531,7 +540,7 @@
     .save-btn {
         width: 100px;
     }
-    .el-tag + .el-tag {
+    .board-tag + .board-tag {
         margin-left: 10px;
     }
     .input-new-tag {
@@ -555,7 +564,7 @@
     .flex-center {
         display: flex;
         align-items: center;
-        .el-icon-close {
+        .board-icon-close {
             margin-right: unset;
             cursor: pointer;
             color: rgb(201, 199, 199);

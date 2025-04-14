@@ -36,7 +36,7 @@ public interface AccountRepository extends BaseRepository<AccountMysqlModel, Str
     @Query(value = "update account a set a.superAdminRole = false,a.adminRole = false where a.id =?1 ")
     void cancelSuperAdmin(String id);
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Modifying(clearAutomatically = true)
     @Query(value = "update #{#entityName} set last_action_time = now() where id =?1 ", nativeQuery = true)
     void updateLastActionTime(String id);
@@ -45,7 +45,7 @@ public interface AccountRepository extends BaseRepository<AccountMysqlModel, Str
     /**
      * 禁用 90 天未活动的账号
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Modifying(clearAutomatically = true)
     @Query(value = "update #{#entityName} set enable=false where DATEDIFF(now(),last_action_time)>90", nativeQuery = true)
     int disableAccountWithoutAction90Days();
@@ -53,8 +53,16 @@ public interface AccountRepository extends BaseRepository<AccountMysqlModel, Str
     /**
      * 注销 180 天未活动的账号
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Modifying(clearAutomatically = true)
     @Query(value = "update #{#entityName} set cancelled=true where DATEDIFF(now(),last_action_time)>180", nativeQuery = true)
     int cancelAccountWithoutAction180Days();
+
+    /**
+     * 更新用户UI相关配置信息
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update #{#entityName} set ui_config=?2 where id=?1", nativeQuery = true)
+    void updateUiConfig(String id, String config);
 }

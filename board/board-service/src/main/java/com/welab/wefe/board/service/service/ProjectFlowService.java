@@ -23,19 +23,18 @@ import com.welab.wefe.board.service.api.project.flow.*;
 import com.welab.wefe.board.service.api.project.job.OnJobFinishedApi;
 import com.welab.wefe.board.service.api.project.modeling.DetailApi;
 import com.welab.wefe.board.service.api.project.modeling.QueryApi;
+import com.welab.wefe.board.service.api.project.node.UpdateApi;
 import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.database.entity.flow.FlowTemplateMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.*;
-import com.welab.wefe.board.service.database.repository.JobRepository;
-import com.welab.wefe.board.service.database.repository.ProjectFlowNodeRepository;
-import com.welab.wefe.board.service.database.repository.ProjectFlowRepository;
-import com.welab.wefe.board.service.database.repository.TaskResultRepository;
+import com.welab.wefe.board.service.database.repository.*;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.job.ProjectFlowNodeOutputModel;
 import com.welab.wefe.board.service.dto.entity.job.TaskResultOutputModel;
 import com.welab.wefe.board.service.dto.entity.modeling_config.ModelingInfoOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectFlowListOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectFlowProgressOutputModel;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.TaskConfig;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
@@ -43,7 +42,8 @@ import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.*;
 import org.apache.commons.collections4.CollectionUtils;
@@ -87,9 +87,12 @@ public class ProjectFlowService extends AbstractService {
     private JobRepository jobRepository;
     @Autowired
     private TaskResultRepository taskResultRepository;
-
+    @Autowired
+    private TaskResultService taskResultService;
     @Autowired
     private ModelOotRecordService modelOotRecordService;
+    @Autowired
+    private TaskRepository taskRepository;
 
     /**
      * delete flow
@@ -105,8 +108,8 @@ public class ProjectFlowService extends AbstractService {
 
         ProjectMySqlModel project = projectService.findByProjectId(flow.getProjectId());
 
-        if (!input.fromGateway() && !flow.getCreatedBy().equals(CurrentAccount.id()) && !CurrentAccount.isAdmin()) {
-            throw new StatusCodeWithException("只能删除自己创建的流程。", StatusCode.UNSUPPORTED_HANDLE);
+        if (!input.fromGateway() && !flow.getCreatedBy().equals(CurrentAccountUtil.get().getId())) {
+            throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "只能删除自己创建的流程。");
         }
 
         flow.setDeleted(true);
@@ -127,19 +130,19 @@ public class ProjectFlowService extends AbstractService {
         ProjectMySqlModel project = projectService.findByProjectId(input.getProjectId());
 
         if (!input.fromGateway() && project.getMyRole() != JobMemberRole.promoter) {
-            throw new StatusCodeWithException("只有 promoter 才能创建流程", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "只有 promoter 才能创建流程");
         }
 
         ProjectMemberMySqlModel member = projectMemberService.findOneByMemberId(input.getProjectId(),
                 CacheObjects.getMemberId(), JobMemberRole.promoter);
         if (!input.fromGateway()) {
             if (member == null || member.isExited()) {
-                throw new StatusCodeWithException("非项目成员不能新建流程", StatusCode.ILLEGAL_REQUEST);
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "非项目成员不能新建流程");
             }
         }
 
         if (!input.fromGateway() && member.getAuditStatus() != AuditStatus.agree) {
-            throw new StatusCodeWithException("非正式成员不能新建流程", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "非正式成员不能新建流程");
         }
 
         if (!input.fromGateway()) {
@@ -165,7 +168,7 @@ public class ProjectFlowService extends AbstractService {
         if (StringUtils.isNotBlank(input.getTemplateId())) {
             FlowTemplateMySqlModel template = flowTemplateService.findById(input.getTemplateId());
             if (template == null) {
-                throw new StatusCodeWithException("未找到相应的流程模板！", StatusCode.ILLEGAL_REQUEST);
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "未找到相应的流程模板！");
             } else {
                 flow.setGraph(template.getGraph());
                 flow.setFederatedLearningType(input.isOotMode() ? input.getFederatedLearningType() : template.getFederatedLearningType());
@@ -195,11 +198,11 @@ public class ProjectFlowService extends AbstractService {
     public synchronized void updateFlowBaseInfo(UpdateFlowBaseInfoApi.Input input) throws StatusCodeWithException {
         ProjectFlowMySqlModel flow = projectFlowRepo.findOne("flowId", input.getFlowId(), ProjectFlowMySqlModel.class);
         if (flow == null) {
-            throw new StatusCodeWithException("未找到该流程", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "未找到该流程");
         }
         if (input.getFederatedLearningType() != null
                 && flow.getFederatedLearningType() != input.getFederatedLearningType()) {
-            throw new StatusCodeWithException("训练类型不允许更改", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "训练类型不允许更改");
         }
 //        List<ProjectFlowNodeMySqlModel> nodes = projectFlowNodeService.findNodesByFlowId(flow.getFlowId());
 //        if (nodes != null && !nodes.isEmpty()) {
@@ -229,7 +232,7 @@ public class ProjectFlowService extends AbstractService {
 
         ProjectFlowMySqlModel flow = findOne(input.getFlowId());
         if (flow == null) {
-            throw new StatusCodeWithException("未找到相应的流程！", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "未找到相应的流程！");
         }
 
         flow.setGraph(input.getGraph());
@@ -337,16 +340,17 @@ public class ProjectFlowService extends AbstractService {
         // is new
         if (node == null) {
             node = new ProjectFlowNodeMySqlModel();
-            node.setCreatedBy(CurrentAccount.id());
+            node.setCreatedBy(CurrentAccountUtil.get().getId());
         } else {
-            node.setUpdatedBy(CurrentAccount.id());
+            node.setUpdatedBy(CurrentAccountUtil.get().getId());
         }
 
         node.setComponentType(ComponentType.valueOf(data.getString("componentType")));
         node.setFlowId(flowId);
         node.setNodeId(nodeId);
         node.setProjectId(projectId);
-
+        // 由于不确定是否是游离节点，暂时全部初始化为 false，后续流程进行标记。
+        node.setStartNode(false);
 
         return node;
 
@@ -361,9 +365,15 @@ public class ProjectFlowService extends AbstractService {
 
         Specification<ProjectFlowMySqlModel> where = Where
                 .create()
-                .equal("projectId", input.getProjectId())
-                .equal("deleted", input.isDeleted())
-                .in("flowId", input.getFlowIdList())
+                .equal("projectId", input.projectId)
+                .equal("deleted", input.deleted)
+                .equal("federatedLearningType", input.federatedLearningType)
+                .equal("createdBy", input.creator)
+                .in("flowId", input.flowIdList)
+                .in("flowStatus", input.status == null ? null : input.status.toList())
+                .orderBy("top", OrderBy.desc)
+                .orderBy("sortNum", OrderBy.desc)
+                .orderBy("createdTime", OrderBy.desc)
                 .build(ProjectFlowMySqlModel.class);
 
         PagingOutput<ProjectFlowListOutputModel> page = projectFlowRepo.paging(where, input, ProjectFlowListOutputModel.class);
@@ -479,14 +489,111 @@ public class ProjectFlowService extends AbstractService {
 
 
     public void flowFinished(OnJobFinishedApi.Input input) throws StatusCodeWithException {
-        List<JobMySqlModel> jobs = jobService.listByJobId(input.getJobId());
-        JobMySqlModel job = null;
+        // 由于横向任务包含 arbiter，这里剔除一下。
+        JobMySqlModel job = jobService
+                .listByJobId(input.getJobId())
+                .stream()
+                .filter(x -> x.getMyRole() != JobMemberRole.arbiter)
+                .findFirst()
+                .orElse(null);
 
-        if (CollectionUtils.isNotEmpty(jobs)) {
-            job = jobs.get(0);
+        if (job == null) {
+            return;
         }
-        if (job != null) {
-            projectService.updateFlowStatusStatistics(job.getProjectId());
+
+        // 更新流程状态统计结果
+        projectService.updateFlowStatusStatistics(job.getProjectId());
+
+        // 处理包含网格搜索动作的任务
+        handleJobWithGridSearch(job);
+    }
+
+    /*
+     * 对于包含网格搜索的任务，在任务结束后，要将计算出的最优参数回写到组件参数中。
+     *
+     * kernel 输出的最优参数：
+     * {
+     *     "train_best_parameters":{
+     *         "metric_name":"best_parameters",
+     *         "metric_namespace":"train",
+     *         "data":{
+     *             "best_parameters":{
+     *                 "value":{
+     *                     "batch_size":1000,
+     *                     "optimizer":"adam"
+     *                 }
+     *             }
+     *         }
+     *     }
+     * }
+     */
+    private void handleJobWithGridSearch(JobMySqlModel job) throws StatusCodeWithException {
+
+        // 找到该 job 下所有 need_grid_search=true 的task
+        List<TaskMySqlModel> taskList = taskService.listTaskWithGridSearch(job.getJobId());
+
+        for (TaskMySqlModel task : taskList) {
+            // 找到 task 下 type=metric_train 的 task_result
+            TaskResultMySqlModel taskResult = taskResultService.findByTaskIdAndType(task.getTaskId(), "metric_train");
+
+            if (taskResult == null) {
+                continue;
+            }
+
+            JSONObject bestParams = (JSONObject) JObject
+                    .create(taskResult.getResult())
+                    .getObjectByPath("train_best_parameters.data.best_parameters.value");
+
+            // 将最优参数回写到 task_config
+            TaskConfig taskConfig = JSON.parseObject(task.getTaskConf()).toJavaObject(TaskConfig.class);
+            updateOldParams(taskConfig.getParams(), bestParams);
+            task.setTaskConf(JSON.toJSONString(taskConfig));
+            taskRepository.save(task);
+
+            // 将建模节点输出的最优参数回写到该节点的表单
+            ProjectFlowNodeMySqlModel node = projectFlowNodeService.findOne(task.getFlowId(), task.getFlowNodeId());
+            JSONObject nodeParams = JSON.parseObject(node.getParams());
+            updateOldParams(nodeParams, bestParams);
+
+            // 更新节点参数
+            UpdateApi.Input input = new UpdateApi.Input();
+            input.setFlowId(task.getFlowId());
+            input.setNodeId(task.getFlowNodeId());
+            input.setComponentType(task.getTaskType());
+            input.setParams(nodeParams.toString());
+            projectFlowNodeService.updateFlowNode(input);
+
+        }
+    }
+
+    /**
+     * 根据约定，best_parameters 内的字段名与外部的参数名一致，所以根据名称来覆盖即可。
+     */
+    private void updateOldParams(Map<String, Object> oldParams, JSONObject bestParams) {
+        // nodeParams 目前的设计是最多只有两层，暂时硬编码两层循环，如果以后深度变多，考虑使用递归。
+        for (String key1 : oldParams.keySet()) {
+            // 按照需求，grid_search_param 节点不更新。
+            if ("grid_search_param".equals(key1)) {
+                continue;
+            }
+
+            Object value1 = oldParams.get(key1);
+            if (value1 instanceof JSONObject) {
+
+                JSONObject json2 = (JSONObject) value1;
+                for (String key2 : json2.keySet()) {
+                    Object value2 = json2.get(key2);
+                    if (!(value2 instanceof JSONObject)) {
+                        if (bestParams.containsKey(key2)) {
+                            json2.put(key2, bestParams.get(key2));
+                        }
+                    }
+                }
+            } else {
+                if (bestParams.containsKey(key1)) {
+                    oldParams.put(key1, bestParams.get(key1));
+                }
+            }
         }
     }
 
@@ -494,12 +601,12 @@ public class ProjectFlowService extends AbstractService {
 
         ProjectFlowMySqlModel flow = findOne(flowId);
         if (flow == null) {
-            throw new StatusCodeWithException("找不到需要更新的流程！", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到需要更新的流程！");
         }
 
         flow.setFlowStatus(projectFlowStatus);
         flow.setStatusUpdatedTime(new Date());
-        flow.setUpdatedBy(CurrentAccount.id());
+        flow.setUpdatedBy(CurrentAccountUtil.get().getId());
         projectFlowRepo.save(flow);
 
         projectService.updateFlowStatusStatistics(flow.getProjectId());
@@ -522,11 +629,25 @@ public class ProjectFlowService extends AbstractService {
 
         PagingOutput<ModelingInfoOutputModel> pagingOutput = taskResultRepository.paging(where, input, ModelingInfoOutputModel.class);
 
-        pagingOutput.getList().forEach(x -> {
+        pagingOutput.getList().parallelStream().forEach(x -> {
             ProjectFlowMySqlModel flow = findOne(x.getFlowId());
             if (flow != null) {
                 x.setFlowName(flow.getFlowName());
                 x.setComponentName(x.getComponentType().getLabel());
+            }
+
+            // 如果要求填充建模节点参数，要查出来。
+            if (input.withModelingParams) {
+                TaskMySqlModel task = taskService.findOne(x.getTaskId());
+
+                // 如果是 arbiter 输出的模型，不会有对应的 task。
+                if (task != null) {
+                    x.setModelingParams(
+                            JSON
+                                    .parseObject(task.getTaskConf())
+                                    .getJSONObject("params")
+                    );
+                }
             }
         });
 
@@ -557,6 +678,10 @@ public class ProjectFlowService extends AbstractService {
                         .get(ComponentType.Evaluation)
                         .getTaskResult(evaluationTask.getTaskId(), input.getType());
             }
+            if (result != null) {
+                result.setTaskConfig(JSON.parseObject(evaluationTask.getTaskConf()));
+            }
+
         } else {
             result = Components
                     .get(modelTask.getTaskType())
@@ -564,6 +689,15 @@ public class ProjectFlowService extends AbstractService {
         }
 
         return result;
+    }
+
+    private boolean isCalculateScoreDistribution(TaskMySqlModel evaluationTask) {
+        TaskResultMySqlModel model = taskResultService.findByTaskIdAndType(evaluationTask.getTaskId(), TaskResultType.metric_train_validate.name());
+        if (model == null) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -610,24 +744,25 @@ public class ProjectFlowService extends AbstractService {
     /**
      * add oot flow
      */
+    @Transactional(rollbackFor = Exception.class)
     public AddOotFlowApi.Output addOotFlow(AddOotFlowApi.Input input) throws StatusCodeWithException {
         List<FlowTemplateMySqlModel> models = flowTemplateService.query();
         List<JobMySqlModel> jobMySqlModelList = jobService.listByJobId(input.getOotJobId());
         if (CollectionUtils.isEmpty(jobMySqlModelList)) {
-            throw new StatusCodeWithException("找不到原作业信息", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到原作业信息");
         }
         JobMySqlModel jobMySqlModel = jobMySqlModelList.stream().filter(x -> JobMemberRole.promoter.equals(x.getMyRole())).findFirst().orElse(null);
         if (null == jobMySqlModel) {
-            throw new StatusCodeWithException("只有 promoter 才能创建流程", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "只有 promoter 才能创建流程");
         }
 
         if (FederatedLearningType.mix.equals(jobMySqlModel.getFederatedLearningType())) {
-            throw new StatusCodeWithException("暂时不支持混合联邦类型", StatusCode.UNSUPPORTED_HANDLE);
+            throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "暂时不支持混合联邦类型");
         }
 
         FlowTemplateMySqlModel ootFlowTemplateMySqlModel = models.stream().filter(x -> "oot".equals(x.getEnname())).findFirst().orElse(null);
         if (null == ootFlowTemplateMySqlModel) {
-            throw new StatusCodeWithException("找不到打分验证组件模板", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到打分验证组件模板");
         }
 
         AddOotFlowApi.Output output = new AddOotFlowApi.Output();
@@ -647,7 +782,8 @@ public class ProjectFlowService extends AbstractService {
         addFlowInput.setProjectId(jobMySqlModel.getProjectId());
         addFlowInput.setTemplateId(ootFlowTemplateMySqlModel.getId());
         addFlowInput.setFederatedLearningType(jobMySqlModel.getFederatedLearningType());
-        addFlowInput.setName(jobMySqlModel.getName() + "- [打分验证-" + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()).substring(11, 19) + "]");
+        String flowNameSuffix = "- [打分验证-" + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()).substring(11, 19) + "]";
+        addFlowInput.setName(StringUtil.isEmpty(input.getOotModelName()) ? (jobMySqlModel.getName() + flowNameSuffix) : (input.getOotModelName() + flowNameSuffix));
         addFlowInput.setOotMode(true);
         output.setFlowId(addFlow(addFlowInput));
 
@@ -670,5 +806,16 @@ public class ProjectFlowService extends AbstractService {
                 .stream()
                 .map(x -> ModelMapper.map(x, ProjectFlowNodeOutputModel.class))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 设置项目的置顶状态
+     */
+    public void top(String flowId, boolean top) {
+        if (top) {
+            projectFlowRepo.top(flowId);
+        } else {
+            projectFlowRepo.cancelTop(flowId);
+        }
     }
 }

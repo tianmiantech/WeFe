@@ -37,4 +37,8 @@ public class PrivateInformationRetrievalServer {
 
         CacheInit.init(operation);
     }
+
+    public static void set(int cacheCount, CacheOperation operation) {
+        CacheInit.set(operation);
+    }
 }

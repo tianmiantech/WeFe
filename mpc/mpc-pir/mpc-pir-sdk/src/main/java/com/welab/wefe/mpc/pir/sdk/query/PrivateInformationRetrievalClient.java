@@ -16,6 +16,9 @@
 
 package com.welab.wefe.mpc.pir.sdk.query;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.pir.flow.BasePrivateInformationRetrieval;
 import com.welab.wefe.mpc.pir.protocol.ot.ObliviousTransferKey;
@@ -24,11 +27,11 @@ import com.welab.wefe.mpc.pir.request.QueryKeysResponse;
 import com.welab.wefe.mpc.pir.request.QueryPIRResultsRequest;
 import com.welab.wefe.mpc.pir.request.QueryPIRResultsResponse;
 import com.welab.wefe.mpc.pir.sdk.config.PrivateInformationRetrievalConfig;
-import com.welab.wefe.mpc.pir.sdk.crypt.CryptUtil;
 import com.welab.wefe.mpc.pir.sdk.protocol.HauckObliviousTransferReceiver;
 import com.welab.wefe.mpc.pir.sdk.trasfer.PrivateInformationRetrievalTransferVariable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.welab.wefe.mpc.util.EncryptUtil;
+
+import cn.hutool.core.lang.UUID;
 
 /**
  * 使用隐私信息检索协议查询用户数据
@@ -62,7 +65,11 @@ public class PrivateInformationRetrievalClient extends BasePrivateInformationRet
         QueryKeysRequest request = new QueryKeysRequest();
         request.setIds(mConfig.getPrimaryKeys());
         request.setOtMethod(Constants.PIR.HUACK_OT);
+        request.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
         QueryKeysResponse response = mTransferVariable.queryKeys(request);
+        if(response.getCode() != 0) {
+            throw new Exception(response.getMessage());
+        }
         uuid = response.getUuid();
 
         initObliviousTransfer(response.getS());
@@ -76,8 +83,11 @@ public class PrivateInformationRetrievalClient extends BasePrivateInformationRet
         QueryPIRResultsRequest resultsRequest = new QueryPIRResultsRequest();
         resultsRequest.setUuid(uuid);
         QueryPIRResultsResponse resultsResponse = mTransferVariable.queryResults(resultsRequest);
+        if(response.getCode() != 0) {
+            throw new Exception(response.getMessage());
+        }
         LOG.info("uuid:{} obtain results", uuid);
-        return CryptUtil.decrypt(resultsResponse.getResults().get(targetIndex), targetKey.key);
+        return EncryptUtil.decryptByAES(resultsResponse.getResults().get(targetIndex), targetKey.key);
     }
 
 }

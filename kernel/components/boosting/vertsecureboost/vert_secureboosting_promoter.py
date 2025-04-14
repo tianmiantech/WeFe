@@ -358,6 +358,10 @@ class VertSecureBoostingPromoter(BoostingTree):
                                                             idx=-1,
                                                             suffix=(comm_round,))
 
+    def sync_anonymous_name_mapping(self):
+        LOGGER.info("sync anonymous name mapping.")
+        return self.transfer_variable.anonymous_name_mapping.get(idx=-1)
+
     def load_booster(self, model_meta, model_param, epoch_idx, booster_idx):
         tree = VertDecisionTreePromoter(self.tree_param)
         tree.load_model(model_meta, model_param)
@@ -529,7 +533,7 @@ class VertSecureBoostingPromoter(BoostingTree):
             bestIteration = model_param['treeNum']
             self.set_model_param(model_param)
             self.sync_begin_iter(bestIteration)
-            self.tracker.set_task_progress(bestIteration)
+            self.tracker.set_task_progress(bestIteration, self.need_grid_search)
         for epoch_idx in range(bestIteration, self.num_trees):
             self.compute_grad_and_hess(data_inst)
             for tidx in range(self.tree_dim):
@@ -568,8 +572,8 @@ class VertSecureBoostingPromoter(BoostingTree):
                 else:
                     self.sync_stop_flag(False, epoch_idx)
 
-            self.tracker.save_training_best_model(self.export_model())
-            self.tracker.add_task_progress(1)
+            self.tracker.save_training_best_model(self.export_model(), self.need_grid_search)
+            self.tracker.add_task_progress(1, self.need_grid_search)
 
         LOGGER.debug("history loss is {}".format(min(self.history_loss)))
         self.callback_metric("loss",
@@ -763,12 +767,18 @@ class VertSecureBoostingPromoter(BoostingTree):
         feature_importances = list(self.get_feature_importance().items())
         feature_importances = sorted(feature_importances, key=itemgetter(1), reverse=True)
         feature_importance_param = []
+        anonymous_name_mapping_list = self.sync_anonymous_name_mapping()
+        anonymous_name_mappings = {}
+        if anonymous_name_mapping_list:
+            for name_mapping in anonymous_name_mapping_list:
+                anonymous_name_mappings.update(name_mapping)
         for (sitename, fid), importance in feature_importances:
             if consts.PROMOTER in sitename:
                 fullname = self.feature_name_fid_mapping[fid]
             else:
                 role_name, party_id = sitename.split(':')
-                fullname = generate_anonymous(fid=fid, party_id=party_id, role=role_name)
+                anonymous_name = generate_anonymous(fid=fid, party_id=party_id, role=role_name)
+                fullname = anonymous_name_mappings[anonymous_name]
 
             feature_importance_param.append(FeatureImportanceInfo(sitename=sitename,
                                                                   fid=fid,
@@ -833,8 +843,11 @@ class VertSecureBoostingPromoter(BoostingTree):
 
     def export_model(self):
 
-        if self.need_cv:
-            return None
+        if self.model_output is not None:
+            return self.model_output
+
+        if self.need_cv and not self.need_grid_search:
+            return
 
         meta_name, meta_protobuf = self.get_model_meta()
         param_name, param_protobuf = self.get_model_param()

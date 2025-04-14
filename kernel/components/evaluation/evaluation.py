@@ -50,6 +50,7 @@ from common.python.utils import log_utils
 from kernel.components.evaluation.param import EvaluateParam
 from kernel.model_base import ModelBase
 from kernel.utils import consts
+from kernel.components.feature.featurepsi.vertfeaturepsi.base_psi import VertFeaturePSIBase
 
 LOGGER = log_utils.get_logger()
 
@@ -136,7 +137,7 @@ class Evaluation(ModelBase):
         super().__init__()
         self.model_param = EvaluateParam()
         self.eval_results = defaultdict(list)
-
+        self.bins_result = defaultdict(list)
         self.save_single_value_metric_list = [consts.AUC,
                                               consts.EXPLAINED_VARIANCE,
                                               consts.MEAN_ABSOLUTE_ERROR,
@@ -153,6 +154,7 @@ class Evaluation(ModelBase):
 
         self.validate_metric = {}
         self.train_metric = {}
+        self.base_psi = VertFeaturePSIBase()
 
     def _init_model(self, model):
         self.model_param = model
@@ -178,7 +180,10 @@ class Evaluation(ModelBase):
 
         split_result = defaultdict(list)
         for value in data:
-            mode = value[1][4]
+            if len(value[1]) > 5:
+                mode = value[1][5]
+            else:
+                mode = value[1][4]
             split_result[mode].append(value)
 
         return split_result
@@ -237,8 +242,17 @@ class Evaluation(ModelBase):
             for mode, data in split_data_with_label.items():
                 eval_result = self.evaluate_metircs(mode, data)
                 self.eval_results[key].append(eval_result)
-
+            scored_result = self.cal_scord_card_bin(eval_data_local)
+            if scored_result:
+                self.eval_results[key].append(scored_result)
+            pred_psi = self.evaluate_psi(split_data_with_label)
+            if pred_psi:
+                self.eval_results[key].append(pred_psi)
         return self.callback_metric_data(return_single_val_metrics=return_result)
+
+    def __save_bin_score_value(self,metric_name, metric_namespace, metric_meta, kv, need_value):
+        if kv:
+            self.tracker.saveProbBinsResult(metric_name, metric_namespace, metric_meta, kv, need_value)
 
     def __save_single_value(self, result, metric_name, metric_namespace, eval_name):
         self.tracker.saveMetricData(metric_name, metric_namespace, {'metric_type': 'EVALUATION_SUMMARY'},
@@ -265,6 +279,23 @@ class Evaluation(ModelBase):
         points.sort(key=lambda x: x[0])
 
         self.tracker.saveMetricData(metric_name, metric_namespace, metric_meta=extra_metas, kv=points)
+
+    def eval_results_score(self):
+        score_result = {}
+        for (data_type, eval_res_list) in self.eval_results.items():
+            for eval_res in eval_res_list:
+                collect_dict = {}
+                for (metric, metric_res) in eval_res.items():
+                    metric_namespace = metric_res[0]
+                    if metric == consts.R2_SCORE or metric == consts.ACCURACY or metric == consts.AUC:
+                        collect_dict[metric] = metric_res[1]
+                    elif metric == consts.KS:
+                        best_ks, fpr, tpr, thresholds, cuts = metric_res[1]
+                        collect_dict[metric] = best_ks
+
+                score_result[metric_namespace] = collect_dict
+
+        return score_result
 
     def __filt_override_unit_ordinate_coordinate(self, x_sets, y_sets):
         max_y_dict = {}
@@ -315,6 +346,18 @@ class Evaluation(ModelBase):
         self.tracker.save_metric_data_to_task_result(metric_name, metric_namespace,
                                                      metric_meta={"metric_type": metric_type}, kv={"topn": res_list},
                                                      need_value=False)
+
+    def __save_psi(self, metric_name, metric_namespace, metric_res):
+        metric_type = "_".join(["PSI", "EVALUATION"])
+        self.tracker.save_metric_data_to_task_result(metric_name, metric_namespace,
+                                                     metric_meta={"metric_type": metric_type}, kv=metric_res,
+                                                     need_value=False)
+
+    def __save_scored(self, metric_name, metric_namespace, metric_res):
+        metric_type = "_".join(["SCORED", "EVALUATION"])
+        self.__save_bin_score_value(metric_name=metric_name, metric_namespace=metric_namespace,
+                                    metric_meta={"metric_type": metric_type}, kv=metric_res,
+                                    need_value=False)
 
     def callback_metric_data(self, return_single_val_metrics=False):
 
@@ -477,6 +520,13 @@ class Evaluation(ModelBase):
                                                  "_".join([consts.RECALL.upper(), self.eval_type.upper()]),
                                                  abscissa_name="", ordinate_name="Recall", curve_name=recall_curve_name,
                                                  pair_type=data_type, thresholds=recall_thresholds)
+
+                    elif metric == consts.SCORED:
+                        self.__save_scored(metric_name, metric_namespace, metric_res[1])
+
+                    elif metric == consts.PSI:
+                        self.__save_psi(metric_name, metric_namespace, metric_res[1])
+
                     else:
                         LOGGER.warning("Unknown metric:{}".format(metric))
 
@@ -871,6 +921,121 @@ class Evaluation(ModelBase):
             return acc_operator.compute(labels, pred_scores, normalize)
         else:
             logging.warning("error:can not find classification type:".format(self.eval_type))
+
+    def cal_scord_card_bin(self, eval_data_local):
+        if self.model_param.score_param.prob_need_to_bin:
+            score_result = self.tracker.get_score_result()
+            bins_result = None
+            if score_result is not None and len(eval_data_local[0][1])>=6:
+                a_score, b_score= score_result['a_score'], score_result['b_score']
+                linear_scores = [data[1][4] for data in eval_data_local]
+                sample_scores = [a_score + b_score * linear_score for linear_score in linear_scores]
+                bins_result  = self.to_binning(sample_scores, self.model_param.score_param)
+            else:
+                classes = len(set([d[1][0] for d in eval_data_local]))
+                if classes < 3:
+                    sample_pro_result_list = []
+                    for index, sample_pro_result in enumerate(eval_data_local):
+                        sample_pro_result_list.append(sample_pro_result[1][2])
+                    bins_result = self.to_binning(sample_pro_result_list, self.model_param.score_param)
+            scored = defaultdict(list)
+            scored['scored'] = ['train_validate', bins_result]
+            return scored
+        return None
+
+    def evaluate_psi(self, data):
+        if self.model_param.psi_param.need_psi:
+            pred_result = defaultdict(list)
+            for mode, mode_data in data.items():
+                label = []
+                pred_scores = []
+                for d in mode_data:
+                    pred_scores.append(d[1][2])
+                    label.append(d[1][0])
+                self.get_classify(label)
+                pred_result[mode] = pred_scores
+            train_pred_score = pred_result.get('train')
+            eval_pred_score = pred_result.get('validate')
+            if eval_pred_score is None:
+                raise ValueError("eval pred score is null")
+            train_bin_values, train_split_point = self.get_bin_result(train_pred_score, self.model_param.psi_param)
+            LOGGER.debug('train_bin_values and train_split_point'.format(train_bin_values, train_split_point))
+            train_bin_results = self.cal_bin_rate(train_bin_values)
+            eval_bin_values = pd.cut(eval_pred_score, train_split_point)
+            eval_bin_results = self.cal_bin_rate(eval_bin_values)
+            train_bin_results, eval_bin_results =  self.base_psi.check_bin_result(train_bin_results, eval_bin_results)
+            bin_psi_list, feature_psi = self.base_psi.cal_psi(train_bin_results.get('count_rate'),
+                                                              eval_bin_results.get('count_rate'))
+
+            train_bin_results['bin_psi'] = bin_psi_list
+            train_bin_results['feature_psi'] = feature_psi
+            psi_values = defaultdict(list)
+            train_test_result = {
+                'train_pred_label_static': train_bin_results,
+                'test_pred_label_static': eval_bin_results,
+                'split_point': list(train_split_point),
+                'bin_cal_results': bin_psi_list,
+                'pred_label_psi': feature_psi
+            }
+            psi_values['psi'] = ['train_validate', train_test_result]
+            return psi_values
+        return None
+
+    def to_binning(self, to_bin_data, score_bin_param):
+            data_count = len(to_bin_data)
+            bin_values, split_point = self.get_bin_result(to_bin_data, score_bin_param)
+            bin_values_counts = bin_values.value_counts()
+            bin_result ={}
+            staitic_count = sum([ bin_values_counts[i] for i in range(len(bin_values_counts))])
+            if staitic_count == data_count:
+                for i in range(len(bin_values_counts)):
+                    per_bin_result = { "count" : int(bin_values_counts[i]),
+                             "count_rate": float(bin_values_counts[i] / data_count) }
+                    bin_result[str(np.round(split_point[i+1], 4))] = per_bin_result
+            else:
+                return ValueError("Staitic_count and count are not the same, check the binning statistics!")
+            scores_distribution ={
+                "bin_method": self.model_param.psi_param.bin_method,
+                "bin_result": bin_result,
+                "max": max(to_bin_data),
+                "min": min(to_bin_data)}
+            return scores_distribution
+
+    @staticmethod
+    def get_bin_result(to_bin_values, bin_model_param):
+        bin_values, split_point= None, None
+        if bin_model_param.bin_method == consts.CUSTOM:
+            LOGGER.debug('split_points is {}'.format(bin_model_param.split_points))
+            bin_values, split_point = pd.cut(to_bin_values, bin_model_param.split_points,
+                                                         retbins=True)
+        elif bin_model_param.bin_method == consts.BUCKET:
+            bin_values, split_point = pd.cut(to_bin_values, bins= bin_model_param.bin_num,
+                                                         retbins=True)
+        elif bin_model_param.bin_method == consts.QUANTILE:
+            bin_values, split_point = pd.qcut(np.array(to_bin_values, dtype=float), bin_model_param.bin_num,
+                                              duplicates='drop',retbins= True)
+
+        return bin_values, split_point
+
+    def get_classify(self, label):
+        label_class = set(label)
+        if len(label_class) > 2:
+            return
+
+    @staticmethod
+    def cal_bin_rate(bin_values):
+        per_bin_result = {}
+        count_list = []
+        count_rate_list = []
+        data_count = len(bin_values)
+        bin_values_counts = bin_values.value_counts()
+        for i in range(len(bin_values_counts)):
+            count_list.append(int(bin_values_counts[i]))
+            count_rate_list.append(float(bin_values_counts[i] / data_count))
+        per_bin_result['count'] = count_list
+        per_bin_result["count_rate"] = count_rate_list
+        per_bin_result['total_count'] = sum(count_list)
+        return per_bin_result
 
     @staticmethod
     def extract_data(data: dict):

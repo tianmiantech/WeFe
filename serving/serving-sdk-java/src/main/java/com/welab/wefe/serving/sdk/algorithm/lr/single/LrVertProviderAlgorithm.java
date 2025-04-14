@@ -16,21 +16,28 @@
 
 package com.welab.wefe.serving.sdk.algorithm.lr.single;
 
-import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
-import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
+import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
+
+import java.util.List;
 
 /**
  * Vertical federal collaborators
  *
  * @author hunter.zhao
  */
-public class LrVertProviderAlgorithm extends AbstractLrAlgorithm<BaseLrModel, PredictModel> {
+public class LrVertProviderAlgorithm extends AbstractLrAlgorithm<BaseLrModel, LrPredictResultModel> {
 
     @Override
-    protected PredictModel handle(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) {
-        return compute(predictParams);
+    protected LrPredictResultModel handle(PredictParams predictParams, List<JObject> federatedResult) {
+        LrPredictResultModel resultModel = localCompute(predictParams);
+        maskSensitiveData(resultModel);
+        return resultModel;
+    }
+
+    private void maskSensitiveData(LrPredictResultModel resultModel) {
+        resultModel.setScoreCard(null);
     }
 }

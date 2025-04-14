@@ -66,9 +66,10 @@ class BaseFlowActionWorker:
             self.work(params)
 
             self.flow_action_log.status = 'success'
+            self.flow_action_log.consumer = 'flow'
         except Exception as e:
             self.flow_action_log.status = 'fail'
-
+            self.flow_action_log.consumer = 'flow'
             # Print exception information
             traceback.print_exc()
             schedule_logger().exception("执行%s事件异常：%s", self.action.action, e)

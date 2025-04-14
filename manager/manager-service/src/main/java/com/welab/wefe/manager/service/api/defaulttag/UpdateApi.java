@@ -45,12 +45,12 @@ public class UpdateApi extends AbstractApi<DataResourceDefaultTagUpdateInput, Ab
         try {
             boolean isExist = dataResourceDefaultTagMongoRepo.exists(input.getTagName());
             if (isExist) {
-                throw new StatusCodeWithException("该标签已存在", StatusCode.DATA_EXISTED);
+                throw new StatusCodeWithException(StatusCode.DATA_EXISTED, "该标签已存在");
             }
 
             dataResourceDefaultTagContractService.updateByTagId(input);
         } catch (StatusCodeWithException e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
         return success();

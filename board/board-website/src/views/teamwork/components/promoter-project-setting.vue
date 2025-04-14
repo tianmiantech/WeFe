@@ -1,7 +1,7 @@
 <template>
     <div class="project-setting-icon">
         <el-icon
-            class="el-icon-setting f20 ml10"
+            class="board-icon-setting f20 ml10"
             @click="showProjectSetting"
         >
             <elicon-setting />
@@ -13,7 +13,7 @@
             title="项目设置"
             width="400px"
         >
-            <el-form class="flex-form" @submit.prevent>
+            <el-form class="flex-form" @submit.prevent :disabled="!form.is_project_admin">
                 <el-form-item
                     label="项目名称："
                     label-width="100px"
@@ -36,7 +36,7 @@
                         rows="4"
                     />
                 </el-form-item>
-                <div class="text-r">
+                <div v-if="form.is_project_admin" class="text-r">
                     <el-button
                         type="primary"
                         @click="saveBaseInfo"
@@ -46,24 +46,25 @@
                 </div>
             </el-form>
 
-            <h3>关闭项目</h3>
-            <div class="ml10">
-                <p class="mt10 mb10 color-danger">
-                    项目关闭后不可恢复! 请谨慎操作!
-                </p>
-                <el-button
-                    type="danger"
-                    @click="closeProject"
-                >
-                    确认关闭
-                </el-button>
-            </div>
+            <template v-if="form.is_project_admin">
+                <h3>关闭项目</h3>
+                <div class="ml10">
+                    <p class="mt10 mb10 color-danger">
+                        项目关闭后不可恢复! 请谨慎操作!
+                    </p>
+                    <el-button
+                        type="danger"
+                        @click="closeProject"
+                    >
+                        确认关闭
+                    </el-button>
+                </div>
+            </template>
         </el-dialog>
     </div>
 </template>
 
 <script>
-
     export default {
         inject: ['refresh'],
         props:  {
@@ -131,9 +132,9 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-form-item{
-        :deep(.el-input__inner) {
-            padding-right: 60px;
-        }
-    }
+    // .board-form-item{
+    //     :deep(.board-input__inner) {
+    //         padding-right: 60px;
+    //     }
+    // }
 </style>

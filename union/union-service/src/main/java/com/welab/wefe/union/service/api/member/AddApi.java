@@ -16,10 +16,7 @@
 
 package com.welab.wefe.union.service.api.member;
 
-import com.alibaba.fastjson.JSON;
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.constant.SecretKeyType;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -27,46 +24,21 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.member.MemberOutput;
-import com.welab.wefe.union.service.entity.Member;
-import com.welab.wefe.union.service.service.MemberContractService;
+import com.welab.wefe.union.service.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Jervis
  **/
-@Api(path = "member/add", name = "member_add", rsaVerify = false, login = false)
+@Api(path = "member/add", name = "member_add", allowAccessWithSign = false)
 public class AddApi extends AbstractApi<AddApi.Input, MemberOutput> {
-
     @Autowired
-    private MemberContractService memberContractService;
+    private MemberService memberService;
 
     @Override
     protected ApiResult<MemberOutput> handle(Input input) throws StatusCodeWithException {
         LOG.info("AddApi handle..");
-        try {
-            Member member = new Member();
-            member.setId(input.getId());
-            member.setName(input.getName());
-            member.setMobile(input.getMobile());
-            member.setHidden(input.isHidden() ? 1 : 0);
-            member.setFreezed(input.isFreezed() ? 1 : 0);
-            member.setLostContact(input.isLostContact() ? 1 : 0);
-            member.setEmail(input.getEmail());
-            member.setAllowOpenDataSet(input.isAllowOpenDataSet() ? 1 : 0);
-            member.setPublicKey(input.getPublicKey());
-            member.setGatewayUri(input.getGatewayUri());
-            member.setLastActivityTime(System.currentTimeMillis());
-            member.setLogo(input.getLogo());
-            SecretKeyType secretKeyType = (null == input.secretKeyType ? SecretKeyType.rsa : input.secretKeyType);
-            MemberExtJSON extJson = new MemberExtJSON();
-            extJson.setSecretKeyType(secretKeyType);
-            member.setExtJson(JSON.toJSONString(extJson));
-
-            memberContractService.add(member);
-        } catch (StatusCodeWithException e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
-        }
-
+        memberService.add(input);
         return success();
     }
 
@@ -85,6 +57,7 @@ public class AddApi extends AbstractApi<AddApi.Input, MemberOutput> {
         private String gatewayUri;
         private String logo;
         private SecretKeyType secretKeyType = SecretKeyType.rsa;
+        private String servingBaseUrl;
 
         public String getId() {
             return id;
@@ -180,6 +153,14 @@ public class AddApi extends AbstractApi<AddApi.Input, MemberOutput> {
 
         public void setSecretKeyType(SecretKeyType secretKeyType) {
             this.secretKeyType = secretKeyType;
+        }
+
+        public String getServingBaseUrl() {
+            return servingBaseUrl;
+        }
+
+        public void setServingBaseUrl(String servingBaseUrl) {
+            this.servingBaseUrl = servingBaseUrl;
         }
     }
 }

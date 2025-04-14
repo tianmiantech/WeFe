@@ -81,10 +81,10 @@
                 feature_column_count: 0,
                 total_column_count:   0,
                 methodList:           [
-                    { value: 'z-core', label: 'z-core' },
+                    { value: 'z-score', label: 'z-score' },
                     { value: 'min-max', label: 'min-max' },
                 ],
-                columnListType:   'z-core',
+                columnListType:   'z-score',
                 featureSelectTab: [],
                 lastSelection:    [],
             });
@@ -101,7 +101,7 @@
                             flow_node_id: model.id,
                         },
                     });
-
+                    let refect = {};
                     nextTick(_ => {
                         vData.loading = false;
                         if (code === 0) {
@@ -117,10 +117,12 @@
                                         });
                                         vData.total_column_count++;
                                     });
+                                    refect[member.member_id] = member.data_set_id;
                                     vData.featureSelectTab.push({
                                         member_id:          member.member_id,
                                         member_name:        member.member_name,
                                         member_role:        member.member_role,
+                                        data_set_id:        member.data_set_id,
                                         $checkedAll:        false,
                                         $indeterminate:     false,
                                         $checkedColumnsArr: [],
@@ -128,7 +130,10 @@
                                         $feature_list,
                                     });
                                 });
-                                methods.getNodeDetail(model);
+                                methods.getNodeDetail({
+                                    ...model,
+                                    ...refect,
+                                });
                             }
                         }
                     });
@@ -178,6 +183,7 @@
                                         ...member,
                                         $checkedColumns: '',
                                         $feature_list:   member.features,
+                                        data_set_id: model[member.member_id],
                                     };
                                 });
                             }

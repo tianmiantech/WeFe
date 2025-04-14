@@ -4,11 +4,25 @@
         shadow="never"
         class="nav-title mb30"
         :show="project_type !== 'DeepLearning'"
+        :idx="sortIndex"
+        style="background: white"
     >
-        <h3 class="mb10">模型列表</h3>
+        <template #header>
+            <div class="mb10 flex-row">
+                <h3 class="mb10 f19">
+                    <el-icon :class="['board-icon-cpu', 'mr10', 'ml10']" style="font-size: xx-large; top:9px; right: -3px; color: dodgerblue"><elicon-cpu /></el-icon>
+                    模型列表</h3>
+                <div v-if="form.is_project_admin" class="right-sort-area">
+                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['board-icon-top f14', {'mr10': maxIndex === sortIndex}]" @click="moveUp"><elicon-top /></el-icon>
+                    <el-icon v-if="maxIndex !== sortIndex" :class="['board-icon-bottom f14', 'ml10', 'mr10']" @click="moveDown"><elicon-bottom /></el-icon>
+                    <span v-if="sortIndex !== 0 && sortIndex !== 1" :class="['f12', {'mr10': sortIndex === 2}]" @click="toTop">置顶</span>
+                    <span v-if="sortIndex !== maxIndex && sortIndex !== maxIndex -1" class="f12" @click="toBottom">置底</span>
+                </div>
+            </div>
+        </template>
         <el-form inline @submit.prevent>
             <el-form-item label="来源组件：">
-                <el-select v-model="search.component_type">
+                <el-select v-model="search.component_type" clearable>
                     <el-option
                         v-for="item in component_types"
                         :key="item.value"
@@ -21,12 +35,14 @@
                 <el-input
                     v-model="search.flow_id"
                     placeholder="选填"
+                    clearable
                 />
             </el-form-item>
             <el-form-item label="任务 id：">
                 <el-input
                     v-model="search.job_id"
                     placeholder="选填"
+                    clearable
                 />
             </el-form-item>
             <el-form-item>
@@ -34,15 +50,20 @@
                     type="primary"
                     @click="getList"
                 >
-                    搜索
+                    查询
                 </el-button>
                 <el-button
-                    hidden
                     type="primary"
                     @click="modelCompare"
+                    :disabled="form.promoterList.length"
                 >
                     模型对比
                 </el-button>
+                <el-tooltip v-if="form.promoterList.length" effect="dark" content="混合项目暂不支持该功能！" placement="right">
+                    <el-icon class="board-icon-warning ml5" style="color: #FFB403;">
+                        <elicon-warning />
+                    </el-icon>
+                </el-tooltip>
             </el-form-item>
         </el-form>
 
@@ -52,7 +73,7 @@
                 class="result-panel"
             >
                 <el-icon
-                    class="el-icon-close close-result-panel-icon"
+                    class="board-icon-close close-result-panel-icon"
                     @click="hiddenResultPanel"
                 >
                     <elicon-close />
@@ -78,19 +99,22 @@
                         min-width="200px"
                     >
                         <template v-slot="scope">
-                            <p
-                                v-if="form.isPromoter"
-                                :class="['result-name', { 'current-panel': result_panel_idx === +scope.$index }]"
-                                @click="showResult(scope.row, scope.$index)"
-                            >
-                                {{ scope.row.role }}: {{ scope.row.flow_name }} - {{ scope.row.name }}
-                            </p>
-                            <p
-                                v-else
-                                :class="[{ 'current-panel': result_panel_idx === +scope.$index }]"
-                            >
-                                {{ scope.row.role }}: {{ scope.row.flow_name }} - {{ scope.row.name }}
-                            </p>
+                            <span>
+                                <span
+                                    v-if="form.isPromoter"
+                                    :class="['result-name', { 'current-panel': result_panel_idx === +scope.$index }]"
+                                    @click="showResult(scope.row, scope.$index)"
+                                >
+                                    {{ scope.row.role }}: {{ scope.row.flow_name }} - {{ scope.row.name }}
+                                </span>
+                                <span
+                                    v-else
+                                    :class="[{ 'current-panel': result_panel_idx === +scope.$index }]"
+                                >
+                                    {{ scope.row.role }}: {{ scope.row.flow_name }} - {{ scope.row.name }}
+                                </span>
+                            </span>
+                            <el-icon class="board-icon-copy-btn" @click="copyModelId(scope.row.model_id)"><elicon-document-copy /></el-icon>
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -121,7 +145,7 @@
                                 class="link mr10"
                                 :to="{
                                     name: 'project-flow',
-                                    query: { flow_id: scope.row.flow_id }
+                                    query: { flow_id: scope.row.flow_id, job_id: scope.row.job_id }
                                 }"
                             >
                                 查看流程
@@ -141,7 +165,7 @@
                                     query: { job_id: scope.row.job_id, project_id, member_role: scope.row.role }
                                 }"
                             >
-                                查看任务
+                                查看结果
                             </router-link>
                         </template>
                     </el-table-column>
@@ -216,7 +240,7 @@
                     </div>
                 </el-tab-pane>
                 <el-tab-pane label="同步到serving" :name="1">
-                    <p>模型推送到 serving</p>
+                    <p>将模型一键同步到已配置的Serving（未配置Serving地址？<router-link :to="{name: 'system-config-view'}">去配置</router-link>）</p>
                     <div class="text-c mt30">
                         <el-button
                             type="primary"
@@ -227,7 +251,8 @@
                     </div>
                 </el-tab-pane>
                 <el-tab-pane label="下载模型" :name="2">
-                    <p>下载模型文件到本地</p>
+                    <p>将模型下载到本地文件</p>
+                    <p>模型文件已加密，仅可在本方Serving导入使用</p>
                     <div class="text-c mt30">
                         <el-button
                             type="primary"
@@ -246,6 +271,7 @@
     import { mapGetters } from 'vuex';
     import table from '@src/mixins/table';
     import RoleTag from '@src/components/views/role-tag';
+    import { downLoadFileTool } from '@src/utils/tools';
 
     export default {
         components: {
@@ -253,8 +279,11 @@
         },
         mixins: [table],
         props:  {
-            form: Object,
+            form:      Object,
+            sortIndex: Number,
+            maxIndex:  Number,
         },
+        emits:    ['move-up', 'move-down', 'to-top', 'to-bottom'],
         computed: {
             ...mapGetters(['userInfo']),
         },
@@ -398,6 +427,7 @@
                     data: {
                         ootJobId:           row.job_id,
                         ootModelFlowNodeId: row.flow_node_id,
+                        ootModelName:       `${scope.row.role}: ${scope.row.flow_name} - ${scope.row.name}`,
                     },
                 });
 
@@ -406,32 +436,27 @@
                     this.$router.push({
                         name:  'project-flow',
                         query: {
-                            flow_id: data.flow_id,
+                            flow_id:          data.flow_id,
+                            is_project_admin: this.form.is_project_admin || 'true',
                         },
                     });
                 }
             },
 
             async modelExport(event, language) {
-                const href = `${window.api.baseUrl}/data_output_info/model_export?jobId=${this.selectedRow.job_id}&modelFlowNodeId=${this.selectedRow.flow_node_id}&role=${this.selectedRow.role}&language=${language}&token=${this.userInfo.token}`;
-                const link = document.createElement('a');
-
-                link.href = href;
-                link.target = '_blank';
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
+                downLoadFileTool('/data_output_info/model_export', {
+                    jobId:           this.selectedRow.job_id,
+                    modelFlowNodeId: this.selectedRow.flow_node_id,
+                    role:            this.selectedRow.role,
+                    language,
+                });
             },
 
-            downloadModel(e) {
-                const href = `${window.api.baseUrl}/data_output_info/model_export_to_file?taskId=${this.selectedRow.task_id}&role=${this.selectedRow.role}&token=${this.userInfo.token}`;
-                const link = document.createElement('a');
-
-                link.href = href;
-                link.target = '_blank';
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
+            async downloadModel(e) {
+                downLoadFileTool('/data_output_info/model_export_to_file', {
+                    taskId: this.selectedRow.task_id,
+                    role:   this.selectedRow.role,
+                });
             },
 
             modelCompare() {
@@ -444,6 +469,28 @@
                 });
 
                 window.open(href, '_blank');
+            },
+            moveUp() {
+                this.$emit('move-up', this.sortIndex);
+            },
+            moveDown() {
+                this.$emit('move-down', this.sortIndex);
+            },
+            toTop() {
+                this.$emit('to-top', this.sortIndex);
+            },
+            toBottom() {
+                this.$emit('to-bottom', this.sortIndex);
+            },
+            copyModelId(id) {
+                const input = document.createElement('input');
+
+                input.value = id;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('Copy');
+                document.body.removeChild(input);
+                this.$message.success('模型id复制成功！');
             },
         },
     };
@@ -459,7 +506,7 @@
         overflow-y: auto;
         min-width: 300px;
         width: 100%;
-        .el-button {margin-left:0;}
+        .board-button {margin-left:0;}
     }
     .result-panel {
         transition-duration: 0.2s;
@@ -471,8 +518,8 @@
     .close-result-panel-icon {
         cursor: pointer;
         position: absolute;
-        right: 15px;
-        top: 15px;
+        right: 10px;
+        top: 5px;
         z-index: 1024;
     }
     .flex-layout{
@@ -489,11 +536,16 @@
     }
     .current-panel{color: $color-link-base-hover;}
     .select-lang{
-        .el-tag{
+        .board-tag{
             margin-left:15px;
             margin-top: 15px;
             cursor: pointer;
             &:hover{background:#dfefff;}
         }
+    }
+    .board-icon-copy-btn {
+        cursor: pointer;
+        font-size: 16px;
+        padding-left: 4px;
     }
 </style>

@@ -63,6 +63,7 @@ class ModelBase(object):
         self.need_one_vs_rest = False
         self.tracker = None
         self.cv_fold = 0
+        self.grid_search_iter = 0
         self.validation_freqs = None
         self.component_properties = ComponentProperties()
 
@@ -92,6 +93,8 @@ class ModelBase(object):
         # common variable transfer
         self.common_transfer_variable = CommonTransferVariable()
 
+        self.component_parameters = None
+
     def set_show_name(self, name):
         self.show_name = name
 
@@ -112,6 +115,7 @@ class ModelBase(object):
         self.federated_learning_type = componentProperties.federated_learning_type
         self._init_model(param)
         self.set_save_dataset_flag(param)
+        self.component_parameters = component_parameters
         return param
 
     def set_save_dataset_flag(self, param):
@@ -127,12 +131,23 @@ class ModelBase(object):
         return self.component_properties.need_cv
 
     @property
+    def need_grid_search(self):
+        return self.component_properties.need_grid_search
+
+    @property
     def need_run(self):
         return self.component_properties.need_run
 
     @need_run.setter
     def need_run(self, value: bool):
         self.component_properties.need_run = value
+
+    @need_cv.setter
+    def need_cv(self, value: bool):
+        self.need_cv = value
+
+    def set_model_output(self, model_output_dict):
+        self.model_output = model_output_dict
 
     def _init_model(self, model):
         pass
@@ -191,6 +206,9 @@ class ModelBase(object):
         pass
 
     def cross_validation(self, data_inst):
+        pass
+
+    def grid_search(self, train_data, eval_data, need_cv=False):
         pass
 
     def one_vs_rest_fit(self, train_data=None):
@@ -252,10 +270,17 @@ class ModelBase(object):
         return predict_data
 
     def callback_metric(self, metric_name, metric_namespace, metric_meta, metric_data):
-        if self.need_cv:
-            metric_name = '.'.join([metric_name, str(self.cv_fold)])
+        # if self.need_cv:
+        #     metric_name = '.'.join([metric_name, str(self.cv_fold)])
+        #     flow_id_list = self.flowid.split('.')
+        #     LOGGER.debug("Need cv, change callback_metric, flow_id_list: {}".format(flow_id_list))
+        #     if len(flow_id_list) > 1:
+        #         curve_name = '.'.join(flow_id_list[1:])
+        #         metric_meta['curve_name'] = curve_name
+        if self.need_grid_search:
+            metric_name = '.'.join([metric_name, str(self.grid_search_iter)])
             flow_id_list = self.flowid.split('.')
-            LOGGER.debug("Need cv, change callback_metric, flow_id_list: {}".format(flow_id_list))
+            LOGGER.debug("Need grid search, change callback_metric, flow_id_list: {}".format(flow_id_list))
             if len(flow_id_list) > 1:
                 curve_name = '.'.join(flow_id_list[1:])
                 metric_meta['curve_name'] = curve_name
@@ -266,6 +291,14 @@ class ModelBase(object):
 
     def set_cv_fold(self, cv_fold):
         self.cv_fold = cv_fold
+
+    def set_grid_search_iter(self, grid_search_iter):
+        self.grid_search_iter = grid_search_iter
+
+    def _get_grid_search_param(self):
+        self.model_param.grid_search_param.role = self.role
+        self.model_param.grid_search_param.mode = self.mode
+        return self.model_param.grid_search_param
 
     def data_instance_to_str(self, data_instances, with_label):
         if data_instances is None:

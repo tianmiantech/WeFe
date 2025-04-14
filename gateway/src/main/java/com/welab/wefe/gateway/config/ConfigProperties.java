@@ -29,14 +29,19 @@ import org.springframework.stereotype.Component;
 @Component
 @PropertySource(value = {"file:${config.path}"}, encoding = "utf-8")
 @ConfigurationProperties
-public class ConfigProperties {
+public class ConfigProperties extends CommonConfig{
 
     /**
-     * rpc service port number
+     * Grpc private service port number
      */
-    @Value("${rpc.server.port}")
-    private Integer rpcServerPort;
+    @Value("${grpc.server.internal.port:}")
+    private Integer grpcServerInternalPort;
 
+    /**
+     * Grpc public service port number
+     */
+    @Value("${grpc.server.external.port:}")
+    private Integer grpcServerExternalPort;
 
     /**
      * Message persistence type to be forwarded（The default is localfilesys）
@@ -63,12 +68,6 @@ public class ConfigProperties {
     private String recvTransferMetaPersistentTempDir;
 
     /**
-     * Basic HTTP path of union service
-     */
-    @Value("${wefe.union.base-url}")
-    private String wefeUnionBaseUrl;
-
-    /**
      * Number of concurrent core threads when writing to the library when of type dsource processor(big data)
      */
     @Value("${data.sink.core.pool.size:30}")
@@ -77,16 +76,8 @@ public class ConfigProperties {
     /**
      * Size of data block fragment of forwarding dsource type (only valid for processor of dsource processor type), unit: M
      */
-    @Value("${send.action.config.block.size:1}")
-    private double sendActionConfigBlockSize;
-
-    public Integer getRpcServerPort() {
-        return rpcServerPort;
-    }
-
-    public void setRpcServerPort(Integer rpcServerPort) {
-        this.rpcServerPort = rpcServerPort;
-    }
+    @Value("${persistent.storage.batch.insert.size:5}")
+    private double persistentStorageBatchInsertSize;
 
     public String getSendTransferMetaPersistentTempDir() {
         return sendTransferMetaPersistentTempDir;
@@ -121,16 +112,6 @@ public class ConfigProperties {
         this.recvTransferMetaPersistentTempDir = recvTransferMetaPersistentTempDir;
     }
 
-
-    public String getWefeUnionBaseUrl() {
-        return wefeUnionBaseUrl;
-    }
-
-    public void setWefeUnionBaseUrl(String wefeUnionBaseUrl) {
-        this.wefeUnionBaseUrl = wefeUnionBaseUrl;
-    }
-
-
     public int getDataSinkCorePoolSize() {
         return dataSinkCorePoolSize;
     }
@@ -139,12 +120,27 @@ public class ConfigProperties {
         this.dataSinkCorePoolSize = dataSinkCorePoolSize;
     }
 
-    public double getSendActionConfigBlockSize() {
-        return sendActionConfigBlockSize;
+    public double getPersistentStorageBatchInsertSize() {
+        return persistentStorageBatchInsertSize;
     }
 
-    public void setSendActionConfigBlockSize(double sendActionConfigBlockSize) {
-        this.sendActionConfigBlockSize = sendActionConfigBlockSize;
+    public void setPersistentStorageBatchInsertSize(double persistentStorageBatchInsertSize) {
+        this.persistentStorageBatchInsertSize = persistentStorageBatchInsertSize;
     }
 
+    public Integer getGrpcServerInternalPort() {
+        return grpcServerInternalPort;
+    }
+
+    public void setGrpcServerInternalPort(Integer grpcServerInternalPort) {
+        this.grpcServerInternalPort = grpcServerInternalPort;
+    }
+
+    public Integer getGrpcServerExternalPort() {
+        return grpcServerExternalPort;
+    }
+
+    public void setGrpcServerExternalPort(Integer grpcServerExternalPort) {
+        this.grpcServerExternalPort = grpcServerExternalPort;
+    }
 }

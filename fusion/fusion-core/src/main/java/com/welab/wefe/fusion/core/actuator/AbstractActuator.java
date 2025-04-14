@@ -18,14 +18,11 @@ package com.welab.wefe.fusion.core.actuator;
 
 import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.fusion.core.actuator.psi.AbstractPsiClientActuator;
 import com.welab.wefe.fusion.core.utils.FusionThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.concurrent.atomic.LongAdder;
 
 import static com.welab.wefe.common.util.ThreadUtil.sleep;
@@ -38,26 +35,23 @@ public abstract class AbstractActuator implements AutoCloseable {
 
     public AbstractActuator(String businessId) {
         this.businessId = businessId;
+        ActuatorCache.set(this);
     }
 
     protected String businessId;
 
-    public Long dataCount;
-
-    public LongAdder processedCount = new LongAdder();
-
-    public LongAdder fusionCount = new LongAdder();
+    protected Long dataCount;
 
     public volatile String error;
+
+    protected LongAdder processedCount = new LongAdder();
+
+    protected LongAdder fusionCount = new LongAdder();
+
     /**
      * Task start time
      */
-    public final long startTime = System.currentTimeMillis();
-
-    /**
-     * Maximum execution time of a task
-     */
-    private TimeSpan maxExecuteTimeSpan = new TimeSpan(15 * 60 * 1000);
+    protected final long startTime = System.currentTimeMillis();
 
     /**
      * Maximum execution time
@@ -66,7 +60,6 @@ public abstract class AbstractActuator implements AutoCloseable {
      * @return
      */
     public AbstractActuator setMaxExecuteTimeSpan(int minute) {
-        this.maxExecuteTimeSpan = new TimeSpan(minute * 60 * 1000L);
         return this;
     }
 
@@ -141,12 +134,6 @@ public abstract class AbstractActuator implements AutoCloseable {
         ).intValue();
     }
 
-    protected void preprocess() {
-    }
-
-    protected void postprocess() {
-    }
-
     /**
      * Check whether the task is complete
      *
@@ -156,82 +143,53 @@ public abstract class AbstractActuator implements AutoCloseable {
 
 
     /**
-     * Initializes the task
-     *
-     * @throws StatusCodeWithException
-     */
-    public abstract void init() throws StatusCodeWithException;
-
-    /**
      * Executor execution method
      *
      * @throws StatusCodeWithException
      */
-    public abstract void fusion() throws StatusCodeWithException, InterruptedException;
-
-    /**
-     * Alignment data into the library implementation method
-     *
-     * @param fruit
-     */
-    public abstract void dump(List<JObject> fruit);
+    public abstract void fusion() throws Exception;
 
     public void run() {
         FusionThreadPool.run(() -> execute());
-        FusionThreadPool.run(() -> finish());
+        FusionThreadPool.run(() -> heartbeat());
     }
 
     private void execute() {
         try {
 
-            LOG.info("task execute...");
-
-            preprocess();
-
-            init();
+            LOG.info("psi log, task execute...");
 
             fusion();
 
-            postprocess();
-
-            LOG.info("task execute end!");
+            LOG.info("psi log, task execute end!");
 
         } catch (Exception e) {
-            e.printStackTrace();
-            LOG.info("error: ", e);
+            LOG.error("psi log, error: ", e);
             this.error = e.getMessage();
-            LOG.info("error message: {}", e.getMessage());
+            LOG.error("psi log, error message: {}", e.getMessage());
         }
     }
 
-    public void finish() {
-        LOG.info("finish waiting...");
+    private void heartbeat() {
+        LOG.info("psi log, finish waiting...");
 
         while (true) {
             sleep(1000);
 
-            if (System.currentTimeMillis() - startTime < maxExecuteTimeSpan.toMs()
-                    && !isFinish() && StringUtil.isEmpty(error)) {
+            if (!isFinish() && StringUtil.isEmpty(error)) {
                 continue;
             }
 
             try {
-                if (this instanceof AbstractPsiClientActuator) {
-                    LOG.info("notify the server that the task has ended...");
-                    ((AbstractPsiClientActuator) this).notifyServerClose();
-                }
-            } catch (Exception e) {
-                LOG.error(e.getClass().getSimpleName() + " notify the server error：" + e.getMessage());
-            }
-
-            try {
-                LOG.info("close task...");
+                LOG.info("psi log, close task...");
                 close();
             } catch (Exception e) {
-                LOG.error(e.getClass().getSimpleName() + " close task error：" + e.getMessage());
+                LOG.error("psi log, " + e.getClass().getSimpleName() + " close task error：" + e.getMessage());
             }
 
-            LOG.info("{} spend: {} ms", businessId, System.currentTimeMillis() - startTime);
+            LOG.info("psi log, {} spend: {} ms", businessId, System.currentTimeMillis() - startTime);
+            //remove Actuator
+            ActuatorCache.remove(businessId);
             return;
         }
     }

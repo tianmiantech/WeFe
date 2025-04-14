@@ -29,4 +29,26 @@ public class EndpointBuilder {
                 .setPort(port)
                 .build();
     }
+
+    public static BasicMetaProto.Endpoint create(String uri) {
+        return BasicMetaProto.Endpoint.newBuilder()
+                .setIp(uri.split(":")[0])
+                .setPort(Integer.parseInt(uri.split(":")[1]))
+                .build();
+    }
+
+    public static String endpointToUri(BasicMetaProto.Endpoint endpoint) {
+        return generateUri(endpoint);
+    }
+
+    public static String generateUri(BasicMetaProto.Endpoint endpoint) {
+        if (null == endpoint) {
+            return "";
+        }
+        return generateUri(endpoint.getIp(), endpoint.getPort());
+    }
+
+    public static String generateUri(String ip, int port) {
+        return ip + ":" + port;
+    }
 }

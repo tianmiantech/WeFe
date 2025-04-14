@@ -1,5 +1,5 @@
 <template>
-    <div class="el-form">
+    <div class="board-form">
         <h4 class="mb10">VertLR参数设置</h4>
         <el-form
             ref="form"
@@ -7,6 +7,7 @@
             :model="vData.form"
             :disabled="disabled"
             @submit.prevent
+            :label-width="160"
         >
             <el-collapse v-model="vData.activeNames">
                 <el-collapse-item title="模型参数" name="1">
@@ -15,10 +16,7 @@
                             v-model="vData.form.other_param.lr_method"
                             clearable
                         >
-                            <el-option
-                                label="lr"
-                                value="lr"
-                            />
+                            <el-option label="lr" value="lr" />
                             <el-option
                                 v-if="vData.member_list.length === 2"
                                 label="sshe-lr"
@@ -39,19 +37,13 @@
                             />
                         </el-select>
                     </el-form-item>
-                    <el-form-item
-                        prop="tol"
-                        label="收敛容忍度："
-                    >
+                    <el-form-item prop="tol" label="收敛容忍度：">
                         <el-input
                             v-model="vData.form.other_param.tol"
                             placeholder="tol"
                         />
                     </el-form-item>
-                    <el-form-item
-                        prop="alpha"
-                        label="惩罚项系数："
-                    >
+                    <el-form-item prop="alpha" label="惩罚项系数：">
                         <el-input
                             v-model="vData.form.other_param.alpha"
                             placeholder="alpha"
@@ -70,28 +62,19 @@
                             />
                         </el-select>
                     </el-form-item>
-                    <el-form-item
-                        prop="batch_size"
-                        label="批量大小："
-                    >
+                    <el-form-item prop="batch_size" label="批量大小：">
                         <el-input
                             v-model="vData.form.other_param.batch_size"
                             placeholder="batch_size"
                         />
                     </el-form-item>
-                    <el-form-item
-                        prop="learning_rate"
-                        label="学习率："
-                    >
+                    <el-form-item prop="learning_rate" label="学习率：">
                         <el-input
                             v-model="vData.form.other_param.learning_rate"
                             placeholder="learning_rate"
                         />
                     </el-form-item>
-                    <el-form-item
-                        prop="max_iter"
-                        label="最大迭代次数："
-                    >
+                    <el-form-item prop="max_iter" label="最大迭代次数：">
                         <el-input
                             v-model="vData.form.other_param.max_iter"
                             placeholder="max_iter"
@@ -111,10 +94,7 @@
                             />
                         </el-select>
                     </el-form-item>
-                    <el-form-item
-                        prop="decay"
-                        label="学习速率的衰减率："
-                    >
+                    <el-form-item prop="decay" label="学习速率的衰减率：">
                         <el-input
                             v-model="vData.form.other_param.decay"
                             placeholder="decay"
@@ -151,7 +131,7 @@
                     </el-form-item>
                     <el-form-item
                         prop="validation_freqs"
-                        label="验证频次"
+                        label="验证频次："
                     >
                         <el-input
                             v-model="vData.form.other_param.validation_freqs"
@@ -160,10 +140,12 @@
                     </el-form-item>
                     <el-form-item
                         prop="early_stopping_rounds"
-                        label="提前结束的迭代次数"
+                        label="提前结束的迭代次数："
                     >
                         <el-input
-                            v-model="vData.form.other_param.early_stopping_rounds"
+                            v-model="
+                                vData.form.other_param.early_stopping_rounds
+                            "
                             placeholder="early_stopping_rounds"
                         />
                     </el-form-item>
@@ -202,11 +184,15 @@
                     <el-form-item label="同态加密方法：">
                         <el-select
                             v-model="vData.form.encrypt_param.method"
-                            :disabled="disabled || vData.form.fl_type === 'horizontal'"
+                            :disabled="
+                                disabled || vData.form.fl_type === 'horizontal'
+                            "
                             clearable
                         >
                             <el-option
-                                v-for="(model, index) in vData.encryptionTypeList"
+                                v-for="(
+                                    model, index
+                                ) in vData.encryptionTypeList"
                                 :key="index"
                                 :label="model.text"
                                 :value="model.value"
@@ -215,7 +201,21 @@
                     </el-form-item>
                 </el-collapse-item>
                 <el-collapse-item title="cv param" name="4">
-                    <el-form-item label="在KFold中使用分割符次数：">
+                    <el-form-item label="是否执行cv：">
+                        <el-radio
+                            v-model="vData.form.cv_param.need_cv"
+                            :label="true"
+                        >
+                            是
+                        </el-radio>
+                        <el-radio
+                            v-model="vData.form.cv_param.need_cv"
+                            :label="false"
+                        >
+                            否
+                        </el-radio>
+                    </el-form-item>
+                    <el-form-item label="KFold分割次数：">
                         <el-input
                             v-model.number="vData.form.cv_param.n_splits"
                             placeholder="n_splits"
@@ -223,7 +223,7 @@
                         />
                     </el-form-item>
 
-                    <el-form-item label="在KFold之前是否进行洗牌：">
+                    <el-form-item label="KFold之前洗牌：">
                         <el-radio
                             v-model="vData.form.cv_param.shuffle"
                             :label="true"
@@ -237,21 +237,37 @@
                             否
                         </el-radio>
                     </el-form-item>
-
-                    <el-form-item label="是否需要进行此模块：">
-                        <el-radio
-                            v-model="vData.form.cv_param.need_cv"
-                            :label="true"
+                </el-collapse-item>
+                <el-collapse-item title="grid search param" name="5">
+                    <el-form-item label="是否开启网格搜索">
+                        <el-radio-group
+                            v-model="
+                                vData.form.grid_search_param.need_grid_search
+                            "
                         >
-                            是
-                        </el-radio>
-                        <el-radio
-                            v-model="vData.form.cv_param.need_cv"
-                            :label="false"
-                        >
-                            否
-                        </el-radio>
+                            <el-radio :label="true">是</el-radio>
+                            <el-radio :label="false">否</el-radio>
+                        </el-radio-group>
                     </el-form-item>
+                    <template
+                        v-if="vData.form.grid_search_param.need_grid_search"
+                    >
+                        <MultiGridSearchTag
+                            v-for="{ key, label, items, rule } in lrGrid"
+                            :key="key"
+                            :label="label"
+                            :disabled="disabled"
+                            :items="items"
+                            :rule="rule"
+                            v-model="vData.form.grid_search_param[key]"
+                        />
+                        <p :style="{ textAlign: 'center' }">
+                            当前设置的超参会执行
+                            {{ runTime }} 次模型训练，任务耗时会延长。
+                        </p>
+                        <p :style="{ textAlign: 'center' }">
+                            任务执行完毕后会自动将最优参数回写到当前节点的参数中。
+                        </p></template>
                 </el-collapse-item>
             </el-collapse>
         </el-form>
@@ -259,8 +275,15 @@
 </template>
 
 <script>
-    import { getCurrentInstance, reactive } from 'vue';
+    import { getCurrentInstance, reactive, computed } from 'vue';
+    import MultiGridSearchTag from '../../../../../components/Common/MultiGridSearchTag.vue';
+    import gridSearchParams from '../../../../../assets/js/const/gridSearchParams';
     import dataStore from '../data-store-mixin';
+
+    const lrGrid = gridSearchParams.lr;
+    const grid_search_param = { need_grid_search: false };
+
+    lrGrid.forEach(({ key }) => (grid_search_param[key] = []));
 
     const LogisticRegression = {
         init_param: {
@@ -272,6 +295,7 @@
             n_splits: 5,
             shuffle:  true,
             need_cv:  false,
+
         },
         other_param: {
             lr_method:             'lr',
@@ -289,6 +313,7 @@
             validation_freqs:      10,
             early_stopping_rounds: 5,
         },
+        grid_search_param,
     };
 
     export default {
@@ -302,6 +327,7 @@
             jobId:        String,
             class:        String,
         },
+        components: { MultiGridSearchTag },
         setup(props) {
             const { appContext } = getCurrentInstance();
             const { $http } = appContext.config.globalProperties;
@@ -309,42 +335,45 @@
             let vData = reactive({
                 member_list: [],
                 penaltyList: [
-                    { value: 'L1',text: 'L1' },
-                    { value: 'L2',text: 'L2' },
+                    { value: 'L1', text: 'L1' },
+                    { value: 'L2', text: 'L2' },
                 ],
                 initMethodList: [
-                    { value: 'random_uniform',text: 'random_uniform' },
-                    { value: 'random_normal',text: 'random_normal' },
+                    { value: 'random_uniform', text: 'random_uniform' },
+                    { value: 'random_normal', text: 'random_normal' },
                 ],
                 optimizerList: [
-                    { value: 'sgd',text: 'sgd' },
-                    { value: 'rmsprop',text: 'rmsprop' },
-                    { value: 'adam',text: 'adam' },
-                    { value: 'nesterov_momentum_sgd',text: 'nesterov_momentum_sgd' },
-                    { value: 'sqn',text: 'sqn' },
-                    { value: 'adagrad',text: 'adagrad' },
+                    { value: 'sgd', text: 'sgd' },
+                    { value: 'rmsprop', text: 'rmsprop' },
+                    { value: 'adam', text: 'adam' },
+                    {
+                        value: 'nesterov_momentum_sgd',
+                        text:  'nesterov_momentum_sgd',
+                    },
+                    { value: 'sqn', text: 'sqn' },
+                    { value: 'adagrad', text: 'adagrad' },
                 ],
                 earlyStopList: [
-                    { value: 'diff',text: 'diff' },
-                    { value: 'weight_diff',text: 'weight_diff' },
-                    { value: 'abs',text: 'abs' },
+                    { value: 'diff', text: 'diff' },
+                    { value: 'weight_diff', text: 'weight_diff' },
+                    { value: 'abs', text: 'abs' },
                 ],
                 multiClassList: [
-                    { value: 'ovr',text: 'ovr' },
-                    { value: 'ovo',text: 'ovo' },
+                    { value: 'ovr', text: 'ovr' },
+                    { value: 'ovo', text: 'ovo' },
                 ],
                 taskTypeList: [
-                    { value: 'classification',text: 'classification' },
-                    { value: 'regression',text: 'regression' },
+                    { value: 'classification', text: 'classification' },
+                    { value: 'regression', text: 'regression' },
                 ],
                 objectiveList: [
-                    { value: 'cross_entropy',text: 'cross_entropy' },
-                    { value: 'lse',text: 'lse' },
-                    { value: 'lae',text: 'lae' },
-                    { value: 'log_cosh',text: 'log_cosh' },
-                    { value: 'tweedie',text: 'tweedie' },
-                    { value: 'fair',text: 'fair' },
-                    { value: 'huber',text: 'huber' },
+                    { value: 'cross_entropy', text: 'cross_entropy' },
+                    { value: 'lse', text: 'lse' },
+                    { value: 'lae', text: 'lae' },
+                    { value: 'log_cosh', text: 'log_cosh' },
+                    { value: 'tweedie', text: 'tweedie' },
+                    { value: 'fair', text: 'fair' },
+                    { value: 'huber', text: 'huber' },
                 ],
                 encryptionTypeList: [
                     { value: '', text: '------' },
@@ -364,9 +393,7 @@
                     };
                 },
                 formatter(params) {
-                    vData.form = {
-                        ...params,
-                    };
+                    Object.assign(vData.form, params);
                 },
                 async getNodeData() {
                     const { code, data } = await $http.get({
@@ -378,7 +405,8 @@
 
                     if (code === 0) {
                         if (data.flow_data_set_features.length) {
-                            const members = data.flow_data_set_features[0].members || [];
+                            const members =
+                                data.flow_data_set_features[0].members || [];
 
                             // eslint-disable-next-line require-atomic-updates
                             vData.member_list = members;
@@ -388,6 +416,13 @@
             };
 
             methods.getNodeData();
+
+            const runTime = computed(() =>
+                Object.values(vData.form.grid_search_param).reduce(
+                    (acc, cur) => acc * (cur.length || 1),
+                    1,
+                ),
+            );
 
             const { $data, $methods } = dataStore.mixin({
                 props,
@@ -401,28 +436,30 @@
             return {
                 vData,
                 methods,
+                lrGrid,
+                runTime,
             };
         },
     };
 </script>
 
 <style lang="scss" scoped>
-.el-form-item{
+.board-form-item {
     margin-bottom: 10px;
-    :deep(.el-form-item__label){
-        flex:1;
-    }
+    /* :deep(.board-form-item__label) {
+        flex: 1;
+    } */
 }
-.el-collapse-item {
-    :deep(.el-collapse-item__header) {
+.board-collapse-item {
+    :deep(.board-collapse-item__header) {
         color: #438bff;
         font-size: 16px;
         padding-left: 5px;
-        .el-collapse-item__arrow {
+        .board-collapse-item__arrow {
             color: #999;
         }
     }
-    :deep(.el-collapse-item__wrap) {
+    :deep(.board-collapse-item__wrap) {
         padding: 0 10px;
     }
 }

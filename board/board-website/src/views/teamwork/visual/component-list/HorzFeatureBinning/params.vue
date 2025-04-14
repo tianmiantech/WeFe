@@ -25,7 +25,7 @@
             <el-input-number
                 v-model="item.count"
                 type="number"
-                :min="1"
+                :min="2"
                 controls-position="right"
                 @blur="methods.changeMethodCount(item, index)"
                 @change="methods.changeMethodCount(item, index)"
@@ -62,6 +62,11 @@
                         label="特征"
                         width="150"
                     />
+                    <el-table-column
+                        prop="data_type"
+                        label="类型"
+                        width="70"
+                    />
                     <el-table-column label="分箱策略">
                         <template v-slot="scope">
                             <template v-if="scope.row.method === 'custom'">
@@ -70,6 +75,7 @@
                                     v-model.trim="scope.row.points"
                                     style="width:160px;"
                                     clearable
+                                    @input="methods.pointsInput(scope.row.points, index, scope.$index)"
                                 />
                             </template>
                             <template v-else-if="scope.row.method">
@@ -190,6 +196,10 @@
 
                     return true;
                 },
+                pointsInput(val, idx, sidx){
+                    val = val.replace(/，/g, ',');
+                    vData.featureSelectTab[idx].$feature_list[sidx].points = val;
+                },
             };
 
             // merge mixin
@@ -214,12 +224,12 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-input-number{
+    .board-input-number{
         width: 104px;
         margin:0 10px;
-        :deep(.el-input__inner){
-            padding-left:5px;
-            padding-right: 40px;
-        }
+        // :deep(.board-input__inner){
+        //     padding-left:5px;
+        //     padding-right: 40px;
+        // }
     }
 </style>

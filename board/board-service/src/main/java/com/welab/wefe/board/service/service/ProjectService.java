@@ -33,18 +33,19 @@ import com.welab.wefe.board.service.dto.entity.project.ProjectOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectQueryOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataResourceOutputModel;
 import com.welab.wefe.board.service.dto.vo.AuditStatusCounts;
+import com.welab.wefe.board.service.dto.vo.ProjectFlowStatisticsResult;
 import com.welab.wefe.board.service.dto.vo.RoleCounts;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
+import com.welab.wefe.board.service.service.account.AccountService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.util.ThreadUtil;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
@@ -104,6 +105,8 @@ public class ProjectService extends AbstractService {
     private ProjectFlowNodeRepository projectFlowNodeRepository;
     @Autowired
     private DataResourceService dataResourceService;
+    @Autowired
+    private MessageService messageService;
 
     /**
      * New Project
@@ -154,12 +157,17 @@ public class ProjectService extends AbstractService {
         project.setProgressUpdatedTime(new Date());
         project.setUpdatedBy(input);
         project.setAuditStatusFromMyself(input.fromGateway() ? AuditStatus.auditing : AuditStatus.agree);
-        project.setFlowStatusStatistics(JObject.create()
-                .append(ProjectFlowStatus.editing.name(), 0)
-                .append(ProjectFlowStatus.running.name(), 0)
-                .append(ProjectFlowStatus.finished.name(), 0).toJSONString());
+        project.setFlowStatusStatistics(new ProjectFlowStatisticsResult().toJsonString());
         project.setProjectType(input.getProjectType());
         projectRepo.save(project);
+
+        if (input.fromGateway()) {
+            messageService.addApplyJoinProjectMessage(
+                    input.callerMemberInfo.getMemberId(),
+                    project.getProjectId(),
+                    project.getName()
+            );
+        }
 
         // create and save ProjectMember to database
         for (ProjectMemberInput item : input.getMembers()) {
@@ -203,6 +211,15 @@ public class ProjectService extends AbstractService {
                 if (auditStatus == AuditStatus.agree && CacheObjects.isCurrentMember(dataSetInput.getMemberId())) {
                     dataResourceService.updateUsageCountInProject(dataSet.getDataSetId());
                 }
+
+                // 如果申请使用我方数据资源，添加一条消息予以提醒。
+                if (input.fromGateway() && CacheObjects.isCurrentMember(dataSetInput.getMemberId())) {
+                    messageService.addApplyDataResourceMessage(
+                            input.callerMemberInfo.getMemberId(),
+                            project,
+                            dataSet
+                    );
+                }
             }
 
         }
@@ -221,7 +238,7 @@ public class ProjectService extends AbstractService {
         ProjectMySqlModel project = projectRepo.findOne("projectId", input.getProjectId(), ProjectMySqlModel.class);
 
         if (project == null) {
-            throw new StatusCodeWithException("未找到相应的项目！", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "未找到相应的项目！");
         }
 
         List<ProjectMemberMySqlModel> projectMembers = projectMemberService.findListByProjectId(input.getProjectId());
@@ -265,7 +282,7 @@ public class ProjectService extends AbstractService {
     public ProjectOutputModel detail(String projectId) throws StatusCodeWithException {
         ProjectMySqlModel project = projectRepo.findOne("projectId", projectId, ProjectMySqlModel.class);
         if (project == null) {
-            throw new StatusCodeWithException("未找到相应的项目！", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "未找到相应的项目！");
         }
 
 
@@ -330,10 +347,10 @@ public class ProjectService extends AbstractService {
     public synchronized void removeMember(RemoveApi.Input input) throws StatusCodeWithException {
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
-            throw new StatusCodeWithException("未找到相应的项目！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未找到相应的项目！");
         }
         if (project.getMyRole() != JobMemberRole.promoter && !input.fromGateway()) {
-            throw new StatusCodeWithException("移除成员的操作只有 promoter 能发起", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "移除成员的操作只有 promoter 能发起");
         }
         ProjectMemberMySqlModel member = projectMemberService.findOneByMemberId(input.getProjectId(), input.getMemberId(), input.getMemberRole());
         if (member == null) {
@@ -447,24 +464,24 @@ public class ProjectService extends AbstractService {
     public synchronized ProjectMySqlModel addProjectDataSet(AddDataSetApi.Input input) throws StatusCodeWithException {
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
-            throw new StatusCodeWithException("未找到相应的项目！", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "未找到相应的项目！");
         }
 
         if (!input.fromGateway()) {
             if (project.getAuditStatus() != AuditStatus.agree || project.isExited()) {
-                throw new StatusCodeWithException("请在成为该项目的正式成员后再进行相关操作", StatusCode.ILLEGAL_REQUEST);
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "请在成为该项目的正式成员后再进行相关操作");
             }
         }
 
         if (CollectionUtils.isEmpty(input.getDataResourceList())) {
-            throw new StatusCodeWithException("数据集不能为空", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "数据集不能为空");
         }
 
         for (ProjectDataSetInput item : input.getDataResourceList()) {
             // Determine whether the member exists
             ProjectMemberMySqlModel member = projectMemberService.findOneByMemberId(input.getProjectId(), item.getMemberId(), item.getMemberRole());
             if (member == null) {
-                throw new StatusCodeWithException("该成员不存在", StatusCode.ILLEGAL_REQUEST);
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "该成员不存在");
             }
 
             // Add your own data set by yourself, the review status is agreed,
@@ -502,6 +519,14 @@ public class ProjectService extends AbstractService {
                 dataResourceService.updateUsageCountInProject(projectDataSet.getDataSetId());
             }
 
+            // 如果申请使用我方数据资源，添加一条消息予以提醒。
+            if (input.fromGateway() && CacheObjects.isCurrentMember(item.getMemberId())) {
+                messageService.addApplyDataResourceMessage(
+                        input.callerMemberInfo.getMemberId(),
+                        project,
+                        projectDataSet
+                );
+            }
         }
 
         gatewayService.syncToNotExistedMembers(input.getProjectId(), input, AddDataSetApi.class);
@@ -514,16 +539,16 @@ public class ProjectService extends AbstractService {
      * Remove the data set in the project
      */
     @Transactional(rollbackFor = Exception.class)
-    public synchronized void removeDataSet(RemoveDataSetApi.Input input) throws StatusCodeWithException {
+    public synchronized void removeDataSet(RemoveDataSetApi.Input input) throws Exception {
 
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
-            throw new StatusCodeWithException("未找到相应的项目！", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "未找到相应的项目！");
         }
 
         if (!input.fromGateway()) {
             if (project.getAuditStatus() != AuditStatus.agree || project.isExited()) {
-                throw new StatusCodeWithException("请在成为该项目的正式成员后再进行相关操作", StatusCode.ILLEGAL_REQUEST);
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "请在成为该项目的正式成员后再进行相关操作");
             }
         }
 
@@ -539,7 +564,7 @@ public class ProjectService extends AbstractService {
             if (projectDataSet.getSourceType() == null) {
                 // Not a promoter, you can't delete other people's data sets
                 if (project.getMyRole() != JobMemberRole.promoter && !CacheObjects.getMemberId().equals(projectDataSet.getMemberId())) {
-                    throw new StatusCodeWithException("不能删除别人的数据集", StatusCode.ILLEGAL_REQUEST);
+                    throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "不能删除别人的数据集");
                 }
 
                 OnlineDemoBranchStrategy.hackOnDelete(input, projectDataSet, "只能删除自己添加的数据集。");
@@ -547,7 +572,7 @@ public class ProjectService extends AbstractService {
             // If it is the derived data set
             else {
                 if (project.getMyRole() != JobMemberRole.promoter) {
-                    throw new StatusCodeWithException("只有 promoter 才能删除衍生数据集", StatusCode.ILLEGAL_REQUEST);
+                    throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "只有 promoter 才能删除衍生数据集");
                 }
                 dataResourceService.delete(projectDataSet.getDataSetId(), projectDataSet.getDataResourceType());
             }
@@ -625,7 +650,7 @@ public class ProjectService extends AbstractService {
     public PagingOutput<ProjectQueryOutputModel> query(QueryApi.Input input) {
 
         StringBuffer sql = new StringBuffer(
-                "select distinct(p.id),p.project_type,p.flow_status_statistics,p.deleted,p.name,p.project_desc,p.audit_status,p.status_updated_time"
+                "select distinct(p.id),p.top,p.sort_num,p.project_type,p.flow_status_statistics,p.deleted,p.name,p.project_desc,p.audit_status,p.status_updated_time"
                         + ",p.audit_status_from_myself,p.audit_status_from_others,p.audit_comment,p.exited,p.closed"
                         + ",p.closed_by,p.closed_time,p.exited_by,p.exited_time"
                         + ",p.project_id,p.member_id,p.my_role"
@@ -634,7 +659,7 @@ public class ProjectService extends AbstractService {
 
         int total = projectRepo.queryByClass(sql.append(buildQueryWhere(input)).toString(), ProjectMySqlModel.class).size();
 
-        sql.append(" order by p.created_time desc");
+        sql.append(" order by p.top desc,p.sort_num desc,p.created_time desc");
         sql.append(" limit " + input.getPageIndex() * input.getPageSize() + "," + input.getPageSize());
 
         List<ProjectMySqlModel> projectList = projectRepo.queryByClass(sql.toString(), ProjectMySqlModel.class);
@@ -740,13 +765,13 @@ public class ProjectService extends AbstractService {
     public synchronized void updateProject(UpdateProjectApi.Input input) throws StatusCodeWithException {
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
-            throw new StatusCodeWithException("未找到相应的项目！", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "未找到相应的项目！");
         }
 
         if (!input.fromGateway()) {
             if (project.getMyRole() != JobMemberRole.promoter
                     || !project.getMemberId().equals(CacheObjects.getMemberId())) {
-                throw new StatusCodeWithException("只有发起方才能更改项目！", StatusCode.ILLEGAL_REQUEST);
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "只有发起方才能更改项目！");
             }
         }
 
@@ -780,23 +805,23 @@ public class ProjectService extends AbstractService {
     public synchronized void auditProject(AuditApi.Input input) throws StatusCodeWithException {
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
-            throw new StatusCodeWithException("未找到相应的项目！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未找到相应的项目！");
         }
 
         if (!input.fromGateway() && project.getAuditStatus() != AuditStatus.auditing) {
-            throw new StatusCodeWithException("不能重复审核！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "不能重复审核！");
         }
 
         String auditorId = input.fromGateway() ? input.callerMemberInfo.getMemberId() : CacheObjects.getMemberId();
         List<ProjectMemberMySqlModel> list = projectMemberService.findListByMemberId(project.getProjectId(), auditorId);
         if (list == null || list.isEmpty()) {
-            throw new StatusCodeWithException("未找到项目关联的member！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未找到项目关联的member！");
         }
 
         ProjectMemberMySqlModel member = list.stream()
                 .filter(s -> s.getAuditStatus() == AuditStatus.auditing && !s.isExited()).findFirst().get();
         if (member == null) {
-            throw new StatusCodeWithException("未找到项目关联的member！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未找到项目关联的member！");
         }
         AuditStatus auditStatusFromMyself = input.getAuditResult();
         AuditStatus auditStatusFromOthers = null;
@@ -832,6 +857,8 @@ public class ProjectService extends AbstractService {
             project.setAuditComment(input.getAuditComment());
             project.setStatusUpdatedTime(new Date());
             projectRepo.save(project);
+
+            messageService.completeApplyJoinProjectTodo(project.getProjectId());
         }
 
         // update the audit status of project members
@@ -909,6 +936,15 @@ public class ProjectService extends AbstractService {
             }
         }
 
+        if (input.fromGateway()) {
+            messageService.addAuditJoinProjectMessage(
+                    input.callerMemberInfo.getMemberId(),
+                    project,
+                    input.getAuditResult(),
+                    input.getAuditComment()
+            );
+        }
+
     }
 
     /**
@@ -922,7 +958,7 @@ public class ProjectService extends AbstractService {
         ProjectMySqlModel project = findByProjectId(projectId);
 
         if (promoterProjectMember == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到promoter成员信息");
+            throw StatusCodeWithException.of(StatusCode.DATA_NOT_FOUND, "找不到promoter成员信息");
         }
 
         DataInfoApi.Output dataInfoOutput = gatewayService.callOtherMemberBoard(
@@ -1023,13 +1059,10 @@ public class ProjectService extends AbstractService {
             project.setStatusUpdatedTime(new Date());
             project.setProgress(0);
             project.setProgressUpdatedTime(new Date());
-            project.setUpdatedBy(CurrentAccount.id());
+            project.setUpdatedBy(CurrentAccountUtil.get().getId());
             project.setAuditStatus(AuditStatus.auditing);
             project.setAuditStatusFromMyself(AuditStatus.auditing);
-            project.setFlowStatusStatistics(JObject.create()
-                    .append(ProjectFlowStatus.editing.name(), 0)
-                    .append(ProjectFlowStatus.running.name(), 0)
-                    .append(ProjectFlowStatus.finished.name(), 0).toJSONString());
+            project.setFlowStatusStatistics(new ProjectFlowStatisticsResult().toJsonString());
             project.setProjectType(projectMySqlModel.getProjectType());
             projectRepo.save(project);
 
@@ -1080,7 +1113,7 @@ public class ProjectService extends AbstractService {
             projectUpdateMap.put("statusUpdatedTime", new Date());
             projectUpdateMap.put("progress", 0);
             projectUpdateMap.put("progressUpdatedTime", new Date());
-            projectUpdateMap.put("updatedBy", CurrentAccount.id());
+            projectUpdateMap.put("updatedBy", CurrentAccountUtil.get().getId());
             projectUpdateMap.put("auditStatus", AuditStatus.auditing);
             projectUpdateMap.put("auditStatusFromMyself", AuditStatus.auditing);
             projectUpdateMap.put("auditStatusFromOthers", null);
@@ -1164,7 +1197,7 @@ public class ProjectService extends AbstractService {
                 .orElse(null);
 
         if (promoterMember == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到promoter方");
+            throw StatusCodeWithException.of(StatusCode.DATA_NOT_FOUND, "找不到promoter方");
         }
 
         String promoterMemberId = promoterMember.getMemberId();
@@ -1187,13 +1220,13 @@ public class ProjectService extends AbstractService {
 
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到对应的项目。");
+            throw StatusCodeWithException.of(StatusCode.DATA_NOT_FOUND, "找不到对应的项目。");
         }
 
 
         if (!input.fromGateway()) {
             if (project.getMyRole() == JobMemberRole.promoter) {
-                throw new StatusCodeWithException("promoter 不能退出项目", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "promoter 不能退出项目");
             }
 
 
@@ -1226,28 +1259,39 @@ public class ProjectService extends AbstractService {
                 .forEach(x -> dataResourceService.updateUsageCountInProject(x.getDataSetId()));
     }
 
+    @Autowired
+    private AccountService accountService;
 
     /**
      * close project
+     *
+     * @param byScheduledJob 是否来自定时任务
      */
-    public void closeProject(CloseProjectApi.Input input) throws StatusCodeWithException {
+    public void closeProject(CloseProjectApi.Input input, boolean byScheduledJob) throws StatusCodeWithException {
 
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到对应的项目。");
+            throw StatusCodeWithException.of(StatusCode.DATA_NOT_FOUND, "找不到对应的项目。");
         }
 
         if (!input.fromGateway()) {
             if (project.getMyRole() != JobMemberRole.promoter || !project.getMemberId().equals(CacheObjects.getMemberId())) {
-                throw new StatusCodeWithException("非发起方无法关闭项目。", StatusCode.ILLEGAL_REQUEST);
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "非发起方无法关闭项目。");
             }
         }
 
-        OnlineDemoBranchStrategy.hackOnDelete(input, project, "只能关闭自己创建的项目。");
-
         project.setClosed(true);
         project.setClosedTime(new Date());
-        project.setClosedBy(project.getOperatorId(input));
+
+        // 如果是定时任务触发的关闭，操作者设置为超级管理员。
+        if (byScheduledJob) {
+            project.setClosedBy(CurrentAccountUtil.get().getId());
+        } else {
+            project.setClosedBy(project.getOperatorId(input));
+
+            OnlineDemoBranchStrategy.hackOnDelete(input, project, "只能关闭自己创建的项目。");
+        }
+
 
         projectRepo.save(project);
 
@@ -1271,40 +1315,16 @@ public class ProjectService extends AbstractService {
 
         List<Object[]> projectFlowStatusCount = projectFlowRepository.countProjectFlowStatus(projectId);
 
-        int runningCount = 0;
-        int editingCount = 0;
-        int finishedCount = 0;
+        ProjectFlowStatisticsResult result = new ProjectFlowStatisticsResult();
         for (Object[] row : projectFlowStatusCount) {
             String flowStatus = String.valueOf(row[0]);
             int count = Convert.toInt(row[1]);
-
-            switch (ProjectFlowStatus.valueOf(flowStatus)) {
-                case editing:
-                    editingCount += count;
-                    break;
-
-                case running:
-                case wait_run:
-                case wait_stop:
-                case wait_success:
-                    runningCount += count;
-                    break;
-
-                case success:
-                case stop_on_running:
-                case error_on_running:
-                    finishedCount += count;
-                    break;
-                default:
-            }
+            result.put(ProjectFlowStatus.valueOf(flowStatus), count);
         }
-        JObject result = JObject.create()
-                .append(ProjectFlowStatus.editing.name(), editingCount)
-                .append(ProjectFlowStatus.running.name(), runningCount)
-                .append(ProjectFlowStatus.finished.name(), finishedCount);
+
 
         ProjectMySqlModel project = findByProjectId(projectId);
-        projectRepo.updateById(project.getId(), "flowStatusStatistics", result.toJSONString(), ProjectMySqlModel.class);
+        projectRepo.updateById(project.getId(), "flowStatusStatistics", result.toJsonString(), ProjectMySqlModel.class);
     }
 
     /**
@@ -1320,4 +1340,14 @@ public class ProjectService extends AbstractService {
         return projectService.findByProjectId(jobs.get(0).getProjectId());
     }
 
+    /**
+     * 设置项目的置顶状态
+     */
+    public void top(String projectId, boolean top) {
+        if (top) {
+            projectRepo.top(projectId);
+        } else {
+            projectRepo.cancelTop(projectId);
+        }
+    }
 }

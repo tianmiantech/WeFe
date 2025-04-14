@@ -73,6 +73,10 @@ public class CaptchaService {
         try {
             String verCode = captchaMap.get(key);
 
+            if (verCode == null) {
+                return false;
+            }
+            
             // Judgment verification code
             if (verCode.equals(code.trim().toLowerCase())) {
                 return true;

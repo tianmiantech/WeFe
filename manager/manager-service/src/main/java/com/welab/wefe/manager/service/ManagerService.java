@@ -17,12 +17,9 @@
 package com.welab.wefe.manager.service;
 
 import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure;
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.webank.cert.mgr.CertApp;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
-import com.welab.wefe.common.web.service.account.AccountInfo;
 import com.welab.wefe.manager.service.operation.ManagerApiLogger;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -51,7 +48,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         nameGenerator = ApiBeanNameGenerator.class,
         basePackageClasses = {
                 Launcher.class,
-                ManagerService.class
+                ManagerService.class,
+                CertApp.class
         }
 )
 public class ManagerService implements ApplicationContextAware {
@@ -67,7 +65,7 @@ public class ManagerService implements ApplicationContextAware {
         Launcher.instance()
                 .apiLogger(new ManagerApiLogger())
                 .apiPackageClass(ManagerService.class)
-                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
+                /*.checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
                 .apiPermissionPolicy((api, annotation, params) -> {
                     if(CurrentAccount.get() != null && CurrentAccount.get().isNeedUpdatePassword()){
                         if(!annotation.path().equals("account/update_password")) {
@@ -75,7 +73,7 @@ public class ManagerService implements ApplicationContextAware {
                         }
                     }
 
-                })
+                })*/
                 .launch(ManagerService.class, args);
 
     }
@@ -83,5 +81,6 @@ public class ManagerService implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         CONTEXT = applicationContext;
+        Launcher.CONTEXT = applicationContext;
     }
 }

@@ -19,7 +19,8 @@ package com.welab.wefe.gateway.api.service;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.api.service.proto.TransferServiceGrpc;
-import com.welab.wefe.gateway.base.RpcServer;
+import com.welab.wefe.gateway.base.GrpcServer;
+import com.welab.wefe.gateway.common.GrpcServerScopeEnum;
 import com.welab.wefe.gateway.interceptor.IpAddressWhiteListServerInterceptor;
 import com.welab.wefe.gateway.service.base.AbstractRecvTransferMetaService;
 import com.welab.wefe.gateway.service.base.AbstractSendTransferMetaService;
@@ -34,16 +35,16 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author aaron.li
  **/
-@RpcServer(interceptors = {IpAddressWhiteListServerInterceptor.class})
+@GrpcServer(useScope = GrpcServerScopeEnum.INTERNAL, interceptors = {IpAddressWhiteListServerInterceptor.class})
 public class TransferGrpcServer extends TransferServiceGrpc.TransferServiceImplBase {
 
     private final Logger LOG = LoggerFactory.getLogger(TransferGrpcServer.class);
 
     @Autowired
-    private AbstractRecvTransferMetaService mRecvTransferMetaService;
+    private AbstractRecvTransferMetaService recvTransferMetaService;
 
     @Autowired
-    private AbstractSendTransferMetaService mSendTransferMetaService;
+    private AbstractSendTransferMetaService sendTransferMetaService;
 
     /**
      * Send message to remote
@@ -54,7 +55,7 @@ public class TransferGrpcServer extends TransferServiceGrpc.TransferServiceImplB
     @Override
     public void send(GatewayMetaProto.TransferMeta request, StreamObserver<BasicMetaProto.ReturnStatus> responseObserver) {
         LOG.info("TransferGrpcServer send called, request session id：{} data size kb: {}", request.getSessionId(), TransferMetaUtil.getKbSize(request));
-        responseObserver.onNext(mSendTransferMetaService.send(request));
+        responseObserver.onNext(sendTransferMetaService.send(request));
         responseObserver.onCompleted();
     }
 
@@ -64,7 +65,7 @@ public class TransferGrpcServer extends TransferServiceGrpc.TransferServiceImplB
     @Override
     public void recv(GatewayMetaProto.TransferMeta request, StreamObserver<GatewayMetaProto.TransferMeta> responseObserver) {
         LOG.info("TransferGrpcServer recv called, request：" + request.toString());
-        responseObserver.onNext(mRecvTransferMetaService.recv(request));
+        responseObserver.onNext(recvTransferMetaService.recv(request));
         responseObserver.onCompleted();
     }
 
@@ -74,7 +75,7 @@ public class TransferGrpcServer extends TransferServiceGrpc.TransferServiceImplB
     @Override
     public void checkStatusNow(GatewayMetaProto.TransferMeta request, StreamObserver<GatewayMetaProto.TransferMeta> responseObserver) {
         LOG.info("TransferGrpcServer checkStatusNow called, request：" + request.toString());
-        responseObserver.onNext(mRecvTransferMetaService.checkStatusNow(request));
+        responseObserver.onNext(recvTransferMetaService.checkStatusNow(request));
         responseObserver.onCompleted();
     }
 }

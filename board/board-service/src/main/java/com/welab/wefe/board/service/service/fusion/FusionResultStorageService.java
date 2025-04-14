@@ -16,6 +16,14 @@
 package com.welab.wefe.board.service.service.fusion;
 
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.service.AbstractService;
@@ -23,15 +31,8 @@ import com.welab.wefe.common.data.storage.common.Constant;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
-import com.welab.wefe.common.data.storage.service.StorageService;
+import com.welab.wefe.common.data.storage.service.persistent.PersistentStorage;
 import com.welab.wefe.common.util.StringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author hunter.zhao
@@ -41,29 +42,26 @@ public class FusionResultStorageService extends AbstractService {
 
     public static final String DATABASE_NAME = Constant.DBName.WEFE_DATA;
 
-    @Autowired
-    StorageService storageService;
-
     /**
      * Determine whether the specified key exists
      */
-    public boolean containsKey(String dataSetId, String key) {
+    public boolean containsKey(String dataSetId, String key) throws Exception {
         String table = createRawDataSetTableName(dataSetId);
-        return storageService.getByKey(DATABASE_NAME, table, key) != null;
+        return PersistentStorage.getInstance().get(DATABASE_NAME, table, key) != null;
     }
 
     /**
      * remove data set from storage
      */
-    public void deleteDataSet(String dataSetId) {
+    public void deleteDataSet(String dataSetId) throws Exception {
         String table = createRawDataSetTableName(dataSetId);
-        storageService.dropTB(DATABASE_NAME, table);
+        PersistentStorage.getInstance().dropTB(DATABASE_NAME, table);
     }
 
     /**
      * save data set header info to storage
      */
-    public void saveHeaderRow(String businessId, List<String> row) {
+    public void saveHeaderRow(String businessId, Set<String> row) throws Exception {
         String sid = null;
         List<String> header = new ArrayList<>();
 
@@ -71,7 +69,7 @@ public class FusionResultStorageService extends AbstractService {
 //            if (sid == null) {
 //                sid = String.valueOf(item);
 //            } else {
-                header.add(String.valueOf(item));
+            header.add(String.valueOf(item));
 //            }
         }
 
@@ -93,14 +91,14 @@ public class FusionResultStorageService extends AbstractService {
     /**
      * save data row to storage
      */
-    public void saveDataRow(String dataSetId, Collection<Object> values) {
+    public void saveDataRow(String dataSetId, Collection<Object> values) throws Exception {
         save(createRawDataSetTableName(dataSetId), buildDataItemModel(values));
     }
 
     /**
      * save data rows to storage
      */
-    public void saveDataRows(String dataSetId, List<List<Object>> rows) {
+    public void saveDataRows(String dataSetId, List<List<Object>> rows) throws Exception {
 
         List<DataItemModel<String, String>> list = rows
                 .stream()
@@ -131,29 +129,29 @@ public class FusionResultStorageService extends AbstractService {
     /**
      * save a record to storage
      */
-    private void save(String tableName, String key, String value) {
-        storageService.save(DATABASE_NAME, tableName, new DataItemModel<>(key, value));
+    private void save(String tableName, String key, String value) throws Exception {
+        PersistentStorage.getInstance().put(DATABASE_NAME, tableName, new DataItemModel<>(key, value));
     }
 
     /**
      * save a record to storage
      */
-    private void save(String tableName, DataItemModel item) {
-        storageService.save(DATABASE_NAME, tableName, item);
+    private void save(String tableName, DataItemModel item) throws Exception {
+        PersistentStorage.getInstance().put(DATABASE_NAME, tableName, item);
     }
 
     /**
      * save multi records to storage
      */
-    public <K, V> void saveList(String tableName, List<DataItemModel<K, V>> list) {
-        storageService.saveList(DATABASE_NAME, tableName, list);
+    public <K, V> void saveList(String tableName, List<DataItemModel<K, V>> list) throws Exception {
+        PersistentStorage.getInstance().putAll(DATABASE_NAME, tableName, list);
     }
 
     /**
      * real all record from storage table
      */
-    public List<DataItemModel> getList(String tableName) {
-        return storageService.getList(DATABASE_NAME, tableName);
+    public List<DataItemModel> getList(String tableName) throws Exception {
+        return PersistentStorage.getInstance().collect(DATABASE_NAME, tableName);
     }
 
 
@@ -174,45 +172,45 @@ public class FusionResultStorageService extends AbstractService {
     /**
      * Get row count of table
      */
-    public int count(String tableName) {
-        return storageService.count(DATABASE_NAME, tableName);
+    public int count(String tableName) throws Exception {
+        return PersistentStorage.getInstance().count(DATABASE_NAME, tableName);
     }
 
     /**
      * Get row count of table
      */
-    public int count(String databaseName, String tableName) {
-        return storageService.count(databaseName, tableName);
+    public int count(String databaseName, String tableName) throws Exception {
+        return PersistentStorage.getInstance().count(databaseName, tableName);
     }
 
     /**
      * Calculate the appropriate batch size based on the number of columns in the data set
      */
     public int getAddBatchSize(int columns) {
-        return storageService.getAddBatchSize(columns);
+        return PersistentStorage.getInstance().getAddBatchSize(columns);
     }
 
-    public DataItemModel getByKey(String databaseName, String tableName, String key) {
-        return storageService.getByKey(databaseName, tableName, key);
+    public DataItemModel getByKey(String databaseName, String tableName, String key) throws Exception {
+        return PersistentStorage.getInstance().get(databaseName, tableName, key);
     }
 
 
-    public Boolean isExists(String tableName) {
-        return storageService.isExists(DATABASE_NAME, tableName);
-    }
-
-    /**
-     * view the data set data rows
-     */
-    public List<List<String>> previewDataSet(String tableName, int limit) {
-        return previewDataSet(DATABASE_NAME,tableName,limit);
+    public Boolean isExists(String tableName) throws SQLException {
+        return PersistentStorage.getInstance().isExists(DATABASE_NAME, tableName);
     }
 
     /**
      * view the data set data rows
      */
-    public List<List<String>> previewDataSet(String dbName, String tableName, int limit) {
-        PageOutputModel<?, ?> page = storageService.getPage(dbName, tableName, new PageInputModel(0, limit));
+    public List<List<String>> previewDataSet(String tableName, int limit) throws Exception {
+        return previewDataSet(DATABASE_NAME, tableName, limit);
+    }
+
+    /**
+     * view the data set data rows
+     */
+    public List<List<String>> previewDataSet(String dbName, String tableName, int limit) throws Exception {
+        PageOutputModel<?, ?> page = PersistentStorage.getInstance().getPage(dbName, tableName, new PageInputModel(0, limit));
 
         List<? extends DataItemModel<?, ?>> data = page.getData();
         return data

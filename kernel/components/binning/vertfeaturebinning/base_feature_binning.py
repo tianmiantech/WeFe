@@ -82,7 +82,7 @@ class BaseVertFeatureBinning(ModelBase):
     def _init_model(self, params: FeatureBinningParam):
         self.model_param = params
         #
-        # self.transform_type = self.model_param.transform_param.transform_type
+        self.transform_type = self.model_param.transform_param.transform_type
         #
         # if self.model_param.method == consts.QUANTILE:
         #     self.binning_obj = QuantileBinning(self.model_param)
@@ -133,8 +133,7 @@ class BaseVertFeatureBinning(ModelBase):
         self._setup_bin_inner_param(data_instances, self.model_param)
         data_instances = self.binning_obj.transform(data_instances, self.transform_type)
         self.set_schema(data_instances)
-        self.data_output = self.binning_obj.convert_feature_to_woe(data_instances)
-
+        self.data_output = data_instances
         return data_instances
 
     def transform_v2(self, data_instances, bin_result=None):
@@ -189,6 +188,7 @@ class BaseVertFeatureBinning(ModelBase):
         cols = model_0.get('Model_Meta').get('cols')
         Model_Param = model_0.get('Model_Param')
         binningResult = Model_Param.get('binningResult').get('binningResult')
+        providerBinningResult = Model_Param.get('providerResults')
         header = Model_Param.get('header')
         model_dict_str = json.dumps(model_dict)
         model_dict_str = self.hump2underline(model_dict_str)
@@ -231,11 +231,15 @@ class BaseVertFeatureBinning(ModelBase):
 
         self.provider_results = []
         LOGGER.debug(f"provider_results={model_param['provider_results']}")
-        for host_pb in model_param["provider_results"]:
+        for role_id, host_pb in enumerate(model_param["provider_results"]):
             LOGGER.debug("host_pb ===> {}".format(host_pb))
             binning_result = host_pb["binning_result"]
             if not binning_result:
                 continue
+            perBinningResult = providerBinningResult[role_id]['binningResult']
+            for name, value in perBinningResult.items():
+                perBinningResult[name] = json.loads(self.hump2underline(json.dumps(value)))
+            host_pb["binning_result"] = perBinningResult
             host_bin_obj = Binning()
             host_bin_obj.bin_results.reconstruct2(host_pb)
             self.provider_results.append(host_bin_obj)
@@ -275,6 +279,7 @@ class BaseVertFeatureBinning(ModelBase):
         if len(bin_feature_names) == 0:
             return bin_indexes
         data_feature_names = data_instances.schema["header"]
+        LOGGER.info('data_feature_names:{} and bin_feature_names:{}'.format(data_feature_names, bin_feature_names))
         for bin_feature_name in bin_feature_names:
             index = data_feature_names.index(bin_feature_name)
             bin_indexes.append(index)

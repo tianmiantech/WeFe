@@ -89,7 +89,7 @@ class HorzLRArbiter(HorzLRBaseModel):
 
             # validation_strategy.validate(self, self.n_iter_)
             self.n_iter_ += 1
-            self.tracker.add_task_progress(1)
+            self.tracker.add_task_progress(1, self.need_grid_search)
 
         LOGGER.info("Finish Training task, total iters: {}".format(self.n_iter_))
 

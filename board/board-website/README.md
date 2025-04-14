@@ -13,14 +13,14 @@ npm install
 
 **开发配置**
 
-.env 用于不同环境打包配置
-package.json 中 context 用于配置打包后的文件夹名称, 留空则不创建文件夹
+.env 用于不同环境接口地址配置
+接口地址会根据实际访问地址添加后缀。
+package.json 中 contextPath 用于配置打包后的文件夹名称, 留空则不创建文件夹
 vue.config.js 用于开发时代理配置, target 为接口代理地址
 
 **项目启动**
 
 ``` zsh
-# 复制 .env.local.example 并重命名为 .env.local, 将 env 中的配置按需更改
 # 启动服务，执行多次会开启多个端口监听， 默认从 8080 端口累加
 npm run dev
 ```
@@ -31,8 +31,8 @@ npm run dev
 # 默认:
 npm run build
 # 等于:
-npm run build -- prod=board-website
-# prod 表示使用 /.env 文件中对应的接口地址, board-website 表示前台访问上下文地址
+npm run build -- --HOST_ENV dev
+# dev 表示使用 /.env 文件中对应的接口地址
 ```
 
 # 参考文档

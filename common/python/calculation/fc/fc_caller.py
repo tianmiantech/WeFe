@@ -20,6 +20,7 @@ from ctypes import *
 from common.python.common import consts
 from common.python.common.exception.custom_exception import FCCommonError
 from common.python.utils import log_utils, conf_utils, file_utils
+from common.python.db.global_config_dao import GlobalConfigDao
 
 LOGGER = log_utils.get_logger()
 
@@ -30,14 +31,19 @@ class FCCaller(object):
     """
 
     SERVICE_NAME = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_SERVICE_NAME, 'wefe-fc')
+    FC_STORAGE_TYPE = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_STORAGE_TYPE)
     FUNCTION_NAME = 'index'
 
     def __init__(self, service_name=SERVICE_NAME, init_client=True):
-        self._end_point = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_END_POINT)
+        self._end_point = ""
+        if conf_utils.get_comm_config(consts.COMM_CONF_CLOUD_PROVIDER) == consts.CLOUDPROVIDER.ALIYUN:
+            self._end_point = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_END_POINT)
         self._access_key_id = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID)
+        self._tencent_key_id = conf_utils.get_comm_config(consts.COMM_CONF_KEY_SCF_ACCESS_KEY_ID)
         self._access_key_secret = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_KEY_SECRET)
+        self._tencent_access_key_secret = conf_utils.get_comm_config(consts.COMM_CONF_KEY_SCF_KEY_SECRET)
         self._qualifier = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_QUALIFIER)
-
+        self._tencent_qualifier = conf_utils.get_comm_config(consts.COMM_CONF_KEY_SCF_QUALIFIER)
         self._service_name = service_name
         self.max_processes = multiprocessing.cpu_count()
 
@@ -56,18 +62,36 @@ class FCCaller(object):
         """
         go_util = CDLL(os.path.join(file_utils.get_project_base_directory(),
                                     'common/python/calculation/fc/go/pkg/utils.so'))
-        go_util.callFC.restype = c_char_p
-        fc_name = input_param.get("fc_name")
+        if conf_utils.get_comm_config(consts.COMM_CONF_CLOUD_PROVIDER) == consts.CLOUDPROVIDER.TENCENTCLOUD:
+            go_util.callSCF.restype = c_char_p
+            fc_name = input_param.get("fc_name")
 
-        res = go_util.callFC(c_char_p(json.dumps(input_param).encode('utf-8')),
-                             c_char_p(self._end_point.encode('utf-8')),
-                             c_char_p(self._access_key_id.encode('utf-8')),
-                             c_char_p(self._access_key_secret.encode('utf-8')),
-                             c_char_p(self._service_name.encode('utf-8')),
-                             c_char_p(function_name.encode('utf-8')),
-                             c_char_p(self._qualifier.encode('utf-8')))
+            res = go_util.callSCF(c_char_p(conf_utils.get_comm_config(consts.COMM_CONF_KEY_SCF_SERVER_URL).encode('utf-8')),
+                                  c_char_p(json.dumps(input_param).encode('utf-8')),
+                                  c_char_p(self._end_point.encode('utf-8')),
+                                  c_char_p(self._tencent_key_id.encode('utf-8')),
+                                  c_char_p(self._tencent_access_key_secret.encode('utf-8')),
+                                  c_char_p(self._service_name.encode('utf-8')),
+                                  c_char_p(function_name.encode('utf-8')),
+                                  c_char_p(self._tencent_qualifier.encode('utf-8')))
+            print ('consts.COMM_CONF_KEY_SCF_SERVER_URL:',conf_utils.get_comm_config(consts.COMM_CONF_KEY_SCF_SERVER_URL))
+            print ("fc_name:",fc_name)
+            print ("execution_name",input_param.get("execution_name"))
+            print ("callSCF res:",res)
+            return self.check_fc_result([json.loads(res)], fc_name, input_param.get("execution_name"))
+        elif conf_utils.get_comm_config(consts.COMM_CONF_CLOUD_PROVIDER) == consts.CLOUDPROVIDER.ALIYUN:
+            go_util.callFC.restype = c_char_p
+            fc_name = input_param.get("fc_name")
 
-        return self.check_fc_result([json.loads(res)], fc_name, input_param.get("execution_name"))
+            res = go_util.callFC(c_char_p(json.dumps(input_param).encode('utf-8')),
+                                 c_char_p(self._end_point.encode('utf-8')),
+                                 c_char_p(self._access_key_id.encode('utf-8')),
+                                 c_char_p(self._access_key_secret.encode('utf-8')),
+                                 c_char_p(self._service_name.encode('utf-8')),
+                                 c_char_p(function_name.encode('utf-8')),
+                                 c_char_p(self._qualifier.encode('utf-8')))
+
+            return self.check_fc_result([json.loads(res)], fc_name, input_param.get("execution_name"))
 
     def check_fc_result(self, fc_result, fc_name, execution_name=None):
         """
@@ -86,7 +110,7 @@ class FCCaller(object):
         check = True
         for item_result_list in fc_result:
             for item_result in item_result_list:
-                # LOGGER.debug(f'fc_result:{item_result}, execution_name:{execution_name}')
+                LOGGER.info(f'fc_result==>{item_result}, execution_name:{execution_name}')
                 item_result_dict = json.loads(item_result)
                 if 'code' in item_result_dict:
                     if item_result_dict['code'] != 100:

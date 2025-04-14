@@ -18,19 +18,19 @@
                         <h4>训练结果:</h4>
                         <el-row class="mb10">
                             <el-col :span="8">
-                                auc：{{ vData.train.auc }}
+                                auc：{{ dealNumPrecision(vData.train.auc) }}
                             </el-col>
                             <el-col :span="12">
-                                ks：{{ vData.train.ks }}
+                                ks：{{ dealNumPrecision(vData.train.ks) }}
                             </el-col>
                         </el-row>
                         <h4>验证结果:</h4>
                         <el-row>
                             <el-col :span="8">
-                                auc：{{ vData.validate.auc }}
+                                auc：{{ dealNumPrecision(vData.validate.auc) }}
                             </el-col>
                             <el-col :span="12">
-                                ks：{{ vData.validate.ks }}
+                                ks：{{ dealNumPrecision(vData.validate.ks) }}
                             </el-col>
                         </el-row>
                     </el-form>
@@ -47,6 +47,9 @@
                             :flow-id="flowId"
                             :flow-node-id="flowNodeId"
                         />
+                    </el-collapse-item>
+                    <el-collapse-item v-if="vData.need_psi" :title="`预测概率/评分 PSI:${vData.featurePsi}`" name="4">
+                        <psi-table :tableData="vData.tableData" type="evalution" />
                     </el-collapse-item>
                 </template>
             </el-collapse>
@@ -79,6 +82,9 @@
     import CommonResult from '../common/CommonResult';
     import resultMixin from '../result-mixin';
     import TopN from './TopN.vue';
+    import psiTable from '../../components/psi/psi-table.vue';
+    import { getDataResult } from '@src/service';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     const mixin = resultMixin();
 
@@ -87,6 +93,7 @@
         components: {
             CommonResult,
             TopN,
+            psiTable,
         },
         props: {
             ...mixin.props,
@@ -110,6 +117,9 @@
                 },
                 showCharts:          false,
                 pollingOnJobRunning: true,
+                tableData:           [],
+                featurePsi:          '',
+                need_psi:            true,
             });
 
             let methods = {
@@ -137,10 +147,41 @@
                             };
                             vData.hasResult= true;
                             methods.getTopNData(data[0]);
+                            methods.getPSIResult(data[0]);
                         } else {
                             vData.hasResult = false;
                         }
                     }
+                },
+                getPSIResult(res){
+                    const { flow_id, flow_node_id, job_id } = res || {};
+
+                    getDataResult({
+                        flowId: flow_id, flowNodeId: flow_node_id, jobId: job_id, type: 'psi',
+                    }).then((data) => {
+                        const { psi= {},task_config } = data;
+                        const {
+                            pred_label_psi = '',
+                            train_pred_label_static,
+                            test_pred_label_static ,
+                            bin_cal_results = {},
+                            split_point = [] } = psi;
+                        const { params } = task_config || {};
+                        const { psi_param } = params || {};
+                        const { need_psi } = psi_param || {};
+
+                        vData.need_psi = need_psi;
+                        vData.featurePsi = dealNumPrecision(pred_label_psi, 4);
+                        vData.tableData = {
+                            '预测概率/评分': {
+                                train_feature_static: train_pred_label_static || {},
+                                test_feature_static:  test_pred_label_static || {},
+                                feature_psi:          pred_label_psi,
+                                bin_cal_results,
+                                split_point:          split_point.slice(1),
+                            },
+                        };
+                    });
                 },
                 async getTopNData(res) {
                     const { code, data } = await $http.get({
@@ -184,6 +225,7 @@
                 activeName,
                 methods,
                 topnRef,
+                dealNumPrecision,
             };
         },
     };

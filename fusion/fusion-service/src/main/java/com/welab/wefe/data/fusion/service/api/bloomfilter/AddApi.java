@@ -31,7 +31,6 @@ import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -81,7 +80,7 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.BloomfilterAddOutpu
         public void checkAndStandardize() throws StatusCodeWithException {
             super.checkAndStandardize();
             if(CollectionUtils.isEmpty(fieldInfoList)){
-                throw new StatusCodeWithException("请设置主键！", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "请设置主键！");
             }
         }
 

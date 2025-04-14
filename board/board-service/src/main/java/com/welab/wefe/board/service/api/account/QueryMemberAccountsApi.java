@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.api.account;
 
+import com.welab.wefe.board.service.dto.base.PagingInput;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.AccountOutputModel;
 import com.welab.wefe.board.service.service.account.AccountService;
@@ -24,12 +25,13 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author aaron.li
  */
-@Api(path = "account/query_by_member_id", name = "Query account information by member ID", login = false)
+@Api(path = "account/query_by_member_id", name = "Query account information by member ID")
 public class QueryMemberAccountsApi extends AbstractApi<QueryMemberAccountsApi.Input, PagingOutput<AccountOutputModel>> {
 
     @Autowired
@@ -40,9 +42,16 @@ public class QueryMemberAccountsApi extends AbstractApi<QueryMemberAccountsApi.I
         return success(accountService.queryMemberAccounts(input));
     }
 
-    public static class Input extends QueryApi.Input {
+    public static class Input extends PagingInput {
         @Check(require = true)
         private String memberId;
+
+        private String phoneNumber;
+
+        private String nickname;
+        private AuditStatus auditStatus;
+
+        private Boolean adminRole;
 
         public String getMemberId() {
             return memberId;
@@ -50,6 +59,38 @@ public class QueryMemberAccountsApi extends AbstractApi<QueryMemberAccountsApi.I
 
         public void setMemberId(String memberId) {
             this.memberId = memberId;
+        }
+
+        public String getPhoneNumber() {
+            return phoneNumber;
+        }
+
+        public void setPhoneNumber(String phoneNumber) {
+            this.phoneNumber = phoneNumber;
+        }
+
+        public String getNickname() {
+            return nickname;
+        }
+
+        public void setNickname(String nickname) {
+            this.nickname = nickname;
+        }
+
+        public AuditStatus getAuditStatus() {
+            return auditStatus;
+        }
+
+        public void setAuditStatus(AuditStatus auditStatus) {
+            this.auditStatus = auditStatus;
+        }
+
+        public Boolean getAdminRole() {
+            return adminRole;
+        }
+
+        public void setAdminRole(Boolean adminRole) {
+            this.adminRole = adminRole;
         }
     }
 

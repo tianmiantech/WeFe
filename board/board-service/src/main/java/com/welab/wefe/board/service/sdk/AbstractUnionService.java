@@ -23,7 +23,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.union.MemberListApi;
 import com.welab.wefe.board.service.api.union.member_auth.MemberRealnameAuthApi;
 import com.welab.wefe.board.service.constant.Config;
-import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
@@ -34,6 +33,7 @@ import com.welab.wefe.common.http.HttpContentType;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.*;
+import com.welab.wefe.common.wefe.dto.global_config.MemberInfoModel;
 import net.jodah.expiringmap.ExpiringMap;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.content.InputStreamBody;
@@ -134,7 +134,8 @@ public abstract class AbstractUnionService extends AbstractService {
                 .put("email", model.getMemberEmail())
                 .put("gateway_uri", model.getMemberGatewayUri())
                 .put("hidden", model.getMemberHidden())
-                .put("secret_key_type", null == model.getSecretKeyType() ? SecretKeyType.rsa.name() : model.getSecretKeyType().name());
+                .put("secret_key_type", null == model.getSecretKeyType() ? SecretKeyType.rsa.name() : model.getSecretKeyType().name())
+                .put("member_gateway_tls_enable", model.getMemberGatewayTlsEnable());
 
         request("member/update_exclude_logo", params);
     }
@@ -229,7 +230,7 @@ public abstract class AbstractUnionService extends AbstractService {
                 // sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
                 sign = SignUtil.sign(data, CacheObjects.getRsaPrivateKey(), secretKeyType);
             } catch (Exception e) {
-                throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
             }
 
 
@@ -247,23 +248,26 @@ public abstract class AbstractUnionService extends AbstractService {
                 .postJson();
 
         if (!response.success()) {
-            throw new StatusCodeWithException(response.getMessage(), StatusCode.RPC_ERROR);
+            log(response.getError());
+            String message = "访问 Union API 失败(" + response.getCode() + ")：" +
+                    response.getMessage() + " ，请检查网络连接。url：" + response.getUrl();
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, message);
         }
 
         JSONObject json;
         try {
             json = response.getBodyAsJson();
         } catch (JSONException e) {
-            throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "union 响应失败：" + response.getBodyAsString());
         }
 
         if (json == null) {
-            throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "union 响应失败：" + response.getBodyAsString());
         }
 
         Integer code = json.getInteger("code");
         if (code == null || !code.equals(0)) {
-            throw new StatusCodeWithException("union 响应失败(" + code + ")：" + json.getString("message"), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "union 响应失败(" + code + ")：" + json.getString("message"));
         }
         return json;
     }
@@ -303,10 +307,11 @@ public abstract class AbstractUnionService extends AbstractService {
         JSONObject body = new JSONObject();
         if (needSign) {
             try {
-                sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
+                //sign = RSAUtil.sign(data, CacheObjects.getRsaPrivateKey(), "UTF-8");
+                sign = SignUtil.sign(data, CacheObjects.getRsaPrivateKey(), CacheObjects.getSecretKeyType());
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
             }
 
 
@@ -348,7 +353,7 @@ public abstract class AbstractUnionService extends AbstractService {
 
                     request.appendParameter(item.getKey(), streamBody);
                 } catch (IOException e) {
-                    StatusCode.FILE_IO_ERROR.throwException(e);
+                    StatusCode.FILE_IO_READ_ERROR.throwException(e);
                 }
             }
 
@@ -357,23 +362,23 @@ public abstract class AbstractUnionService extends AbstractService {
 
 
         if (!response.success()) {
-            throw new StatusCodeWithException(response.getMessage(), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, response.getMessage());
         }
 
         JSONObject json;
         try {
             json = response.getBodyAsJson();
         } catch (JSONException e) {
-            throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "union 响应失败：" + response.getBodyAsString());
         }
 
         if (json == null) {
-            throw new StatusCodeWithException("union 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "union 响应失败：" + response.getBodyAsString());
         }
 
         Integer code = json.getInteger("code");
         if (code == null || !code.equals(0)) {
-            throw new StatusCodeWithException("union 响应失败(" + code + ")：" + json.getString("message"), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "union 响应失败(" + code + ")：" + json.getString("message"));
         }
         return json;
     }

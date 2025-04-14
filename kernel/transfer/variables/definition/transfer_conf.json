@@ -710,6 +710,12 @@
    "dst": [
     "promoter"
    ]
+  },
+  "anonymous_name_mapping": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
   }
  },
  "VertDecisionTreeTransferVariable": {
@@ -860,6 +866,12 @@
    "dst": [
     "promoter"
    ]
+  },
+  "anonymous_name_mapping": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
   }
  },
  "MultiVertPearsonTransferVariable": {
@@ -893,6 +905,20 @@
    "src": "promoter",
    "dst": [
     "provider"
+   ]
+  },
+  "promoter_feature_select": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_feature_select": {
+   "src": "provider",
+   "dst": [
+    "promoter"
    ]
   }
  },
@@ -999,6 +1025,20 @@
    ],
    "dst": [
     "provider"
+   ]
+  }
+ },
+ "VertFilterTransferVariable": {
+  "promoter_ids": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_ids": {
+   "src": "provider",
+   "dst": [
+    "promoter"
    ]
   }
  },
@@ -1724,7 +1764,6 @@
    ]
   }
  },
-
  "VertPCATransferVariable": {
   "provider_cov_infos": {
    "src": "provider",
@@ -1937,6 +1976,28 @@
    ],
    "dst": [
     "promoter",
+    "provider"
+   ]
+  }
+ },
+ "VertFeaturePSICalculateTransferVariable": {
+  "feature_psi_result": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  }
+ },
+ "GridSearchTransferVariable": {
+  "best_iter": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "best_parameters": {
+   "src": "promoter",
+   "dst": [
     "provider"
    ]
   }

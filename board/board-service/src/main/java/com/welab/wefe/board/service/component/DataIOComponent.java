@@ -29,9 +29,11 @@ import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMy
 import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
+import com.welab.wefe.board.service.dto.vo.data_set.table_data_set.LabelDistribution;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -64,6 +66,16 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
         return ComponentType.DataIO;
     }
 
+//    @Override
+//    public List<FlowDataSetOutputModel> traceFeatures(TableDataSetFeatureTracer checker, Params params) {
+//        for (DataSetItem dataSetItem : params.getDataSetList()) {
+//            checker.putTableDataSet(dataSetItem);
+//        }
+//
+//
+//        return null;
+//    }
+
     @Override
     protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
         List<JobMemberMySqlModel> jobMembers = graph.getMembers();
@@ -80,9 +92,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
             throw new FlowNodeException(node, "请为 promoter 指定数据集");
         }
 
-        JobMemberMySqlModel promoter = jobMembers.stream().filter(
-                        x -> x.getJobRole() == JobMemberRole.promoter && CacheObjects.getMemberId().equals(x.getMemberId()))
-                .findFirst().orElse(null);
+        JobMemberMySqlModel promoter = jobMembers.stream().filter(x -> x.getJobRole() == JobMemberRole.promoter && CacheObjects.getMemberId().equals(x.getMemberId())).findFirst().orElse(null);
 
         if (params.getDataSetList().stream().noneMatch(x -> x.memberId.equals(promoter.getMemberId()))) {
             throw new FlowNodeException(node, "请为 promoter 指定数据集");
@@ -100,15 +110,31 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
             throw new FlowNodeException(node, "promoter 的数据集必须包含 y 值");
         }
 
-        // Check if the data set has been deleted
         for (DataSetItem dataSet : params.getDataSetList()) {
+            // 仅检查己方数据集
             if (!CacheObjects.getMemberId().equals(dataSet.memberId)) {
                 continue;
             }
 
+            // 检查数据集是否已删除
             TableDataSetMysqlModel one = tableDataSetService.findOneById(dataSet.getDataSetId());
             if (one == null) {
                 throw new FlowNodeException(node, "成员 " + CacheObjects.getMemberName(dataSet.memberId) + " 的数据集 " + dataSet.getDataSetId() + " 不存在，请检查是否已删除。");
+            }
+
+            /**
+             * 检查 label 的种类是否只有一种
+             */
+            // 仅在数据集中包含 y 值，且己方是 promoter 时才检查 label 的种类，衍生数据集不检查。
+            if (!one.isDerivedResource() && one.isContainsY() && CacheObjects.getMemberId().equals(promoter.getMemberId())) {
+                JSONObject json = one.getLabelDistribution();
+                // 历史数据集的 label 分布是空的，这种情况下就不检查了。
+                if (json != null) {
+                    LabelDistribution labelDistribution = json.toJavaObject(LabelDistribution.class);
+                    if (labelDistribution.labelSpeciesCount <= 1) {
+                        throw new FlowNodeException(node, "成员 " + CacheObjects.getMemberName(dataSet.memberId) + " 的数据集 " + dataSet.getDataSetId() + " 的 y(label) 值种类必须大于 1");
+                    }
+                }
             }
         }
 
@@ -122,14 +148,12 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
         }
 
         if (graph.getJob().getFederatedLearningType() == FederatedLearningType.mix) {
-            List<DataSetItem> dataSetItems = params.getDataSetList().stream()
-                    .filter(s -> s.getMemberRole() == JobMemberRole.promoter).collect(Collectors.toList());
+            List<DataSetItem> dataSetItems = params.getDataSetList().stream().filter(s -> s.getMemberRole() == JobMemberRole.promoter).collect(Collectors.toList());
             if (dataSetItems.size() < 2) {
                 throw new FlowNodeException(node, "混合建模需要发起方数据集最少2个");
             }
             for (int i = 0; i < dataSetItems.size() - 1; i++) {
-                if (!CollectionUtils.isEqualCollection(dataSetItems.get(i).getFeatures(),
-                        dataSetItems.get(i + 1).getFeatures())) {
+                if (!CollectionUtils.isEqualCollection(dataSetItems.get(i).getFeatures(), dataSetItems.get(i + 1).getFeatures())) {
                     throw new FlowNodeException(node, "混合建模需要保证发起方样本所选特征列表一致。");
                 }
             }
@@ -139,17 +163,13 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
 
 
     @Override
-    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
+    protected JSONObject createTaskParams(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
         if (graph.getJob().getMyRole() == JobMemberRole.arbiter) {
             return null;
         }
 
         // Create the input parameters of the components in the kernel according to the component parameter settings in the interface
-        DataSetItem myDataSetConfig = params.getDataSetList()
-                .stream()
-                .filter(x -> x.getMemberId().equals(CacheObjects.getMemberId()) && x.getMemberRole() == graph.getJob().getMyRole())
-                .findFirst()
-                .orElse(null);
+        DataSetItem myDataSetConfig = params.getDataSetList().stream().filter(x -> x.getMemberId().equals(CacheObjects.getMemberId()) && x.getMemberRole() == graph.getJob().getMyRole()).findFirst().orElse(null);
 
         if (myDataSetConfig == null) {
             throw new FlowNodeException(node, "请保存自己的数据集信息。");
@@ -157,17 +177,10 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
 
         TableDataSetMysqlModel myDataSet = tableDataSetService.findOneById(myDataSetConfig.dataSetId);
         if (myDataSet == null) {
-            throw new FlowNodeException(node, "找不到自己的数据集。");
+            throw new FlowNodeException(node, "找不到己方数据集，请检查数据集是否已删除。");
         }
 
-        JObject output = JObject
-                .create()
-                .append("data_set_id", myDataSet.getId())
-                .append("with_label", myDataSet.isContainsY())
-                .append("label_name", "y")
-                .append("namespace", myDataSet.getStorageNamespace())
-                .append("name", myDataSet.getStorageResourceName())
-                .append("need_features", myDataSetConfig.features);
+        JObject output = JObject.create().append("data_set_id", myDataSet.getId()).append("with_label", myDataSet.isContainsY()).append("label_name", "y").append("namespace", myDataSet.getStorageNamespace()).append("name", myDataSet.getStorageResourceName()).append("need_features", myDataSetConfig.features);
 
         return output;
     }
@@ -230,6 +243,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
         return Arrays.asList(OutputItem.of(Names.Data.NORMAL_DATA_SET, IODataType.DataSetInstance));
     }
 
+
     public static class Params extends AbstractDataIOParam<DataSetItem> {
 
         /**
@@ -243,10 +257,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
                 return null;
             }
 
-            TableDataSetMysqlModel myDataSet = Launcher
-                    .CONTEXT
-                    .getBean(TableDataSetService.class)
-                    .findOneById(myDataSetConfig.getDataSetId());
+            TableDataSetMysqlModel myDataSet = Launcher.CONTEXT.getBean(TableDataSetService.class).findOneById(myDataSetConfig.getDataSetId());
 
             return myDataSet;
         }
@@ -255,9 +266,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
          * Find my data set configuration from the configuration list
          */
         public DataSetItem getMyDataSetConfig() {
-            DataSetItem myDataSetConfig = Components
-                    .getDataIOComponent()
-                    .findMyData(dataSetList, x -> x.getMemberId());
+            DataSetItem myDataSetConfig = Components.getDataIOComponent().findMyData(dataSetList, x -> x.getMemberId());
 
             return myDataSetConfig;
         }

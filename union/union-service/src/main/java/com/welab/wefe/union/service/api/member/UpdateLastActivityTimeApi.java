@@ -23,13 +23,13 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.member.MemberOutput;
-import com.welab.wefe.union.service.service.MemberContractService;
+import com.welab.wefe.union.service.service.contract.MemberContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author aaron.li
  **/
-@Api(path = "member/update_last_activity_time", name = "member_update_last_activity_time", rsaVerify = true, login = false)
+@Api(path = "member/update_last_activity_time", name = "member_update_last_activity_time", allowAccessWithSign = true)
 public class UpdateLastActivityTimeApi extends AbstractApi<UpdateLastActivityTimeApi.Input, MemberOutput> {
     @Autowired
     private MemberContractService memberContractService;

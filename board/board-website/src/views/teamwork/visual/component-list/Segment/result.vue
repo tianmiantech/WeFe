@@ -56,7 +56,8 @@
                                     align="center"
                                     label="正样本">
                                     <template v-slot="scope">
-                                        {{scope.row.example_good}}({{scope.row.example_ratio_good}}%)
+                                        <span v-if="scope.row.contains_y">{{scope.row.example_good}}({{scope.row.example_ratio_good}}%)</span>
+                                        <span v-else>-</span>
                                     </template>
                                 </el-table-column>
                                 <el-table-column
@@ -64,7 +65,8 @@
                                     align="center"
                                     label="负样本">
                                     <template v-slot="scope">
-                                        {{scope.row.example_bad}}({{scope.row.example_ratio_bad}}%)
+                                        <span v-if="scope.row.contains_y">{{scope.row.example_bad}}({{scope.row.example_ratio_bad}}%)</span>
+                                        <span v-else>-</span>
                                     </template>
                                 </el-table-column>
                                 <el-table-column
@@ -72,17 +74,22 @@
                                     label="正 : 负"
                                     width="150">
                                     <template v-slot="scope">
-                                        {{scope.row.example_good / scope.row.example_good}} : {{(scope.row.example_bad / scope.row.example_good).toFixed(2)}}
+                                        <span v-if="scope.row.contains_y">
+                                            {{scope.row.example_good / scope.row.example_good}} : {{(scope.row.example_bad / scope.row.example_good).toFixed(2)}}
+                                        </span>
+                                        <span v-else>-</span>
                                     </template>
                                 </el-table-column>
                             </el-table>
                         </div>
                         <!-- <div class="flex count"> -->
                         <PieChart
+                            v-if="result.contains_y"
                             :ref="result.pieCharts[0]"
                             :config="result.trainCountConfig"
                         />
                         <PieChart
+                            v-if="result.contains_y"
                             :ref="result.pieCharts[1]"
                             :config="result.verifyCountConfig"
                         />
@@ -141,6 +148,7 @@
                         if (data.result) {
                             result.train_count = data.result.train_count;
                             result.eval_count = data.result.eval_count;
+                            result.contains_y = data.result.contains_y;
 
                             result.resultTableData.push(
                                 // train
@@ -149,9 +157,10 @@
                                     example_total:       result.train_count,
                                     example_bad:         data.result.train_y_negative_example_count,
                                     example_good:        data.result.train_y_positive_example_count,
-                                    example_ratio_good:  ((1 - data.result.train_y_positive_example_ratio) * 100).toFixed(2),
-                                    example_ratio_bad:   (data.result.train_y_positive_example_ratio * 100).toFixed(2),
-                                    example_count_ratio: 0,
+                                    example_ratio_bad:   (data.result.train_y_negative_example_ratio * 100).toFixed(2),
+                                    example_ratio_good:  (data.result.train_y_positive_example_ratio * 100).toFixed(2),
+                                    example_count_ratio: (data.result.train_y_negative_example_ratio + data.result.train_y_positive_example_ratio),
+                                    contains_y:          data.result.contains_y,
                                 },
                                 // test
                                 {
@@ -159,9 +168,10 @@
                                     example_total:       result.eval_count,
                                     example_bad:         data.result.eval_y_negative_example_count,
                                     example_good:        data.result.eval_y_positive_example_count,
-                                    example_ratio_good:  ((1 - data.result.eval_y_positive_example_ratio) * 100).toFixed(2),
-                                    example_ratio_bad:   data.result.eval_y_positive_example_ratio * 100,
-                                    example_count_ratio: 0,
+                                    example_ratio_good:  (data.result.eval_y_positive_example_ratio * 100).toFixed(2),
+                                    example_ratio_bad:   (data.result.eval_y_negative_example_ratio * 100).toFixed(2),
+                                    example_count_ratio: (data.result.eval_y_negative_example_ratio + data.result.eval_y_positive_example_ratio),
+                                    contains_y:          data.result.contains_y,
                                 },
                             );
 

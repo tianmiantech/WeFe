@@ -1,0 +1,11 @@
+
+POST http://localhost:8080/board-service/partner_config/add
+Content-Type: application/json
+token: {{token}}
+
+{
+  "gateway_address": "10.22.33.1:8080",
+  "member_id": "c8b44cd47d5a46ff9dbd1f6165e5b060"
+}
+
+###

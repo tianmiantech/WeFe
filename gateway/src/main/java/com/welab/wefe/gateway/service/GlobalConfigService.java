@@ -17,9 +17,8 @@
 package com.welab.wefe.gateway.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.gateway.dto.BoardConfigModel;
-import com.welab.wefe.gateway.dto.GatewayConfigModel;
-import com.welab.wefe.gateway.dto.MemberInfoModel;
+import com.welab.wefe.common.wefe.dto.global_config.base.AbstractConfigModel;
+import com.welab.wefe.common.wefe.dto.global_config.base.ConfigModel;
 import com.welab.wefe.gateway.entity.GlobalConfigEntity;
 import com.welab.wefe.gateway.repository.GlobalConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,57 +26,30 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * @author zane
- */
 @Service
-public class GlobalConfigService extends AbstractService {
+public class GlobalConfigService {
     @Autowired
     private GlobalConfigRepository globalConfigRepository;
 
-    protected static class Group {
-        public static String MEMBER_INFO = "member_info";
-        public static String MAIL_SERVER = "mail_server";
-        public static String ALERT_CONFIG = "alert_config";
-        public static String WEFE_GATEWAY = "wefe_gateway";
-        public static String WEFE_BOARD = "wefe_board";
-    }
-
-    public GatewayConfigModel getGatewayConfig() {
-        return getModel(Group.WEFE_GATEWAY, GatewayConfigModel.class);
-    }
 
     /**
-     * Get board service config
+     * Get the entity corresponding to the specified group
      */
-    public BoardConfigModel getBoardConfig() {
-        return getModel(Group.WEFE_BOARD, BoardConfigModel.class);
+    public <T extends AbstractConfigModel> T getModel(Class<T> clazz) {
+        ConfigModel annotation = clazz.getAnnotation(ConfigModel.class);
+        List<GlobalConfigEntity> list = list(annotation.group());
+        return toModel(list, clazz);
     }
 
     /**
-     * Get member information
-     */
-    public MemberInfoModel getMemberInfo() {
-        return getModel(Group.MEMBER_INFO, MemberInfoModel.class);
-    }
-
-    /**
-     * Query list by group
+     * Query list according to group
      */
     public List<GlobalConfigEntity> list(String group) {
         return globalConfigRepository.findByGroup(group);
     }
 
     /**
-     * Gets the entity corresponding to the specified group
-     */
-    protected <T> T getModel(String group, Class<T> clazz) {
-        List<GlobalConfigEntity> list = list(group);
-        return toModel(list, clazz);
-    }
-
-    /**
-     * Convert configuration item list to entity
+     * Turn the list of configuration items into entities
      */
     private <T> T toModel(List<GlobalConfigEntity> list, Class<T> clazz) {
         if (list == null || list.isEmpty()) {

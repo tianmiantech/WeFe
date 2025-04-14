@@ -8,7 +8,6 @@
     >
         <el-form-item
             label="是否联合计算相关性系数："
-            label-width="130px"
         >
             <el-radio-group v-model="vData.cross_parties">
                 <el-radio :label="true">
@@ -101,7 +100,6 @@
                 async readData (model) {
                     if (vData.loading) return;
                     vData.loading = true;
-
                     const { code, data } = await $http.post({
                         url:  '/flow/job/task/feature',
                         data: {
@@ -110,6 +108,7 @@
                             flow_node_id: model.id,
                         },
                     });
+                    let reflect = {}
 
                     nextTick(_ => {
                         vData.loading = false;
@@ -126,10 +125,12 @@
                                         });
                                         vData.total_column_count++;
                                     });
+                                    reflect[member.member_id] = member.data_set_id;
                                     vData.featureSelectTab.push({
                                         member_id:          member.member_id,
                                         member_name:        member.member_name,
                                         member_role:        member.member_role,
+                                        data_set_id:        member.data_set_id,
                                         $checkedAll:        false,
                                         $indeterminate:     false,
                                         $checkedColumnsArr: [],
@@ -137,7 +138,10 @@
                                         $feature_list,
                                     });
                                 });
-                                methods.getNodeDetail(model);
+                                methods.getNodeDetail({
+                                    ... model,
+                                    ...reflect,
+                                });
                             }
                         }
                     });
@@ -189,6 +193,7 @@
                                     ...member,
                                     $checkedColumns: '',
                                     $feature_list:   member.features,
+                                    data_set_id: model[member.member_id]
                                 };
                             });
                         }

@@ -31,4 +31,14 @@ public interface JobRepository extends BaseRepository<JobMySqlModel, String> {
 
     @Query(value = "select * from #{#entityName} where flow_id=?1 and my_role=?2 order by created_time desc limit 1;", nativeQuery = true)
     JobMySqlModel findLastByFlowId(String flowId, String role);
+
+    /**
+     * 查询尚未结束的 job_id 数量
+     * <p>
+     * 尚未结束状态：'wait_run','running','wait_stop','wait_success'
+     */
+    @Query(
+            value = "select count(DISTINCT job_id) from #{#entityName} where `status` in ('wait_run','running','wait_stop','wait_success');",
+            nativeQuery = true)
+    int runningJobCount();
 }

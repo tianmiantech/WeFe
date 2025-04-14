@@ -123,7 +123,7 @@
                 <div class="terms">
                     <el-checkbox v-model="form.terms">注册即代表已阅读并同意我们的</el-checkbox>
                     《<span
-                        class="el-link el-link--primary"
+                        class="manager-link manager-link--primary"
                         @click="termsDialog=true"
                     >隐私协议</span>》
                 </div>

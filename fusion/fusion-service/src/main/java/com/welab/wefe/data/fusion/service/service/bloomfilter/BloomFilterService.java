@@ -39,7 +39,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -88,7 +90,7 @@ public class BloomFilterService extends AbstractService {
                 .create()
                 .equal("id", input.getId())
                 .contains("name", input.getName())
-                .build(BloomFilterMySqlModel.class);
+                .build();
 
         return bloomFilterRepository.paging(where, input, BloomfilterOutputModel.class);
     }
@@ -122,16 +124,17 @@ public class BloomFilterService extends AbstractService {
      * Filter Detail
      *
      * @param id
+     * @throws IOException 
+     * @throws FileNotFoundException 
      */
-    public BloomfilterOutputModel detail(String id) throws StatusCodeWithException {
+    public BloomfilterOutputModel detail(String id) throws StatusCodeWithException, FileNotFoundException, IOException {
         BloomFilterMySqlModel model = bloomFilterRepository.findById(id).orElse(null);
         if (model == null) {
-            throw new StatusCodeWithException("数据不存在！", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据不存在！");
         }
-
-
+        
+        LOG.info("detail readFrom " + Paths.get(model.getSrc()).toString());
         BloomfilterOutputModel outputModel = ModelMapper.map(model, BloomfilterOutputModel.class);
-
         return outputModel;
     }
 
@@ -148,7 +151,7 @@ public class BloomFilterService extends AbstractService {
         if (dataResourceSource == null) {
             BloomFilterMySqlModel bloomFilterMySqlModel = findById(input.getId());
             if (bloomFilterMySqlModel == null) {
-                throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "Filter not found");
+                StatusCode.FILE_DOES_NOT_EXIST.throwException("Filter not found");
             }
 
             String rows = input.getRows();
@@ -167,7 +170,7 @@ public class BloomFilterService extends AbstractService {
                     output = DataResouceHelper.readFile(file, rowsList);
                 } catch (IOException e) {
                     LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                    throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "文件读取失败");
+                    StatusCode.FILE_IO_READ_ERROR.throwException();
                 }
             }
         } else if (DataResourceSource.Sql.equals(dataResourceSource)) {
@@ -179,7 +182,7 @@ public class BloomFilterService extends AbstractService {
                 output = DataResouceHelper.readFile(file);
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "文件读取失败");
+                StatusCode.FILE_IO_READ_ERROR.throwException();
             }
         }
 

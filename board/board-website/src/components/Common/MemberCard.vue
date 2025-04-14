@@ -122,13 +122,13 @@
         border:1px solid #eee;
         box-shadow:-10px 10px 10px 4px #ddd;
         &.readonly{
-            :deep(.el-input__inner):hover{
+            :deep(.board-input__inner):hover{
                 border-color: transparent;
                 background: transparent;
             }
         }
-        :deep(.el-input__inner){
-            color: #fff;
+        :deep(.board-input__inner){
+            color: #000;
             box-shadow:none;
         }
     }
@@ -151,8 +151,8 @@
         margin-left: 20px;
         padding-left: 0px;
         margin-top: 20px;
-        :deep(.el-form-item){margin-bottom: 0;}
-        :deep(.el-input__inner){
+        :deep(.board-form-item){margin-bottom: 0;}
+        :deep(.board-input__inner){
             border-color: transparent;
             background: transparent;
             padding-right: 0;

@@ -38,7 +38,7 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
@@ -66,7 +66,8 @@ public class ProjectDataSetService extends AbstractService {
     private BloomFilterService bloomFilterService;
     @Autowired
     private ProjectDataSetRepository projectDataSetRepo;
-
+    @Autowired
+    private JobMemberService jobMemberService;
 
     /**
      * Get the details of the derived data set
@@ -81,7 +82,7 @@ public class ProjectDataSetService extends AbstractService {
         }
 
         if (projectDataSet.getSourceType() == null) {
-            throw new StatusCodeWithException("拒绝查询原始数据集信息", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "拒绝查询原始数据集信息");
         }
 
         List<JobMemberWithDataSetOutputModel> members = ModelMapper.maps(jobMemberService.list(dataSet.getDerivedFromJobId(), false), JobMemberWithDataSetOutputModel.class);
@@ -136,64 +137,64 @@ public class ProjectDataSetService extends AbstractService {
 
         // Create a derived dataset object
         TableDataSetMysqlModel dataSet = tableDataSetService.findOneById(projectDataSet.getDataSetId());
-        if (dataSet != null) {
-            derivedDataSet.setDataResource(JObject.create(dataSet).toJavaObject(TableDataSetOutputModel.class));
-            // Query the feature list from each member
-            List<JobMemberOutputModel> jobMembers = jobMemberService.list(dataSet.getDerivedFromJobId(), false);
-            List<JobMemberWithDataSetOutputModel> output = jobMembers
-                    .stream()
-                    .map(m -> {
-                        JobMemberWithDataSetOutputModel member = ModelMapper.map(m, JobMemberWithDataSetOutputModel.class);
-
-                        // Take your own feature list directly
-                        TableDataSetOutputModel tableDataSet = null;
-                        if (member.getMemberId().equals(derivedDataSet.getMemberId())) {
-                            tableDataSet = (TableDataSetOutputModel) derivedDataSet.getDataResource();
-                        }
-                        // Others’ feature list should be checked remotely
-                        else {
-                            try {
-
-                                JSONObject derivedProjectDataSet = gatewayService.callOtherMemberBoard(
-                                        member.getMemberId(),
-                                        GetDerivedDataSetDetailApi.class,
-                                        new GetDerivedDataSetDetailApi.Input(member.getProjectId(), projectDataSet.getDataSetId(), member.getJobRole()),
-                                        /**
-                                         * 这里不能直接指定为 DerivedProjectDataSetOutputModel.class，
-                                         * 因为 dataResource 字段类型为 DataResourceOutputModel，
-                                         * 这是个父类，反射成这个对象会缺字段。
-                                         *
-                                         * 要取 json 节点手动反射为 TableDataSetOutputModel
-                                         */
-                                        JSONObject.class
-
-                                );
-                                tableDataSet = derivedProjectDataSet.getJSONObject("data_resource").toJavaObject(TableDataSetOutputModel.class);
-                            } catch (Exception e) {
-                                super.log(e);
-                            }
-                        }
-
-                        if (tableDataSet != null) {
-                            member.setFeatureNameList(tableDataSet.getFeatureNameList());
-                            member.setFeatureCount(tableDataSet.getFeatureCount());
-                        }
-
-                        return member;
-                    })
-                    .collect(Collectors.toList());
-
-            derivedDataSet.setMembers(output);
+        if (dataSet == null) {
+            return derivedDataSet;
         }
+
+        derivedDataSet.setDataResource(JObject.create(dataSet).toJavaObject(TableDataSetOutputModel.class));
+        // Query the feature list from each member
+        List<JobMemberOutputModel> jobMembers = jobMemberService.list(dataSet.getDerivedFromJobId(), false);
+        List<JobMemberWithDataSetOutputModel> output = jobMembers
+                .stream()
+                .map(m -> {
+                    JobMemberWithDataSetOutputModel member = ModelMapper.map(m, JobMemberWithDataSetOutputModel.class);
+
+                    // Take your own feature list directly
+                    TableDataSetOutputModel tableDataSet = null;
+                    if (member.getMemberId().equals(derivedDataSet.getMemberId())) {
+                        tableDataSet = (TableDataSetOutputModel) derivedDataSet.getDataResource();
+                    }
+                    // Others’ feature list should be checked remotely
+                    else {
+                        try {
+
+                            JSONObject derivedProjectDataSet = gatewayService.callOtherMemberBoard(
+                                    member.getMemberId(),
+                                    GetDerivedDataSetDetailApi.class,
+                                    new GetDerivedDataSetDetailApi.Input(member.getProjectId(), projectDataSet.getDataSetId(), member.getJobRole()),
+                                    /**
+                                     * 这里不能直接指定为 DerivedProjectDataSetOutputModel.class，
+                                     * 因为 dataResource 字段类型为 DataResourceOutputModel，
+                                     * 这是个父类，反射成这个对象会缺字段。
+                                     *
+                                     * 要取 json 节点手动反射为 TableDataSetOutputModel
+                                     */
+                                    JSONObject.class
+
+                            );
+                            tableDataSet = derivedProjectDataSet.getJSONObject("data_resource").toJavaObject(TableDataSetOutputModel.class);
+                        } catch (Exception e) {
+                            super.log(e);
+                        }
+                    }
+
+                    if (tableDataSet != null) {
+                        member.setFeatureNameList(tableDataSet.getFeatureNameList());
+                        member.setFeatureCount(tableDataSet.getFeatureCount());
+                    }
+
+                    return member;
+                })
+                .collect(Collectors.toList());
+
+        derivedDataSet.setMembers(output);
 
         return derivedDataSet;
     }
 
-    @Autowired
-    private JobMemberService jobMemberService;
 
     public List<ProjectDataResourceOutputModel> listRawDataSet(String projectId, DataResourceType dataResourceType, String memberId, JobMemberRole memberRole, Boolean containsY) {
-        return listRawDataSet(projectId, dataResourceType, memberId, memberRole, containsY, null);
+        return listRawDataSet(projectId, dataResourceType, null, memberId, memberRole, containsY, null);
     }
 
     /**
@@ -201,12 +202,13 @@ public class ProjectDataSetService extends AbstractService {
      * <p>
      * When memberId is empty, check the data sets of all members.
      */
-    public List<ProjectDataResourceOutputModel> listRawDataSet(String projectId, DataResourceType dataResourceType, String memberId, JobMemberRole memberRole, Boolean containsY, DeepLearningJobType forJobType) {
+    public List<ProjectDataResourceOutputModel> listRawDataSet(String projectId, DataResourceType dataResourceType, String dataResourceId, String memberId, JobMemberRole memberRole, Boolean containsY, DeepLearningJobType forJobType) {
 
         Specification<ProjectDataSetMySqlModel> where = Where
                 .create()
                 .equal("projectId", projectId)
                 .equal("dataResourceType", dataResourceType)
+                .equal("dataSetId", dataResourceId)
                 .equal("memberId", memberId)
                 .equal("memberRole", memberRole)
                 .equal("sourceType", null, false)
@@ -366,7 +368,7 @@ public class ProjectDataSetService extends AbstractService {
         }
 
         func.accept(dataSet);
-        dataSet.setUpdatedBy(CurrentAccount.id());
+        dataSet.setUpdatedBy(CurrentAccountUtil.get().getId());
 
         projectDataSetRepo.save(dataSet);
 

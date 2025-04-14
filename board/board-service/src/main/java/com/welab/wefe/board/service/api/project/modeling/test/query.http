@@ -7,11 +7,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:8080/board-service/project/modeling/query
+GET http://localhost:8080/board-service/project/modeling/query?name=&flow_id=&component_type=&project_id=58104fea3f2c4b0e8e07d30d560bbbca&job_id=&project_type=MachineLearning&page_index=0&page_size=10
 Content-Type: application/json
 token: {{token}}
 
-{
-  "projectId": "35ef81d771e24bd09c77a432652061b3",
-  "job_id": "eded9797545a4cfa93faa5e2af3b30fc"
-}

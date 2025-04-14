@@ -1,0 +1,7 @@
+### 生成指定大小的数据集供测试使用
+POST http://localhost:8080/board-service/dev/show_config
+Content-Type: application/json
+token:{{token}}
+
+{}
+

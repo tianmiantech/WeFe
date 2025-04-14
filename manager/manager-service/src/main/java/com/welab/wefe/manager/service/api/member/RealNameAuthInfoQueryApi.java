@@ -49,7 +49,7 @@ public class RealNameAuthInfoQueryApi extends AbstractApi<RealNameAuthInfoQueryI
         try {
             Member member = memberMongoReop.findMemberId(input.getId());
             if (member == null) {
-                throw new StatusCodeWithException("成员不存在", StatusCode.INVALID_MEMBER);
+                throw new StatusCodeWithException(StatusCode.INVALID_MEMBER, "成员不存在");
             }
             RealnameAuthInfoQueryOutput realNameAuthInfoQueryOutput = new RealnameAuthInfoQueryOutput();
             realNameAuthInfoQueryOutput.setAuthType(member.getExtJson().getAuthType());
@@ -57,6 +57,14 @@ public class RealNameAuthInfoQueryApi extends AbstractApi<RealNameAuthInfoQueryI
             realNameAuthInfoQueryOutput.setDescription(member.getExtJson().getDescription());
             realNameAuthInfoQueryOutput.setPrincipalName(member.getExtJson().getPrincipalName());
             realNameAuthInfoQueryOutput.setRealNameAuthStatus(member.getExtJson().getRealNameAuthStatus());
+            
+            // 证书相关内容
+            realNameAuthInfoQueryOutput.setCertPemContent(member.getExtJson().getCertPemContent());
+            realNameAuthInfoQueryOutput.setCertRequestContent(member.getExtJson().getCertRequestContent());
+            realNameAuthInfoQueryOutput.setCertRequestId(member.getExtJson().getCertRequestId());
+            realNameAuthInfoQueryOutput.setCertSerialNumber(member.getExtJson().getCertSerialNumber());
+            realNameAuthInfoQueryOutput.setCertStatus(member.getExtJson().getCertStatus());
+            realNameAuthInfoQueryOutput.setMemberGatewayTlsEnable(member.getExtJson().getMemberGatewayTlsEnable());
 
             List<RealnameAuthInfoQueryOutput.FileInfo> fileInfoList = new ArrayList<>();
             List<RealnameAuthFileInfo> realnameAuthFileInfoList = member.getExtJson().getRealnameAuthFileInfoList();
@@ -75,7 +83,7 @@ public class RealNameAuthInfoQueryApi extends AbstractApi<RealNameAuthInfoQueryI
             return success(realNameAuthInfoQueryOutput);
         } catch (Exception e) {
             LOG.error("Failed to query RealNameAuthInfo information in pagination:", e);
-            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "Failed to query RealNameAuthInfo information in pagination");
+            throw StatusCodeWithException.of(StatusCode.SYSTEM_ERROR, "Failed to query RealNameAuthInfo information in pagination");
         }
     }
 }

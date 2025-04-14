@@ -80,3 +80,8 @@ class GatewayConfig:
 class ServiceName:
     BOARD_SERVICE = 'BoardService',
     GATEWAY_SERVICE = 'GatewayService'
+
+
+class SecretKeyType:
+    SM2 = 'sm2'
+    RSA = 'rsa'

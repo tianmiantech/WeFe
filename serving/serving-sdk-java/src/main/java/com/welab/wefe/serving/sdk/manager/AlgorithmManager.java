@@ -18,6 +18,7 @@ package com.welab.wefe.serving.sdk.manager;
 
 
 import com.welab.wefe.serving.sdk.algorithm.AbstractAlgorithm;
+import com.welab.wefe.serving.sdk.algorithm.AbstractBatchAlgorithm;
 import com.welab.wefe.serving.sdk.algorithm.lr.batch.LrHorzPromoterBatchAlgorithm;
 import com.welab.wefe.serving.sdk.algorithm.lr.batch.LrVertPromoterBatchAlgorithm;
 import com.welab.wefe.serving.sdk.algorithm.lr.batch.LrVertProviderBatchAlgorithm;
@@ -40,7 +41,7 @@ import java.util.Map;
  */
 public class AlgorithmManager {
     private static final Map<String, Class<? extends AbstractAlgorithm>> MAP = new HashMap<>();
-    private static final Map<String, Class<? extends AbstractAlgorithm>> BATCH_MAP = new HashMap<>();
+    private static final Map<String, Class<? extends AbstractBatchAlgorithm>> BATCH_MAP = new HashMap<>();
 
     static {
         MAP.put("LogisticRegression_horizontal_promoter", LrHorzPromoterAlgorithm.class);
@@ -50,14 +51,12 @@ public class AlgorithmManager {
         MAP.put("LogisticRegression_mix_promoter", LrVertPromoterAlgorithm.class);
         MAP.put("LogisticRegression_mix_provider", LrVertProviderAlgorithm.class);
 
-
         MAP.put("XGBoost_vertical_promoter", XgboostVertPromoterAlgorithm.class);
         MAP.put("XGBoost_vertical_provider", XgboostVertProviderAlgorithm.class);
         MAP.put("XGBoost_horizontal_promoter", XgboostHorzPromoterAlgorithm.class);
         MAP.put("XGBoost_horizontal_provider", XgboostHorzPromoterAlgorithm.class);
         MAP.put("XGBoost_mix_promoter", XgboostVertPromoterAlgorithm.class);
         MAP.put("XGBoost_mix_provider", XgboostVertProviderAlgorithm.class);
-
     }
 
     static {
@@ -67,7 +66,6 @@ public class AlgorithmManager {
         BATCH_MAP.put("LogisticRegression_horizontal_provider", LrHorzPromoterBatchAlgorithm.class);
         BATCH_MAP.put("LogisticRegression_mix_promoter", LrVertPromoterBatchAlgorithm.class);
         BATCH_MAP.put("LogisticRegression_mix_provider", LrVertProviderBatchAlgorithm.class);
-
 
         BATCH_MAP.put("XGBoost_vertical_promoter", XgboostVertPromoterBatchAlgorithm.class);
         BATCH_MAP.put("XGBoost_vertical_provider", XgboostVertProviderBatchAlgorithm.class);
@@ -94,11 +92,11 @@ public class AlgorithmManager {
         return null;
     }
 
-    public static AbstractAlgorithm getBatch(BaseModel model) {
+    public static AbstractBatchAlgorithm getBatch(BaseModel model) {
 
         String key = model.algorithm.name() + "_" + model.flType.name() + "_" + model.myRole.name();
 
-        Class<? extends AbstractAlgorithm> clazz = BATCH_MAP.get(key);
+        Class<? extends AbstractBatchAlgorithm> clazz = BATCH_MAP.get(key);
 
         try {
             return clazz.newInstance();

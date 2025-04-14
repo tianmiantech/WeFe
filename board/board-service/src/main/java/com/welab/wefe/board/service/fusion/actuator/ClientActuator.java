@@ -16,11 +16,19 @@
 package com.welab.wefe.board.service.fusion.actuator;
 
 
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
+
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
-import com.welab.wefe.board.service.api.project.fusion.actuator.psi.*;
+import com.welab.wefe.board.service.api.project.fusion.actuator.psi.DownloadBFApi;
+import com.welab.wefe.board.service.api.project.fusion.actuator.psi.PsiCryptoApi;
+import com.welab.wefe.board.service.api.project.fusion.actuator.psi.ReceiveResultApi;
+import com.welab.wefe.board.service.api.project.fusion.actuator.psi.ServerCloseApi;
+import com.welab.wefe.board.service.api.project.fusion.actuator.psi.ServerSynStatusApi;
 import com.welab.wefe.board.service.dto.fusion.PsiMeta;
-import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.board.service.service.fusion.FieldInfoService;
@@ -40,28 +48,24 @@ import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
 
-import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
-
 /**
  * @author hunter.zhao
  */
 @SuppressWarnings("SynchronizeOnNonFinalField")
 public class ClientActuator extends AbstractPsiClientActuator {
-    public List<String> columnList;
+    public Set<String> columnList;
 
     /**
-     * Fragment size, default 10000
+     * Fragment size, default 200000
      */
-    public int shardSize = 10000;
-    public Integer currentIndex = 0;
+    public int shardSize = 50000;
     public List<FieldInfo> fieldInfoList;
     public String dstMemberId;
     DataSetStorageService dataSetStorageService;
     GatewayService gatewayService = Launcher.getBean(GatewayService.class);
 
     private String[] headers;
-    public Boolean serverIsReady = false;
+
     private final ReentrantLock lock = new ReentrantLock(true);
 
     public ClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn, String dstMemberId, Long dataCount) {
@@ -70,12 +74,10 @@ public class ClientActuator extends AbstractPsiClientActuator {
     }
 
     @Override
-    public void init() throws StatusCodeWithException {
+    public void init() throws Exception {
         FieldInfoService service = Launcher.getBean(FieldInfoService.class);
 
         columnList = service.columnList(businessId);
-
-
         /**
          * Calculate the fragment size based on the number of fields
          */
@@ -92,7 +94,6 @@ public class ClientActuator extends AbstractPsiClientActuator {
          * Find primary key composition fields
          */
         fieldInfoList = service.fieldInfoList(businessId);
-
         /**
          * Initialize dataset header
          */
@@ -108,10 +109,6 @@ public class ClientActuator extends AbstractPsiClientActuator {
 
     @Override
     public void close() throws Exception {
-
-        //remove Actuator
-        ActuatorManager.remove(businessId);
-
         //update task status
         FusionTaskService fusionTaskService = Launcher.CONTEXT.getBean(FusionTaskService.class);
         switch (status) {
@@ -154,6 +151,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
     @Override
     public void notifyServerClose() {
         //notify the server that the task has ended
+        LOG.info("psi log, notify the server that the task has ended");
         try {
             gatewayService.callOtherMemberBoard(
                     dstMemberId,
@@ -166,7 +164,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
     }
 
     @Override
-    public List<JObject> next() {
+    public List<JObject> getBucketByIndex(int index) {
         try {
             lock.lock();
             long start = System.currentTimeMillis();
@@ -174,7 +172,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
             PageOutputModel model = dataSetStorageService.getListByPage(
                     Constant.DBName.WEFE_DATA,
                     dataSetStorageService.createRawDataSetTableName(dataSetId),
-                    new PageInputModel(currentIndex, shardSize)
+                    new PageInputModel(index, shardSize)
             );
 
             List<DataItemModel> list = model.getData();
@@ -192,74 +190,66 @@ public class ClientActuator extends AbstractPsiClientActuator {
             });
 
 
-            LOG.info("cursor {} spend: {} curList {} list {}", currentIndex, System.currentTimeMillis() - start, curList.size(), list.size());
+            LOG.info("psi log, cursor {} spend: {} curList {} list {}", index, System.currentTimeMillis() - start, curList.size(), list.size());
 
-            currentIndex++;
 
             return curList;
 
+        } catch (Exception e) {
+            LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+            return null;
         } finally {
             lock.unlock();
         }
 
+    }
+
+    @Override
+    public boolean isServerReady(String businessId) {
+
+        try {
+            JSONObject result = gatewayService.callOtherMemberBoard(
+                    dstMemberId,
+                    ServerSynStatusApi.class,
+                    new ServerSynStatusApi.Input(businessId),
+                    JSONObject.class
+            );
+            return result.getBoolean("ready");
+        } catch (Exception e) {
+            LOG.error("请求合作方失败！错误原因: {}", e.getMessage());
+            status = PSIActuatorStatus.exception;
+        }
+
+        return false;
     }
 
     @Override
     public void dump(List<JObject> fruit) {
-        LOG.info("fruit insert ready...");
+        LOG.info("psi log, fruit insert ready...");
 
-        PsiDumpHelper.dump(businessId, columnList, fruit);
-
-        LOG.info("fruit insert end...");
-    }
-
-    @Override
-    public Boolean hasNext() {
         try {
-            lock.lock();
-            PageOutputModel model = dataSetStorageService.getListByPage(
-                    Constant.DBName.WEFE_DATA,
-                    dataSetStorageService.createRawDataSetTableName(dataSetId),
-                    new PageInputModel(currentIndex, shardSize)
-            );
-
-            LOG.info("currentIndex {} mode data size {}", currentIndex, model.getData().size());
-            return model.getData().size() > 0;
-        } finally {
-            lock.unlock();
+            PsiDumpHelper.dump(businessId, columnList, fruit);
+        } catch (Exception e) {
+            LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
         }
 
+        LOG.info("psi log, fruit insert end...");
     }
 
     @Override
-    public Integer sliceNumber() {
-        return dataCount.intValue() % shardSize == 0 ? dataCount.intValue() / shardSize
+    public int bucketSize() {
+        LOG.info("psi log, dataCount = " + dataCount.intValue());
+        LOG.info("psi log, shardSize = " + shardSize);
+        int bucketSize = dataCount.intValue() % shardSize == 0 ? dataCount.intValue() / shardSize
                 : dataCount.intValue() / shardSize + 1;
+        LOG.info("psi log, bucketSize = " + bucketSize);
+        return bucketSize;
     }
 
     @Override
-    public PsiActuatorMeta downloadBloomFilter() throws StatusCodeWithException {
+    public PsiActuatorMeta downloadActuatorMeta() throws StatusCodeWithException {
 
-        LOG.info("downloadBloomFilter start");
-
-        while (true) {
-            if (serverIsReady) {
-                break;
-            }
-
-            try {
-                JSONObject result = gatewayService.callOtherMemberBoard(
-                        dstMemberId,
-                        ServerSynStatusApi.class,
-                        new ServerSynStatusApi.Input(businessId),
-                        JSONObject.class
-                );
-                serverIsReady = result.getBoolean("ready");
-            } catch (Exception e) {
-                LOG.error("请求合作方失败！错误原因: {}", e.getMessage());
-                status = PSIActuatorStatus.exception;
-            }
-        }
+        LOG.info("psi log, downloadActuatorMeta start");
 
         //调用gateway
         JSONObject result = gatewayService.callOtherMemberBoard(
@@ -269,7 +259,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
                 JSONObject.class
         );
 
-        LOG.info("downloadBloomFilter end {} ", result);
+        LOG.info("psi log, downloadBloomFilter end");
 
         PsiActuatorMeta meta = JObject.toJavaObject(result, PsiActuatorMeta.class);
         meta.setBfByDto(meta.getBfDto());
@@ -277,22 +267,16 @@ public class ClientActuator extends AbstractPsiClientActuator {
     }
 
     @Override
-    public byte[][] queryFusionData(byte[][] bs) throws StatusCodeWithException {
+    public byte[][] dataTransform(byte[][] bs) throws StatusCodeWithException {
+        LOG.info("psi log, dataTransform start");
 
-        LOG.info("queryFusionData start");
-
-        //调用gateway
         List<String> stringList = Lists.newArrayList();
         for (int i = 0; i < bs.length; i++) {
             stringList.add(Base64Util.encode(bs[i]));
         }
 
-        PsiMeta result = gatewayService.callOtherMemberBoard(dstMemberId,
-                PsiCryptoApi.class,
-                new PsiCryptoApi.Input(businessId, stringList),
-                PsiMeta.class
-        );
-
+        PsiMeta result = gatewayService.callOtherMemberBoard(dstMemberId, PsiCryptoApi.class,
+                new PsiCryptoApi.Input(businessId, stringList), PsiMeta.class);
 
         List<String> list = result.getBs();
 
@@ -304,11 +288,10 @@ public class ClientActuator extends AbstractPsiClientActuator {
     }
 
     @Override
-    public void sendFusionData(List<byte[]> rs) {
-        List<String> stringList = Lists.newArrayList();
-        for (int i = 0; i < rs.size(); i++) {
-            stringList.add(Base64Util.encode(rs.get(i)));
-        }
+    public void sendFusionDataToServer(List<JObject> rs) {
+        List<String> stringList = rs.stream()
+                .map(r -> Base64Util.encode(r.toString().getBytes()))
+                .collect(Collectors.toList());
 
         try {
             gatewayService.callOtherMemberBoard(
@@ -317,11 +300,9 @@ public class ClientActuator extends AbstractPsiClientActuator {
                     new ReceiveResultApi.Input(businessId, stringList)
             );
         } catch (Exception e) {
-            LOG.info("sendFusionData error: ", e);
-            e.printStackTrace();
+            LOG.error("sendFusionDataToServer error: ", e);
         }
     }
-
 
     @Override
     public String hashValue(JObject value) {

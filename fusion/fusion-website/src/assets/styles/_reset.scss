@@ -14,12 +14,15 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6,
-ul, li, ol, dl, dt, dd,
+ul, li, ol, dl, dt, dd, th,
 figure, p {
     padding: 0;
     margin: 0;
     font-weight: normal;
     word-wrap: break-word;
+}
+table{
+    font-size: inherit;
 }
 
 a {display: inline-block;

@@ -22,6 +22,7 @@
                     clearable
                 />
             </el-form-item>
+
             <el-form-item label="审核状态：">
                 <el-select
                     v-model="search.audit_status"
@@ -45,7 +46,7 @@
             <el-button
                 class="mb10"
                 type="primary"
-                @click="getList({ to: true })"
+                @click="query"
             >
                 查询
             </el-button>
@@ -388,8 +389,7 @@
             return {
                 dialogAuditAccountVisible: false,
                 formLabelWidth:            '100px',
-
-                search: {
+                search:                    {
                     phone_number: '',
                     nickname:     '',
                     audit_status: '',
@@ -434,9 +434,12 @@
             ...mapGetters(['userInfo']),
         },
         created() {
-            // this.getList();
+            this.query();
         },
         methods: {
+            query() {
+                this.getList({ to: true, resetPagination: true });
+            },
             // show audit dialog
             showAuditPanel(row) {
                 this.form.account_id = row.id;

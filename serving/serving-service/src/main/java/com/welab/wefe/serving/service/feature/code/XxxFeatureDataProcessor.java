@@ -16,6 +16,8 @@
 
 package com.welab.wefe.serving.service.feature.code;
 
+import com.welab.wefe.serving.sdk.model.FeatureDataModel;
+
 import java.util.Map;
 
 /**
@@ -24,7 +26,7 @@ import java.util.Map;
 @FeatureProcessor(id = "xxx")
 public class XxxFeatureDataProcessor extends AbstractFeatureDataProcessor {
     @Override
-    public Map<String, Object> process(String userId) {
+    public FeatureDataModel process(String userId) {
 
         return null;
     }

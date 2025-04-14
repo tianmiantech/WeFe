@@ -1,0 +1,8 @@
+
+###
+POST http://localhost:8080/board-service/crypto/generate_rsa_key_pair
+Content-Type: application/json
+token:{{token}}
+
+{
+}

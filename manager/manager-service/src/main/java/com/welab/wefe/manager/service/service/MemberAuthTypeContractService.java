@@ -74,7 +74,7 @@ public class MemberAuthTypeContractService extends AbstractContractService {
             throw e;
         } catch (Exception e) {
             LOG.error("add MemberAuthType error: ", e);
-            throw new StatusCodeWithException("add MemberAuthType error: ", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "add MemberAuthType error: ");
         }
     }
 
@@ -93,7 +93,7 @@ public class MemberAuthTypeContractService extends AbstractContractService {
 
             transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
-            throw new StatusCodeWithException("updateByTypeId failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "updateByTypeId failed: " + e.getMessage());
         }
     }
 
@@ -108,7 +108,7 @@ public class MemberAuthTypeContractService extends AbstractContractService {
 
             transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
-            throw new StatusCodeWithException("deleteByTypeId failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "deleteByTypeId failed: " + e.getMessage());
         }
     }
 

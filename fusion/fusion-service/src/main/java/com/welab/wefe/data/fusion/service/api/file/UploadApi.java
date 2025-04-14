@@ -48,7 +48,7 @@ public class UploadApi extends AbstractApi<UploadApi.Input, UploadApi.Output> {
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
         Boolean CanUploaded = FileSecurityChecker.isValid(input.filename);
         if (!CanUploaded) {
-            throw new StatusCodeWithException("该文件不为.csv,.xls,xlsx之一，禁止上传！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "该文件不为.csv,.xls,xlsx之一，禁止上传！");
         }
 
         switch (input.method) {
@@ -103,7 +103,7 @@ public class UploadApi extends AbstractApi<UploadApi.Input, UploadApi.Output> {
             InputStream inputStream = file.getInputStream();
             FileUtils.copyInputStreamToFile(inputStream, outFile);
         } catch (IOException e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
         return success(new Output(file.getSize()));

@@ -101,9 +101,7 @@
 
             // init chart dom
             const initChart = () => {
-                if(chartDom.value.offsetWidth) {
-                    chart = init(chartDom.value);
-                }
+                chart = init(chartDom.value);
             };
 
             // update chart data
@@ -160,20 +158,24 @@
 </script>
 
 <style lang="scss" scoped>
-    .chart-wrap{
-        position: relative;
-        overflow:auto;
-    }
-    .chart-empty{
-        position: absolute;
-        top:0;
-        left:0;
-        width:100%;
-        height:100%;
-        background:#fff;
-        text-align: center;
-        padding-top: 170px;
-        z-index: 20;
-    }
-    .chart {height: 400px;}
+.chart-wrap {
+    position: relative;
+    overflow: auto;
+}
+.chart-empty {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    text-align: center;
+    padding-top: 170px;
+    z-index: 20;
+}
+.chart {
+    height: 400px;
+    width: 600px;
+}
 </style>
+

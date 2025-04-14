@@ -118,6 +118,11 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
 
     public String comment;
 
+    /**
+     * 是否已被删除
+     */
+    private boolean deleted = false;
+
     public String getProjectId() {
         return projectId;
     }
@@ -317,5 +322,13 @@ public class FusionTaskMySqlModel extends AbstractBaseMySqlModel {
 
     public void setPartnerHashFunction(String partnerHashFunction) {
         this.partnerHashFunction = partnerHashFunction;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }

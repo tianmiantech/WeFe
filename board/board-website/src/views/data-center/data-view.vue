@@ -3,7 +3,17 @@
         <el-divider content-position="left">
             数据资源简介
         </el-divider>
-        <h3 class="mb10"><strong>{{ dataInfo.name }}</strong></h3>
+        <h3 class="mb10">
+            <strong>{{ dataInfo.name }}</strong>
+            <router-link
+                :to="{
+                    name: 'data-update',
+                    query: { id, type: addDataType }
+                }"
+            >
+                <el-button class="ml5" plain size="small"><el-icon><elicon-edit-pen /></el-icon> 编辑</el-button>
+            </router-link>
+        </h3>
         <div class="flex-box">
             <el-descriptions :column="2">
                 <template #extra>
@@ -32,10 +42,10 @@
                         参与了 <strong class="strong">{{ dataInfo.usage_count_in_job > 0 ? dataInfo.usage_count_in_job : 0 }}</strong> 次任务。
                     </p>
                 </template>
-                <el-descriptions-item v-if="dataInfo.description" label="描述：">
+                <el-descriptions-item v-if="dataInfo.description" label="描述：" :span="2">
                     {{ dataInfo.description }}
                 </el-descriptions-item>
-                <el-descriptions-item label="关键字：">
+                <el-descriptions-item label="关键字：" >
                     <span v-if="dataInfo.tags">
                         <template v-for="(tag, index) in dataInfo.tags.split(',')">
                             <el-tag
@@ -51,7 +61,10 @@
                     <el-descriptions-item label="正例样本数量：">
                         {{ dataInfo.y_positive_sample_count }}
                     </el-descriptions-item>
-                    <el-descriptions-item label="正例样本比例：">
+                    <el-descriptions-item label="分类数：" v-if="(dataInfo.label_species_count && dataInfo.label_species_count > 2)">
+                        {{ dataInfo.label_species_count }}
+                    </el-descriptions-item>
+                    <el-descriptions-item label="正例样本比例：" v-else>
                         {{ (dataInfo.y_positive_sample_ratio * 100).toFixed(1) }}%
                     </el-descriptions-item>
                 </template>
@@ -77,7 +90,7 @@
                     <el-descriptions-item label="标注进度：">
                         {{dataInfo.labeled_count}} ({{ ((dataInfo.labeled_count / dataInfo.total_data_count)*100).toFixed(2) }}%)
                         <el-button type="primary" style="margin-left: 20px;" @click="jumpToLabel">
-                            去标注 <i class="el-icon-right"></i>
+                            去标注 <i class="board-icon-right"></i>
                         </el-button>
                         <el-button hidden type="primary">
                             导入标注数据包
@@ -113,14 +126,14 @@
                 @tab-click="tabChange"
             >
                 <el-tab-pane label="特征列表">
-                    <div class="el-descriptions">
+                    <div class="board-descriptions">
                         <EmptyData v-if="data_list.length === 0" />
                         <DataSetPreview v-else ref="DataSetFeatures" />
                     </div>
                 </el-tab-pane>
 
                 <el-tab-pane name="preview" label="数据预览">
-                    <h4 v-if="!dataInfo.source_type" class="mb10">主键已被 hash</h4>
+                    <!-- <h4 v-if="!dataInfo.derived_from" class="mb10">主键已被 hash</h4> -->
                     <DataSetPreview ref="DataSetPreview" />
                 </el-tab-pane>
             </el-tabs>
@@ -224,7 +237,6 @@
                                 if(row.name === this.dataInfo.primary_key_column) {
                                     name = `${row.name}（主键）`;
                                 }
-
                                 return {
                                     ...row,
                                     特征名称: name,
@@ -320,17 +332,17 @@
 @mixin flex_box {
     display: flex;
 }
-.el-tab-pane{min-height: 500px;}
-.el-tag {margin-right: 10px;}
+.board-tab-pane{min-height: 500px;}
+.board-tag {margin-right: 10px;}
 .strong{font-weight: bold;}
 .data-set-meta{
     font-family: Menlo,Monaco,Consolas,Courier,monospace;
     font-size: 14px;
     margin-top: 15px;
 }
-.el-descriptions{
+.board-descriptions{
     max-width: 700px;
-    :deep(.el-descriptions__header) {display: block;}
+    :deep(.board-descriptions__header) {display: block;}
     :deep(.is-bordered-label){width: 30px;}
 }
 .flex-box {

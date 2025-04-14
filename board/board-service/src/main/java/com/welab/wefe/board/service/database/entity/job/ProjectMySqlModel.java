@@ -140,6 +140,14 @@ public class ProjectMySqlModel extends AbstractBaseMySqlModel {
      * 流程状态统计字段
      */
     private String flowStatusStatistics;
+    /**
+     * 是否置顶
+     */
+    private boolean top;
+    /**
+     * 排序序号
+     */
+    private int sortNum;
 
     /**
      * 项目类型
@@ -339,6 +347,22 @@ public class ProjectMySqlModel extends AbstractBaseMySqlModel {
 
     public void setProjectType(ProjectType projectType) {
         this.projectType = projectType;
+    }
+
+    public boolean isTop() {
+        return top;
+    }
+
+    public void setTop(boolean top) {
+        this.top = top;
+    }
+
+    public int getSortNum() {
+        return sortNum;
+    }
+
+    public void setSortNum(int sortNum) {
+        this.sortNum = sortNum;
     }
 
     //endregion

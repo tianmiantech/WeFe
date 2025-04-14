@@ -16,18 +16,10 @@
 
 package com.welab.wefe.serving.service.service;
 
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.wefe.enums.DatabaseType;
-import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
-import com.welab.wefe.serving.service.database.serving.entity.ModelMySqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ModelSqlConfigMySqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.ModelRepository;
-import com.welab.wefe.serving.service.database.serving.repository.ModelSqlConfigRepository;
-import com.welab.wefe.serving.service.manager.FeatureManager;
+import com.welab.wefe.serving.service.database.entity.ModelSqlConfigMySqlModel;
+import com.welab.wefe.serving.service.database.repository.ModelSqlConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author hunter.zhao
@@ -36,69 +28,33 @@ import org.springframework.transaction.annotation.Transactional;
 public class ModelSqlConfigService {
 
     @Autowired
-    private ModelRepository modelRepository;
-
-    @Autowired
     private ModelSqlConfigRepository modelSqlConfigRepository;
 
 
-    public ModelSqlConfigMySqlModel findOne(String modelId) {
-
-        //Find SQL configuration
+    public ModelSqlConfigMySqlModel findById(String modelId) {
         return modelSqlConfigRepository.findOne("modelId", modelId, ModelSqlConfigMySqlModel.class);
     }
 
+    public ModelSqlConfigMySqlModel save(ModelSqlConfigMySqlModel model) {
+        return modelSqlConfigRepository.save(model);
+    }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void updateConfig(String modelId,
-                             PredictFeatureDataSource featureSource,
-                             DatabaseType type,
-                             String url,
-                             String username,
-                             String password,
-                             String sqlContext) throws StatusCodeWithException {
-
-
-        ModelMySqlModel model = modelRepository.findOne("modelId", modelId, ModelMySqlModel.class);
-
-        if (model == null) {
-            throw new StatusCodeWithException("modelId error: " + modelId, StatusCode.PARAMETER_VALUE_INVALID);
-        }
-
-        model.setFeatureSource(featureSource);
-        modelRepository.save(model);
-
-        FeatureManager.refresh(modelId, featureSource);
-
-        if (!featureSource.equals(PredictFeatureDataSource.sql)) {
-
-            //Clear SQL configuration
-            ModelSqlConfigMySqlModel config = modelSqlConfigRepository.findOne("modelId", modelId, ModelSqlConfigMySqlModel.class);
-            if (config != null) {
-                modelSqlConfigRepository.deleteById(config.getId());
-            }
-
-            return;
-        }
-
-        /**
-         * Save SQL configuration
-         */
-        ModelSqlConfigMySqlModel config = modelSqlConfigRepository.findOne("modelId", modelId, ModelSqlConfigMySqlModel.class);
-
+    public void saveSqlConfig(String modelId, String dataSourceId, String sqlContext) {
+        ModelSqlConfigMySqlModel config = findById(modelId);
         if (config == null) {
             config = new ModelSqlConfigMySqlModel();
         }
 
         config.setModelId(modelId);
-        config.setType(type);
-        config.setUrl(url);
-        config.setUsername(username);
-        config.setPassword(password);
+        config.setDataSourceId(dataSourceId);
         config.setSqlContext(sqlContext);
-
-
-        modelSqlConfigRepository.save(config);
+        save(config);
     }
 
+    public void clearSqlConfig(String modelId) {
+        ModelSqlConfigMySqlModel config = findById(modelId);
+        if (config != null) {
+            modelSqlConfigRepository.deleteById(config.getId());
+        }
+    }
 }

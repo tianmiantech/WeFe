@@ -29,13 +29,15 @@
 #
 import argparse
 import importlib
+import json
+import math
 import os
 import pickle
 import re
 import sys
 import traceback
 
-from common.python import federation
+from common.python import federation, Backend
 from common.python import session
 from common.python.common import consts
 from common.python.common.consts import TaskStatus, ComponentName, FederatedLearningType, DataSetType, \
@@ -53,6 +55,7 @@ from kernel.tracker.runtime_config import RuntimeConfig
 from kernel.tracker.tracking import Tracking
 from kernel.utils.decorator_utils import load_config, update_task_status_env
 
+
 class TaskExecutor(object):
 
     @staticmethod
@@ -65,7 +68,7 @@ class TaskExecutor(object):
             parser.add_argument('-t', '--task_id', required=True, type=str, help="task id")
             parser.add_argument('-r', '--role', required=True, type=str, help="role")
             parser.add_argument('-m', '--member_id', required=True, type=str, help="member id")
-            parser.add_argument('-c', '--config', required=True, type=str, help="task config")
+            parser.add_argument('-c', '--config', required=False, type=str, help="task config")
             parser.add_argument('-s', '--federation_session_id', required=False, type=str, help="federation_session_id")
             parser.add_argument('-e', '--environment', required=False, type=str, help="running environment")
             args = parser.parse_args()
@@ -78,13 +81,42 @@ class TaskExecutor(object):
             member_id = args.member_id
             global_config.ENV = args.environment
             task_config = load_config(args)
+            print(f'task_config： {task_config}')
             params = task_config.get('params', {})
-            # params = task_config["params"]
-            job_env = task_config['job']['env']
+
+            current_backend = Backend.LOCAL
+            # 改为从 job_config 中获取
+            if task_config.get('job') and task_config.get('job').get('env').get('backend') == Backend.LOCAL:
+
+                job_config = task_config.get('job')
+                print(f'task run in {current_backend} env ...')
+            else:
+                with DB.connection_context():
+                    job = Job.get(Job.job_id == job_id)
+                job_config = json.loads(job.job_config)
+                current_backend = job_config.get("env").get("calculation_engine_config").get("backend")
+                print(f'task run in {current_backend} env ...')
+
             task_input_dsl = task_config['input']
             task_output_dsl = task_config['output']
             module_name = task_config['module']
-            project_id = task_config['job']['project']['project_id']
+
+            # 从 job_config 中获取信息
+            if current_backend != Backend.LOCAL:
+                task_config['job'] = {
+                    'federated_learning_type': job_config.get('federated_learning_type', None),
+                    'federated_learning_mode': job_config.get('federated_learning_mode', None),
+                    'project': {
+                        'project_id': job_config.get('project').get('project_id')
+                    },
+                    'members': job_config.get('members', None),
+                    'data_sets': job_config.get('data_sets', None),
+                    'env': job_config.get('env')
+                }
+
+            job_env = job_config.get('env')
+
+            project_id = job_config.get('project').get('project_id')
 
             parameters = TaskExecutor.get_parameters(role, member_id, module_name, component_name, task_config)
 
@@ -103,15 +135,17 @@ class TaskExecutor(object):
             schedule_logger().info(
                 'update task status to running , job_id = {}, role={}, task_id={}'.format(job_id, role, task_id))
             TaskExecutor.update_task_status(job_id, role, task_id, TaskStatus.RUNNING)
-            # backend = conf_utils.get_backend_from_string(
-            #     conf_utils.get_comm_config(consts.COMM_CONF_KEY_BACKEND)
-            # )
-            backend = job_env.get('backend')
-            # backend = 0
+            backend = current_backend
+            # 用于判断是否为GPU模式
+            os.environ['backend'] = backend
+
             options = TaskExecutor.session_options(task_config)
-            RuntimeConfig.init_config(WORK_MODE=job_env['work_mode'],
+            RuntimeConfig.init_config(WORK_MODE=job_env.get('work_mode'),
                                       BACKEND=backend,
                                       DB_TYPE=job_env.get('db_type', DBTypes.CLICKHOUSE))
+
+            print(
+                f'word_mode: {RuntimeConfig.WORK_MODE}, backend: {RuntimeConfig.BACKEND}, db_type: {RuntimeConfig.DB_TYPE}')
             session.init(job_id='{}_{}_{}'.format(task_id, role, member_id), mode=RuntimeConfig.WORK_MODE,
                          backend=RuntimeConfig.BACKEND, db_type=RuntimeConfig.DB_TYPE,
                          options=options)
@@ -131,7 +165,7 @@ class TaskExecutor(object):
             # Obtain the input data according to the rules
             task_run_args = TaskExecutor.get_task_run_args(
                 project_id=project_id, job_id=job_id, role=role, task_id=task_id,
-                member_id=member_id, job_env=job_env, params=params,
+                member_id=member_id, params=params,
                 module_name=module_name, input_dsl=task_input_dsl
             )
 
@@ -189,7 +223,7 @@ class TaskExecutor(object):
     @staticmethod
     def get_parameters(role, member_id, module_name, component_name, runtime_conf):
         component_root = os.path.join(file_utils.get_project_base_directory(), 'kernel', 'components')
-        module_name_dir = TaskExecutor.generate_module_name_dir(module_name,runtime_conf)
+        module_name_dir = TaskExecutor.generate_module_name_dir(module_name, runtime_conf)
 
         component_full_path = None
         if os.path.exists(os.path.join(component_root, module_name_dir)):
@@ -211,7 +245,7 @@ class TaskExecutor(object):
         return parameter
 
     @staticmethod
-    def get_task_run_args(project_id, job_id, role, task_id, member_id, job_env, params, module_name, input_dsl):
+    def get_task_run_args(project_id, job_id, role, task_id, member_id, params, module_name, input_dsl):
         task_run_args = {}
         # input_dsl => {'data': {'': ['']}, 'model': {'': ['']}}
         for input_type, input_detail in input_dsl.items():
@@ -348,6 +382,7 @@ class TaskExecutor(object):
             # The average amount of data processed by each function shard
             default_size = FunctionConfig.FC_PARTITION_DATA_SIZE
 
+            max_rows = 0
             min_rows = 0
             features_count = 0
             for component_dataset in data_sets:
@@ -355,26 +390,33 @@ class TaskExecutor(object):
                     for member in component_dataset["members"]:
                         member_dataset_row = member["data_set_rows"]
                         features_count += member["data_set_features"] if "data_set_features" in member else 0
+                        if member_dataset_row > max_rows:
+                            max_rows = member_dataset_row
                         if member_dataset_row < min_rows or min_rows == 0:
                             min_rows = member_dataset_row
 
-            fc_partitions = int(
-                min_rows / default_size if min_rows % default_size == 0 else min_rows / default_size + 1)
+            partitions_by_max_row = math.ceil(max_rows / default_size)
             options[features_count_key] = features_count
+            partition_by_row_and_features = math.ceil((min_rows / default_size) * (features_count / 200))
+            partitions = max(partitions_by_max_row, partition_by_row_and_features)
 
-            if fc_partitions > max_partitions:
+            if partitions > max_partitions:
                 options[fc_partition_key] = max_partitions
-            elif fc_partitions > 0:
-                options[fc_partition_key] = fc_partitions
+            elif partitions > 0:
+                options[fc_partition_key] = partitions
 
-        # at present, the two parameters are consistent
-        options[spark_partition_key] = options[fc_partition_key]
+            options[spark_partition_key] = FunctionConfig.SPARK_MAX_PARTITION \
+                if partitions > FunctionConfig.SPARK_MAX_PARTITION \
+                else partitions
 
         # members_backend
         options[RuntimeOptionKey.MEMBERS_BACKEND] = TaskExecutor.parse_members_backend(task_config)
 
-        return options
+        #members_fc_provider
+        options[RuntimeOptionKey.MEMBERS_FC_PROVIDER] = TaskExecutor.parse_members_fc_provider(task_config)
 
+        return options
+        
     @staticmethod
     def parse_members_backend(task_config: dict):
         members_backend = {}
@@ -385,22 +427,38 @@ class TaskExecutor(object):
         return members_backend
 
     @staticmethod
+    def parse_members_fc_provider(task_config: dict):
+        members_fc_provider = {}
+        job_config = task_config["job"]
+        members = job_config.get("members")
+        for member in members:
+            members_fc_provider[member["member_id"]] = member.get("fc_provider")
+        return members_fc_provider
+
+    @staticmethod
     def get_error_message(exc_value, e: Exception):
         message = str(exc_value)
         # convert to CustomBaseException
         if isinstance(e, pickle.PickleError):
             e = PickleError()
-        elif "NoneType" in message:
-            e = NoneTypeError()
+        # elif "NoneType" in message:
+        #     e = NoneTypeError()
         elif "NaN" in message:
             e = NaNTypeError()
-        elif "spark" in message or "Py4J" in message:
-            pattern = re.compile('raise .*(.*)')
-            result = re.search(pattern, message)
-            if result is not None:
-                e = SparkError(message=result.group(0))
+        elif "spark" in message.lower() or "py4j" in message.lower():
+
+            if "OutOfMemoryError" in message or "jvm" in message.lower():
+                e = SparkOutOfMemoryError()
             else:
-                e = SparkError(message)
+
+                pattern = re.compile('raise .*(.*)')
+                result = re.search(pattern, message)
+                if result is not None:
+                    e = SparkError(message=result.group(0))
+                else:
+                    e = SparkError(message)
+        elif "CUDA" in message and "memory" in message:
+            e = GpuOutOfMemoryError()
         elif isinstance(e, TypeError):
             e = CustomTypeError()
 
@@ -416,7 +474,6 @@ class TaskExecutor(object):
                 param_str = param_str[:-1]
 
             message = f'[{e.code}] {e.message} {param_str}'
-
         return message
 
 

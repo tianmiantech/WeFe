@@ -47,6 +47,12 @@ case "$application" in
     wefe-manager-service)
         /bin/bash ./manager/manager-service/assembly/scripts/install.sh $application
         ;;
+    wefe-flow)
+        /bin/bash ./flow/assembly/scripts/install.sh $application
+        ;;
+    *)
+        exit 1
+        ;;
 esac
 
 exit 0

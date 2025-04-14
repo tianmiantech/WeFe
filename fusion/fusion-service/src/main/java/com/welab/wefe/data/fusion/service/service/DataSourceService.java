@@ -19,9 +19,9 @@ package com.welab.wefe.data.fusion.service.service;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.jdbc.base.DatabaseType;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.data.fusion.service.api.datasource.*;
 import com.welab.wefe.data.fusion.service.config.Config;
 import com.welab.wefe.data.fusion.service.database.entity.DataSourceMySqlModel;
@@ -65,14 +65,14 @@ public class DataSourceService extends AbstractService {
     public AddApi.DataSourceAddOutput add(AddApi.DataSourceAddInput input) throws StatusCodeWithException {
 
         if (dataSourceRepo.countByName(input.getName()) > 0) {
-            throw new StatusCodeWithException("数据源名称已存在, 请更该数据源名称再提交！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "数据源名称已存在, 请更该数据源名称再提交！");
         }
 
         // 测试连接
         testDBConnect(input.getDatabaseType(), input.getHost(), input.getPort(), input.getUserName(), input.getPassword(), input.getDatabaseName());
         DataSourceMySqlModel model = ModelMapper.map(input, DataSourceMySqlModel.class);
-        model.setCreatedBy(CurrentAccount.id());
-        model.setUpdatedBy(CurrentAccount.id());
+        model.setCreatedBy(CurrentAccountUtil.get().getId());
+        model.setUpdatedBy(CurrentAccountUtil.get().getId());
         model.setCreatedTime(new Date());
         model.setUpdatedTime(new Date());
         dataSourceRepo.save(model);
@@ -94,7 +94,7 @@ public class DataSourceService extends AbstractService {
         params.put("port", input.getPort());
         params.put("userName", input.getUserName());
         params.put("password", input.getPassword());
-        params.put("updatedBy", CurrentAccount.id());
+        params.put("updatedBy", CurrentAccountUtil.get().getId());
         params.put("updatedTime", new Date());
         dataSourceRepo.updateById(input.getId(), params, DataSourceMySqlModel.class);
 
@@ -127,6 +127,7 @@ public class DataSourceService extends AbstractService {
     public PagingOutput<QueryApi.Output> query(QueryApi.Input input) {
         Specification<DataSourceMySqlModel> where = Where.create()
                 .equal("name", input.getName())
+                .equal("id", input.getId())
                 .build(DataSourceMySqlModel.class);
 
         return dataSourceRepo.paging(where, input, QueryApi.Output.class);
@@ -150,7 +151,7 @@ public class DataSourceService extends AbstractService {
         if (conn != null) {
             boolean success = jdbcManager.testQuery(conn);
             if (!success) {
-                throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "数据库连接失败");
+                StatusCode.DATABASE_LOST.throwException("数据库连接失败");
             }
         }
 
@@ -175,7 +176,7 @@ public class DataSourceService extends AbstractService {
     public boolean testSqlQuery(String dataSourceId, String sql) throws StatusCodeWithException {
         DataSourceMySqlModel model = getDataSourceById(dataSourceId);
         if (model == null) {
-            throw new StatusCodeWithException("数据不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "数据不存在");
         }
 
         JdbcManager jdbcManager = new JdbcManager();
@@ -205,7 +206,7 @@ public class DataSourceService extends AbstractService {
         }
 
         if (null == file || !file.exists()) {
-            throw new StatusCodeWithException("未找到文件：" + file.getPath(), StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未找到文件：" + file.getPath());
         }
 
         return file;

@@ -103,4 +103,9 @@ public class EventConstant {
         public static final String UPDATE_EVENT = "UPDATEEVENT";
         public static final String DELETE_BY_TAGID_EVENT = "DELETEBYTAGIDEVENT";
     }
+
+    public static final class TrustCerts {
+        public static final String INSERT_EVENT = "INSERTEVENT";
+        public static final String DELETE_BY_SERIAL_NUMBER = "DELETEBYSERIALNUMBEREVENT";
+    }
 }

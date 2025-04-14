@@ -36,7 +36,6 @@ from common.python import session
 from common.python.common.consts import NAMESPACE
 from common.python.protobuf.pyproto import default_empty_fill_pb2
 from common.python.utils import file_utils
-from kernel.settings import stat_logger
 
 
 def save_component_model(component_model_key, model_buffers, member_model_id, model_version, version_log=None):
@@ -147,7 +146,7 @@ def get_proto_buffer_class(class_name):
                 if inspect.isclass(obj) and name == class_name:
                     return obj
         except Exception as e:
-            stat_logger.warning(e)
+            print (e)
     else:
         return None
 

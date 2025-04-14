@@ -20,6 +20,7 @@ import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
+import com.welab.wefe.common.wefe.dto.global_config.GatewayConfigModel;
 import com.welab.wefe.common.wefe.enums.ServiceType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,7 +46,7 @@ public class GatewayIntranetCheckpoint extends AbstractCheckpoint {
 
     @Override
     public String getConfigValue() {
-        return globalConfigService.getGatewayConfig().intranetBaseUri;
+        return globalConfigService.getModel(GatewayConfigModel.class).intranetBaseUri;
     }
 
     @Override
@@ -56,10 +57,6 @@ public class GatewayIntranetCheckpoint extends AbstractCheckpoint {
     @Override
     protected void doCheck(String value) throws Exception {
         GatewayService gatewayService = Launcher.getBean(GatewayService.class);
-
-        // Since the gateway does not currently have an alive interface,
-        // temporarily adjust a method to test the connectivity between the board and the gateway.
-        gatewayService.refreshMemberBlacklistCache();
-
+        gatewayService.checkGatewayAliveProcessor();
     }
 }

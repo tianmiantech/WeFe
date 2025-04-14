@@ -36,7 +36,7 @@ public class CloseProjectApi extends AbstractNoneOutputApi<CloseProjectApi.Input
 
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        projectService.closeProject(input);
+        projectService.closeProject(input, false);
         return success();
     }
 

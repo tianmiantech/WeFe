@@ -16,43 +16,28 @@
 
 package com.welab.wefe.union.service.api.defaulttag;
 
-import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
-import com.welab.wefe.common.data.mongodb.repo.DataSetDefaultTagMongoRepo;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.union.service.dto.base.BaseInput;
-import com.welab.wefe.union.service.dto.dataresource.dataset.table.ApiDataSetDefaultTagOutput;
+import com.welab.wefe.union.service.service.DefaultTagService;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Query the default tag of the dataset
  *
  * @author yuxin.zhang
  */
-@Api(path = "default_tag/query", name = "default_tag_query", rsaVerify = true, login = false)
+@Api(path = "default_tag/query", name = "default_tag_query", allowAccessWithSign = true)
 public class QueryAllApi extends AbstractApi<BaseInput, JObject> {
     @Autowired
-    protected DataSetDefaultTagMongoRepo dataSetDefaultTagMongoRepo;
+    private DefaultTagService defaultTagService;
 
 
     @Override
     protected ApiResult<JObject> handle(BaseInput input) {
-        List<DataSetDefaultTag> dataSetDefaultTagList = dataSetDefaultTagMongoRepo.findAll();
-        List<ApiDataSetDefaultTagOutput> list = dataSetDefaultTagList
-                .stream().map(x -> {
-                    ApiDataSetDefaultTagOutput apiDataSetDefaultTagOutput = new ApiDataSetDefaultTagOutput();
-                    apiDataSetDefaultTagOutput.setId(x.getTagId());
-                    apiDataSetDefaultTagOutput.setTagName(x.getTagName());
-                    return apiDataSetDefaultTagOutput;
-                }).collect(Collectors.toList());
-
-        return success(JObject.create("list", JObject.toJSON(list)));
+        return success(JObject.create("list", JObject.toJSON(defaultTagService.queryAll(input))));
     }
 
 }

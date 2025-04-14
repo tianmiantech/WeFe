@@ -71,11 +71,11 @@ public class AuditApi extends AbstractNoneOutputApi<AuditApi.Input> {
             super.checkAndStandardize();
 
 //            if (DataResourceType.DataSet.equals(dataResourceType) && fieldInfoList.isEmpty()) {
-//                throw new StatusCodeWithException("请设置主键", StatusCode.PARAMETER_VALUE_INVALID);
+//                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "请设置主键");
 //            }
 
             if (isTrace && StringUtil.isEmpty(traceColumn)) {
-                throw new StatusCodeWithException("追溯字段不能为空", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "追溯字段不能为空");
             }
 
         }

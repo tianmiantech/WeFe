@@ -77,147 +77,198 @@
                 </el-button>
             </h3>
             <ul class="members mb30">
-                <li class="mt20">
-                    <h4 class="member-name mb10">
-                        {{ promoter.member_name }}
-                        <MemberServiceStatus :status="promoter.$serviceStatus" />
-                    </h4>
-                    <p
-                        v-if="promoter.$error"
-                        class="service-offline f12 pt5 mb10"
-                    >
-                        {{ promoter.$error }}
-                    </p>
-                    <el-button @click="addDataSet('promoter_creator', userInfo.member_id, 0, promoter.$data_set)">+ 添加资源到此项目</el-button>
-                    <el-table
-                        v-show="promoter.$data_set.length"
-                        :data="promoter.$data_set"
-                        max-height="520px"
-                        class="mt20"
-                        border
-                        stripe
-                    >
-                        <el-table-column type="index" />
-                        <el-table-column
-                            label="数据资源id"
-                            prop="data_resource_id"
-                        />
-                        <el-table-column label="数据资源名称">
-                            <template v-slot="scope">
-                                <router-link :to="{ name: 'data-view', query: { id: scope.row.data_resource_id } }">
-                                    {{ scope.row.name }}
-                                </router-link>
-                            </template>
-                        </el-table-column>
-                        <el-table-column v-if="form.projectType === 'MachineLearning'" label="特征量/数据量">
-                            <template v-slot="scope">
-                                {{ scope.row.feature_count }} / {{ scope.row.total_data_count }}
-                            </template>
-                        </el-table-column>
-                        <el-table-column v-if="form.projectType === 'MachineLearning'" label="是否有 Y">
-                            <template v-slot="scope">
-                                {{ scope.row.contains_y ? '是' : '否' }}
-                            </template>
-                        </el-table-column>
-                        <el-table-column
-                            v-if="form.projectType === 'DeepLearning'"
-                            label="样本分类"
-                            prop="for_job_type"
-                            width="100"
+                <div class="container">
+                    <div class="block">
+                        <h4 class="member-name mb10">
+                            {{ promoter.member_name }}
+                            <MemberServiceStatus :status="promoter.$serviceStatus" />
+                            <div>{{promoter.member_id}}</div>
+                        </h4>
+                        <p v-if="promoter.member_mobile">联系电话：{{promoter.member_mobile}}</p>
+                        <p v-if="promoter.member_email">邮箱：{{promoter.member_email}}</p>
+                        <p v-if="promoter.member_gateway_uri">gateway：{{promoter.member_gateway_uri}}</p>
+                        <p
+                            v-if="promoter.$error"
+                            class="service-offline f12 pt5 mb10"
                         >
-                            <template v-slot="scope">
-                                {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
-                            </template>
-                        </el-table-column>
-                        <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量/已标注">
-                            <template v-slot="scope">
-                                {{ scope.row.total_data_count }} / {{ scope.row.labeled_count }}
-                            </template>
-                        </el-table-column>
-                        <el-table-column
-                            v-if="form.projectType === 'DeepLearning'"
-                            label="标注状态"
-                            prop="label_completed"
-                            width="100"
+                            {{ promoter.$error }}
+                        </p>
+                        <div
+                            class="privatenetwork"
+                            v-if="selectedPrivateMembers.length"
                         >
-                            <template v-slot="scope">
-                                {{scope.row.label_completed ? '已完成' : '标注中'}}
+                            <h4 class="title">专用网络</h4>
+                            <template
+                                v-for="{
+                                    member_name,
+                                    gateway_address,
+                                    id
+                                } in selectedPrivateMembers"
+                                :key="id">
+                                <p class="ip">
+                                    {{ member_name }}: {{ gateway_address }}
+                                </p>
+                                <p class="desc">
+                                    [全局设置][专用网络设置]中对"{{
+                                        member_name
+                                    }}"指定了专用gateway地址，我方将访问对方的该地址与之通信。
+                                </p>
                             </template>
-                        </el-table-column>
-                        <el-table-column label="操作">
-                            <template v-slot="scope">
-                                <el-button
-                                    type="danger"
-                                    icon="elicon-delete"
-                                    @click="removeDataSet({ role: 'promoter_creator', memberIndex: 0, $index: scope.$index })"
-                                />
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </li>
-                <li
+                            <el-button type="text" @click="$router.push({ name: 'network-set' });"
+                            >前往修改</el-button
+                            >
+                        </div>
+                    </div>
+                    <div style="flex: 1">
+                        <el-table
+                            :data="promoter.$data_set"
+                            :max-height="350"
+                            class="mt20"
+                            border
+                            stripe
+                        >
+                            <el-table-column type="index" />
+                            <el-table-column
+                                label="数据资源id"
+                                prop="data_resource_id"
+                            />
+                            <el-table-column label="数据资源名称">
+                                <template v-slot="scope">
+                                    <router-link :to="{ name: 'data-view', query: { id: scope.row.data_resource_id } }">
+                                        {{ scope.row.name }}
+                                    </router-link>
+                                </template>
+                            </el-table-column>
+                            <el-table-column
+                                v-if="form.projectType === 'MachineLearning'"
+                                label="特征量/数据量"
+                            >
+                                <template v-slot="scope">
+                                    {{ scope.row.feature_count }} / {{ scope.row.total_data_count }}
+                                </template>
+                            </el-table-column>
+                            <el-table-column
+                                v-if="form.projectType === 'MachineLearning'"
+                                label="是否有 Y"
+                            >
+                                <template v-slot="scope">
+                                    {{ scope.row.contains_y ? '是' : '否' }}
+                                </template>
+                            </el-table-column>
+                            <el-table-column
+                                v-if="form.projectType === 'DeepLearning'"
+                                label="样本分类"
+                                prop="for_job_type"
+                            >
+                                <template v-slot="scope">
+                                    {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
+                                </template>
+                            </el-table-column>
+                            <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量/已标注">
+                                <template v-slot="scope">
+                                    {{ scope.row.total_data_count }} / {{ scope.row.labeled_count }}
+                                </template>
+                            </el-table-column>
+                            <el-table-column
+                                v-if="form.projectType === 'DeepLearning'"
+                                label="标注状态"
+                                prop="label_completed"
+                            >
+                                <template v-slot="scope">
+                                    {{scope.row.label_completed ? '已完成' : '标注中'}}
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="操作">
+                                <template v-slot="scope">
+                                    <el-button
+                                        type="danger"
+                                        icon="elicon-delete"
+                                        @click="removeDataSet({ role: 'promoter_creator', memberIndex: 0, $index: scope.$index })"
+                                    />
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                        <el-button
+                            class="mt-4"
+                            style="width: 100%" @click="addDataSet('promoter_creator', userInfo.member_id, 0, promoter.$data_set)">
+                            + 添加资源到此项目
+                        </el-button>
+                    </div>
+                </div>
+                <div
                     v-for="(member, memberIndex) in form.promoterList"
                     :key="`${member.member_id}-${member.member_role}`"
-                    class="mt20"
+                    class="container"
                 >
-                    <h4 class="member-name mb10">
-                        {{ member.member_name }}
-                        <MemberServiceStatus :status="member.$serviceStatus" />
-                        <el-icon
-                            class="el-icon-remove-outline"
-                            @click="removeMember(memberIndex, 'promoter')"
+                    <div class="block">
+                        <h4 class="member-name mb10">
+                            {{ member.member_name }}
+                            <div>{{member.member_id}}</div>
+                            <MemberServiceStatus :status="member.$serviceStatus" />
+                            <el-icon
+                                class="board-icon-remove-outline"
+                                @click="removeMember(memberIndex, 'promoter')"
+                            >
+                                <elicon-remove />
+                            </el-icon>
+                        </h4>
+                        <p
+                            v-if="member.$error"
+                            class="service-offline f12 pt5 mb10"
                         >
-                            <elicon-remove />
-                        </el-icon>
-                    </h4>
-                    <p
-                        v-if="member.$error"
-                        class="service-offline f12 pt5 mb10"
-                    >
-                        {{ member.$error }}
-                    </p>
-                    <el-button @click="addDataSet('promoter', member.member_id, memberIndex, member.$data_set)">+ 添加资源到此项目</el-button>
-                    <el-table
-                        v-if="member.$data_set.length"
-                        :data="member.$data_set"
-                        max-height="520px"
-                        class="mt20"
-                        border
-                        stripe
-                    >
-                        <el-table-column type="index" />
-                        <el-table-column
-                            label="数据资源id"
-                            prop="data_resource_id"
-                        />
-                        <el-table-column label="数据资源名称">
-                            <template v-slot="scope">
-                                <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_resource_id } }">
-                                    {{ scope.row.name }}
-                                </router-link>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="特征量/数据量">
-                            <template v-slot="scope">
-                                {{ scope.row.feature_count }} / {{ scope.row.total_data_count }}
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="是否有 Y">
-                            <template v-slot="scope">
-                                {{ scope.row.contains_y ? '是' : '否' }}
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="操作">
-                            <template v-slot="scope">
-                                <el-button
-                                    type="danger"
-                                    icon="elicon-delete"
-                                    @click="removeDataSet({ role: 'promoter', memberIndex, $index: scope.$index })"
-                                />
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </li>
+                            {{ member.$error }}
+                        </p>
+                        <p v-if="member.mobile">联系电话：{{member.mobile}}</p>
+                        <p v-if="member.email">邮箱：{{member.email}}</p>
+                        <p v-if="member.gateway_uri">gateway：{{member.gateway_uri}}</p>
+                    </div>
+                    <div style="flex: 1">
+                        <el-table
+                            :data="member.$data_set"
+                            :max-height="350"
+                            class="mt20"
+                            border
+                            stripe
+                        >
+                            <el-table-column type="index" />
+                            <el-table-column
+                                label="数据资源id"
+                                prop="data_resource_id"
+                            />
+                            <el-table-column label="数据资源名称" width="120">
+                                <template v-slot="scope">
+                                    <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_resource_id } }">
+                                        {{ scope.row.name }}
+                                    </router-link>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="特征量/数据量">
+                                <template v-slot="scope">
+                                    {{ scope.row.feature_count }} / {{ scope.row.total_data_count }}
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="是否有 Y">
+                                <template v-slot="scope">
+                                    {{ scope.row.contains_y ? '是' : '否' }}
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="操作">
+                                <template v-slot="scope">
+                                    <el-button
+                                        type="danger"
+                                        icon="elicon-delete"
+                                        @click="removeDataSet({ role: 'promoter', memberIndex, $index: scope.$index })"
+                                    />
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                        <el-button
+                            class="mt-4"
+                            style="width: 100%" @click="addDataSet('promoter', member.member_id, memberIndex, member.$data_set)">
+                            + 添加资源到此项目
+                        </el-button>
+                    </div>
+                </div>
             </ul>
         </div>
 
@@ -233,107 +284,117 @@
                     + 添加更多协作方
                 </el-button>
             </h3>
-            <ul
-                v-if="form.memberList.length"
-                class="members mb30"
-            >
-                <li
+            <div v-if="form.memberList.length">
+                <div
                     v-for="(member, memberIndex) in form.memberList"
                     :key="`${member.member_id}-${member.member_role}`"
-                    class="mt20"
+                    class="container"
                 >
-                    <h4 class="member-name mb10">
-                        {{ member.member_name }}
-                        <MemberServiceStatus :status="member.$serviceStatus" />
-                        <el-icon
-                            class="el-icon-remove-outline"
-                            @click="removeMember(memberIndex, 'provider')"
+                    <div class="block">
+                        <h4>
+                            {{ member.member_name }}
+                            <div>{{member.member_id}}</div>
+                            <MemberServiceStatus :status="member.$serviceStatus" />
+                            <el-icon
+                                class="board-icon-remove-outline"
+                                @click="removeMember(memberIndex, 'provider')"
+                            >
+                                <elicon-remove />
+                            </el-icon>
+                        </h4>
+                        <p
+                            v-if="member.$error"
+                            class="service-offline f12 pt5 mb10"
                         >
-                            <elicon-remove />
-                        </el-icon>
-                    </h4>
-                    <p
-                        v-if="member.$error"
-                        class="service-offline f12 pt5 mb10"
-                    >
-                        {{ member.$error }}
-                    </p>
-                    <el-button @click="addDataSet('provider', member.member_id, memberIndex, member.$data_set)">+ 添加资源到此项目</el-button>
-                    <el-table
-                        v-if="member.$data_set.length"
-                        :data="member.$data_set"
-                        max-height="520px"
-                        class="mt20"
-                        border
-                        stripe
-                    >
-                        <el-table-column type="index" />
-                        <el-table-column
-                            label="数据资源id"
-                            prop="data_resource_id"
-                        />
-                        <el-table-column label="数据资源名称">
-                            <template v-slot="scope">
-                                <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_resource_id } }">
-                                    {{ scope.row.name }}
-                                </router-link>
-                            </template>
-                        </el-table-column>
-                        <el-table-column v-if="form.projectType === 'MachineLearning'" label="特征量/数据量">
-                            <template v-slot="scope">
-                                {{ scope.row.feature_count }} / {{ scope.row.total_data_count || scope.row.row_count}}
-                            </template>
-                        </el-table-column>
-                        <el-table-column v-if="form.projectType === 'MachineLearning'" label="是否有 Y">
-                            <template v-slot="scope">
-                                {{ scope.row.contains_y ? '是' : '否' }}
-                            </template>
-                        </el-table-column>
-                        <el-table-column
-                            v-if="form.projectType === 'DeepLearning'"
-                            label="样本分类"
-                            prop="for_job_type"
-                            width="100"
+                            {{ member.$error }}
+                        </p>
+                        <p v-if="member.mobile">联系电话：{{member.mobile}}</p>
+                        <p v-if="member.email">邮箱：{{member.email}}</p>
+                        <p v-if="member.gateway_uri">gateway：{{member.gateway_uri}}</p>
+                    </div>
+                    <div style="flex: 1">
+                        <el-table
+                            :data="member.$data_set"
+                            :max-height="350"
+                            class="mt20"
+                            border
+                            stripe
                         >
-                            <template v-slot="scope">
-                                {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
-                            </template>
-                        </el-table-column>
-                        <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量/已标注">
-                            <template v-slot="scope">
-                                {{ scope.row.total_data_count }} / {{ scope.row.labeled_count }}
-                            </template>
-                        </el-table-column>
-                        <el-table-column
-                            v-if="form.projectType === 'DeepLearning'"
-                            label="标注状态"
-                            prop="label_completed"
-                            width="100"
-                        >
-                            <template v-slot="scope">
-                                {{scope.row.label_completed ? '已完成' : '标注中'}}
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="操作">
-                            <template v-slot="scope">
-                                <el-button
-                                    type="danger"
-                                    icon="elicon-delete"
-                                    @click="removeDataSet({ role: 'provider', memberIndex, $index: scope.$index })"
-                                />
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </li>
-            </ul>
+                            <el-table-column type="index" />
+                            <el-table-column
+                                label="数据资源id"
+                                prop="data_resource_id"
+                            />
+                            <el-table-column label="数据资源名称" width="120">
+                                <template v-slot="scope">
+                                    <router-link :to="{ name: scope.row.member_id === userInfo.member_id ? 'data-view' : 'union-data-view', query: { id: scope.row.data_resource_id } }">
+                                        {{ scope.row.name }}
+                                    </router-link>
+                                </template>
+                            </el-table-column>
+                            <el-table-column v-if="form.projectType === 'MachineLearning'" label="特征量/数据量">
+                                <template v-slot="scope">
+                                    {{ scope.row.feature_count }} / {{ scope.row.total_data_count || scope.row.row_count}}
+                                </template>
+                            </el-table-column>
+                            <el-table-column v-if="form.projectType === 'MachineLearning'" label="是否有 Y">
+                                <template v-slot="scope">
+                                    {{ scope.row.contains_y ? '是' : '否' }}
+                                </template>
+                            </el-table-column>
+                            <el-table-column
+                                v-if="form.projectType === 'DeepLearning'"
+                                label="样本分类"
+                                prop="for_job_type"
+                                width="100"
+                            >
+                                <template v-slot="scope">
+                                    {{scope.row.for_job_type === 'classify' ? '图像分类' : scope.row.for_job_type === 'detection' ? '目标检测' : '-'}}
+                                </template>
+                            </el-table-column>
+                            <el-table-column v-if="form.projectType === 'DeepLearning'" label="数据总量/已标注">
+                                <template v-slot="scope">
+                                    {{ scope.row.total_data_count }} / {{ scope.row.labeled_count }}
+                                </template>
+                            </el-table-column>
+                            <el-table-column
+                                v-if="form.projectType === 'DeepLearning'"
+                                label="标注状态"
+                                prop="label_completed"
+                                width="100"
+                            >
+                                <template v-slot="scope">
+                                    {{scope.row.label_completed ? '已完成' : '标注中'}}
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="操作">
+                                <template v-slot="scope">
+                                    <el-button
+                                        type="danger"
+                                        icon="elicon-delete"
+                                        @click="removeDataSet({ role: 'provider', memberIndex, $index: scope.$index })"
+                                    />
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                        <el-button
+                            class="mt-4"
+                            style="width: 100%" @click="addDataSet('provider', member.member_id, memberIndex, member.$data_set)">
+                            + 添加资源到此项目
+                        </el-button>
+                    </div>
+                </div>
+            </div>
 
-            <el-button
-                type="primary"
-                :disabled="form.memberList.length === 0"
-                @click="submit"
-            >
-                保存项目
-            </el-button>
+            <div :style="{ marginTop: '40px' }">
+                <el-button
+                    type="primary"
+                    :disabled="form.memberList.length === 0"
+                    @click="submit"
+                >
+                    创建项目
+                </el-button>
+            </div>
             <p
                 v-if="form.promoterList.length === 0 && userInfo.member_id === promoter.member_id"
                 style="color:#6C757D;"
@@ -342,7 +403,7 @@
                 <el-icon>
                     <elicon-info-filled />
                 </el-icon>
-                只有己方成员时可进行本地建模
+                本地建模：“只支持自方成员间进行本地建模”
             </p>
         </div>
 
@@ -420,10 +481,14 @@
                 currentDeleteMember: {},
                 memberType:          '', // promoter | provider
                 checkedMembersList:  [],
+                privateMembers:      [],
             };
         },
         computed: {
             ...mapGetters(['userInfo']),
+            selectedPrivateMembers: ({ form, privateMembers }) => privateMembers.filter(
+                ({ member_id }) => form.memberList.find((each) => each.member_id === member_id),
+            ),
         },
         async created() {
             this.loading = true;
@@ -435,10 +500,18 @@
             if(code === 0) {
                 this.promoter.member_id = data.member_id;
                 this.promoter.member_name = data.member_name;
+                this.promoter.member_email = data.member_email;
+                this.promoter.member_gateway_uri = data.member_gateway_uri;
+                this.promoter.member_mobile = data.member_mobile;
+
                 updateMemberInfo(data);
             }
 
             this.checkAllService();
+            this.$http.post('/partner_config/query').then(({ code,data }) => {
+                if(code === 0)
+                    this.privateMembers = data.list;
+            });
         },
         beforeRouteLeave(to, from, next) {
             if(canLeave) {
@@ -470,16 +543,23 @@
 
             selectMember(item) {
                 this.currentDeleteMember = {};
-                const currentMembersList = this.memberType === 'promoter' ? this.form.promoterList : this.memberType === 'provider' ? this.form.memberList : [];
+                const currentMembersList =
+                    this.memberType === 'promoter'
+                        ? this.form.promoterList
+                        : this.memberType === 'provider'
+                            ? this.form.memberList
+                            : [];
 
-                const has = currentMembersList.find(row => row.member_id === item.id);
+                const has = currentMembersList.find(
+                    (row) => row.member_id === item.id,
+                );
 
-                if(!has) {
+                if (!has) {
                     /* add dataset */
-                    if(!item.$data_set) {
+                    if (!item.$data_set) {
                         item.$data_set = [];
                     }
-                    if(!item.$keywords) {
+                    if (!item.$keywords) {
                         item.$keywords = [];
                     }
                     const { length } = currentMembersList;
@@ -744,8 +824,8 @@
             &:before{display:none;}
         }
     }
-    .el-form{
-        :deep(.el-form-item__label){font-weight: bold;}
+    .board-form{
+        :deep(.board-form-item__label){font-weight: bold;}
     }
     .member-name{
         :deep(.iconfont),
@@ -756,10 +836,44 @@
         color: $--color-danger;
         cursor: pointer;
     }
-    .el-icon-remove-outline{
+    .board-icon-remove-outline{
         color: $--color-danger;
         margin-left: 10px;
         font-size:14px;
         cursor: pointer;
     }
+.container {
+    display: flex;
+    .container-table {
+        max-height: 350px;
+        overflow: auto;
+    }
+    > .block {
+        width: 320px;
+        margin-top: 20px;
+        margin-right: 20px;
+        > h4 {
+            font-size: 18px;
+            color: #438bff;
+            > div {
+                font-size: 12px;
+                color: gray;
+            }
+        }
+        > p {
+            font-size: 14px;
+        }
+        .privatenetwork{
+            margin-top: 30px;
+            font-size: 14px;
+            .title{
+                font-weight: 600;
+            }
+            .desc{
+                font-size: 12px;
+                color:#808080;
+            }
+        }
+    }
+}
 </style>

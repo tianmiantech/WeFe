@@ -17,7 +17,6 @@ package com.welab.wefe.board.service.sdk;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.dto.globalconfig.DeepLearningConfigModel;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
@@ -26,6 +25,7 @@ import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.dto.global_config.DeepLearningConfigModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +43,7 @@ public class PaddleVisualService extends AbstractService {
     }
 
     private JObject request(String api, JSONObject params) throws StatusCodeWithException {
-        DeepLearningConfigModel deepLearningConfig = globalConfigService.getDeepLearningConfig();
+        DeepLearningConfigModel deepLearningConfig = globalConfigService.getModel(DeepLearningConfigModel.class);
 
         if (deepLearningConfig == null || StringUtil.isEmpty(deepLearningConfig.paddleVisualDlBaseUrl)) {
             StatusCode.RPC_ERROR.throwException("尚未设置VisualFL服务地址，请在[全局设置][计算引擎设置]中设置VisualFL服务地址。");
@@ -71,12 +71,12 @@ public class PaddleVisualService extends AbstractService {
         try {
             json = new JObject(response.getBodyAsJson());
         } catch (JSONException e) {
-            throw new StatusCodeWithException("paddle 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "paddle 响应失败：" + response.getBodyAsString());
         }
 
         Integer code = json.getInteger("code");
         if (code == null || !code.equals(200)) {
-            throw new StatusCodeWithException("paddle 响应失败(" + code + ")：" + json.getString("message"), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "paddle 响应失败(" + code + ")：" + json.getString("message"));
         }
         return json;
     }

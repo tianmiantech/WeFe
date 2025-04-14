@@ -35,24 +35,12 @@ public class MessageQueueEntity extends AbstractUniqueIDEntity {
     private String createdBy;
     @Column(name = "updated_by")
     private String updatedBy;
-    @Column(name = "action")
-    private String action;
     @Column(name = "params")
     private String params;
     @Column(name = "priority")
     private Integer priority;
     @Column(name = "producer")
     private String producer;
-    @Column(name = "channel")
-    private String channel;
-
-    public String getAction() {
-        return action;
-    }
-
-    public void setAction(String action) {
-        this.action = action;
-    }
 
     public String getParams() {
         return params;
@@ -76,14 +64,6 @@ public class MessageQueueEntity extends AbstractUniqueIDEntity {
 
     public void setProducer(String producer) {
         this.producer = producer;
-    }
-
-    public String getChannel() {
-        return channel;
-    }
-
-    public void setChannel(String channel) {
-        this.channel = channel;
     }
 
     public String getUpdatedBy() {

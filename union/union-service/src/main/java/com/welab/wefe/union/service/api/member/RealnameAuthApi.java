@@ -16,11 +16,6 @@
 
 package com.welab.wefe.union.service.api.member;
 
-import com.mongodb.client.gridfs.model.GridFSFile;
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.RealnameAuthFileInfo;
-import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -28,52 +23,24 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
-import com.welab.wefe.union.service.service.MemberContractService;
+import com.welab.wefe.union.service.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "member/realname/auth", name = "member_realname_auth", rsaVerify = true, login = false)
+@Api(path = "member/realname/auth", name = "member_realname_auth", allowAccessWithSign = true)
 public class RealnameAuthApi extends AbstractApi<RealnameAuthApi.Input, AbstractApiOutput> {
-
     @Autowired
-    private MemberContractService memberContractService;
-
-    @Autowired
-    private GridFsTemplate gridFsTemplate;
+    private MemberService memberService;
 
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
         LOG.info("RealNameAuthApi handle..");
-        MemberExtJSON extJSON = new MemberExtJSON();
-        extJSON.setPrincipalName(input.principalName);
-        extJSON.setAuthType(input.authType);
-        extJSON.setDescription(input.description);
-
-
-        List<RealnameAuthFileInfo> realnameAuthFileInfoList = new ArrayList<>();
-        for (String fileId :
-                input.fileIdList) {
-            RealnameAuthFileInfo realNameAuthFileInfo = new RealnameAuthFileInfo();
-            GridFSFile gridFSFile = gridFsTemplate.findOne(new QueryBuilder().append("_id", fileId).build());
-            if (gridFSFile == null) {
-                throw new StatusCodeWithException(StatusCode.FILE_DOES_NOT_EXIST, fileId);
-            }
-
-            realNameAuthFileInfo.setFilename(gridFSFile.getFilename());
-            realNameAuthFileInfo.setFileId(fileId);
-            realNameAuthFileInfo.setSign(gridFSFile.getMetadata().getString("sign"));
-            realnameAuthFileInfoList.add(realNameAuthFileInfo);
-        }
-        extJSON.setRealnameAuthFileInfoList(realnameAuthFileInfoList);
-        extJSON.setRealNameAuthStatus(1);
-        memberContractService.updateExtJson(input.curMemberId, extJSON);
+        memberService.realNameAuth(input);
         return success();
     }
 
@@ -86,6 +53,10 @@ public class RealnameAuthApi extends AbstractApi<RealnameAuthApi.Input, Abstract
         private String description;
         @Check(require = true)
         private List<String> fileIdList;
+        @Check(require = true)
+        private String certRequestContent;
+        @Check(require = true)
+        private String certRequestId;
 
 
         public String getPrincipalName() {
@@ -118,6 +89,22 @@ public class RealnameAuthApi extends AbstractApi<RealnameAuthApi.Input, Abstract
 
         public void setFileIdList(List<String> fileIdList) {
             this.fileIdList = fileIdList;
+        }
+
+        public String getCertRequestContent() {
+            return certRequestContent;
+        }
+
+        public void setCertRequestContent(String certRequestContent) {
+            this.certRequestContent = certRequestContent;
+        }
+
+        public String getCertRequestId() {
+            return certRequestId;
+        }
+
+        public void setCertRequestId(String certRequestId) {
+            this.certRequestId = certRequestId;
         }
     }
 }

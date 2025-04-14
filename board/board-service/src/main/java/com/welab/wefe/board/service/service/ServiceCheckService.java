@@ -26,6 +26,7 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
 import com.welab.wefe.common.wefe.checkpoint.dto.MemberAvailableCheckOutput;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
+import com.welab.wefe.common.wefe.dto.global_config.GatewayConfigModel;
 import com.welab.wefe.common.wefe.enums.ServiceType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,7 +110,7 @@ public class ServiceCheckService extends AbstractService {
         List<GatewayOnlineCheckResult> checkResultList = new ArrayList<>();
         GatewayOnlineCheckResult result = null;
         if (local) {
-            result = checkGatewayConnect(globalConfigService.getGatewayConfig().intranetBaseUri);
+            result = checkGatewayConnect(globalConfigService.getModel(GatewayConfigModel.class).intranetBaseUri);
             checkResultList.add(result);
         }
 

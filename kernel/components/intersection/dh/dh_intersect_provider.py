@@ -47,6 +47,7 @@ class DhIntersectionProvider(DhIntersect):
         return DiffieHellman.key_pair(dh_bit)
 
     def encrypt_ids_process(self, k, is_hash=False):
+        # return k, k
         if is_hash:
             return DiffieHellman.encrypt(int(self.hash(k), 16), self.r, self.p), k
         else:
@@ -54,9 +55,10 @@ class DhIntersectionProvider(DhIntersect):
 
     def run(self, data_instances):
         LOGGER.info("Start dh intersection")
+        LOGGER.info(f"Start dh intersection:{data_instances.first()}")
         abnormal_detection.empty_table_detection(data_instances)
         _, self.p = self.get_dh_key()
-        self.p = self.p + 1 if self.p % 2 == 0 else self.p         # force to odd
+        self.p = self.p + 1 if self.p % 2 == 0 else self.p  # force to odd
         LOGGER.info("Get dh key!")
         public_mod = {"p": self.p}
 
@@ -71,9 +73,11 @@ class DhIntersectionProvider(DhIntersect):
         else:
             provider_ids = data_instances.map(lambda k, v: self.encrypt_ids_process(k, True))
         raw_provider_ids = provider_ids.mapValues(lambda v: 1, need_send=True)
+        del provider_ids
         self.transfer_variable.intersect_provider_ids_process.remote(raw_provider_ids,
                                                                      role=consts.PROMOTER,
                                                                      idx=0)
+        del raw_provider_ids
 
         promoter_ids = self.transfer_variable.intersect_promoter_ids.get(idx=0)
 
@@ -88,10 +92,11 @@ class DhIntersectionProvider(DhIntersect):
 
         # recv intersect ids
         encrypt_intersect_ids = self.transfer_variable.intersect_ids.get(idx=0)
-        intersect_ids_pair = encrypt_intersect_ids.join(provider_ids, lambda e, h: (h, e))
-        intersect_ids = intersect_ids_pair.map(lambda k, v: (v[0], v[1]))
+        # intersect_ids_pair = encrypt_intersect_ids.join(provider_ids, lambda e, h: (h, e))
+        # intersect_ids_map = intersect_ids_pair.map(lambda k, v: (v[0], v[1]))
+        intersect_ids_map = encrypt_intersect_ids.map(lambda k, v: (k, k))
         LOGGER.info("Get intersect ids from Promoter")
 
-        intersect_ids = self._get_value_from_data(intersect_ids, data_instances)
-
-        return intersect_ids
+        intersect_ids = self._get_value_from_data(intersect_ids_map, data_instances)
+        LOGGER.debug(f"first:{intersect_ids.first()}")
+        return intersect_ids, intersect_ids_map

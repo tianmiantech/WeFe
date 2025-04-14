@@ -340,14 +340,16 @@ class VertDPDecisionTreePromoter(DecisionTree):
         node_sample_count = self.count_node_sample_num(node_dispatch, node_map)
         LOGGER.debug('sample count is {}'.format(node_sample_count))
 
+        LOGGER.info('solving node num is {}'.format(len(self.cur_split_nodes)))
+        node_dispatch = self.get_computing_node_dispatch()
+        node_sample_count = self.count_node_sample_num(node_dispatch, node_map)
+        LOGGER.debug('sample count is {}'.format(node_sample_count))
         acc_histograms = self.get_local_histograms(dep, self.data_bin_with_node_dispatch, self.grad_and_hess,
                                                    node_sample_count, self.cur_split_nodes, node_map, ret='tensor',
                                                    hist_sub=True)
-
         best_split_info_promoter = self.splitter.find_split(acc_histograms, self.valid_features,
                                                             self.data_bin._partitions, self.sitename,
                                                             self.use_missing, self.zero_as_missing)
-
 
         for split_info in best_split_info_promoter:
             fid = split_info.best_fid

@@ -27,7 +27,7 @@ public enum ServiceTypeEnum {
 
     MULTI_PSI(5, "多方交集查询"), MULTI_PIR(6, "多方匿踪查询"),
 
-    ;
+    MachineLearning(7, "机器学习模型"), DeepLearning(8, "深度学习模型"),;
 
     private int code;
 
@@ -42,26 +42,66 @@ public enum ServiceTypeEnum {
 
         String result = null;
         switch (code) {
-            case 1:
-                result = ServiceTypeEnum.PIR.value;
-                break;
-            case 2:
-                result = ServiceTypeEnum.PSI.value;
-                break;
-            case 3:
-                result = ServiceTypeEnum.SA.value;
-                break;
-            case 4:
-                result = ServiceTypeEnum.MULTI_SA.value;
-                break;
-            case 5:
-                result = ServiceTypeEnum.MULTI_PSI.value;
-                break;
-            case 6:
-                result = ServiceTypeEnum.MULTI_PIR.value;
-                break;
-            default:
-                break;
+        case 1:
+            result = ServiceTypeEnum.PIR.value;
+            break;
+        case 2:
+            result = ServiceTypeEnum.PSI.value;
+            break;
+        case 3:
+            result = ServiceTypeEnum.SA.value;
+            break;
+        case 4:
+            result = ServiceTypeEnum.MULTI_SA.value;
+            break;
+        case 5:
+            result = ServiceTypeEnum.MULTI_PSI.value;
+            break;
+        case 6:
+            result = ServiceTypeEnum.MULTI_PIR.value;
+            break;
+        case 7:
+            result = ServiceTypeEnum.MachineLearning.value;
+            break;
+        case 8:
+            result = ServiceTypeEnum.DeepLearning.value;
+            break;
+        default:
+            break;
+        }
+        return result;
+    }
+
+    public static ServiceTypeEnum getType(int code) {
+
+        ServiceTypeEnum result = null;
+        switch (code) {
+        case 1:
+            result = ServiceTypeEnum.PIR;
+            break;
+        case 2:
+            result = ServiceTypeEnum.PSI;
+            break;
+        case 3:
+            result = ServiceTypeEnum.SA;
+            break;
+        case 4:
+            result = ServiceTypeEnum.MULTI_SA;
+            break;
+        case 5:
+            result = ServiceTypeEnum.MULTI_PSI;
+            break;
+        case 6:
+            result = ServiceTypeEnum.MULTI_PIR;
+            break;
+        case 7:
+            result = ServiceTypeEnum.MachineLearning;
+            break;
+        case 8:
+            result = ServiceTypeEnum.DeepLearning;
+            break;
+        default:
+            break;
         }
         return result;
     }

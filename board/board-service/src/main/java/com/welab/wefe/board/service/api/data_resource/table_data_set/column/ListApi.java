@@ -38,7 +38,7 @@ public class ListApi extends AbstractApi<ListApi.Input, PagingOutput<DataSetColu
 
     @Override
     protected ApiResult<PagingOutput<DataSetColumnOutputModel>> handle(Input input) throws StatusCodeWithException {
-        return success(service.list(input.getDataSetId()));
+        return success(service.query(input.getDataSetId()));
     }
 
     public static class Input extends AbstractApiInput {

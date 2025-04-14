@@ -64,7 +64,7 @@ class AppLauncher:
         AppLauncher.logger.info("---done---")
 
         AppLauncher.logger.info("start function computing budget scheduler")
-        FcBudgetScheduler().start()
+        # FcBudgetScheduler().start()
         AppLauncher.logger.info("---done---")
 
         # start web service
@@ -91,7 +91,7 @@ class AppLauncher:
         with DB.connection_context():
             jobs = Job.select().where(
                 (
-                        Job.status == JobStatus.WAIT_RUN
+                        Job.status == JobStatus.WAIT_SUCCESS
                 ) | (
                         Job.status == JobStatus.WAIT_STOP
                 ) | (

@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.api.member;
 
+import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.board.service.service.SystemInitializeService;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
@@ -34,10 +35,15 @@ public class UpdateMemberInfoApi extends AbstractNoneOutputApi<UpdateMemberInfoA
 
     @Autowired
     private SystemInitializeService systemInitializeService;
-
+    
+    @Autowired
+    protected GatewayService gatewayService;
+    
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
         systemInitializeService.updateMemberInfo(input);
+        // Notify the gateway to also refresh the corresponding cache
+        gatewayService.restartExternalGrpcServer();
         return success();
     }
 
@@ -52,6 +58,8 @@ public class UpdateMemberInfoApi extends AbstractNoneOutputApi<UpdateMemberInfoA
         private String memberLogo;
         @Check(name = "成员隐身状态")
         private Boolean memberHidden;
+        @Check(name = "开启TLS通信")
+        private Boolean memberGatewayTlsEnable;
 
         @Check(name = "网关通信地址", require = true, messageOnEmpty = "网关通信地址不能为空")
         private String memberGatewayUri;
@@ -64,7 +72,7 @@ public class UpdateMemberInfoApi extends AbstractNoneOutputApi<UpdateMemberInfoA
                 String portStr = getMemberGatewayUri().split(":")[1];
                 Integer port = Convert.toInt(portStr);
                 if (port == null || port < 1 || port > 65535) {
-                    throw new StatusCodeWithException("Gateway Uri端口有误，端口范围：1~65535", StatusCode.PARAMETER_VALUE_INVALID);
+                    throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "Gateway Uri端口有误，端口范围：1~65535");
                 }
             }
 
@@ -87,6 +95,14 @@ public class UpdateMemberInfoApi extends AbstractNoneOutputApi<UpdateMemberInfoA
 
         public void setMemberGatewayUri(String memberGatewayUri) {
             this.memberGatewayUri = memberGatewayUri;
+        }
+
+        public Boolean getMemberGatewayTlsEnable() {
+            return memberGatewayTlsEnable;
+        }
+
+        public void setMemberGatewayTlsEnable(Boolean memberGatewayTlsEnable) {
+            this.memberGatewayTlsEnable = memberGatewayTlsEnable;
         }
 
         //endregion

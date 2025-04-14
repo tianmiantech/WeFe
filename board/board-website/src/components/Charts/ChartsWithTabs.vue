@@ -7,28 +7,31 @@
         <el-tabs
             v-if="ChartsMap[componentType].tabs && ChartsMap[componentType].tabs.length"
             v-model="tabName"
-            @tab-click="tabChange"
+            @tab-change="tabChange"
         >
             <el-tab-pane
                 v-for="(tab, index) in ChartsMap[componentType].tabs"
                 :key="`${tab.name}-${index}`"
                 :name="tab.name"
                 :label="tab.label"
+                :nova="tab.chart.type"
             >
                 <TopN ref="topn" v-if="tab.name === 'topn'"></TopN>
                 <component
                     :ref="tab.name"
-                    :is="`${tab.chart.type.substring(0,1).toUpperCase()}${tab.chart.type.substring(1)}Chart`"
+                    :is="charts[tab.name] && tab.name === 'scoresDistribution' ? `${tab.chart.type.substring(0,1).toUpperCase()}${tab.chart.type.substring(1)}ChartNew` : `${tab.chart.type.substring(0,1).toUpperCase()}${tab.chart.type.substring(1)}Chart`"
                     v-if="charts[tab.name] && tab.name !== 'topn'"
                     :config="charts[tab.name].config"
                 >
                     <template #default="{ config }">
                         <div class="f13">
                             <template v-if="config.train.auc">
-                                训练结果: auc: {{ config.train.auc }} <span class="ml10">ks: {{ config.train.ks }}</span>
+                                训练结果: auc: {{ dealNumPrecision(config.train.auc) }} <span class="ml10">ks: {{ dealNumPrecision(config.train.ks) }}</span>
                                 <br />
                             </template>
-                            验证结果: auc: {{ config.validate.auc }} <span class="ml10">ks: {{ config.validate.ks }}</span>
+                            <template v-if="config.validate.auc">
+                                验证结果: auc: {{ dealNumPrecision(config.validate.auc) }} <span class="ml10">ks: {{ dealNumPrecision(config.validate.ks) }}</span>
+                            </template>
                         </div>
                     </template>
                 </component>
@@ -42,36 +45,43 @@
             :config="charts[tab.name].config"
         />
     </div>
+    <div v-else style="text-align: center">暂无数据</div>
 </template>
 
 <script>
     // import { getCurrentInstance } from 'vue';
     import ChartsMap from './ChartTypesMap';
     import TopN from '@views/teamwork/visual/component-list/Evaluation/TopN.vue';
+    import { dealNumPrecision } from '@src/utils/utils';
+    const orginChartsMap = JSON.parse(JSON.stringify(ChartsMap));
 
     export default {
         name:  'ChartsWithTabs',
         props: {
-            resultApi:  String,
-            jobId:      String,
-            flowId:     String,
-            flowNodeId: String,
-            showTopn:   Boolean,
+            resultApi:    String,
+            jobId:        String,
+            flowId:       String,
+            flowNodeId:   String,
+            showTopn:     Boolean,
+            isTabLinkage: Boolean,
         },
         components: { TopN },
         data() {
             return {
-                ChartsMap,
-                componentType: '',
-                tabName:       '',
-                loading:       false,
-                charts:        {},
+                ChartsMap:        JSON.parse(JSON.stringify(ChartsMap)),
+                componentType:    '',
+                tabName:          '',
+                loading:          false,
+                charts:           {},
+                originChartsMap:  JSON.parse(JSON.stringify(ChartsMap)),
+                prob_need_to_bin: false,
+                dealNumPrecision,
             };
         },
-        created() {
-            this.readResult();
+        async created() {
+            await this.readResult();
             // show topn or not for modeling-list
-            if (!this.showTopn && this.ChartsMap.Evaluation.tabs && this.ChartsMap.Evaluation.tabs.length) {
+            /* if (!this.showTopn && this.ChartsMap.Evaluation.tabs && this.ChartsMap.Evaluation.tabs.length) {
                 this.ChartsMap.Evaluation.tabs.forEach((item, idx) => {
                     if (item.name === 'topn') {
                         this.ChartsMap.Evaluation.tabs.splice(idx, 1);
@@ -97,7 +107,7 @@
                         },
                     });
                 }
-            }
+            } */
         },
         methods: {
             async readResult() {
@@ -122,9 +132,37 @@
 
                 if (code === 0 && data) {
                     const $data = Array.isArray(data) ? data[0] : data;
-                    const { result, component_type } = $data;
+                    const { result, component_type, task_config } = $data;
 
                     this.componentType = component_type;
+                    this.prob_need_to_bin = task_config?.params?.score_param?.prob_need_to_bin || task_config?.params?.prob_need_to_bin || false;
+                    if (this.prob_need_to_bin) {
+                        this.ChartsMap[this.componentType].tabs = orginChartsMap[this.componentType].tabs;
+                    } else {
+                        this.ChartsMap[this.componentType].tabs = this.ChartsMap[this.componentType].tabs.filter(item => item.name !== 'scoresDistribution');
+                    }
+                    if (this.componentType === 'Evaluation') {
+                        if (!this.showTopn) {
+                            const topnIdx = this.ChartsMap[this.componentType].tabs.findIndex(item => item.name === 'topn');
+
+                            if (topnIdx > -1) this.ChartsMap.Evaluation.tabs.splice(topnIdx, 1);
+                        } else {
+                            const topnIdx = this.ChartsMap[this.componentType].tabs.findIndex(item => item.name === 'topn');
+
+                            if (topnIdx === -1) {
+                                this.ChartsMap[this.componentType].tabs.push({
+                                    label: 'TOPN',
+                                    name:  'topn',
+                                    chart: {
+                                        type:   'table',
+                                        config: {
+                                            type: 'topn',
+                                        },
+                                    },
+                                });
+                            }
+                        }
+                    }
 
                     if (result) {
                         const currentChart = this.ChartsMap[this.componentType];
@@ -145,6 +183,10 @@
                         } else {
                             const { train_loss } = result;
 
+                            this.charts[this.tabName].config.validate.ks = null;
+                            this.charts[this.tabName].config.validate.auc = null;
+                            this.charts[this.tabName].config.train.ks = null;
+                            this.charts[this.tabName].config.train.auc = null;
                             this.charts[this.tabName].config.legend = ['loss'];
                             this.charts[this.tabName].config.series = [train_loss.data.map((value, index) => {
                                 return {
@@ -155,13 +197,26 @@
                         }
                         this.charts[this.tabName].config.loading = false;
                     }
+                } else {
+                    this.ChartsMap = this.originChartsMap;
+                    this.charts = {};
                 }
             },
 
-            tabChange() {
+            tabChange(row) {
                 this.$nextTick(() => {
                     this.getChartsData();
+                    this.$emit('change-tabname', this.tabName);
                 });
+                // if (this.isTabLinkage) { // tab联动
+                //     const currentClick = row.props.name;
+                //     const container = document.getElementById('result-box');
+                //     const allClickTab = container.getElementById(`tab-${currentClick}`);
+
+                //     console.log(allClickTab);
+                //     console.log(`tab-${currentClick}`);
+                //     console.log(container);
+                // }
             },
 
             async getChartsData() {
@@ -220,8 +275,8 @@
                                 this.charts[tabName].config.legend = ['train_ks_fpr', 'train_ks_tpr'];
                                 train_ks_fpr.data.forEach((data, index) => {
                                     xAxis.push(data[0]);
-                                    train_ks_fpr_data.push(train_ks_fpr.data[index][1]);
-                                    train_ks_tpr_data.push(train_ks_tpr.data[index][1]);
+                                    train_ks_fpr_data.push(dealNumPrecision(train_ks_fpr.data[index][1]));
+                                    train_ks_tpr_data.push(dealNumPrecision(train_ks_tpr.data[index][1]));
                                 });
 
                                 train_ks_fpr.data.forEach((row, index) => {
@@ -254,9 +309,9 @@
                             if(validate_ks_fpr) {
                                 this.charts[tabName].config.legend.push('validate_ks_fpr', 'validate_ks_tpr');
                                 validate_ks_fpr.data.forEach((data, index) => {
-                                    if(xAxis.length === 0) xAxis.push(data[0]);
-                                    validate_ks_fpr_data.push(validate_ks_fpr.data[index][1]);
-                                    validate_ks_tpr_data.push(validate_ks_tpr.data[index][1]);
+                                    if(xAxis.length === 0 || this.componentType === 'Oot') xAxis.push(data[0]);
+                                    validate_ks_fpr_data.push(dealNumPrecision(validate_ks_fpr.data[index][1]));
+                                    validate_ks_tpr_data.push(dealNumPrecision(validate_ks_tpr.data[index][1]));
                                 });
 
                                 validate_ks_tpr.data.forEach((row, index) => {
@@ -308,10 +363,10 @@
                                     const data = train_precision.data[i];
 
                                     xAxis.push(data[0]);
-                                    train_precision_data.push(data[1]);
-                                    train_recall_data.push(train_recall.data[i][1]);
-                                    validate_precision_data.push(validate_precision.data[i][1]);
-                                    validate_recall_data.push(validate_recall.data[i][1]);
+                                    train_precision_data.push(dealNumPrecision(data[1]));
+                                    train_recall_data.push(dealNumPrecision(train_recall.data[i][1]));
+                                    validate_precision_data.push(dealNumPrecision(validate_precision.data[i][1]));
+                                    validate_recall_data.push(dealNumPrecision(validate_recall.data[i][1]));
                                 }
 
                                 this.charts[tabName].config.legend.unshift('train_precision', 'train_recall');
@@ -323,8 +378,8 @@
                                     const data = validate_precision.data[i];
 
                                     xAxis.push(data[0]);
-                                    validate_precision_data.push(validate_precision.data[i][1]);
-                                    validate_recall_data.push(validate_recall.data[i][1]);
+                                    validate_precision_data.push(dealNumPrecision(validate_precision.data[i][1]));
+                                    validate_recall_data.push(dealNumPrecision(validate_recall.data[i][1]));
                                 }
                                 this.charts[tabName].config.series = [validate_precision_data, validate_recall_data];
                             }
@@ -333,6 +388,8 @@
 
                         } else if (tabName === 'topn') {
                             ref.renderTopnTable(result);
+                        } else if (tabName === 'scoresDistribution') {
+                            this.renderScoreDistribution({ result });
                         } else {
                             const lineNames = [`train_${tabName}`, `validate_${tabName}`];
 
@@ -346,6 +403,93 @@
                 setTimeout(_ => {
                     ref.loading = false;
                 }, 200);
+            },
+
+            renderScoreDistribution({ result }) {
+                const { tabName } = this;
+                const { scores_distribution } = result;
+                const score_d_bar = [],
+                      score_d_line = [],
+                      series = [],
+                      xAxisData = [];
+
+                let xAxis = {}, yAxis = [];
+
+                if (scores_distribution) {
+                    for (let i=0; i<scores_distribution.length; i++) {
+                        xAxisData.push(scores_distribution[i][0]);
+                        score_d_bar.push(scores_distribution[i][1]);
+                        score_d_line.push(Math.round(scores_distribution[i][2]*100));
+                    }
+                    xAxis = {
+                        type:        'category',
+                        name:        '分箱区间',
+                        data:        xAxisData,
+                        // min:         2,
+                        axisPointer: {
+                            type: 'shadow',
+                        },
+                        axisTick: {
+                            alignWithLabel: true,
+                        },
+                    };
+                    yAxis = [
+                        // { type: 'value', name: '样本占比' },
+                        {
+                            type:      'value',
+                            name:      '样本数量',
+                            // data:      score_d_line,
+                            axisLabel: {
+                                // formatter (value) {
+                                //     console.log(value);
+                                //     return Number(value).toFixed(2) /10 + '%';
+                                // },
+                            },
+                        },
+                    ];
+                    series.push(
+                        // 1. 直方图展示原来折线图数据
+                        {
+                            name:      '占比',
+                            type:      'line',
+                            data:      score_d_line,
+                            itemStyle: {
+                                // color: '#3398DB',
+                                color:       'transparent',
+                                borderColor: 'transparent',
+                            },
+                            label: {
+                                show:     true,
+                                position: 'top',
+                                formatter (value) {
+                                    return value.data + '%';
+                                },
+                            },
+                        },
+
+                        // 2. 直方图展示依旧
+                        {
+                            name:      '数量',
+                            type:      'bar',
+                            itemStyle: {
+                                color: 'rgba(217, 135, 19, 1)',
+                                // color: 'transparent',
+                            },
+                            data:  score_d_bar,
+                            label: {
+                                show:     true,
+                                position: 'top',
+                                // formatter (value) {
+                                //     return Number(value).toFixed(2)*100;
+                                // },
+                            },
+                        },
+                    );
+                }
+
+                this.charts[tabName].config.xAxis = xAxis;
+                this.charts[tabName].config.yAxis = yAxis;
+                this.charts[tabName].config.series = series;
             },
 
             renderRoc({ result }) {
@@ -372,7 +516,7 @@
                     legend.unshift('train_roc');
                     train_ks_fpr.data.forEach((row, index) => {
                         xAxis.push(row[0]);
-                        train_roc.push(train_ks_tpr.data[index][1]);
+                        train_roc.push(dealNumPrecision(train_ks_tpr.data[index][1]));
                     });
 
                     this.charts[tabName].config.train.auc = train.data.auc.value;
@@ -382,8 +526,8 @@
 
                 if (validate_ks_tpr) {
                     validate_ks_tpr.data.forEach((row, index) => {
-                        if(xAxis.length === 0) xAxis.push(row[0]);
-                        validate_roc.push(validate_ks_tpr.data[index][1]);
+                        if(xAxis.length === 0 || this.componentType === 'Oot') xAxis.push(row[0]);
+                        validate_roc.push(dealNumPrecision(validate_ks_tpr.data[index][1]));
                     });
                 }
 
@@ -396,7 +540,7 @@
                 const train = result[lineNames[0]];
                 const validate = result[lineNames[1]];
 
-                if(train) {
+                if(train && validate) {
                     const lines = [train, validate];
                     const xAxis = [];
                     const train_data = [],
@@ -407,18 +551,40 @@
 
                         for (let j = 0; j < data.length; j++) {
                             if(i === 0) {
-                                xAxis.push(data[j][0]);
-                                train_data.push(data[j][1]);
+                                xAxis.push(dealNumPrecision(data[j][0]));
+                                train_data.push(dealNumPrecision(data[j][1]));
                             } else {
-                                validate_data.push(data[j][1]);
+                                validate_data.push(dealNumPrecision(data[j][1]));
                             }
                         }
                     }
                     this.charts[tabName].config.xAxis = xAxis;
                     this.charts[tabName].config.series = [train_data, validate_data];
+                    this.charts[tabName].config.legend = [...lineNames];
+                } else {
+                    const lines = [validate];
+                    const xAxis = [];
+                    const validate_data = [];
+
+                    for (let i = 0; i < lines.length; i++) {
+                        const { data } = lines[i]; // data[0] fpr x, data[1] tpr y
+
+                        for (let j = 0; j < data.length; j++) {
+                            xAxis.push(dealNumPrecision(data[j][0]));
+                            validate_data.push(dealNumPrecision(data[j][1]));
+                        }
+                    }
+                    this.charts[tabName].config.xAxis = xAxis;
+                    this.charts[tabName].config.legend = [lineNames[1]];
+                    this.charts[tabName].config.series = [validate_data];
                 }
-                this.charts[tabName].config.legend = [...lineNames];
             },
         },
     };
 </script>
+
+<style>
+.charts-group{
+    width: 100%;
+}
+</style>

@@ -39,7 +39,7 @@
                                     {{ item.unread_num }}
                                 </p>
                                 <el-icon
-                                    class="el-icon-delete"
+                                    class="board-icon-delete"
                                     @click.stop="deleteLastAccount(item, index)"
                                 >
                                     <elicon-delete />
@@ -78,14 +78,14 @@
                     <template v-if="vData.wsServerState === 1">
                         <el-button
                             type="text"
-                            class="el-button-danger"
+                            class="board-button-danger"
                             @click="restartWs(false)"
                         >
                             否
                         </el-button>
                         <el-button
                             type="text"
-                            class="el-button-danger"
+                            class="board-button-danger"
                             @click="restartWs(true)"
                         >
                             是
@@ -147,11 +147,13 @@
         getCurrentInstance,
         onMounted,
         nextTick,
+        onBeforeUnmount,
     } from 'vue';
     import { useStore } from 'vuex';
     // import DBUtil from '@src/utils/dbUtil';
     import ChatMembers from './ChatMembers';
     import ChatLog from './ChatLog';
+    import { appCode } from '@src/utils/constant';
 
     export default {
         components: {
@@ -165,6 +167,7 @@
         setup(props, context) {
             const store = useStore();
             const userInfo = computed(() => store.state.base.userInfo);
+            const systemInited = computed(() => store.state.base.systemInited);
             const { appContext } = getCurrentInstance();
             const { $bus, $http, $message } = appContext.config.globalProperties;
             const sysChat = ref();
@@ -191,11 +194,13 @@
                 account: {},
             });
 
+            let chatTimer = null;
+
             // hide chat room
             const hide = () => {
                 vData.dom.classList.add('hide');
                 vData.dom.classList.remove('show');
-                window.localStorage.removeItem(`${window.api.baseUrl}_chat`);
+                window.localStorage.removeItem(`${appCode()}_chat`);
             };
 
             // show chat room
@@ -226,6 +231,10 @@
             const getLastChatAccount = async (opt = {
                 requestFromRefresh: false,
             }) => {
+                if(!systemInited.value){
+                    /** 系统未初始化，不发这个请求 */
+                    return;
+                }
                 const { code, data } = await $http.get({
                     url:    '/chat/chat_last_account',
                     params: {
@@ -249,18 +258,22 @@
                 }
             };
             // init chart connection
-            const initConnections = async () => {
-                const userInfoLocalStorage = window.localStorage.getItem(`${window.api.baseUrl}_userInfo`);
+            const initConnections = async (isClick) => {
+                const userInfoLocalStorage = window.localStorage.getItem(`${appCode()}_userInfo`);
 
                 if(!userInfoLocalStorage) return;
 
                 await getLastChatAccount({ requestFromRefresh: true });
 
-                setTimeout(() => {
-                    // every 10s
-                    initConnections();
-                }, 10 * 10e2);
+                if (!isClick) {
+                    chatTimer = setTimeout(() => {
+                        // every 10s
+                        initConnections();
+                    }, 10 * 10e2);
+                }
             };
+            // 定时器
+
 
             const tabChange = (ref) => {
                 const callback = {
@@ -268,7 +281,7 @@
                         accountList.value.getContacts();
                     },
                     recent() {
-                        initConnections();
+                        initConnections(true);
                     },
                 };
 
@@ -561,6 +574,10 @@
                     }
                 });
             });
+            onBeforeUnmount(() => {
+                clearTimeout(chatTimer);
+                chatTimer = null;
+            });
 
             return {
                 vData,
@@ -646,23 +663,23 @@
                 cursor: pointer;
             }
         }
-        .el-icon-minus{background: #f1b92a;}
-        .el-icon-plus{background: #35c895;}
-        .el-icon-close{background: #f85564;}
+        .board-icon-minus{background: #f1b92a;}
+        .board-icon-plus{background: #35c895;}
+        .board-icon-close{background: #f85564;}
     }
     .chat-tab{
         width: 200px;
-        .el-tabs{height:100%;}
-        .el-tab-pane{
+        .board-tabs{height:100%;}
+        .board-tab-pane{
             height: 100%;
             overflow: auto;
         }
-        :deep(.el-tabs__item){
+        :deep(.board-tabs__item){
             height:30px;
             line-height:30px;
         }
-        :deep(.el-tabs__header){margin:0;}
-        :deep(.el-tabs__content){height:calc(100% - 30px);}
+        :deep(.board-tabs__header){margin:0;}
+        :deep(.board-tabs__content){height:calc(100% - 30px);}
     }
     .user-list{
         line-height: 16px;
@@ -675,7 +692,7 @@
             &:hover{
                 background: #f1f5fe;
                 color: $--color-primary;
-                .el-icon-delete{display:block;}
+                .board-icon-delete{display:block;}
                 .unread{display:none;}
             }
             &.active{
@@ -697,7 +714,7 @@
             background: #f85564;
             color:#fff;
         }
-        .el-icon-delete{
+        .board-icon-delete{
             position: absolute;
             right: 11px;
             bottom: 10px;
@@ -720,18 +737,18 @@
         top: 35px;
         z-index:2;
         width: auto;
-        :deep(.el-alert__content){
+        :deep(.board-alert__content){
             width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        :deep(.el-alert__description){
+        :deep(.board-alert__description){
             padding-right: 15px;
             margin:0;
         }
     }
-    .el-button-danger{
+    .board-button-danger{
         color:#F85564;
         padding: 0;
         border:0;

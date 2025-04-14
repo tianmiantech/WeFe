@@ -16,19 +16,23 @@
 
 package com.welab.wefe.serving.sdk.algorithm.xgboost;
 
-import com.alibaba.fastjson.util.TypeUtils;
-import com.welab.wefe.serving.sdk.enums.XgboostWorkMode;
-import com.welab.wefe.serving.sdk.model.PredictModel;
-import com.welab.wefe.serving.sdk.model.xgboost.XgboostDecisionTreeModel;
-import com.welab.wefe.serving.sdk.model.xgboost.XgboostModel;
-import com.welab.wefe.serving.sdk.model.xgboost.XgboostNodeModel;
-import org.apache.commons.collections4.MapUtils;
+import static java.lang.Math.exp;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.lang.Math.exp;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.ObjectUtils;
+
+import com.alibaba.fastjson.util.TypeUtils;
+import com.welab.wefe.serving.sdk.enums.XgboostWorkMode;
+import com.welab.wefe.serving.sdk.model.xgboost.XgbProviderPredictResultModel;
+import com.welab.wefe.serving.sdk.model.xgboost.XgboostDecisionTreeModel;
+import com.welab.wefe.serving.sdk.model.xgboost.XgboostModel;
+import com.welab.wefe.serving.sdk.model.xgboost.XgboostNodeModel;
+import com.welab.wefe.serving.sdk.model.xgboost.XgboostPredictResultModel;
 
 /**
  * @author hunter.zhao
@@ -60,7 +64,7 @@ public class XgboostAlgorithmHelper {
      * @param treeId     Tree number
      * @param treeNodeId Tree Node Number
      */
-    private static String getSite(XgboostModel model, int treeId, int treeNodeId) {
+    public static String getSite(XgboostModel model, int treeId, int treeNodeId) {
         return model.getTrees().get(treeId).getTree().get(treeNodeId).getSitename().split(":", -1)[0];
     }
 
@@ -162,7 +166,7 @@ public class XgboostAlgorithmHelper {
     private static int nextTreeNodeIdByHorz(XgboostModel model, int treeId, int treeNodeId, Map<String, Object> featureDataMap) {
 
         int fid = model.getTrees().get(treeId).getTree(treeNodeId).getFid();
-        double bidValue = model.getTrees().get(treeId).getTree(treeNodeId).getBid();
+        BigDecimal bidValue = BigDecimal.valueOf(model.getTrees().get(treeId).getTree(treeNodeId).getBid());
         String fidStr = String.valueOf(fid);
 
         return getNextNodeId(model, treeId, treeNodeId, featureDataMap, bidValue, fidStr);
@@ -183,18 +187,16 @@ public class XgboostAlgorithmHelper {
         int fid = model.getTrees().get(treeId).getTree(treeNodeId).getFid();
         String fidStr = String.valueOf(fid);
 
-        double splitValue;
+        BigDecimal splitValue;
         if (MapUtils.isNotEmpty(model.getTrees().get(treeId).getSplitMaskdict())) {
-            splitValue = model.getTrees().get(treeId).getSplitMaskdict().get(treeNodeId);
+            splitValue = BigDecimal.valueOf(model.getTrees().get(treeId).getSplitMaskdict().get(treeNodeId));
         } else {
-            splitValue = model.getTrees().get(treeId).getTree(treeNodeId).getBid();
+            splitValue = BigDecimal.valueOf(model.getTrees().get(treeId).getTree(treeNodeId).getBid());
         }
-
-
         return getNextNodeId(model, treeId, treeNodeId, featureDataMap, splitValue, fidStr);
     }
 
-    private static final double COMPARING_VALUES = 1e-20;
+    private static final BigDecimal COMPARING_VALUES = BigDecimal.valueOf(1e-17);
 
     /**
      * Gets the next node
@@ -206,10 +208,10 @@ public class XgboostAlgorithmHelper {
      * @param splitValue     Node threshold
      * @param fidStr         Characteristics of the serial number
      */
-    private static int getNextNodeId(XgboostModel model, int treeId, int treeNodeId, Map<String, Object> featureDataMap, double splitValue, String fidStr) {
+    private static int getNextNodeId(XgboostModel model, int treeId, int treeNodeId, Map<String, Object> featureDataMap, BigDecimal splitValue, String fidStr) {
         if (featureDataMap.containsKey(fidStr)) {
             //Find the threshold by the number
-            if (TypeUtils.castToDouble(featureDataMap.get(fidStr)) <= splitValue + COMPARING_VALUES) {
+            if (TypeUtils.castToBigDecimal(featureDataMap.get(fidStr)).compareTo(splitValue.add(COMPARING_VALUES)) == -1) {
                 return model.getTrees().get(treeId).getTree().get(treeNodeId).getLeftNodeId();
             } else {
                 return model.getTrees().get(treeId).getTree().get(treeNodeId).getRightNodeId();
@@ -233,7 +235,7 @@ public class XgboostAlgorithmHelper {
     /**
      * Prediction by sponsor (horizontal)
      */
-    public static PredictModel promoterPredictByHorz(XgboostModel model, String userId, Map<String, Object> featureDataMap) {
+    public static XgboostPredictResultModel promoterPredictByHorz(XgboostModel model, String userId, Map<String, Object> featureDataMap) {
 
         //Traverse to get the root node
         int[] treeNodeIds = new int[model.getTreeNum()];
@@ -262,7 +264,7 @@ public class XgboostAlgorithmHelper {
             weights[i] = getTreeLeafWeight(model, i, treeNodeIds[i]);
         }
 
-        return PredictModel.ofScores(userId, finalPredict(model, weights));
+        return XgboostPredictResultModel.ofScores(userId, finalPredict(model, weights));
     }
 
     /**
@@ -274,7 +276,7 @@ public class XgboostAlgorithmHelper {
      * @param decisionTreeMap decisionTreeMap
      * @return PredictModel
      */
-    public static PredictModel promoterPredictByVert(String workMode, XgboostModel model, String userId, Map<String, Object> featureDataMap, Map<String, Object> decisionTreeMap) {
+    public static XgboostPredictResultModel promoterPredictByVert(String workMode, XgboostModel model, String userId, Map<String, Object> featureDataMap, Map<String, Object> decisionTreeMap) {
         //TODO 新增skip模式处理方法
         if (workMode.equals(XgboostWorkMode.skip.name())) {
             return skipPredictModel(model, userId, featureDataMap, decisionTreeMap);
@@ -336,14 +338,14 @@ public class XgboostAlgorithmHelper {
             }
 
 
-            return PredictModel.ofScores(
+            return XgboostPredictResultModel.ofScores(
                     userId,
                     finalPredict(model, weights)
             );
         }
     }
 
-    private static PredictModel skipPredictModel(XgboostModel model, String userId, Map<String, Object> featureDataMap, Map<String, Object> decisionTreeMap) {
+    private static XgboostPredictResultModel skipPredictModel(XgboostModel model, String userId, Map<String, Object> featureDataMap, Map<String, Object> decisionTreeMap) {
         int[] treeNodeIds = new int[model.getTreeNum()];
         double[] weights = new double[model.getTreeNum()];
 
@@ -375,7 +377,7 @@ public class XgboostAlgorithmHelper {
         }
 
 
-        return PredictModel.ofScores(
+        return XgboostPredictResultModel.ofScores(
                 userId,
                 finalPredict(model, weights)
         );
@@ -459,7 +461,7 @@ public class XgboostAlgorithmHelper {
      * @param featureDataMap featureDataMap
      * @return PredictModel
      */
-    public static PredictModel providerPredict(String workMode, XgboostModel model, String userId, Map<String, Object> featureDataMap) {
+    public static XgbProviderPredictResultModel providerPredict(String workMode, XgboostModel model, String userId, Map<String, Object> featureDataMap) {
         //TODO 新增skip模式处理方法
         if (workMode.equals(XgboostWorkMode.skip.name())) {
             return skipProviderPredictModel(model, userId, featureDataMap);
@@ -489,16 +491,15 @@ public class XgboostAlgorithmHelper {
                      */
                     boolean direction = false;
 
-                    if (featureDataMap.containsKey(Integer.toString(fid))) {
+                    if (featureDataMap.containsKey(Integer.toString(fid)) && ObjectUtils.isNotEmpty(featureDataMap.get(Integer.toString(fid)))) {
                         Object featVal = featureDataMap.get(Integer.toString(fid));
-                        double splitValue;
+                        BigDecimal splitValue;
                         if (MapUtils.isNotEmpty(decisionTree.getSplitMaskdict())) {
-                            splitValue = decisionTree.getSplitMaskdict().get(j);
+                            splitValue = BigDecimal.valueOf(decisionTree.getSplitMaskdict().get(j));
                         } else {
-                            splitValue = decisionTree.getTree(j).getBid();
+                            splitValue = BigDecimal.valueOf(decisionTree.getTree(j).getBid());
                         }
-                        direction = TypeUtils.castToDouble(featVal) <= splitValue + 1e-20;
-
+                        direction = TypeUtils.castToBigDecimal(featVal).compareTo(splitValue.add(COMPARING_VALUES)) == -1;
                     } else {
                         if (MapUtils.isNotEmpty(decisionTree.getMissingDirMaskdict()) && decisionTree.getMissingDirMaskdict().containsKey(Integer.toString(j))) {
                             int missingDir = decisionTree.getMissingDirMaskdict().get(Integer.toString(j));
@@ -516,7 +517,7 @@ public class XgboostAlgorithmHelper {
                 result.put(String.valueOf(i), treeRoute);
             }
 
-            return PredictModel.ofObject(userId, result);
+            return XgbProviderPredictResultModel.ofObject(userId, result);
         }
     }
 
@@ -528,7 +529,7 @@ public class XgboostAlgorithmHelper {
      * @param featureDataMap featureDataMap
      * @return PredictModel
      */
-    private static PredictModel skipProviderPredictModel(XgboostModel model, String userId, Map<String, Object> featureDataMap) {
+    private static XgbProviderPredictResultModel skipProviderPredictModel(XgboostModel model, String userId, Map<String, Object> featureDataMap) {
         Map<String, Integer> result = new HashMap<>(16);
         int[] treeNodeIds = new int[model.getTreeNum()];
 
@@ -551,6 +552,6 @@ public class XgboostAlgorithmHelper {
         }
 
 
-        return PredictModel.ofObject(userId, result);
+        return XgbProviderPredictResultModel.ofObject(userId, result);
     }
 }

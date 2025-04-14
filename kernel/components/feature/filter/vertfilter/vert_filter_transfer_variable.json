@@ -1,0 +1,16 @@
+{
+  "VertFilterTransferVariable": {
+    "promoter_ids": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "provider_ids": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    }
+  }
+}

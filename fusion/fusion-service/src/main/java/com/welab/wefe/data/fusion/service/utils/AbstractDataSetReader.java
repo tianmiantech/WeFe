@@ -49,11 +49,11 @@ public abstract class AbstractDataSetReader implements Closeable {
         try {
             list = doGetHeader();
         } catch (Exception e) {
-            throw new StatusCodeWithException("读取数据集 header 信息失败：" + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "读取数据集 header 信息失败：" + e.getMessage());
         }
 
         if (list.stream().distinct().count() != list.size()) {
-            throw new StatusCodeWithException("数据集包含重复的字段。请处理并重新上传.", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "数据集包含重复的字段。请处理并重新上传.");
         }
 
         list = list.stream().map(x -> "Y".equals(x) ? "y" : x).collect(Collectors.toList());
@@ -74,11 +74,11 @@ public abstract class AbstractDataSetReader implements Closeable {
         try {
             list = doGetHeader();
         } catch (Exception e) {
-            throw new StatusCodeWithException("读取数据集 header 信息失败：" + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "读取数据集 header 信息失败：" + e.getMessage());
         }
 
         if (list.stream().distinct().count() != list.size()) {
-            throw new StatusCodeWithException("数据集包含重复的字段，请处理后重新上传。", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "数据集包含重复的字段，请处理后重新上传。");
         }
 
         header = rowsList;
@@ -130,8 +130,8 @@ public abstract class AbstractDataSetReader implements Closeable {
      *
      * @param dataRowConsumer Data row consumption method
      */
-    public void readAllWithSelectRow(Consumer<Map<String, Object>> dataRowConsumer, List<String> rows, int processCount) throws IOException, StatusCodeWithException {
-        readWithSelectRow(dataRowConsumer, -1, -1, rows, processCount);
+    public void readAllWithSelectRow(Consumer<Map<String, Object>> dataRowConsumer, List<String> idFeatureFields, int processCount) throws IOException, StatusCodeWithException {
+        readWithSelectRow(dataRowConsumer, -1, -1, idFeatureFields, processCount);
     }
 
     /**
@@ -141,7 +141,7 @@ public abstract class AbstractDataSetReader implements Closeable {
      * @param maxReadRows     Maximum number of rows that can be read
      * @param maxReadTimeInMs Maximum read time allowed
      */
-    public void readWithSelectRow(Consumer<Map<String, Object>> dataRowConsumer, long maxReadRows, long maxReadTimeInMs, List<String> rows, int processCount) throws StatusCodeWithException {
+    public void readWithSelectRow(Consumer<Map<String, Object>> dataRowConsumer, long maxReadRows, long maxReadTimeInMs, List<String> idFeatureFields, int processCount) throws StatusCodeWithException {
 
         long start = System.currentTimeMillis();
 
@@ -158,7 +158,7 @@ public abstract class AbstractDataSetReader implements Closeable {
             List<Object> values = new ArrayList<>(line.values());
             LinkedHashMap<String, Object> newLine = new LinkedHashMap<>();
             for (int i = 0; i < line.size(); i++) {
-                if (rows.contains(fields.get(i))) {
+                if (idFeatureFields.contains(fields.get(i))) {
                     newLine.put((String) fields.get(i), values.get(i));
                 }
             }
@@ -191,8 +191,6 @@ public abstract class AbstractDataSetReader implements Closeable {
 
         LinkedHashMap<String, Object> line;
         while ((line = readOneRow()) != null) {
-
-
             List<Object> fields = new ArrayList<>(line.keySet());
             List<Object> values = new ArrayList<>(line.values());
             LinkedHashMap<String, Object> newLine = new LinkedHashMap<>();
@@ -240,4 +238,6 @@ public abstract class AbstractDataSetReader implements Closeable {
      * Read data row
      */
     protected abstract LinkedHashMap<String, Object> readOneRow() throws StatusCodeWithException;
+    
+    public abstract long getRowCount(int sheetIndex);
 }

@@ -16,18 +16,29 @@
 
 package com.welab.wefe.serving.service.feature.sql.pg;
 
+import com.welab.wefe.common.jdbc.base.DatabaseType;
 import com.welab.wefe.serving.service.feature.sql.AbstractDruidTemplate;
 
 /**
  * @author hunter.zhao
  */
 public class PgSqlTemplate extends AbstractDruidTemplate {
-    public PgSqlTemplate(String url, String username, String password, String sql, String userId) {
-        super(url, username, password, sql, userId);
+    public PgSqlTemplate(DatabaseType databaseType,
+                         String host,
+                         int port,
+                         String database,
+                         String username,
+                         String password) {
+        super(databaseType, host, port, database, username, password);
     }
 
     @Override
     protected String driver() {
         return "org.postgresql.Driver";
+    }
+
+    @Override
+    protected String url() {
+        return String.format("jdbc:postgres://%s:%d/%s", host, port, database);
     }
 }

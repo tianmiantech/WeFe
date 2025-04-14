@@ -34,6 +34,7 @@ from common.python.utils import log_utils
 from kernel.base.params.base_param import BaseParam
 from kernel.utils import consts
 
+
 LOGGER = log_utils.get_logger()
 
 
@@ -57,6 +58,8 @@ class EvaluateParam(BaseParam):
         self.pos_label = pos_label
         self.need_run = need_run
         self.metrics = metrics
+        self.score_param = ScoreParam()
+        self.psi_param = PSIParam()
 
         self.default_metrics = {
             consts.BINARY: consts.ALL_BINARY_METRICS,
@@ -141,7 +144,6 @@ class EvaluateParam(BaseParam):
             LOGGER.warning('use default metric {} for eval type {}'.format(self.metrics, self.eval_type))
 
         self.metrics = self._check_valid_metric(self.metrics)
-
         LOGGER.info("Finish evaluation parameter check!")
 
         return True
@@ -149,3 +151,40 @@ class EvaluateParam(BaseParam):
     def check_single_value_default_metric(self):
         self._use_single_value_default_metrics()
         self.check()
+
+class ScoreParam(BaseParam):
+    def __init__(self, prob_need_to_bin = False, bin_method = None, bin_num = None):
+        super().__init__()
+        self.prob_need_to_bin = prob_need_to_bin
+        self.bin_num = bin_num
+        self.bin_method = bin_method
+
+
+    def check(self):
+        if self.prob_need_to_bin:
+            if self.bin_method not in ["bucket"]:
+                raise ValueError("bin_method{} not support".format(self.bin_method))
+            if self.bin_num <= 0:
+                raise ValueError("bin_num is {}, should choose number of binning greater than 0".format(self.bin_num))
+
+class PSIParam(BaseParam):
+    def __init__(self, need_psi = False, bin_method = None, bin_num = None, split_points=None):
+        super().__init__()
+        self.need_psi = need_psi
+        self.bin_num = bin_num
+        self.bin_method = bin_method
+        self.split_points = split_points
+
+    def check(self):
+        if self.need_psi:
+            if self.bin_method not in ["bucket", "custom"]:
+                raise ValueError("bin_method{} not support".format(self.bin_method))
+            if self.bin_method == 'custom':
+                if not self.split_points:
+                    raise ValueError("split_points {} not NULL")
+            if self.bin_num <= 0:
+                raise ValueError(
+                    "bin_num is {}, should choose number of binning greater than 0".format(self.bin_num))
+
+
+

@@ -23,7 +23,6 @@ import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
 import com.welab.wefe.board.service.database.repository.fusion.FusionTaskRepository;
 import com.welab.wefe.board.service.fusion.actuator.ClientActuator;
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
-import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
@@ -34,6 +33,7 @@ import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
 import java.nio.file.Paths;
@@ -60,7 +60,7 @@ public class CallbackService {
     /**
      * rsa-callback
      */
-//    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public void audit(AuditCallbackApi.Input input) throws StatusCodeWithException {
         switch (input.getAuditStatus()) {
             case agree:
@@ -90,7 +90,7 @@ public class CallbackService {
     private void running(AuditCallbackApi.Input input) throws StatusCodeWithException {
         FusionTaskMySqlModel task = fusionTaskService.findByBusinessIdAndStatus(input.getBusinessId(), FusionTaskStatus.Await);
         if (task == null) {
-            throw new StatusCodeWithException("businessId error:" + input.getBusinessId(), DATA_NOT_FOUND);
+            throw new StatusCodeWithException(DATA_NOT_FOUND, "businessId error:" + input.getBusinessId());
         }
         if (StringUtil.isNotEmpty(input.getPartnerHashFunction())) {
             task.setPartnerHashFunction(input.getPartnerHashFunction());
@@ -131,14 +131,14 @@ public class CallbackService {
 
         TableDataSetMysqlModel dataSet = tableDataSetService.findOneById(task.getDataResourceId());
         if (dataSet == null) {
-            throw new StatusCodeWithException("No corresponding dataset was found", DATA_NOT_FOUND);
+            throw new StatusCodeWithException(DATA_NOT_FOUND, "No corresponding dataset was found");
         }
 
         task.setStatus(FusionTaskStatus.Running);
         task.setUpdatedTime(new Date());
         fusionTaskRepository.save(task);
 
-        ClientActuator client = new ClientActuator(
+        new ClientActuator(
                 task.getBusinessId(),
                 task.getDataResourceId(),
                 task.isTrace(),
@@ -146,11 +146,7 @@ public class CallbackService {
                 task.getDstMemberId(),
                 DataResourceType.TableDataSet.equals(task.getDataResourceType()) ?
                         task.getRowCount() : task.getPartnerRowCount()
-        );
-
-        ActuatorManager.set(client);
-
-        client.run();
+        ).run();
     }
 
 
@@ -171,13 +167,13 @@ public class CallbackService {
          */
         BloomFilterMysqlModel bf = bloomFilterService.findOne(task.getDataResourceId());
         if (bf == null) {
-            throw new StatusCodeWithException("Bloom filter not found", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "Bloom filter not found");
         }
 
         /**
          * Generate the corresponding task handler
          */
-        ServerActuator server = new ServerActuator(
+        new ServerActuator(
                 task.getBusinessId(),
                 BloomFilterUtils.readFrom(
                         Paths.get(bf.getStorageNamespace(), bf.getStorageResourceName()).toString()
@@ -189,10 +185,6 @@ public class CallbackService {
                 new BigInteger(bf.getRsaQ()),
                 DataResourceType.TableDataSet.equals(task.getDataResourceType()) ?
                         task.getRowCount() : task.getPartnerRowCount()
-        );
-
-        ActuatorManager.set(server);
-
-        server.run();
+        ).run();
     }
 }

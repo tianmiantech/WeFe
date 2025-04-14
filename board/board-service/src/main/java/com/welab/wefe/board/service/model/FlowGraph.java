@@ -192,6 +192,18 @@ public class FlowGraph extends BaseFlowGraph {
     }
 
     /**
+     * 判断两个节点是否为父子关系
+     * @param childId
+     * @param parentId
+     * @return
+     */
+    public boolean isChild(String childId, String parentId) {
+        FlowGraphNode childNode = getNode(childId);
+        FlowGraphNode parentNode = findOneNodeFromParent(childNode, x -> x.getNodeId().equals(parentId));
+        return parentNode != null;
+    }
+
+    /**
      * 从指定节点的父节点中查找所有满足要求的节点
      * <p>
      * Find all nodes that meet the requirements from the parent node of the specified node

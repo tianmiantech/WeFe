@@ -13,13 +13,15 @@ $--color-error                     : #f85564;
 
 /* layout navigate
 -------------------------- */
-$nav-background                    : #041527;
-$nav-background-active             : #448EF7;
-$nav-text-color                    : #a6aaae;
-$nav-active-color                  : #fff;
+$nav-background                    : var(--tm-menu-bg);
+$nav-background-active             : var(--tm-menu-hoverBg);
+$nav-text-color                    : var(--tm-menu-color);
+$nav-active-color                  : var(--tm-menu-activeColor);
 $header-background                 : #fff;
-$layout-main-background            : #F5F7FA;
-$sub-menu-list_bg                  : #041527;
+$layout-main-background            : #f0f2f5;
+$sub-menu-hover-bg                 : var(--tm-menu-activeBg);
+$nav-menu-item-active              : var(--tm-menu-activeColor);
+$nav-menu-item-hover               : var(--tm-menu-hoverColor);
 
 /* link
 -------------------------- */
@@ -36,7 +38,6 @@ $color-text-selected               : #FF8A00;
 
 /* background-color
 -------------------------- */
-$background-color-base             : #fff;
 $background-color-selected         : #F2F2F2;
 $background-color-hover            : #F7F7F7;
 $background-color-light            : #FBFBFB;
@@ -54,12 +55,10 @@ $font-size-large                   : 14px;
 $font-size-larger                  : 16px;
 $font-size-largest                 : 18px;
 $font-weight-medium                : 500;
-$font-family                       : Avenir,Helvetica,Arial,Helvetica,PingFang SC,Microsoft YaHei,SimSun,sans-serif;
+// $font-family                       : Avenir,Helvetica,Arial,Helvetica,PingFang SC,Microsoft YaHei,SimSun,sans-serif;
 $font-line-height                  : 1;
 
 /* Animation
 -------------------------- */
 $animation-transition-time          : 300ms;
 $animation-transition-timing        : ease-in-out;
-
-.color-danger{color:$--color-danger;}

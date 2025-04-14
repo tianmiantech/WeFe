@@ -1,19 +1,19 @@
 <template>
-    <ul :class="['navigator-list', { show: vData.showNavigation }]">
+    <ul v-if="vData.isTitleOk" :class="['navigator-list', { show: vData.showNavigation, 'top-qiankun': vData.isInQianKun }]">
         <li
             v-for="(item, index) in vData.list"
             :key="index"
         >
             <el-link
-                :type="item.highlight ? 'primary' : 'default'"
+                :type="item?.highlight ? 'primary' : 'default'"
                 :underline="false"
                 @click="jumpto(item)"
-            >{{ item.title }}</el-link>
+            >{{ item?.title }}</el-link>
         </li>
     </ul>
     <div v-if="vData.show" class="navigator">
         <el-icon
-            class="backToTop el-icon-arrow-up"
+            class="backToTop board-icon-arrow-up"
             @click="toBack"
         >
             <elicon-arrow-up />
@@ -27,6 +27,7 @@
         reactive,
         onMounted,
         getCurrentInstance,
+        onBeforeUnmount,
     } from 'vue';
     import { useRoute } from 'vue-router';
 
@@ -39,9 +40,13 @@
             const { $bus } = appContext.config.globalProperties;
             const route = useRoute();
             const vData = reactive({
-                showNavigation: false,
-                show:           false,
-                list:           [],
+                showNavigation:      false,
+                show:                false,
+                list:                [],
+                isTitleOk:           false,
+                updateTitleIdxTimer: null,
+                updateOkTimer:       null,
+                isInQianKun:         window.__POWERED_BY_QIANKUN__ || false,
             });
             const getElementOffset = el => {
                 let offsetTop = el.offsetTop,
@@ -99,34 +104,53 @@
                         for (const item of titles) {
                             const title = item.getAttribute('name');
                             const show = item.getAttribute('show');
+                            const idx = item.getAttribute('idx') || '';
 
-                            if (show !== 'false') {
-                                vData.list.push({
-                                    title,
-                                    highlight: false,
-                                });
+                            if (idx.length) {
+                                vData.updateTitleIdxTimer = setTimeout(()=> {
+                                    let index = item.getAttribute('idx');
+
+                                    index = Number(index) + 1;
+                                    if (show !== 'false') {
+                                        vData.list[index] = { title, highlight: false };
+                                    }
+                                }, 200);
+                            } else {
+                                if (show !== 'false') { 
+                                    vData.list.push({ 
+                                        title, 
+                                        highlight: false, 
+                                    }); 
+                                } 
                             }
+
+                            
                         }
                     }
                 }
-                if(vData.list.length) {
-                    vData.showNavigation = route.meta.navigation;
-                    hightlightTitle();
-                }
+                vData.updateOkTimer = setTimeout(() => {
+                    if(vData.list.length) {
+                        vData.showNavigation = route.meta.navigation;
+                        hightlightTitle();
+                    }
+                }, 250);
             };
             const hightlightTitle = () => {
                 if(route.meta.navigation) {
                     const titles = container.querySelectorAll('.nav-title');
 
-                    vData.list.forEach(item => item.highlight = false);
+                    vData.list.forEach(item => item.highlight = true);
                     for(let i = 0; i < titles.length; i++) {
                         const item = titles[i];
                         const { top, bottom } = item.getBoundingClientRect();
 
                         if(top <= 120 && bottom >= 90 && vData.list[i]) {
                             vData.list[i].highlight = true;
+                            
                         }
                     }
+                    vData.isTitleOk = true;
+                    
                 }
             };
             const init = () => {
@@ -146,19 +170,23 @@
                     if(vData.list.length) {
                         vData.list[0].highlight = true;
                     }
+                    
+                
+
                 }
             };
 
             onMounted(() => {
                 init();
+                if($bus){
+                    $bus.$on('loginAndRefresh', () => {
+                        init();
+                    });
 
-                $bus.$on('loginAndRefresh', () => {
-                    init();
-                });
-
-                $bus.$on('update-title-navigator', e => {
-                    init();
-                });
+                    $bus.$on('update-title-navigator', e => {
+                        init();
+                    });
+                }
             });
 
             watch(
@@ -179,10 +207,15 @@
 
                             getTitles();
                             hightlightTitle();
-                        }, 100);
+                        }, 300);
                     }
                 },
             );
+
+            onBeforeUnmount(()=> {
+                if (vData.updateTitleIdxTimer) clearTimeout(vData.updateTitleIdxTimer);
+                if (vData.updateOkTimer) clearTimeout(vData.updateOkTimer);
+            });
 
             return {
                 vData,
@@ -214,7 +247,8 @@
         background:#fff;
         &.show{transform: translateX(-10px);}
     }
-    .el-link{
+    .top-qiankun { top: 140px; }
+    .board-link{
         font-size: 12px;
         margin-top:5px;
         width: 100%;

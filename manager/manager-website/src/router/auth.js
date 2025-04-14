@@ -3,7 +3,9 @@
  * User authentication
  */
 
-const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV ? `/${process.env.CONTEXT_ENV}/` : '/'}`;
+import { appCode } from '@src/utils/constant';
+
+const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${appCode() ? `/${appCode()}/` : '/'}`;
 
 export const setStorage = () => {
     /* const KEEPALIVE = `${baseUrl}_keepAlive`;
@@ -20,17 +22,16 @@ export const setStorage = () => {
  * clear user cache
  */
 export const clearUserInfo = () => {
-    const { baseUrl } = window.api;
 
-    setStorage().removeItem(`${baseUrl}_userInfo`);
+    setStorage().removeItem(`${appCode()}_userInfo`);
+    setStorage().removeItem(`${appCode()}_system_inited`);
 };
 
 /**
  * check login state
  */
 export const baseIsLogin = () => {
-    const { baseUrl } = window.api;
-    const userInfo = setStorage().getItem(`${baseUrl}_userInfo`);
+    const userInfo = setStorage().getItem(`${appCode()}_userInfo`);
 
     if (userInfo) {
         // sync store user info
@@ -65,9 +66,8 @@ export const syncLogin = async (userInfo = {}) => {
  * force to logout
  */
 export const baseLogout = async (opt = { redirect: true }) => {
-    const { baseUrl } = window.api;
     const { $router, $http } = window.$app.config.globalProperties;
-    const userInfo = setStorage().getItem(`${baseUrl}_userInfo`);
+    const userInfo = setStorage().getItem(`${appCode()}_userInfo`);
 
     // reset store & localstorage
     if (userInfo) {
@@ -77,7 +77,7 @@ export const baseLogout = async (opt = { redirect: true }) => {
         });
     }
     clearUserInfo();
-    setStorage().removeItem(`${baseUrl}_system_inited`);
+    setStorage().removeItem(`${appCode()}_system_inited`);
 
     let query = {};
 
@@ -102,9 +102,7 @@ export const syncTabsUserState = async () => {
 
     window.addEventListener('storage', (e) => {
 
-        const { baseUrl } = window.api;
-
-        if (e.key === setStorage().getItem(`${baseUrl}_userInfo`)) {
+        if (e.key === setStorage().getItem(`${appCode()}_userInfo`)) {
 
             if (e.newValue) {
                 // logged in

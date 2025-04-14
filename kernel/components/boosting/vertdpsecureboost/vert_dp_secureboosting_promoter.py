@@ -162,9 +162,8 @@ class VertDPSecureBoostingPromoter(BoostingTree):
         for data_bin in privider_data_bins:
             self.data_bin = binning_obj.merge_data_bins(self.data_bin, data_bin)
         for bin_shape, bin_sparse_points, sitename in privider_split_points:
-            self.bin_split_points = np.zeros((self.bin_split_points.shape[0]+bin_shape[0], self.bin_num))
-
-            for k, v in bin_sparse_points.items():
+            self.bin_split_points = np.zeros((self.bin_split_points.shape[0]+bin_shape[0],self.bin_num))
+            for k,v in bin_sparse_points.items():
                 self.bin_sparse_points[k+feature_num] = v
             feature_num += bin_shape[0]
             self.feature_sitenames.append((feature_num, sitename))
@@ -345,6 +344,10 @@ class VertDPSecureBoostingPromoter(BoostingTree):
                                                             idx=-1,
                                                             suffix=(comm_round,))
 
+    def sync_anonymous_name_mapping(self):
+        LOGGER.info("sync anonymous name mapping.")
+        return self.transfer_variable.anonymous_name_mapping.get(idx=-1)
+
     def sync_provider_data_bin_with_dp(self):
         LOGGER.info("get provider bin data with dp")
         return self.transfer_variable.data_bin_with_dp.get(idx=-1)
@@ -519,7 +522,7 @@ class VertDPSecureBoostingPromoter(BoostingTree):
             bestIteration = model_param['treeNum']
             self.set_model_param(model_param)
             self.sync_begin_iter(bestIteration)
-            self.tracker.set_task_progress(bestIteration)
+            self.tracker.set_task_progress(bestIteration, self.need_grid_search)
         for epoch_idx in range(bestIteration, self.num_trees):
             self.compute_grad_and_hess(data_inst)
             for tidx in range(self.tree_dim):
@@ -558,8 +561,8 @@ class VertDPSecureBoostingPromoter(BoostingTree):
                 else:
                     self.sync_stop_flag(False, epoch_idx)
 
-            self.tracker.save_training_best_model(self.export_model())
-            self.tracker.add_task_progress(1)
+            self.tracker.save_training_best_model(self.export_model(), self.need_grid_search)
+            self.tracker.add_task_progress(1, self.need_grid_search)
 
         LOGGER.debug("history loss is {}".format(min(self.history_loss)))
         self.callback_metric("loss",
@@ -753,13 +756,19 @@ class VertDPSecureBoostingPromoter(BoostingTree):
         feature_importances = list(self.get_feature_importance().items())
         feature_importances = sorted(feature_importances, key=itemgetter(1), reverse=True)
         feature_importance_param = []
+        anonymous_name_mapping_list = self.sync_anonymous_name_mapping()
+        anonymous_name_mappings = {}
+        if anonymous_name_mapping_list:
+            for name_mapping in anonymous_name_mapping_list:
+                anonymous_name_mappings.update(name_mapping)
+
         for (sitename, fid), importance in feature_importances:
             if consts.PROMOTER in sitename:
                 fullname = self.feature_name_fid_mapping[fid]
             else:
                 role_name, party_id = sitename.split(':')
-                fullname = generate_anonymous(fid=fid, party_id=party_id, role=role_name)
-
+                anonymous_name = generate_anonymous(fid=fid, party_id=party_id, role=role_name)
+                fullname = anonymous_name_mappings[anonymous_name]
             feature_importance_param.append(FeatureImportanceInfo(sitename=sitename,
                                                                   fid=fid,
                                                                   importance=importance.importance,
@@ -819,8 +828,11 @@ class VertDPSecureBoostingPromoter(BoostingTree):
 
     def export_model(self):
 
-        if self.need_cv:
-            return None
+        if self.model_output is not None:
+            return self.model_output
+
+        if self.need_cv and not self.need_grid_search:
+            return
 
         meta_name, meta_protobuf = self.get_model_meta()
         param_name, param_protobuf = self.get_model_param()

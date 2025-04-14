@@ -16,8 +16,10 @@
 
 package com.welab.wefe.data.fusion.service.database.entity;
 
-import com.welab.wefe.common.wefe.enums.DatabaseType;
+import com.welab.wefe.common.jdbc.base.DatabaseType;
+import com.welab.wefe.common.web.util.DatabaseEncryptConverter;
 
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -62,6 +64,7 @@ public class DataSourceMySqlModel extends AbstractBaseMySqlModel {
     /**
      * password
      */
+    @Convert(converter= DatabaseEncryptConverter.class)
     private String password;
 
 

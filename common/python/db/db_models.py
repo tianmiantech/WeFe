@@ -14,6 +14,7 @@
 
 import inspect
 import operator
+import os
 import sys
 
 from peewee import *
@@ -22,43 +23,47 @@ from playhouse.pool import PooledMySQLDatabase
 
 from common.python.common import consts
 from common.python.utils import log_utils, sqlite_utils
-from common.python.utils.conf_utils import get_comm_config, get_env_config
+from common.python.utils.conf_utils import get_comm_config, get_env_config, get_value_by_enable
 
 stat_logger = log_utils.get_logger("wefe_flow_stat")
 
 # Database Connectivity
-host = get_comm_config(consts.COMM_CONF_KEY_MYSQL_HOST)
-password = get_comm_config(consts.COMM_CONF_KEY_MYSQL_PASSWORD)
-port = int(get_comm_config(consts.COMM_CONF_KEY_MYSQL_PORT))
-user = get_comm_config(consts.COMM_CONF_KEY_MYSQL_USERNAME)
-database = get_comm_config(consts.COMM_CONF_KEY_MYSQL_DATABASE)
-
-# Environment variable
-env_host = get_env_config(consts.COMM_CONF_KEY_MYSQL_HOST)
-env_password = get_env_config(consts.COMM_CONF_KEY_MYSQL_PASSWORD)
-env_port = get_env_config(consts.COMM_CONF_KEY_MYSQL_PORT)
-if env_port:
-    env_port = int(env_port)
-env_user = get_env_config(consts.COMM_CONF_KEY_MYSQL_USERNAME)
-env_database = get_env_config(consts.COMM_CONF_KEY_MYSQL_DATABASE)
-
-settings = {'host': env_host or host,
-            'password': env_password or password,
-            'port': env_port or port,
-            'user': env_user or user,
-            'max_connections': 500
-            }
-
-work_mode = get_comm_config(consts.COMM_CONF_WEFE_JOB_WORK_MODE)
-
+fc_env = os.getenv('IN_FC_ENV')
+work_mode = None
 DB = None
 
-if int(work_mode) == 0:
-    stat_logger.debug("Use SQLite")
-    DB = sqlite_utils.get_sqlite_db()
-else:
-    stat_logger.debug("Use Mysql")
-    DB = PooledMySQLDatabase(env_database or database, **settings)
+if fc_env is None or int(fc_env) != 1:
+    host = get_comm_config(consts.COMM_CONF_KEY_MYSQL_HOST)
+    password = get_comm_config(consts.COMM_CONF_KEY_MYSQL_PASSWORD)
+    port = int(get_comm_config(consts.COMM_CONF_KEY_MYSQL_PORT))
+    user = get_comm_config(consts.COMM_CONF_KEY_MYSQL_USERNAME)
+    database = get_comm_config(consts.COMM_CONF_KEY_MYSQL_DATABASE)
+
+    # Environment variable
+    env_host = get_env_config(consts.COMM_CONF_KEY_MYSQL_HOST)
+    env_password = get_env_config(consts.COMM_CONF_KEY_MYSQL_PASSWORD)
+    env_port = get_env_config(consts.COMM_CONF_KEY_MYSQL_PORT)
+    if env_port:
+        env_port = int(env_port)
+    env_user = get_env_config(consts.COMM_CONF_KEY_MYSQL_USERNAME)
+    env_database = get_env_config(consts.COMM_CONF_KEY_MYSQL_DATABASE)
+
+    settings = {'host': env_host or host,
+                'password': env_password or password,
+                'port': env_port or port,
+                'user': env_user or user,
+                'max_connections': 500
+                }
+
+    # 改为读取数据库配置, 且该配置已放入 job config 中
+    work_mode = get_comm_config(consts.COMM_CONF_KEY_EXAMPLE_RUN)
+
+    if int(work_mode) == 0:
+        stat_logger.debug("Use SQLite")
+        DB = sqlite_utils.get_sqlite_db()
+    else:
+        stat_logger.debug("Use Mysql")
+        DB = PooledMySQLDatabase(env_database or database, **settings)
 
 
 class ModelBase(Model):
@@ -129,19 +134,31 @@ class GlobalSetting(object):
         return GlobalConfigDao.getMemberInfo().member_allow_public_data_set
 
     @staticmethod
-    def get_rsa_private_key():
+    def get_secret_key_type():
+        from common.python.db.global_config_dao import GlobalConfigDao
+        from flow.web.utils.const import SecretKeyType
+        secret_key_type = GlobalConfigDao.getMemberInfo().secret_key_type
+        return secret_key_type if secret_key_type else SecretKeyType.RSA
+
+    @staticmethod
+    def get_private_key():
         from common.python.db.global_config_dao import GlobalConfigDao
         return GlobalConfigDao.getMemberInfo().rsa_private_key
 
     @staticmethod
-    def get_flow_base_url():
+    def get_public_key():
         from common.python.db.global_config_dao import GlobalConfigDao
-        return GlobalConfigDao.get('wefe_flow', 'intranet_base_uri')
+        return GlobalConfigDao.getMemberInfo().rsa_public_key
 
     @staticmethod
-    def get_visualfl_base_url():
+    def get_flow_base_url():
         from common.python.db.global_config_dao import GlobalConfigDao
-        return GlobalConfigDao.get('wefe_flow', 'visual_fl_base_url')
+        return get_value_by_enable(GlobalConfigDao.get('wefe_flow', 'intranet_base_uri').value)
+
+    @staticmethod
+    def get_paddle_visual_dl_baseurl():
+        from common.python.db.global_config_dao import GlobalConfigDao
+        return get_value_by_enable(GlobalConfigDao.get('deep_learning_config', 'paddle_visual_dl_base_url').value)
 
 
 class DataResource(ModelBase):
@@ -292,6 +309,7 @@ class FlowActionQueue(ModelBase):
     action = CharField()
     params = CharField()
 
+
     class Meta:
         db_table = "flow_action_queue"
 
@@ -333,6 +351,7 @@ class Job(ModelBase):
     updated_by = CharField(null=True)
     updated_time = DateTimeField(null=True)
     job_middle_data_is_clear = IntegerField(constraints=[SQL("DEFAULT 0")])
+    job_config = TextField()
 
     class Meta:
         db_table = 'job'
@@ -590,14 +609,11 @@ class TaskProgress(ModelBase):
         )
 
 
-if int(work_mode) == 0:
-    members = inspect.getmembers(sys.modules[__name__], inspect.isclass)
-    table_objs = []
-    for name, obj in members:
-        if obj != ModelBase and issubclass(obj, ModelBase):
-            table_objs.append(obj)
-    sqlite_utils.create_table(table_objs, DB)
-
-
-if __name__ == '__main__':
-    pass
+if fc_env is None and work_mode is not None:
+    if int(work_mode) == 0:
+        members = inspect.getmembers(sys.modules[__name__], inspect.isclass)
+        table_objs = []
+        for name, obj in members:
+            if obj != ModelBase and issubclass(obj, ModelBase):
+                table_objs.append(obj)
+        sqlite_utils.create_table(table_objs, DB)

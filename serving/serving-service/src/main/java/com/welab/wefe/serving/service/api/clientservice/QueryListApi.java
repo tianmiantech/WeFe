@@ -16,34 +16,33 @@
 
 package com.welab.wefe.serving.service.api.clientservice;
 
+import java.io.IOException;
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ClientServiceOutputModel;
 import com.welab.wefe.serving.service.dto.PagingInput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
-import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
 import com.welab.wefe.serving.service.service.ClientServiceService;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.persistence.Column;
-import java.io.IOException;
-import java.util.Date;
 
 /**
  * @author ivenn.zheng
  */
-@Api(path = "clientservice/query-list", name = "query list" ,login = false)
+@Api(path = "clientservice/query-list", name = "query list")
 public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<QueryListApi.Output>> {
 
     @Autowired
     private ClientServiceService clientServiceService;
 
     @Override
-    protected ApiResult<PagingOutput<QueryListApi.Output>> handle(Input input) throws StatusCodeWithException, IOException {
+    protected ApiResult<PagingOutput<QueryListApi.Output>> handle(Input input)
+            throws StatusCodeWithException, IOException {
         return success(clientServiceService.queryList(input));
     }
 
@@ -56,6 +55,9 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
 
         @Check(name = "启用状态")
         private Integer status;
+
+        @Check(name = "类型") // 激活 或者 开通
+        private Integer type;
 
         public String getServiceName() {
             return serviceName;
@@ -80,9 +82,17 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
         public void setStatus(Integer status) {
             this.status = status;
         }
+
+        public Integer getType() {
+            return type;
+        }
+
+        public void setType(Integer type) {
+            this.type = type;
+        }
     }
 
-    public static class Output extends PagingOutput{
+    public static class Output extends AbstractApiOutput {
 
         private String serviceId;
 
@@ -102,13 +112,17 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
 
         private String payType;
 
-        private Double unitPrice;
+        private String unitPrice;
 
         private String createdBy;
 
         private String updatedBy;
 
         private Date createdTime;
+
+        private int type;
+
+        private String code;
 
         public String getCreatedBy() {
             return createdBy;
@@ -206,12 +220,29 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
             this.payType = payType;
         }
 
-        public Double getUnitPrice() {
+        public String getUnitPrice() {
             return unitPrice;
         }
 
-        public void setUnitPrice(Double unitPrice) {
+        public void setUnitPrice(String unitPrice) {
             this.unitPrice = unitPrice;
         }
+
+        public int getType() {
+            return type;
+        }
+
+        public void setType(int type) {
+            this.type = type;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public void setCode(String code) {
+            this.code = code;
+        }
+
     }
 }

@@ -16,21 +16,25 @@
 
 package com.welab.wefe.data.fusion.service.manager;
 
-import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.data.fusion.service.database.entity.TaskMySqlModel;
-import com.welab.wefe.data.fusion.service.enums.TaskStatus;
-import com.welab.wefe.data.fusion.service.service.TaskService;
-import com.welab.wefe.data.fusion.service.task.AbstractTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.data.fusion.service.config.Config;
+import com.welab.wefe.data.fusion.service.database.entity.TaskMySqlModel;
+import com.welab.wefe.data.fusion.service.enums.TaskStatus;
+import com.welab.wefe.data.fusion.service.service.TaskService;
+import com.welab.wefe.data.fusion.service.task.AbstractTask;
+import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 
 /**
  * @author hunter
@@ -42,17 +46,33 @@ public class ActuatorManager {
      * taskId : task
      */
     private static final ConcurrentHashMap<String, AbstractTask> ACTUATORS = new ConcurrentHashMap<>();
+    
+    /**
+     * taskId : task
+     */
+    private static final ConcurrentHashMap<String, BloomFilters> BLOOMFILTERS = new ConcurrentHashMap<>();
 
     private static final TaskService taskService;
+    private static final Config config;
 
     static {
         taskService = Launcher.CONTEXT.getBean(TaskService.class);
+        config = Launcher.CONTEXT.getBean(Config.class);
     }
 
+    public static BloomFilters getBloomFilters(String src) {
+        return BLOOMFILTERS.get(src);
+    }
+
+    public synchronized static void setBloomFilters(String src, BloomFilters bf) {
+        BLOOMFILTERS.clear();
+        BLOOMFILTERS.put(src, bf);
+    }
+    
     public static AbstractTask get(String businessId) {
         return ACTUATORS.get(businessId);
     }
-
+    
     public static void set(AbstractTask task) {
 
         String businessId = task.getBusinessId();
@@ -126,6 +146,10 @@ public class ActuatorManager {
     }
 
     public static String ip() {
+        String socketServerIp = config.getSocketServerIp();
+        if (StringUtils.isNotBlank(socketServerIp)) {
+            return socketServerIp;
+        }
         InetAddress addr = null;
         try {
             addr = InetAddress.getLocalHost();
@@ -133,7 +157,6 @@ public class ActuatorManager {
             e.printStackTrace();
             LOG.error("get ip error : " + e.getMessage());
         }
-
         return addr.getHostAddress();
     }
 }

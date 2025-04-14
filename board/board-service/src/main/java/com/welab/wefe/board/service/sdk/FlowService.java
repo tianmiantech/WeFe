@@ -18,7 +18,6 @@ package com.welab.wefe.board.service.sdk;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.dto.globalconfig.FlowConfigModel;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
@@ -28,6 +27,7 @@ import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
+import com.welab.wefe.common.wefe.dto.global_config.FlowConfigModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -49,7 +49,7 @@ public class FlowService extends AbstractService {
     }
 
     private JObject request(String api, JSONObject params) throws StatusCodeWithException {
-        FlowConfigModel flowConfig = globalConfigService.getFlowConfig();
+        FlowConfigModel flowConfig = globalConfigService.getModel(FlowConfigModel.class);
         if (flowConfig == null || StringUtil.isEmpty(flowConfig.intranetBaseUri)) {
             StatusCode.RPC_ERROR.throwException("尚未设置 flow 内网地址，请在[全局设置][系统设置]中设置 flow 服务的内网地址。");
         }
@@ -64,7 +64,7 @@ public class FlowService extends AbstractService {
         }
 
         HttpResponse response = HttpRequest
-                .create(globalConfigService.getFlowConfig().intranetBaseUri + api)
+                .create(globalConfigService.getModel(FlowConfigModel.class).intranetBaseUri + api)
                 .setBody(data)
                 .postJson();
 
@@ -76,12 +76,12 @@ public class FlowService extends AbstractService {
         try {
             json = new JObject(response.getBodyAsJson());
         } catch (JSONException e) {
-            throw new StatusCodeWithException("flow 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "flow 响应失败：" + response.getBodyAsString());
         }
 
         Integer code = json.getInteger("code");
         if (code == null || !code.equals(0)) {
-            throw new StatusCodeWithException("flow 响应失败(" + code + ")：" + json.getString("message"), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "flow 响应失败(" + code + ")：" + json.getString("message"));
         }
         return json.getJObject("data");
     }

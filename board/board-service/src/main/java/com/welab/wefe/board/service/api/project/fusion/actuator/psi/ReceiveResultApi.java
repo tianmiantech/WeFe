@@ -36,8 +36,7 @@ import java.util.List;
         path = "fusion/receive/result",
         name = "receive result",
         desc = "receive result",
-        login = false,
-        rsaVerify = true
+        allowAccessWithSign = true
 )
 public class ReceiveResultApi extends AbstractNoneOutputApi<ReceiveResultApi.Input> {
 
@@ -47,7 +46,7 @@ public class ReceiveResultApi extends AbstractNoneOutputApi<ReceiveResultApi.Inp
         ServerActuator actuator = (ServerActuator) ActuatorManager.get(input.getBusinessId());
         if (actuator == null) {
             LOG.error("Actuator not found,businessId is {}", input.getBusinessId());
-            throw new StatusCodeWithException("Actuator not found", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "Actuator not found");
         }
 
         actuator.receiveResult(input.getRs());

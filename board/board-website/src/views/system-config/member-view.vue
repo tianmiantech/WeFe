@@ -121,7 +121,7 @@
                                 </p>
                                 <span
                                     v-if="enterpriseAuth === 0"
-                                    class="el-link el-link--danger"
+                                    class="board-link board-link--danger"
                                     style="white-space: nowrap;"
                                 >
                                     <el-icon class="mr5">
@@ -133,7 +133,7 @@
 
                                 <span
                                     v-if="enterpriseAuth === 1"
-                                    class="el-link el-link--danger"
+                                    class="board-link board-link--danger"
                                 >
                                     <el-icon class="mr5">
                                         <elicon-circle-check />
@@ -142,7 +142,7 @@
                                 </span>
                                 <span
                                     v-if="enterpriseAuth === 2"
-                                    class="el-link el-link--success"
+                                    class="board-link board-link--success"
                                 >
                                     <el-icon class="mr5">
                                         <elicon-circle-check />
@@ -162,6 +162,37 @@
                                 class="color-danger f13"
                                 style="margin-top:-10px;"
                             ><strong>认证有效期：{{ real_name_auth_useful_life }}</strong></p>
+                            <p>&nbsp;</p>
+                            <p class="tips-alert" v-if="userInfo.super_admin_role && enterpriseAuth === 2 && real_name_auth_useful_life && form.cert_status !== 'VALID'"> ※ 证书已失效</p>
+                            <el-form-item :span="10" label="开启TLS通信："
+                                          v-if="userInfo.super_admin_role && enterpriseAuth === 2 && real_name_auth_useful_life">
+                                <el-tooltip>
+                                    <template #content>
+                                        <div>
+                                            <strong>tips：</strong>
+                                            <br />
+                                            开启后Gateway将采用TLS协议与其他成员进行数据加密通信
+                                        </div>
+                                    </template>
+                                    <el-icon class="mr5">
+                                        <elicon-info-filled />
+                                    </el-icon>
+                                </el-tooltip>
+                                <el-radio
+                                    v-model="form.member_gateway_tls_enable"
+                                    :label="true"
+                                    :disabled="!userInfo.super_admin_role"
+                                >
+                                    是
+                                </el-radio>
+                                <el-radio
+                                    v-model="form.member_gateway_tls_enable"
+                                    :label="false"
+                                    :disabled="!userInfo.super_admin_role"
+                                >
+                                    否
+                                </el-radio>
+                            </el-form-item>
                         </div>
                     </el-col>
                 </el-row>
@@ -233,6 +264,8 @@
                     member_allow_public_data_set: true,
                     member_gateway_uri:           '',
                     last_activity_time:           0,
+                    member_gateway_tls_enable:  true,
+                    cert_status:'',
                 },
                 enterpriseAuth: '',
                 audit_comment:  '',
@@ -274,6 +307,7 @@
 
                     if (res.code === 0) {
                         this.form.last_activity_time = res.data.list[0].last_activity_time;
+                        this.form.cert_status = res.data.list[0].ext_json.cert_status;
                     }
                 }
 
@@ -336,6 +370,7 @@
                     this.userInfo.member_name = this.form.member_name;
                     this.userInfo.member_email = this.form.member_email;
                     this.userInfo.member_mobile = this.form.member_mobile;
+                    this.userInfo.member_gateway_tls_enable = this.form.member_gateway_tls_enable;
                     this.$store.commit('UPDATE_USERINFO', this.userInfo);
                     this.refresh();
                 }
@@ -378,9 +413,9 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-form{overflow-x: auto;}
-    .el-form-item {
-        :deep(.el-form-item__label) {
+    .board-form{overflow-x: auto;}
+    .board-form-item {
+        :deep(.board-form-item__label) {
             color: $color-light;
             padding-bottom: 6px;
             line-height: 18px;
@@ -389,14 +424,14 @@
             display: block;
         }
     }
-    .el-form-item--small.el-form-item:last-child{margin:0;}
+    .board-form-item--small.board-form-item:last-child{margin:0;}
     .save-btn {width: 100px;}
 
     @keyframes cardRotate {
         0%{transform: rotateZ(0deg) translateX(100%);}
         100%{transform: rotateZ(1440deg) translateX(0);}
     }
-    .el-dialog__wrapper :deep(.member-card-wrap){
+    .board-dialog__wrapper :deep(.member-card-wrap){
         animation: cardRotate 2s ease-in-out;
         .member-card{margin: 0 auto;}
     }
@@ -473,9 +508,9 @@
 
 <style lang="scss">
 .flex-box {
-    .el-form-item__content {
+    .board-form-item__content {
         display: flex;
-        .el-input {
+        .board-input {
             width: 42%;
         }
     }

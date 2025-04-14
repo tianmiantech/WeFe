@@ -16,7 +16,10 @@
 package com.welab.wefe.board.service.api.union.member_auth;
 
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.board.service.database.entity.cert.CertRequestInfoMysqlModel;
 import com.welab.wefe.board.service.sdk.union.UnionService;
+import com.welab.wefe.board.service.service.CertOperationService;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -36,11 +39,29 @@ public class MemberRealnameAuthApi extends AbstractApi<MemberRealnameAuthApi.Inp
 
     @Autowired
     private UnionService unionService;
+    @Autowired
+    private CertOperationService certOperationService;
 
     @Override
     protected ApiResult<Object> handle(MemberRealnameAuthApi.Input input) throws StatusCodeWithException, IOException {
+        certOperationService.resetCert();// 将本地证书置为无效
+        // 生成csr
+        generateCertRequestContent(input);
         JSONObject result = unionService.realnameAuth(input);
         return super.unionApiResultToBoardApiResult(result);
+    }
+
+    // 生成csr
+    private void generateCertRequestContent(Input input) throws StatusCodeWithException {
+        try {
+            CertRequestInfoMysqlModel model = certOperationService.createCertRequestInfo(input.getPrincipalName(),
+                    input.getOrganizationName(), "Welab-WeFe");
+            input.setCertRequestContent(model.getCertRequestContent());
+            input.setCertRequestId(model.getId());
+        } catch (Exception e) {
+            LOG.error("generateCertRequestContent error ", e);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
+        }
     }
 
     public static class Input extends AbstractApiInput {
@@ -48,6 +69,10 @@ public class MemberRealnameAuthApi extends AbstractApi<MemberRealnameAuthApi.Inp
         private String authType;
         private String description;
         private List<String> fileIdList;
+        private String organizationName;
+        private String provinceCityName;
+        private String certRequestContent;
+        private String certRequestId;
 
         public String getPrincipalName() {
             return principalName;
@@ -79,6 +104,38 @@ public class MemberRealnameAuthApi extends AbstractApi<MemberRealnameAuthApi.Inp
 
         public void setFileIdList(List<String> fileIdList) {
             this.fileIdList = fileIdList;
+        }
+
+        public String getOrganizationName() {
+            return organizationName;
+        }
+
+        public void setOrganizationName(String organizationName) {
+            this.organizationName = organizationName;
+        }
+
+        public String getProvinceCityName() {
+            return provinceCityName;
+        }
+
+        public void setProvinceCityName(String provinceCityName) {
+            this.provinceCityName = provinceCityName;
+        }
+
+        public String getCertRequestContent() {
+            return certRequestContent;
+        }
+
+        public void setCertRequestContent(String certRequestContent) {
+            this.certRequestContent = certRequestContent;
+        }
+
+        public String getCertRequestId() {
+            return certRequestId;
+        }
+
+        public void setCertRequestId(String certRequestId) {
+            this.certRequestId = certRequestId;
         }
     }
 }

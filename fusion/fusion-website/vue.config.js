@@ -1,29 +1,37 @@
 const path = require('path');
 const webpack = require('webpack');
-const { context } = require('./package.json');
 const { HashedModuleIdsPlugin } = require('webpack');
 const argv = require('minimist')(process.argv.slice(2));
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+const pkg = require('./package.json');
 // const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
 
-const argvs = argv._[1] ? argv._[1].split('=') : '';
-const tailSplit = argv._[2] ? argv._[2].split('=')[1] : '';
 const isProd = process.env.NODE_ENV === 'production';
-const resolve = dir => path.resolve(__dirname, dir);
-const CONTEXT_ENV = argvs[1] || context || '';
-const buildDate = '2.4.0';
+const resolve = (dir) => path.resolve(__dirname, dir);
+
+const buildDate = '2.5.0';
+const { welab } = pkg;
+let { contextPath: APP_CODE } = welab || {};
+
+const { HOST_ENV,SERVICE_NAME } = argv;
+
+APP_CODE = SERVICE_NAME || APP_CODE;
+
+console.log(HOST_ENV, APP_CODE);
 
 module.exports = {
-    assetsDir:           isProd ? `${CONTEXT_ENV}` : '',
-    indexPath:           isProd ? `${CONTEXT_ENV || '.'}/index.html` : 'index.html',
+    assetsDir:           './',
+    indexPath:           './index.html',
     productionSourceMap: false,
+    outputDir:           'dist/' + APP_CODE,
+    publicPath:          '/' + APP_CODE,
     pages:               {
         index: {
             entry:    'src/app/app.js',
             template: 'index.html',
             filename: 'index.html',
-            BASE_URL: `${CONTEXT_ENV ? `/${CONTEXT_ENV}/` : '/'}`,
+            BASE_URL: `${APP_CODE ? `/${APP_CODE}/` : '/'}`,
             chunks:   'inital',
         },
     },
@@ -33,8 +41,6 @@ module.exports = {
     configureWebpack: (config) => {
         if (isProd) {
             // production...
-            const DEPLOY_ENV = argvs[0] || 'prod';
-
             config.optimization = {
                 splitChunks: {
                     chunks:                 'all',
@@ -71,37 +77,42 @@ module.exports = {
 
             config.plugins.push(
                 new webpack.DefinePlugin({
-                    'process.env.DEPLOY_ENV':  JSON.stringify(`${DEPLOY_ENV}`),
-                    'process.env.CONTEXT_ENV': JSON.stringify(`${CONTEXT_ENV}`),
-                    'process.env.VERSION':     JSON.stringify(`${buildDate}`),
-                    'process.env.TAIL':        JSON.stringify(`${tailSplit}`),
+                    'process.env.VERSION':  JSON.stringify(`${buildDate}`),
+                    'process.env.HOST_ENV': JSON.stringify(`${HOST_ENV}`),
+                    'process.env.APP_CODE': JSON.stringify(`${APP_CODE}`)
                 }),
                 new HashedModuleIdsPlugin(),
                 new CopyWebpackPlugin([
                     {
                         from: 'public/*',
-                        to:   `${CONTEXT_ENV || '.'}/img/`,
+                        to:   `${APP_CODE || '.'}/img/`,
                     },
                 ]),
             );
         } else {
             // development...
-            const DEPLOY_ENV = argvs[0] || 'dev';
-
             config.plugins.push(
                 new webpack.DefinePlugin({
-                    'process.env.DEPLOY_ENV':  JSON.stringify(`${DEPLOY_ENV}`),
-                    'process.env.VERSION':     JSON.stringify(`${buildDate}`),
-                    'process.env.CONTEXT_ENV': '""',
-                }),
+                    'process.env.VERSION':  JSON.stringify(`${buildDate}`),
+                    'process.env.HOST_ENV': JSON.stringify(`${HOST_ENV}`),
+                    'process.env.APP_CODE': JSON.stringify(`${APP_CODE}`)
+               }),
             );
 
             config.devtool = 'source-map';
         }
 
+
         if (argv['report']) {
             config.plugins.push(new BundleAnalyzerPlugin());
         }
+        // vue-cli service 直接用config.output = {} 这种写法, 版本4不支持。 所以拆开写.
+        // 微应用的包名，这里与主应用中注册的微应用名称一致
+        config.output.library = `${APP_CODE}-[name]`;
+        // 将你的 library 暴露为所有的模块定义下都可运行的方式
+        config.output.libraryTarget = 'umd';
+        // 按需加载相关，设置为 webpackJsonp_VueMicroApp 即可
+        config.output.jsonpFunction = `webpackJsonp_${APP_CODE}`;
     },
     chainWebpack: (config) => {
         config.module
@@ -154,22 +165,35 @@ module.exports = {
         // config.plugin('speed').use(SpeedMeasurePlugin);
     },
     devServer: {
-        hot:        true,
-        liveReload: true,
+        hot:              true,
+        liveReload:       true,
+        port:             10801,
         /**
          * http://localhost:8080/board-service
          * @author claude
          * @description webpack devServer proxy
          */
-        proxy:      {
-            '/api': {
-                target:       'https://xxx.wolaidai.com/data-fusion-service-01',
+        // 关闭主机检查，使微应用可以被 fetch
+        disableHostCheck: true,
+        // 配置跨域请求头，解决开发环境的跨域问题
+        headers:          {
+            'Access-Control-Allow-Origin': '*',
+        },
+        proxy: {
+            '/fusion-service': {
+                target:       'https://xxx.com/fusion-service/',
                 secure:       false,
                 timeout:      1000000,
                 changeOrigin: true,
                 pathRewrite:  {
-                    ['^/api']: '/',
+                    ['^/fusion-service']: '/',
                 },
+            },
+            '/iam': {
+                target:       'https://xxx.com/',
+                secure:       false,
+                timeout:      1000000,
+                changeOrigin: true,
             },
         },
     },

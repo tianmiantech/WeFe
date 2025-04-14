@@ -16,16 +16,15 @@
 package com.welab.wefe.board.service.fusion.actuator;
 
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.welab.wefe.board.service.service.fusion.FusionResultStorageService;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author hunter.zhao
@@ -38,7 +37,7 @@ public class PsiDumpHelper {
         fusionResultStorageService = Launcher.CONTEXT.getBean(FusionResultStorageService.class);
     }
 
-    private static void dumpHeaders(String businessId, List<String> headers) {
+    private static void dumpHeaders(String businessId, Set<String> headers) throws Exception {
         //saveHeaderRow
         if (fusionResultStorageService.isExists(fusionResultStorageService.createRawDataSetHeaderTableName(businessId))) {
             return;
@@ -47,7 +46,7 @@ public class PsiDumpHelper {
         fusionResultStorageService.saveHeaderRow(businessId, headers);
     }
 
-    public static void dump(String businessId, List<String> headers, List<JObject> fruit) {
+    public static void dump(String businessId, Set<String> headers, List<JObject> fruit) throws Exception {
 
         if (fruit.isEmpty()) {
             return;

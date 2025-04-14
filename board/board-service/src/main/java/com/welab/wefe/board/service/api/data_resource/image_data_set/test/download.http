@@ -8,3 +8,7 @@ token: {{token}}
   "data_set_id": "5217bd815d0b4612a93aff0c1fac3504",
   "job_id": "777c3d2841ea4b078b8ed46aef4604c4"
 }
+
+
+###
+GET http://localhost:8080/board-service/image_data_set/download?data=%7B%22data_set_id%22%3A%20%22a3dce2feacc94db097f51d418e952c6e%22%2C%20%22job_id%22%3A%20%22b5158f6e932f484ab4e34e5a5a21cd26%22%2C%20%22version%22%3A%20%2270-103-1645934216379%22%7D&sign=LimU4NQz492xhkTl6XQi6XCEdB2GkD4Cvr6wzcMEz0Xk%2BLbeEOTVSDs23PhhmSAtQSJkfewyutEbL6xg%2BvfoyN2GBCZ%2BgMA8wCA4bKoO6E2WMzehjGPdl3/I2IcQG1Lr13yFfgg1MQFXCQPqs8VCD4%2BtaZecztf8CRIt4PXDVBQNc8XXIostUjip6UDwaZ3nCNxK66Y2YBiig1XcPw2pTQ%2BwWK9q5ERq7sgG2wsKCXZktqiNdn23GadegqejPEaFHzKSDg1zF9siALrak/8SgZQFjw3nEj6tb78PT/fcBAqi9YHOalei6JrdlDhHZPBGWf1Kkf%2Bmp03mXzAwlXRZog%3D%3D

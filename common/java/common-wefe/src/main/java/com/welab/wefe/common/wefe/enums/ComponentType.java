@@ -17,6 +17,7 @@
 package com.welab.wefe.common.wefe.enums;
 
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,15 +39,16 @@ public enum ComponentType {
     FeatureStatistic("特征统计", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "纵向统计组件的各项指标"),
     HorzStatistic("特征统计", new ArrayList<>(Arrays.asList(FederatedLearningType.horizontal)), "横向统计组件的各项指标"),
     MixStatistic("特征统计", new ArrayList<>(Arrays.asList(FederatedLearningType.mix)), "混合统计组件的各项指标"),
-    MixBinning("分箱并编码", new ArrayList<>(Arrays.asList(FederatedLearningType.mix)), "对特征进行分箱，并进行 woe 编码。"),
+    MixBinning("WOE编码", new ArrayList<>(Arrays.asList(FederatedLearningType.mix)), "对特征进行分箱，并进行 woe 编码。"),
     FillMissingValue("缺失值填充", null, "填充缺失值"),
 
-    Binning("分箱并编码", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "对特征进行纵向分箱，并进行 woe 编码。"),
-    HorzFeatureBinning("分箱并编码", new ArrayList<>(Arrays.asList(FederatedLearningType.horizontal)), "对特征进行横向分箱，并进行 woe 编码。"),
+    Binning("WOE编码", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "对特征进行纵向分箱，并进行 woe 编码。"),
+    HorzFeatureBinning("WOE编码", new ArrayList<>(Arrays.asList(FederatedLearningType.horizontal)), "对特征进行横向分箱，并进行 woe 编码。"),
     FeatureCalculation("计算特征价值", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "计算特征的 CV/IV，需要在分箱之后。"),
 
     FeatureSelection("特征筛选", null, "挑选出需要入模的特征"),
     Segment("数据切割", null, "将数据集切割成训练集和测试集两部分"),
+    VertFeaturePSI("特征 PSI", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "特征 PSI 计算"),
     VertPearson("皮尔逊相关系数", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "描述两个特征的相关性"),
     FeatureStandardized("特征标准化", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical, FederatedLearningType.horizontal)), "对特征进行标准化"),
     VertFilter("样本筛选", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "样本筛选（纵向）"),
@@ -73,6 +75,8 @@ public enum ComponentType {
     VertXGBoostValidationDataSetLoader("载入验证数据集·纵向XGBoost", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "加载一个验证数据集用于模型评估"),
     Evaluation("评估模型", null, "对建模结果进行效果评估"),
     Oot("打分验证", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical, FederatedLearningType.horizontal)), "用新的数据集对模型进行打分验证"),
+    ScoreCard("评分卡", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical, FederatedLearningType.horizontal, FederatedLearningType.mix)), "模型评分卡"),
+
 
     /**
      * **************** 深度学习相关组件 ****************
@@ -92,6 +96,18 @@ public enum ComponentType {
             MixLR,
             MixSecureBoost, HorzNN,
             VertNN
+    );
+
+    private static List<ComponentType> STATISTIC_TYPES = Arrays.asList(
+            MixStatistic,
+            FeatureStatistic,
+            HorzStatistic
+    );
+
+    private static List<ComponentType> BINNING_TYPES = Arrays.asList(
+            MixBinning,
+            Binning,
+            HorzFeatureBinning
     );
 
     /**
@@ -140,6 +156,14 @@ public enum ComponentType {
      */
     public boolean isModeling() {
         return MODELING_TYPES.contains(this);
+    }
+
+    public boolean isStatistic() {
+        return STATISTIC_TYPES.contains(this);
+    }
+
+    public boolean isBinning() {
+        return BINNING_TYPES.contains(this);
     }
 
     public boolean isDeepLearningComponents() {

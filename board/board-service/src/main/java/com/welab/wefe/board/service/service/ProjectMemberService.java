@@ -27,7 +27,7 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
@@ -69,6 +69,8 @@ public class ProjectMemberService {
     private JobMemberService jobMemberService;
     @Autowired
     private ProjectMemberAuditRepository projectMemberAuditRepository;
+    @Autowired
+    private MessageService messageService;
 
     /**
      * Add members to an existing project
@@ -90,22 +92,32 @@ public class ProjectMemberService {
 
         List<ProjectMemberMySqlModel> members = findListByProjectId(input.getProjectId());
 
-        for (ProjectMemberInput item : input.getMemberList()) {
-            if (checkExistMember(item.getMemberId(), members)) {
-                throw new StatusCodeWithException("您此次添加的成员 " + CacheObjects.getMemberName(item.getMemberId()) + " 已在该项目中，不可重复添加", StatusCode.PARAMETER_VALUE_INVALID);
+        for (ProjectMemberInput member : input.getMemberList()) {
+            if (checkExistMember(member.getMemberId(), members)) {
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "您此次添加的成员 " + CacheObjects.getMemberName(member.getMemberId()) + " 已在该项目中，不可重复添加");
             }
-            JobMemberRole role = item.getMemberRole();
+            JobMemberRole role = member.getMemberRole();
             if (role.equals(JobMemberRole.provider)) {
-                addProviderMember(input, item);
+                addProviderMember(input, member);
             } else if (role.equals(JobMemberRole.promoter)) {
-                addPromoterMember(input, item);
+                addPromoterMember(input, member);
             }
             // 由于该成员可能是之前审核不过然后重新添加的，所以需要将这个成员的历史审核记录都清除掉。
-            projectMemberAuditRepository.deleteAuditingRecord(input.getProjectId(), item.getMemberId());
+            projectMemberAuditRepository.deleteAuditingRecord(input.getProjectId(), member.getMemberId());
+
+            // 如果邀请的是我，添加一条消息。
+            if (input.fromGateway() && CacheObjects.getMemberId().equals(member.getMemberId())) {
+                ProjectMySqlModel project = projectService.findByProjectId(input.getProjectId());
+                messageService.addApplyJoinProjectMessage(
+                        input.callerMemberInfo.getMemberId(),
+                        project.getProjectId(),
+                        project.getName()
+                );
+            }
         }
         members = findListByProjectId(input.getProjectId());
         if (!checkMembers(members)) {
-            throw new StatusCodeWithException("改变项目类型时不允许有重复成员存在。", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "改变项目类型时不允许有重复成员存在。");
         }
 
 
@@ -329,7 +341,7 @@ public class ProjectMemberService {
         }
 
         projectMemberMySqlModel = func.apply(projectMemberMySqlModel);
-        projectMemberMySqlModel.setUpdatedBy(CurrentAccount.id());
+        projectMemberMySqlModel.setUpdatedBy(CurrentAccountUtil.get().getId());
 
         return projectMemberRepo.save(projectMemberMySqlModel);
     }
@@ -340,7 +352,7 @@ public class ProjectMemberService {
         }
 
         func.accept(projectMemberMySqlModel);
-        projectMemberMySqlModel.setUpdatedBy(CurrentAccount.id());
+        projectMemberMySqlModel.setUpdatedBy(CurrentAccountUtil.get().getId());
 
         return projectMemberRepo.save(projectMemberMySqlModel);
 
@@ -353,16 +365,16 @@ public class ProjectMemberService {
         }
 
         if (CollectionUtils.isEmpty(projectMemberMySqlModelList)) {
-            throw new StatusCodeWithException("找不到项目的任何参与方信息。", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到项目的任何参与方信息。");
         }
         JobMySqlModel jobMySqlModel = jobService.findByJobId(input.getOotJobId(), JobMemberRole.promoter);
         if (null == jobMySqlModel) {
-            throw new StatusCodeWithException("找不到原流程任务信息。", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到原流程任务信息。");
         }
 
         List<JobMemberMySqlModel> jobMemberMySqlModelList = jobMemberService.findListByJobId(input.getOotJobId());
         if (CollectionUtils.isEmpty(jobMemberMySqlModelList)) {
-            throw new StatusCodeWithException("找不到原流程任何参与方信息。", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到原流程任何参与方信息。");
         }
 
         List<ProjectMemberMySqlModel> resultList = new ArrayList<>();
@@ -375,7 +387,7 @@ public class ProjectMemberService {
                     filter(x -> x.getMemberId().equals(memberId)).findFirst().orElse(null);
             if (FederatedLearningType.vertical.equals(jobMySqlModel.getFederatedLearningType())) {
                 if (null == projectMemberMySqlModel || projectMemberMySqlModel.isExited()) {
-                    throw new StatusCodeWithException("成员: " + CacheObjects.getMemberName(memberId) + " 已退出, 禁止打分验证", StatusCode.DATA_NOT_FOUND);
+                    throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "成员: " + CacheObjects.getMemberName(memberId) + " 已退出, 禁止打分验证");
                 }
             }
             if (null != projectMemberMySqlModel) {

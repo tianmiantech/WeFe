@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.service.fusion;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.project.fusion.task.AuditCallbackApi;
+import com.welab.wefe.board.service.api.project.fusion.task.DeleteCallbackApi;
 import com.welab.wefe.board.service.api.project.fusion.task.ReceiveApi;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
 import com.welab.wefe.board.service.service.CacheObjects;
@@ -63,6 +64,18 @@ public class ThirdPartyService {
     }
 
     /**
+     * Align the request
+     */
+    public void delete(FusionTaskMySqlModel task) throws StatusCodeWithException {
+
+        JObject params = JObject
+                .create()
+                .put("business_id", task.getBusinessId());
+
+        request(task.getDstMemberId(), DeleteCallbackApi.class, params);
+    }
+
+    /**
      * psi-callback
      */
     public void callback(String dstMemberId, String businessId, AuditStatus auditStatus, String auditComment) throws StatusCodeWithException {
@@ -103,14 +116,5 @@ public class ThirdPartyService {
          * Prevent the map from being out of order, which may cause the check failure
          */
         return gatewayService.callOtherMemberBoard(dstMemberId, api, params, JSONObject.class);
-
-//        HttpResponse result = HttpRequest.create("http://172.29.25.148:8080/board-service/fusion/audit/callback").appendParameters(params).postJson();
-
-//        if (!result.success()) {
-//            throw new StatusCodeWithException(result.getMessage(), StatusCode.RPC_ERROR);
-//        }
-
-//        JSONObject json = JObject.create(result.getBodyAsJson());
-//        return json;
     }
 }

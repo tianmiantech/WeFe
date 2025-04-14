@@ -1,4 +1,6 @@
 @charset "UTF-8";
+@import './_variable.scss';
+@import '../../themeconfig/theme.css';
 
 .el-pagination--small .arrow.disabled,
 .el-table .hidden-columns,

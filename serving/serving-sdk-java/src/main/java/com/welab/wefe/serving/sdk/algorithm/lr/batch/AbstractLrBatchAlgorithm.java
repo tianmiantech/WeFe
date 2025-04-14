@@ -16,39 +16,62 @@
 
 package com.welab.wefe.serving.sdk.algorithm.lr.batch;
 
-import com.welab.wefe.serving.sdk.algorithm.AbstractAlgorithm;
+import com.welab.wefe.serving.sdk.algorithm.AbstractBatchAlgorithm;
 import com.welab.wefe.serving.sdk.algorithm.lr.LrAlgorithmHelper;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
-import com.welab.wefe.serving.sdk.utils.AlgorithmThreadPool;
+import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
 
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * @author hunter.zhao
  */
-public abstract class AbstractLrBatchAlgorithm<T extends BaseLrModel, R> extends AbstractAlgorithm<T, R> {
+public abstract class AbstractLrBatchAlgorithm<T extends BaseLrModel, R> extends AbstractBatchAlgorithm<T, R> {
+    protected List<LrPredictResultModel> batchLocalCompute(BatchPredictParams batchPredictParams) {
+        List<LrPredictResultModel> predictResult = LrAlgorithmHelper.batchCompute(
+                modelParam.getModelParam(), batchPredictParams, modelParam.getScoreCardInfo());
 
-
-    public List<PredictModel> compute(PredictParams predictParams) {
-        CopyOnWriteArrayList<PredictModel> outputs = new CopyOnWriteArrayList<>();
-
-        CountDownLatch latch = new CountDownLatch(predictParams.getUserIds().size());
-
-        predictParams.getFeatureDataMap().forEach((k, v) ->
-                AlgorithmThreadPool.run(() -> outputs.add(LrAlgorithmHelper.compute(modelParam.getModelParam(), k, v)))
+        predictResult.stream().forEach(
+                x -> x.setFeatureResult(PredictModel.extractFeatureResult(
+                                batchPredictParams
+                                        .getPredictParamsByUserId(x.getUserId())
+                                        .getFeatureDataModel()
+                        )
+                )
         );
 
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            LOG.error("Execution prediction error：{}", e.getMessage());
-            e.printStackTrace();
-        }
-
-        return outputs;
+        return predictResult;
     }
+
+    protected void intercept(List<LrPredictResultModel> predictResultList) {
+        predictResultList.forEach(x -> x.setScore(
+                        LrAlgorithmHelper.intercept(
+                                x.getScore(),
+                                modelParam.getModelParam().getIntercept())
+                )
+        );
+    }
+
+    /**
+     * batch sigmod function
+     */
+    protected void sigmod(List<LrPredictResultModel> predictResultList) {
+        predictResultList.forEach(model ->
+                model.setScore(LrAlgorithmHelper.sigmod(model.getScore()))
+        );
+    }
+
+    protected List<LrPredictResultModel> normalize(List<LrPredictResultModel> predictResultList) {
+        intercept(predictResultList);
+        sigmod(predictResultList);
+
+        return predictResultList;
+    }
+
+    protected boolean isScoreCard() {
+        return modelParam.getScoreCardInfo() != null;
+    }
+
 }

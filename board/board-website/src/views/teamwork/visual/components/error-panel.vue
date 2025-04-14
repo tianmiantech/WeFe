@@ -4,22 +4,22 @@
             ref="dom"
             v-if="vData.show"
             :style="{top: `${vData.top}px`, left: `${vData.left}px`}"
-            class="el-popover el-popper error-popover"
+            class="board-popover board-popper error-popover"
             data-popper-placement="top"
         >
             <el-icon
-                class="el-icon-close"
+                class="board-icon-close"
                 @click="close"
             >
                 <elicon-close />
             </el-icon>
-            <p class="el-popover__title color-danger">
+            <p class="board-popover__title color-danger">
                 <el-icon>
                     <elicon-warning-filled />
                 </el-icon>
                 发生错误:
             </p>
-            <i class="el-popper__arrow" />
+            <i class="board-popper__arrow" />
             {{ vData.message }}
         </div>
     </transition>
@@ -60,12 +60,12 @@
         width: 400px;
         position: fixed;
         margin-left: -130px;
-        .el-popper__arrow{
+        .board-popper__arrow{
             background:none;
             left:50%;
             &:before {background: #fff;}
         }
-        .el-icon-close{
+        .board-icon-close{
             position: absolute;
             top: 10px;
             right: 10px;

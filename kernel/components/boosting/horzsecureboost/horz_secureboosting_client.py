@@ -60,6 +60,8 @@ from kernel.transfer.variables.transfer_class.horz_secure_boost_transfer_variabl
 from kernel.utils import consts
 from kernel.utils.data_util import NoneType
 from kernel.utils.label_checker import ClassifyLabelChecker, RegressionLabelChecker
+from kernel.model_selection import start_cross_validation
+from kernel.model_selection.grid_search import GridSearch
 
 LOGGER = log_utils.get_logger()
 
@@ -101,7 +103,6 @@ class HorzSecureBoostingClient(BoostingTree):
         # Since arbiter is not needed in oot mode, it will always wait for the data blocking value
         # when creating the HorzFeatureBinningClient object, so the object will not be created here
         self.binning_obj = None
-        # self.binning_obj = HorzFeatureBinningClient()
 
     def set_loss_function(self, objective_param):
         loss_type = objective_param.objective
@@ -264,10 +265,16 @@ class HorzSecureBoostingClient(BoostingTree):
         valid_feature = self.transfer_inst.valid_features.get(idx=0, suffix=('valid_features', epoch_idx, t_idx))
         return valid_feature
 
+    def callback_loss(self, iter_num, loss):
+        metric_meta = {'abscissa_name': 'iters', 'ordinate_name': 'loss', 'metric_type': 'LOSS',
+                       'pair_type': ''}
+        self.callback_metric(metric_name='loss',
+                             metric_namespace='train',
+                             metric_meta=metric_meta,
+                             metric_data=(iter_num, loss))
+
     def fit(self, data_inst, validate_data=None, ):
 
-        # print(data_inst.count())
-        # print(list(data_inst.collect()))
         # binning
         data_inst = self.data_alignment(data_inst)
         self.data_bin, self.bin_split_points, self.bin_sparse_points = self.federated_binning(data_inst)
@@ -336,7 +343,7 @@ class HorzSecureBoostingClient(BoostingTree):
 
             # sync loss status
             loss = self.compute_local_loss(self.y, self.y_hat)
-
+            self.callback_loss(epoch_idx,loss)
             LOGGER.debug('local loss of epoch {} is {}'.format(epoch_idx, loss))
 
             self.local_loss_history.append(loss)
@@ -353,7 +360,8 @@ class HorzSecureBoostingClient(BoostingTree):
                 if should_stop:
                     LOGGER.debug('stop triggered')
                     break
-            self.tracker.add_task_progress(1)
+
+            self.tracker.add_task_progress(1, self.need_grid_search)
 
             LOGGER.debug('fitting tree {}/{}'.format(epoch_idx, self.num_trees))
 
@@ -542,8 +550,11 @@ class HorzSecureBoostingClient(BoostingTree):
             return EvaluateParam(eval_type="regression")
 
     def export_model(self):
-        if self.need_cv:
-            return None
+        if self.model_output is not None:
+            return self.model_output
+
+        if self.need_cv and not self.need_grid_search:
+            return
         return self.get_cur_model()
 
     def load_model(self, model_dict):
@@ -570,9 +581,12 @@ class HorzSecureBoostingClient(BoostingTree):
         self.set_loss_function(self.objective_param)
 
     def cross_validation(self, data_instances):
+        return start_cross_validation.run(self, data_instances, True)
+
+    def grid_search(self, train_data, eval_data, need_cv=False):
         if not self.need_run:
-            return data_instances
-        kflod_obj = KFold()
-        cv_param = self._get_cv_param()
-        kflod_obj.run(cv_param, data_instances, self, True)
-        return data_instances
+            return train_data
+        grid_obj = GridSearch()
+        grid_search_param = self._get_grid_search_param()
+        output_data = grid_obj.run(grid_search_param, train_data, eval_data, self, need_cv, True)
+        return output_data

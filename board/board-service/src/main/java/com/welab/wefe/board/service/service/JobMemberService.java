@@ -105,4 +105,15 @@ public class JobMemberService extends AbstractService {
 
         return repo.findAll(jobMemberWhere);
     }
+
+    public boolean isLocalJob(String jobId) {
+        Specification<JobMemberMySqlModel> jobMemberWhere = Where
+                .create()
+                .equal("jobId", jobId)
+                .equal("memberId", CacheObjects.getMemberId())
+                .notEqual("jobRole", JobMemberRole.arbiter)
+                .build(JobMemberMySqlModel.class);
+
+        return repo.count(jobMemberWhere) > 1;
+    }
 }

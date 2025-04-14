@@ -48,6 +48,8 @@ public class AddOotFlowApi extends AbstractApi<AddOotFlowApi.Input, AddOotFlowAp
         private String ootJobId;
         @Check(name = "ID of the model being OOT", require = true)
         private String ootModelFlowNodeId;
+        @Check(name = "ID of the model name")
+        private String ootModelName;
 
         public String getOotJobId() {
             return ootJobId;
@@ -63,6 +65,14 @@ public class AddOotFlowApi extends AbstractApi<AddOotFlowApi.Input, AddOotFlowAp
 
         public void setOotModelFlowNodeId(String ootModelFlowNodeId) {
             this.ootModelFlowNodeId = ootModelFlowNodeId;
+        }
+
+        public String getOotModelName() {
+            return ootModelName;
+        }
+
+        public void setOotModelName(String ootModelName) {
+            this.ootModelName = ootModelName;
         }
     }
 

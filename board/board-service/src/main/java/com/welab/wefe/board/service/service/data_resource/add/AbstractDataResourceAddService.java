@@ -34,7 +34,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServiceCheckPointOutput;
-import com.welab.wefe.common.wefe.enums.DataResourceStorageType;
+import com.welab.wefe.common.wefe.enums.DataResourceStorageServiceType;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +55,7 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
 
     // region abstract method
 
-    protected abstract void doAdd(AbstractDataResourceUpdateInputModel in, DataResourceUploadTaskMysqlModel task, DataResourceMysqlModel m) throws StatusCodeWithException;
+    protected abstract void doAdd(AbstractDataResourceUpdateInputModel in, DataResourceUploadTaskMysqlModel task, DataResourceMysqlModel m) throws Exception;
 
     protected abstract Class<? extends DataResourceMysqlModel> getMysqlModelClass();
 
@@ -113,16 +113,16 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
             if (!availableInfo.isSuccess()) {
                 StatusCode
                         .DATABASE_LOST
-                        .throwException("storage 服务访问失败：" + availableInfo.getMessage() + "，请检服务是否正常：" + config.getDbType());
+                        .throwException("storage 服务访问失败：" + availableInfo.getMessage());
             }
 
-            model.setStorageType(DataResourceStorageType.StorageService);
+            model.setStorageType(DataResourceStorageServiceType.StorageService);
             model.setStorageNamespace(DataSetStorageService.DATABASE_NAME);
             model.setStorageResourceName(dataSetStorageService.createRawDataSetTableName(model.getId()));
         }
         // image data set & bloom filter
         else {
-            model.setStorageType(DataResourceStorageType.LocalFileSystem);
+            model.setStorageType(DataResourceStorageServiceType.LocalFileSystem);
             model.setStorageNamespace(
                     WeFeFileSystem
                             .getFileDir(model.getDataResourceType())

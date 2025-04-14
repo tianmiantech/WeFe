@@ -246,7 +246,7 @@ class MixSecureBoostingProvider(BoostingTree):
             model_param = cur_best_model["Model_Param"]
             self.set_model_param(model_param)
         bestIteration = self.sync_begin_iter()
-        self.tracker.set_task_progress(bestIteration)
+        self.tracker.set_task_progress(bestIteration, self.need_grid_search)
         for epoch_idx in range(bestIteration, self.num_trees):
             # n_tree = []
             for tidx in range(self.tree_dim):
@@ -270,8 +270,8 @@ class MixSecureBoostingProvider(BoostingTree):
                 if stop_flag:
                     break
 
-            self.tracker.save_training_best_model(self.export_model())
-            self.tracker.add_task_progress(1)
+            self.tracker.save_training_best_model(self.export_model(), self.need_grid_search)
+            self.tracker.add_task_progress(1, self.need_grid_search)
 
         if self.validation_strategy and self.validation_strategy.has_saved_best_model():
             self.load_model(self.validation_strategy.cur_best_model)
@@ -307,9 +307,7 @@ class MixSecureBoostingProvider(BoostingTree):
     @staticmethod
     def traverse_a_tree(tree: MixDecisionTreeProvider, sample, cur_node_idx):
 
-        nid, _ = tree.traverse_tree(predict_state=(cur_node_idx, -1), data_inst=sample,
-                                    decoder=tree.decode, split_maskdict=tree.split_maskdict,
-                                    missing_dir_maskdict=tree.missing_dir_maskdict, sitename=tree.sitename,
+        nid, _ = tree.traverse_tree(predict_state=(cur_node_idx, -1), data_inst=sample, sitename=tree.sitename,
                                     tree_=tree.tree_, zero_as_missing=tree.zero_as_missing,
                                     use_missing=tree.use_missing)
 
@@ -474,8 +472,11 @@ class MixSecureBoostingProvider(BoostingTree):
             self.feature_name_fid_mapping.update(model_param.feature_name_fid_mapping)
 
     def export_model(self):
-        if self.need_cv:
-            return None
+        if self.model_output is not None:
+            return self.model_output
+
+        if self.need_cv and not self.need_grid_search:
+            return
 
         meta_name, meta_protobuf = self.get_model_meta()
         param_name, param_protobuf = self.get_model_param()

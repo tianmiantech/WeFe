@@ -16,15 +16,14 @@
 
 package com.welab.wefe.serving.service.service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.mail.Address;
-import javax.mail.SendFailedException;
-import javax.mail.internet.MimeMessage;
-
+import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.enums.MessageLevel;
+import com.welab.wefe.common.wefe.enums.ProducerType;
+import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.serving.service.database.entity.MessageMysqlModel;
+import com.welab.wefe.serving.service.database.repository.AccountRepository;
+import com.welab.wefe.serving.service.dto.globalconfig.MailServerModel;
+import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -35,14 +34,13 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.wefe.enums.MessageLevel;
-import com.welab.wefe.common.wefe.enums.ProducerType;
-import com.welab.wefe.serving.service.config.Config;
-import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.MessageMysqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
-import com.welab.wefe.serving.service.dto.MailServerModel;
+import javax.mail.Address;
+import javax.mail.SendFailedException;
+import javax.mail.internet.MimeMessage;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * email service
@@ -51,9 +49,9 @@ import com.welab.wefe.serving.service.dto.MailServerModel;
  **/
 @Service
 public class EmailService {
-    
+
     protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
-    
+
     private static final String MAIL_DEFAULT_ENCODING = "UTF-8";
     private static final String MAIL_SMTP_AUTH = "true";
     private static final String MAIL_SMTP_WRITE_TIMEOUT = "30000";
@@ -65,7 +63,7 @@ public class EmailService {
     @Autowired
     private AccountRepository accountRepository;
     @Autowired
-    private Config config;
+    private GlobalConfigService configService;
 
     /**
      * Send approval task notification email (multiple persons)
@@ -75,24 +73,24 @@ public class EmailService {
     public Set<String> sendApprovalJobNotifyMail() {
         String subject = "这是一个标题";
         String content = "这是正文";
-
+        MailServerModel mailModel = configService.getModel(MailServerModel.class);
         // Failed to send mailbox list
         Set<String> sendFailEmails = new HashSet<>(16);
         try {
             Set<String> totalEmails = getTotalEmails();
+            if (mailModel == null) {
+                savePartSendFailMessage("邮件服务器未设置：" + sendFailEmails);
+                return sendFailEmails;
+            }
             if (CollectionUtils.isEmpty(totalEmails)) {
                 saveTotalSendFailMessage("邮件接收人为空");
                 return sendFailEmails;
             }
-            if (StringUtils.isBlank(config.getMailPort())) {
+            if (StringUtils.isBlank(mailModel.getPort())) {
                 savePartSendFailMessage("邮件服务器端口未设置：" + sendFailEmails);
                 return sendFailEmails;
             }
-            
-            MailServerModel mailServer = new MailServerModel(config.getMailHost(),
-                    Integer.valueOf(config.getMailPort()), config.getMailUsername(), config.getMailPassword());
-            
-            sendFailEmails = sendMail(mailServer.getMailUsername(), totalEmails, subject, content);
+            sendFailEmails = sendMail(mailModel.getUsername(), totalEmails, subject, content);
             // All sent successfully
             if (CollectionUtils.isEmpty(sendFailEmails)) {
                 return sendFailEmails;
@@ -106,7 +104,7 @@ public class EmailService {
             }
             savePartSendFailMessage("部分接收人地址无效：" + sendFailEmails);
             // Send again
-            sendFailEmails = sendMail(mailServer.getMailUsername(), totalEmails, subject, content);
+            sendFailEmails = sendMail(mailModel.getUsername(), totalEmails, subject, content);
         } catch (Exception e) {
             saveTotalSendFailMessage("失败原因：" + e.getMessage());
             LOG.error("Sending mail exception：", e);
@@ -175,32 +173,32 @@ public class EmailService {
     }
 
 
-
     /**
      * Get message sender
      */
     private JavaMailSenderImpl getMailSender() throws Exception {
-
-        if (StringUtils.isBlank(config.getMailPort())) {
+        MailServerModel mailModel = configService.getModel(MailServerModel.class);
+        if (mailModel == null) {
+            throw new Exception("邮件服务器未设置");
+        }
+        if (StringUtils.isBlank(mailModel.getPort())) {
             throw new Exception("邮件服务器端口未设置");
         }
-        MailServerModel mailServer = new MailServerModel(config.getMailHost(),
-                Integer.valueOf(config.getMailPort()), config.getMailUsername(), config.getMailPassword());
-        if (StringUtil.isEmpty(mailServer.getMailHost())) {
+        if (StringUtil.isEmpty(mailModel.getHost())) {
             throw new Exception("邮件服务器地址未设置");
         }
-        if (StringUtil.isEmpty(mailServer.getMailUsername())) {
+        if (StringUtil.isEmpty(mailModel.getUsername())) {
             throw new Exception("邮件用户名未设置");
         }
-        if (StringUtil.isEmpty(mailServer.getMailPassword())) {
+        if (StringUtil.isEmpty(mailModel.getPassword())) {
             throw new Exception("邮件密码未设置");
         }
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
-        javaMailSender.setHost(mailServer.getMailHost());
-        javaMailSender.setPort(mailServer.getMailPort());
+        javaMailSender.setHost(mailModel.getHost());
+        javaMailSender.setPort(Integer.valueOf(mailModel.getPort()));
         javaMailSender.setDefaultEncoding(MAIL_DEFAULT_ENCODING);
-        javaMailSender.setUsername(mailServer.getMailUsername());
-        javaMailSender.setPassword(mailServer.getMailPassword());
+        javaMailSender.setUsername(mailModel.getUsername());
+        javaMailSender.setPassword(mailModel.getPassword());
         javaMailSender.setProtocol(JavaMailSenderImpl.DEFAULT_PROTOCOL);
 
         Properties mailProperties = new Properties();

@@ -24,7 +24,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.file.compression.impl.Zip;
 import com.welab.wefe.common.util.FileUtil;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 import org.apache.commons.io.FileUtils;
 
@@ -61,18 +61,42 @@ public abstract class AbstractImageDataSetParser extends AbstractService {
         }
     }
 
-    public static File getDataSetFile(ImageDataSetMysqlModel dataSet, String jobId) {
+    public static String getDataSetFileName(String dataSetId, String version) {
+        return dataSetId + "_" + version + ".zip";
+    }
+
+    public static File getDataSetFile(ImageDataSetMysqlModel dataSet, String version) {
         return Paths.get(
                 dataSet.getStorageNamespace(),
                 "output",
-                jobId + ".zip"
+                getDataSetFileName(dataSet.getId(), version)
         ).toFile();
     }
 
     /**
      * 将数据集样本打包为数据集文件
+     * <p>
+     * 为减小磁盘开销，在数据集和参数没有变化时，将不会重复生成数据集文件。
+     * 以下为影响是否重新生成数据集文件的因素，当这些因素有变化时，需要重新生成数据集：
+     * 1. 切割比例
+     * 2. 样本数量
+     * 3. 样本最后标注时间
      */
-    public File parseSamplesToDataSetFile(String jobId, ImageDataSetMysqlModel dataSet, final List<ImageDataSetSampleMysqlModel> samples, int trainTestSplitRatio) throws Exception {
+    public String parseSamplesToDataSetFile(String jobId, ImageDataSetMysqlModel dataSet, final List<ImageDataSetSampleMysqlModel> samples, int trainTestSplitRatio) throws Exception {
+        // 构建数据集文件的版本号
+        long samplesLastUpdateTime = samples.stream().mapToLong(x ->
+                x.getUpdatedTime() == null
+                        ? x.getCreatedTime().getTime()
+                        : x.getUpdatedTime().getTime()
+        ).max().orElse(0);
+        String version = trainTestSplitRatio + "-" + samples.size() + "-" + samplesLastUpdateTime;
+
+        File file = getDataSetFile(dataSet, version);
+        // 如果数据集文件已经存在，不重复生成，节省磁盘。
+        if (file.exists()) {
+            return version;
+        }
+
         // 根据切割比例计算训练集和测试集样本的数量
         int trainCount = Convert.toInt(trainTestSplitRatio / 100D * samples.size());
         if (trainCount < 1) {
@@ -113,11 +137,11 @@ public abstract class AbstractImageDataSetParser extends AbstractService {
         FileUtil.deleteFileOrDir(outputDir.toString());
         // 将样本内容输出到打包目录
         emitSamplesToDataSetFileDir(dataSet, trainList, testList, outputDir);
-        return new Zip().compression(
+        new Zip().compression(
                 outputDir.toString(),
-                getDataSetFile(dataSet, jobId).getAbsolutePath()
+                getDataSetFile(dataSet, version).getAbsolutePath()
         );
-
+        return version;
     }
 
     public List<ImageDataSetSampleMysqlModel> parseFilesToSamples(ImageDataSetMysqlModel dataSet, final Set<File> allFiles) throws Exception {
@@ -173,7 +197,7 @@ public abstract class AbstractImageDataSetParser extends AbstractService {
                 Paths.get(dataSet.getStorageNamespace(), imageFile.getName()).toString()
         );
         sample.setFileSize(imageFile.length());
-        sample.setCreatedBy(CurrentAccount.id());
+        sample.setCreatedBy(CurrentAccountUtil.get().getId());
 
         // move image to dest dir
         File destFile = new File(sample.getFilePath());

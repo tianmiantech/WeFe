@@ -19,6 +19,7 @@ import traceback
 from common.python import session, RuntimeInstance, Backend, WorkMode
 from common.python.common.consts import NAMESPACE, JobStatus
 from common.python.db.db_models import *
+from common.python.db.job_dao import JobDao
 from common.python.db.task_dao import TaskDao
 from common.python.utils.log_utils import schedule_logger
 from common.python.utils.store_type import DBTypes
@@ -31,8 +32,9 @@ class ClearJobMiddleDataScheduler(threading.Thread):
 
     def get_need_clear_job(self):
         with DB.connection_context():
+            to_clear_status = [JobStatus.SUCCESS, JobStatus.ERROR_ON_RUNNING, JobStatus.STOP_ON_RUNNING]
             job_list = Job.select().where(
-                Job.status == JobStatus.SUCCESS,
+                Job.status.in_(to_clear_status),
                 Job.job_middle_data_is_clear == 0
             ).limit(1).execute()
             if job_list:
@@ -49,7 +51,6 @@ class ClearJobMiddleDataScheduler(threading.Thread):
                     continue
 
             except Exception as e:
-                traceback.print_exc()
                 schedule_logger().exception("获取未清理中间数据的job异常：%s", e)
                 time.sleep(5)
                 continue
@@ -59,47 +60,27 @@ class ClearJobMiddleDataScheduler(threading.Thread):
                 ClearJobMiddleDataScheduler.clean_job_middle_data(job)
 
             except Exception as e:
-                # 打印异常信息
-                traceback.print_exc()
                 schedule_logger().exception("执行清理任务中间数据异常：%s", e)
 
         schedule_logger().info('end clear job middle data')
 
     @staticmethod
-    def clean_job_middle_data(job, reset_is_clear=True):
+    def clean_job_middle_data(job):
         try:
-            with DB.connection_context():
-                task = TaskDao.get(Task.job_id == job.job_id)
-                if not task:
-                    return
+            job_id = job.job_id
 
-            if task.task_type == 'PaddleClassify' or task.task_type == 'PaddleDetection' or task.task_type == 'ImageDataIO':
-                schedule_logger().info("not need clean_job_middle_data task_id=:%s", task.task_id)
-                return
-            # if backend is FC, unnecessary.
-            backend = None
-            try:
-                backend = Backend.get_by_task_config(json.loads(task.task_conf))
-                if backend.is_fc():
-                    return
-            except Exception as e:
-                schedule_logger().info("not need clean_job_middle_data task_id=:%s", task.task_id)
-                pass
-            db_type = DBTypes.CLICKHOUSE
-            RuntimeInstance.SESSION = None
-
-            session.init(job_id=job.job_id, mode=WorkMode.CLUSTER,
-                         backend=backend, db_type=db_type)
-            clean_name_pattern = f"{session.get_session_id()}*"
+            clean_name_pattern = f"{job_id}_*"
             schedule_logger().info("clean_name_pattern:%s", clean_name_pattern)
-            session.cleanup(clean_name_pattern, NAMESPACE.PROCESS)
-            schedule_logger().info('jobId:%s 清理完成！', job.job_id)
+
+            from common.python.storage.impl import clickhouse_storage
+            clickhouse_storage.clean_up_tables(clean_name_pattern, NAMESPACE.PROCESS)
+
+            # 重新取最新的job信息
+            job = JobDao.find_one_by_job_id(job_id, job.my_role)
+            job.job_middle_data_is_clear = True
+            JobDao.save(job)
+
+            schedule_logger().info('jobId:%s 中间数据清理完成！', job_id)
+
         except Exception as e:
-            traceback.print_exc()
             schedule_logger().exception("jobId:%s 清理中间数据异常：%s", job.job_id, e)
-        finally:
-            # update job
-            if reset_is_clear:
-                with DB.connection_context():
-                    job.job_middle_data_is_clear = True
-                    job.save()

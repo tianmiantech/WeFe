@@ -66,8 +66,9 @@ class FillMissingValue(ModelBase):
             data_instances.schema = data_instances.get_metas()
         self.header = get_header(data_instances)
         self.calc_statistics(data_instances)
-
+        LOGGER.debug('statistics={}'.format(self.statistics))
         feature_missing_count = self.calc_missing_count(data_instances)
+        LOGGER.debug("feature_missing_count:{}".format(feature_missing_count))
         fill_result = self.generate_fill_result(feature_missing_count)
 
         _features_rules = self.features_rules
@@ -108,7 +109,10 @@ class FillMissingValue(ModelBase):
                 if feature not in self.statistics.get(method):
                     raise ValueError(
                         f'statistics component not calculate feature={feature}\'s {method} statistical magnitude')
-                result['value'] = self.statistics[method][feature]
+                if method == 'median' and type(self.statistics[method][feature]).__name__ == 'dict':
+                    result['value'] = self.statistics[method][feature].get(50)
+                else:
+                    result['value'] = self.statistics[method][feature]
 
             results[feature] = result
 
@@ -139,7 +143,7 @@ class FillMissingValue(ModelBase):
             elif method == consts.MEAN:
                 self.statistics[consts.MEAN] = statistics.get_mean()
             elif method == consts.MEDIAN:
-                percentiles = statistics.get_percentile(percentage_list=[50])
+                percentiles = statistics.get_percentile(percentage_list=[50], allow_duplicate=True)
                 medians = {}
                 for feature, value in percentiles.items():
                     medians[feature] = value.get(50)

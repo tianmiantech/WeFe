@@ -51,6 +51,7 @@
     import { ref, reactive, onMounted } from 'vue';
     import CommonResult from '../../visual/component-list/common/CommonResult.vue';
     import resultMixin from '../../visual/component-list/result-mixin';
+    import { dealNumPrecision } from '@src/utils/utils';
 
     const mixin = resultMixin();
 
@@ -64,7 +65,7 @@
             flowType:            String,
         },
         setup(props, context) {
-            const activeName = ref('1');
+            const activeName = ref(['1', '2']);
             const LineChart = ref();
 
             let vData = reactive({
@@ -77,12 +78,13 @@
                     xAxis:  [],
                     series: [[]],
                 },
-                isshow: false,
+                isshow: true,
             });
 
             let methods = {
                 tabChange() {
                     methods.readData();
+                    vData.isshow = false;
                 },
                 collapseChanged(val) {
                     if(val.includes('2')){
@@ -90,13 +92,18 @@
                     }
                 },
                 showResult(data) {
+                    vData.train_loss = {
+                        xAxis:  [],
+                        series: [[]],
+                    };
                     if(data[0].result) {
+                        vData.isshow = true;
                         vData.result = true;
                         const train_loss = data[0].result.data;
 
                         for (const key in train_loss) {
                             vData.train_loss.xAxis.push(key);
-                            vData.train_loss.series[0].push(train_loss[key].value);
+                            vData.train_loss.series[0].push(dealNumPrecision(train_loss[key].value));
                         }
                     } else {
                         vData.result = false;
@@ -129,3 +136,11 @@
         },
     };
 </script>
+<style lang="scss" scoped>
+.result {
+    padding-left: 30px;
+    :deep(.board-collapse-item__header) {
+        font-size: 12px !important;
+    }
+}
+</style>

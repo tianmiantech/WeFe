@@ -17,6 +17,7 @@
 
 from kernel.base.params.base_param import BaseParam
 from kernel.utils import consts
+from kernel.components.evaluation.param import PSIParam
 
 
 class OotParam(BaseParam):
@@ -37,6 +38,7 @@ class OotParam(BaseParam):
 
     def __init__(self, mode=consts.VERT, feature_columns='', with_label=False, label_name='y',
                  label_type='int', flow_node_id='', sub_component_name_list=[], sub_component_task_config_dick={}):
+        super().__init__()
         self.mode = mode
         self.feature_columns = feature_columns
         self.with_label = with_label
@@ -45,6 +47,8 @@ class OotParam(BaseParam):
         self.flow_node_id = flow_node_id
         self.sub_component_name_list = sub_component_name_list
         self.sub_component_task_config_dick = sub_component_task_config_dick
+        self.psi_param = PSIParam()
+
 
     def check(self):
         descr = "oot param's"

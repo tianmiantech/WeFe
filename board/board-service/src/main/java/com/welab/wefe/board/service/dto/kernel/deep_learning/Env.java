@@ -17,9 +17,12 @@ package com.welab.wefe.board.service.dto.kernel.deep_learning;
 
 import com.welab.wefe.board.service.component.deep_learning.ImageDataIOComponent;
 import com.welab.wefe.board.service.service.CacheObjects;
+import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.dto.global_config.DeepLearningConfigModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +56,7 @@ public class Env {
     /**
      * 设备 cpu/gpu
      */
-    public String device = "cpu";
+    public String device;
     /**
      * 是否使用 visualdl 可视化
      */
@@ -130,6 +133,9 @@ public class Env {
         }
 
         this.workerNum = workerCountMap.values().stream().mapToInt(x -> x).sum();
+
+        DeepLearningConfigModel config = Launcher.getBean(GlobalConfigService.class).getModel(DeepLearningConfigModel.class);
+        this.device = config.device;
     }
 
 }

@@ -1,0 +1,16 @@
+
+###
+POST http://localhost:8080/board-service/global_config/get
+Content-Type: application/json
+token:{{token}}
+
+{
+  "groups": [
+    "function_compute_config",
+    "deep_learning_config",
+    "calculation_engine_config",
+    "spark_standalone_config",
+    "aliyun_function_compute_config",
+    "tencent_serverless_cloud_function_config"
+  ]
+}

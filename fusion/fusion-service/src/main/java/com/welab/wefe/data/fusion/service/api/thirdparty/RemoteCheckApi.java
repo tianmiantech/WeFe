@@ -25,7 +25,7 @@ import com.welab.wefe.common.web.dto.ApiResult;
 /**
  * @author hunter.zhao
  */
-@Api(path = "third_party/remote/check", name = "测试服务状态", desc = "测试服务状态", login = false, rsaVerify = true)
+@Api(path = "third_party/remote/check", name = "测试服务状态", desc = "测试服务状态", allowAccessWithSign = true)
 public class RemoteCheckApi extends AbstractNoneOutputApi<RemoteCheckApi.Input> {
 
 

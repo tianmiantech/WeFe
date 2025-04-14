@@ -19,7 +19,6 @@ package com.welab.wefe.manager.service.service;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.RealnameAuthAgreementTemplate;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.manager.service.contract.RealnameAuthAgreementTemplateContract;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
@@ -74,7 +73,7 @@ public class RealnameAuthAgreementTemplateContractService extends AbstractContra
             throw e;
         } catch (Exception e) {
             LOG.error("add RealnameAuthAgreementTemplate error: ", e);
-            throw new StatusCodeWithException("add RealnameAuthAgreementTemplate error: ", StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "add RealnameAuthAgreementTemplate error: ");
         }
     }
 
@@ -93,7 +92,7 @@ public class RealnameAuthAgreementTemplateContractService extends AbstractContra
 
             transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
-            throw new StatusCodeWithException("enable failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "enable failed: " + e.getMessage());
         }
     }
 

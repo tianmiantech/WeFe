@@ -54,6 +54,10 @@ public class DataResourceUploadTaskService extends AbstractService {
      * 创建一个新的上传任务
      */
     public DataResourceUploadTaskMysqlModel newTask(DataResourceType dataResourceType, AbstractDataResourceUpdateInputModel input) {
+        // 删除不需要的旧数据
+        dataResourceUploadTaskRepository.deleteHistory();
+        // 关闭超时未响应的任务
+        dataResourceUploadTaskRepository.closeTimeoutTask();
 
         DataResourceUploadTaskMysqlModel task = new DataResourceUploadTaskMysqlModel();
         task.setDataResourceName(input.getName());
@@ -134,7 +138,11 @@ public class DataResourceUploadTaskService extends AbstractService {
             long estimateTime = 0;
             if (progress < 100) {
                 long spend = System.currentTimeMillis() - task.getCreatedTime().getTime();
-                estimateTime = spend / progress * (100 - progress);
+                if (completedDataCount > 0) {
+                    estimateTime = (totalDataRowCount - completedDataCount) / completedDataCount * spend;
+                } else {
+                    estimateTime = spend / progress * (100 - progress);
+                }
             }
 
             task.setTotalDataCount(totalDataRowCount);

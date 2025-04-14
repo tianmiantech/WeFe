@@ -1,11 +1,27 @@
 <template>
     <el-card
         name="衍生数据资源"
-        class="nav-title"
+        class="nav-title mb30"
         shadow="never"
         :show="project_type !== 'DeepLearning'"
+        :idx="sortIndex"
+        style="background: white"
     >
-        <h3 class="mb20 card-title">衍生数据资源</h3>
+        <template #header>
+            <div class="mb10 flex-row">
+                <h3 class="card-title f19">
+                    <el-icon :class="['board-icon-document-copy', 'mr10', 'ml10']" style="font-size: xx-large; top:8px; right: -3px; color: dodgerblue"><elicon-document-copy />
+                    </el-icon>
+                    衍生数据资源
+                </h3>
+                <div v-if="form.is_project_admin" class="right-sort-area">
+                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['board-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp" title="向上" style="color: lightgray"><elicon-top /></el-icon>
+                    <el-icon v-if="maxIndex !== sortIndex" :class="['board-icon-bottom', 'mr10', 'ml10']" @click="moveDown" title="向下" style="color: lightgray"><elicon-bottom /></el-icon>
+                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['board-icon-caret-top', {'mr10': maxIndex === sortIndex}]" @click="toTop" title="置顶" style="color: lightgray"><elicon-caret-top /></el-icon>
+                    <el-icon v-if="maxIndex !== sortIndex" :class="['board-icon-caret-bottom', 'mr10', 'ml10']" @click="toBottom" title="置底" style="color: lightgray"><elicon-caret-bottom /></el-icon>
+                </div>
+            </div>
+        </template>
         <el-form inline @submit.prevent>
             <el-form-item label="来源：">
                 <el-select
@@ -120,12 +136,13 @@
             </el-table-column>
             <el-table-column label="查看任务">
                 <template v-slot="scope">
-                    <router-link v-if="scope.row.data_resource" :to="{ name: 'project-job-detail', query: { job_id: scope.row.data_resource.source_job_id, project_id, member_role: scope.row.data_resource.member_role }}">
+                    <router-link v-if="scope.row.data_resource" :to="{ name: 'project-job-detail', query: { job_id: scope.row.data_resource.derived_from_job_id, flow_id: scope.row.data_resource.derived_from_flow_id, project_id, member_role: scope.row.member_role }}">
                         查看任务
                     </router-link>
                 </template>
             </el-table-column>
             <el-table-column
+                v-if="form.is_project_admin"
                 label="操作"
                 width="100"
             >
@@ -157,10 +174,16 @@
 </template>
 
 <script>
+    import { template } from 'lodash';
+
     export default {
         props: {
             projectType: String,
+            sortIndex:   Number,
+            maxIndex:    Number,
+            form:        Object,
         },
+        emits: ['move-up', 'move-down', 'to-top', 'to-bottom'],
         data() {
             return {
                 derived: {
@@ -216,20 +239,18 @@
                     },
                 };
 
-                if($event) {
+                if ($event) {
                     params.btnState = {
                         target: $event,
                     };
                 }
-
                 const { code, data } = await this.$http.get(params);
 
-                if(code === 0) {
+                if (code === 0) {
                     this.derived.list = data.list;
                     this.derived.total = data.total;
                 }
             },
-
             searchDeriveData() {
                 this.derived.page_index = 1;
                 this.getDeriveData();
@@ -241,6 +262,7 @@
             },
 
             derivedPageSizeChange(val) {
+                console.log('pageSize change');
                 this.derived.page_size = val;
                 this.getDeriveData();
             },
@@ -267,6 +289,20 @@
                         }
                     });
             },
+            
+            moveUp() {
+                this.$emit('move-up', this.sortIndex);
+            },
+            moveDown() {
+                this.$emit('move-down', this.sortIndex);
+            },
+            toTop() {
+                this.$emit('to-top', this.sortIndex);
+            },
+            toBottom() {
+                this.$emit('to-bottom', this.sortIndex);
+            },
         },
+        components: { template },
     };
 </script>

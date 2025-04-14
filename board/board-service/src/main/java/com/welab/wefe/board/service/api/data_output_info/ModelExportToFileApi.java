@@ -17,9 +17,12 @@ package com.welab.wefe.board.service.api.data_output_info;
 
 import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
+import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.ServingService;
+import com.welab.wefe.common.SecurityUtil;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.util.FileUtil;
+import com.welab.wefe.common.util.*;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -45,14 +48,31 @@ public class ModelExportToFileApi extends AbstractApi<ModelExportToFileApi.Input
     @Override
     protected ApiResult<ResponseEntity<?>> handle(Input input) throws Exception {
 
-        TreeMap<String, Object> body = servingService.setBody(input.getTaskId(), input.getRole());
+        TreeMap<String, Object> body = servingService.buildModelParams(input.getTaskId(), input.getRole());
 
         File file = WeFeFileSystem
                 .getBaseDir(WeFeFileSystem.UseType.Temp)
-                .resolve(input.getTaskId() + ".json")
+                .resolve(input.getTaskId() + ".txt")
                 .toFile();
 
         FileUtil.writeTextToFile(JSON.toJSONString(body), file.toPath(), false);
+
+        // 随机生成 aes 密钥
+        String aesKey = SecurityUtil.createRandomSalt();
+        //RSA加密
+        String aes_key_str = null;
+        SecretKeyType secretKeyType = CacheObjects.getSecretKeyType();
+        if(SecretKeyType.rsa.equals(secretKeyType)) {
+            aes_key_str = RSAUtil.encryptByPublicKey(aesKey, CacheObjects.getRsaPublicKey());
+        } else {
+            aes_key_str = SM2Util.encryptByPublicKey(aesKey, CacheObjects.getRsaPublicKey());
+        }
+
+        FileUtil.writeTextToFile(aes_key_str + System.lineSeparator(), file.toPath(), false);
+
+        //将ASE密钥加密后放入加密文件的第一行
+        String data = AESUtil.encrypt(JSON.toJSONString(body), aesKey);
+        FileUtil.writeTextToFile(data, file.toPath(), true);
 
         return file(file);
     }

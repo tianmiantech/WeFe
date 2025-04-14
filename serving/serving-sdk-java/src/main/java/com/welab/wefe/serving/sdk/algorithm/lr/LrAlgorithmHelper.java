@@ -18,13 +18,25 @@ package com.welab.wefe.serving.sdk.algorithm.lr;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.util.TypeUtils;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.enums.StateCode;
-import com.welab.wefe.serving.sdk.model.PredictModel;
+import com.welab.wefe.serving.sdk.model.ScoreCardInfoModel;
 import com.welab.wefe.serving.sdk.model.lr.LrModel;
+import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
+import com.welab.wefe.serving.sdk.model.lr.LrScoreCardModel;
+import com.welab.wefe.serving.sdk.utils.AlgorithmThreadPool;
+import org.apache.commons.compress.utils.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+
+import static java.lang.Math.exp;
 
 /**
  * @author hunter.zhao
@@ -32,14 +44,27 @@ import java.util.Map;
 public class LrAlgorithmHelper {
     private static final Logger LOG = LoggerFactory.getLogger(LrAlgorithmHelper.class);
 
+
+    /**
+     * single sigmod function
+     */
+    public static Double sigmod(Double score) {
+        return 1. / (1. + exp(-score));
+    }
+
     /**
      * Calculate points based on features
      */
-    public static PredictModel compute(LrModel model, String userId, Map<String, Object> featureData) {
+    public static LrPredictResultModel compute(LrModel model, String userId, Map<String, Object> featureData, ScoreCardInfoModel scoreCardInfo) {
         if (featureData == null) {
-            return PredictModel.of(userId, 0.0);
+            return LrPredictResultModel.of(userId, 0.0);
         }
 
+        return scoreCardInfo != null ? computeScoreCard(model, userId, featureData, scoreCardInfo) : computeProbability(model, userId, featureData);
+
+    }
+
+    private static LrPredictResultModel computeProbability(LrModel model, String userId, Map<String, Object> featureData) {
         double score = 0;
         int featureNum = 0;
 
@@ -55,9 +80,111 @@ public class LrAlgorithmHelper {
         //Features do not match at all
         if (featureNum <= 0) {
             LOG.error("featureData error, userId : {}, featureData: {} ,weight: {}", userId, JSON.toJSONString(featureData), JSON.toJSONString(model.getWeight()));
-            PredictModel.fail(userId, StateCode.FEATURE_ERROR);
+            return LrPredictResultModel.fail(userId, StateCode.FEATURE_ERROR.getMessage());
         }
 
-        return PredictModel.of(userId, score);
+        return LrPredictResultModel.of(userId, score);
+    }
+
+    /**
+     * Calculate points based on features
+     */
+    public static LrPredictResultModel computeScoreCard(LrModel model, String userId, Map<String, Object> featureData, ScoreCardInfoModel scoreCardInfo) {
+
+        JObject bin = JObject.create(scoreCardInfo.getBin());
+        double bScore = JObject.create(scoreCardInfo.getScoreCard()).getDouble("b_score");
+        double score = 0;
+        int featureNum = 0;
+
+        List<LrScoreCardModel> scoreCard = Lists.newArrayList();
+        for (String key : featureData.keySet()) {
+            if (model.getWeight().containsKey(key)) {
+
+                Double x = TypeUtils.castToDouble(featureData.get(key));
+                Double w = TypeUtils.castToDouble(model.getWeight().get(key));
+                List<Double> splitPoints = extractSplitPoints(bin.getJObject(key));
+                List<Double> woeArray = extractWoeArray(bin.getJObject(key));
+                int splitPointIndex = getSplitPointIndex(splitPoints, x);
+
+                LrScoreCardModel scoreCardModel = new LrScoreCardModel();
+                scoreCardModel.setFeature(key);
+                scoreCardModel.setValue(x);
+                scoreCardModel.setBin(getBinningSplit(splitPoints, splitPointIndex));
+                scoreCardModel.setWoe(woeArray.get(splitPointIndex));
+                scoreCardModel.setScore(w * woeArray.get(splitPointIndex) * bScore);
+
+                scoreCard.add(scoreCardModel);
+
+                score += w * woeArray.get(splitPointIndex) * bScore;
+                featureNum++;
+            }
+        }
+
+        //Features do not match at all
+        if (featureNum <= 0) {
+            LOG.error("featureData error, userId : {}, featureData: {} ,weight: {}", userId, JSON.toJSONString(featureData), JSON.toJSONString(model.getWeight()));
+            return LrPredictResultModel.fail(userId, StateCode.FEATURE_ERROR.getMessage());
+        }
+
+        return LrPredictResultModel.of(userId, score, scoreCard);
+    }
+
+    public static List<LrPredictResultModel> batchCompute(LrModel lrModel, BatchPredictParams batchPredictParams, ScoreCardInfoModel scoreCardInfo) {
+        CopyOnWriteArrayList<LrPredictResultModel> outputs = new CopyOnWriteArrayList<>();
+
+        CountDownLatch latch = new CountDownLatch(batchPredictParams.getUserIds().size());
+
+        batchPredictParams.getPredictParamsList().forEach(x ->
+                AlgorithmThreadPool.run(() -> outputs.add(
+                                LrAlgorithmHelper.compute(
+                                        lrModel,
+                                        x.getUserId(),
+                                        x.getFeatureDataModel().getFeatureDataMap(),
+                                        scoreCardInfo)
+                        )
+                )
+        );
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            LOG.error("Execution prediction error：{}", e.getMessage());
+            e.printStackTrace();
+        }
+
+        return outputs;
+    }
+
+    public static Double intercept(double score, double intercept) {
+        return score + intercept;
+    }
+
+    private static List<Double> extractSplitPoints(JObject obj) {
+        return obj.getJSONList("splitPoints", Double.class);
+    }
+
+
+    private static List<Double> extractWoeArray(JObject obj) {
+        return obj.getJSONList("woeArray", Double.class);
+    }
+
+    private static int getSplitPointIndex(List<Double> splits, Double value) {
+        for (int i = 0; i < splits.size(); i++) {
+            if (value <= splits.get(i)) {
+                return i;
+            }
+        }
+        return splits.size() - 1;
+    }
+
+
+    private static String getBinningSplit(List<Double> list, int i) {
+        String beforeKey = i == 0 ? "-∞" : precisionProcessByDouble(list.get(i - 1));
+        return beforeKey + "," + precisionProcessByDouble(list.get(i));
+    }
+
+    private static String precisionProcessByDouble(double value) {
+        BigDecimal bd = new BigDecimal(value);
+        return bd.setScale(2, BigDecimal.ROUND_HALF_UP).toString();
     }
 }

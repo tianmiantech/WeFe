@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -43,7 +44,7 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, AddApi.Output> {
 
 	@Override
 	protected ApiResult<Output> handle(Input input) throws StatusCodeWithException, IOException {
-		return success(service.update(input));
+		return success(service.updateService(input));
 	}
 
 	public static class Input extends AbstractApiInput {
@@ -58,10 +59,15 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, AddApi.Output> {
 		private int serviceType;
 		@Check(name = "查询参数配置")
 		private List<String> queryParams;// json
+		@Check(name = "查询参数配置描述")
+        private List<JSONObject> queryParamsConfig;// json
 		@Check(name = "SQL配置")
 		private String dataSource;// json
 		@Check(name = "服务配置")
 		private String serviceConfig;// json
+		@Check(name = "服务算子")
+        private String operator;
+		
 
 		@Override
 		public void checkAndStandardize() throws StatusCodeWithException {
@@ -144,6 +150,22 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, AddApi.Output> {
 		public void setServiceConfig(String serviceConfig) {
 			this.serviceConfig = serviceConfig;
 		}
+
+        public List<JSONObject> getQueryParamsConfig() {
+            return queryParamsConfig;
+        }
+
+        public void setQueryParamsConfig(List<JSONObject> queryParamsConfig) {
+            this.queryParamsConfig = queryParamsConfig;
+        }
+
+        public String getOperator() {
+            return operator;
+        }
+
+        public void setOperator(String operator) {
+            this.operator = operator;
+        }
 	}
 
 }

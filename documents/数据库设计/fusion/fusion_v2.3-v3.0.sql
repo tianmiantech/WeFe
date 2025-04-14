@@ -25,5 +25,8 @@ ALTER TABLE task ADD `processed_count` int(10) DEFAULT NULL;
 -- ----------------------------
 ALTER TABLE account MODIFY COLUMN phone_number VARCHAR(200);
 
+-- 删除手机号唯一索引
+ALTER TABLE `account` DROP INDEX `index_unique_phonenumber`;
+
 
 

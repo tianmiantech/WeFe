@@ -16,7 +16,6 @@
 
 package com.welab.wefe.serving.service.api.predict;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -28,7 +27,7 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.service.manager.ModelManager;
-import com.welab.wefe.serving.service.predicter.Predicter;
+import com.welab.wefe.serving.service.predicter.Predictor;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import org.apache.commons.collections4.MapUtils;
 
@@ -41,8 +40,7 @@ import java.util.Map;
 @Api(
         path = "predict/promoter",
         name = "模型预测",
-        login = false,
-        rsaVerify = true,
+        allowAccessWithSign = true,
         domain = Caller.Member
 )
 public class PromoterApi extends AbstractApi<PromoterApi.Input, PredictResult> {
@@ -58,32 +56,36 @@ public class PromoterApi extends AbstractApi<PromoterApi.Input, PredictResult> {
             /**
              * batch prediction
              */
-            if (input.getBatch()) {
-                PredictResult result = Predicter.batchPromoterPredict(
-                        input.getModelId(),
-                        input.getFeatureDataMap()
-                );
-
-                return success(result);
-            }
+//            if (input.getBatch()) {
+//                PredictResult result = Predictor.batchPromoterPredict(
+//                        input.getModelId(),
+//                        input.getFeatureDataMap()
+//                );
+//
+//                return success(result);
+//            }
 
             /**
              * Single prediction
              */
-            PredictResult result = Predicter.promoter(
+            PredictResult result = Predictor.predict(
+                    input.getRequestId(),
                     input.getModelId(),
                     input.getUserId(),
-                    input.getFeatureData(),
-                    input.getParams() == null ? null : new JSONObject(input.getParams())
+                    input.getFeatureData()
             );
 
             return success(result);
         } catch (Exception e) {
-            return fail("predict error : " + e.getMessage());
+            return fail(e.getMessage());
         }
     }
 
     public static class Input extends AbstractApiInput {
+
+        @Check(require = true, name = "请求ID")
+        private String requestId;
+
         @Check(require = true, name = "模型唯一标识")
         private String modelId;
 
@@ -108,19 +110,28 @@ public class PromoterApi extends AbstractApi<PromoterApi.Input, PredictResult> {
             super.checkAndStandardize();
             if (!isBatch) {
                 if (StringUtil.isEmpty(userId)) {
-                    throw new StatusCodeWithException("单条预测时，参数userId不能为空", StatusCode.PARAMETER_VALUE_INVALID);
+                    throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "单条预测时，参数userId不能为空");
                 }
 
                 return;
             }
 
             if (MapUtils.isEmpty(featureDataMap)) {
-                throw new StatusCodeWithException("批量预测时，参数predictParamsList不能为空", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "批量预测时，参数predictParamsList不能为空");
             }
         }
 
 
         //region getter/setter
+
+
+        public String getRequestId() {
+            return requestId;
+        }
+
+        public void setRequestId(String requestId) {
+            this.requestId = requestId;
+        }
 
         public String getModelId() {
             return modelId;

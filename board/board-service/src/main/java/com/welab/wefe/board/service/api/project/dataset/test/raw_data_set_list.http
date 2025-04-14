@@ -2,18 +2,10 @@ POST http://localhost:8080/board-service/project/raw_data_set/list
 Content-Type: application/json
 
 {
-  "allList": "",
-  "contains_y": "",
-  "dataResourceType": [
-    "ImageDataSet"
-  ],
-  "data_resource_type": "ImageDataSet",
-  "data_set_id": "",
-  "list": "",
-  "member_id": "290007c2a71d470ba00f486b18875d31",
+  "member_id": "81051c7b7f4f4beaa581ba046f8a6048",
   "member_role": "promoter",
-  "name": "",
-  "page_index": 0,
-  "page_size": 20,
-  "project_id": "35ef81d771e24bd09c77a432652061b3"
+  "data_resource_id": "2364c86fbf15437eb7a24d5f03affdba",
+  "dataResourceType": "TableDataSet",
+  "member_role": "promoter",
+  "project_id": "0f730b1745754780ac19e39533e6ee1a"
 }

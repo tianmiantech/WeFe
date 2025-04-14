@@ -202,12 +202,15 @@ public abstract class BaseFlowGraph {
                 .orElse(null);
     }
 
+    /**
+     * @see {{@link #getJobSteps(String)}}
+     */
     public List<FlowGraphNode> getAllJobSteps() throws StatusCodeWithException {
         return getJobSteps(null);
     }
 
     /**
-     * 获取任务执行路径节点
+     * 获取任务执行路径节点，游离节点不会被执行。
      * Get task execution path node
      * <p>
      * 注意：这里没有考虑使用缓存的情况

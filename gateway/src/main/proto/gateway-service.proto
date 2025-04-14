@@ -17,5 +17,5 @@ service TransferService {
 service NetworkDataTransferProxyService {
     rpc push(com.welab.wefe.gateway.api.meta.basic.TransferMeta) returns (com.welab.wefe.gateway.api.meta.basic.ReturnStatus);
 
-    rpc pushData(stream com.welab.wefe.gateway.api.meta.basic.TransferMeta) returns (stream com.welab.wefe.gateway.api.meta.basic.TransferMeta);
+    rpc pushDataSource(stream com.welab.wefe.gateway.api.meta.basic.TransferMeta) returns (stream com.welab.wefe.gateway.api.meta.basic.TransferMeta);
 }

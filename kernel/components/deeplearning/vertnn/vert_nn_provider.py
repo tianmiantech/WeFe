@@ -78,7 +78,7 @@ class VertNNProvider(VertNNBase):
         self._restore_model_param(param)
 
     def _build_model(self):
-        self.model = model_builder("host", self.vert_nn_param)
+        self.model = model_builder("provider", self.vert_nn_param)
         self.model.set_transfer_variable(self.transfer_variable)
 
     def predict(self, data_inst):
@@ -114,7 +114,7 @@ class VertNNProvider(VertNNBase):
 
             cur_epoch += 1
 
-            self.tracker.add_task_progress(1)
+            self.tracker.add_task_progress(1, self.need_grid_search)
 
         if self.validation_strategy and self.validation_strategy.has_saved_best_model():
             self.load_model(self.validation_strategy.cur_best_model)

@@ -23,28 +23,24 @@ import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDa
 import com.welab.wefe.board.service.util.AbstractTableDataSetReader;
 import com.welab.wefe.board.service.util.CsvTableDataSetReader;
 import com.welab.wefe.board.service.util.ExcelTableDataSetReader;
-import com.welab.wefe.board.service.util.JdbcManager;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.jdbc.JdbcClient;
 import com.welab.wefe.common.util.ListUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.wefe.enums.ColumnDataType;
+import com.welab.wefe.common.wefe.ColumnDataTypeInferrer;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -53,23 +49,21 @@ import java.util.stream.Collectors;
 @Api(path = "table_data_set/preview", name = "preview data set rows")
 public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output> {
 
-    private static final Pattern MATCH_INTEGER_PATTERN = Pattern.compile("^-?\\d{1,9}$");
-    private static final Pattern MATCH_LONG_PATTERN = Pattern.compile("^-?\\d{10,}$");
-    private static final Pattern MATCH_DOUBLE_PATTERN = Pattern.compile("^-?\\d+\\.\\d+$");
-
     @Autowired
     TableDataSetService tableDataSetService;
 
     @Override
-    protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<Output> handle(Input input) throws Exception {
 
         Output output = new Output();
         // Read data from the database for preview
         if (DataSetAddMethod.Database.equals(input.getDataSetAddMethod())) {
             // Test whether SQL can be queried normally
-            boolean result = tableDataSetService.testSqlQuery(input.getDataSourceId(), input.getSql());
-            if (result) {
+            String message = tableDataSetService.testSqlQuery(input.getDataSourceId(), input.getSql());
+            if (message == null) {
                 output = readFromDatabase(input.getDataSourceId(), input.getSql());
+            } else {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("测试连接数据库失败：" + message);
             }
         } else {
 
@@ -78,7 +72,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
                 output = readFile(file);
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
             }
         }
 
@@ -91,128 +85,32 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
      * Parse the dataset file
      */
     private Output readFile(File file) throws IOException, StatusCodeWithException {
-
-
-        Output output = new Output();
-        LinkedHashMap<String, DataSetColumnOutputModel> metadata = new LinkedHashMap<>();
-
-
-        // How to consume the first row of a column
-        Consumer<List<String>> headRowConsumer = row -> {
-
-            output.header.addAll(row);
-
-            for (String name : output.header) {
-                DataSetColumnOutputModel column = new DataSetColumnOutputModel();
-                column.setName(name);
-                metadata.put(name, column);
-            }
-
-        };
-
-        // Data line consumer
-        DataRowConsumer dataRowConsumer = new DataRowConsumer(metadata, output);
-
+        ColumnDataTypeInferrer columnDataTypeInferrer;
 
         try (
                 AbstractTableDataSetReader reader = file.getName().endsWith("csv")
                         ? new CsvTableDataSetReader(file)
                         : new ExcelTableDataSetReader(file)
         ) {
+
             // Get column header
-            headRowConsumer.accept(reader.getHeader());
-            // Read data row
-            reader.read(dataRowConsumer, 10000, 10_000);
+            List<String> header = reader.getHeader();
+
+            // 读取数据并推理每个字段的数据类型
+            columnDataTypeInferrer = new ColumnDataTypeInferrer(header);
+            reader.read(columnDataTypeInferrer, 100_000, 10_000);
         }
 
-        output.setMetadataList(new ArrayList<>(metadata.values()));
-
-
-        return output;
+        return new Output(columnDataTypeInferrer);
     }
 
-    /**
-     * Data line consumer
-     */
-    private static class DataRowConsumer implements Consumer<LinkedHashMap<String, Object>> {
-
-        private final LinkedHashMap<String, DataSetColumnOutputModel> metadata;
-        private final Output output;
-
-        private boolean allColumnKnowDataType = false;
-
-
-        public DataRowConsumer(LinkedHashMap<String, DataSetColumnOutputModel> metadata, Output output) {
-            this.metadata = metadata;
-            this.output = output;
-        }
-
-        @Override
-        public void accept(LinkedHashMap<String, Object> x) {
-            // The front end only previews 10 rows of data, too many interfaces will freeze.
-            if (output.rawDataList.size() < 10) {
-                output.rawDataList.add(x);
-            }
-
-            if (allColumnKnowDataType) {
-                return;
-            }
-
-            // Infer data type
-            boolean hasUnkonow = true;
-            for (String name : output.header) {
-
-                DataSetColumnOutputModel column = metadata.get(name);
-                if (column.getDataType() == null) {
-
-                    Object value = x.get(name);
-                    ColumnDataType dataType = inferDataType(String.valueOf(value));
-
-                    if (dataType != null) {
-                        column.setDataType(dataType);
-                    } else {
-                        hasUnkonow = true;
-                    }
-                }
-            }
-
-            if (!hasUnkonow) {
-                allColumnKnowDataType = true;
-            }
-
-        }
-
-        /**
-         * Infer data type
-         */
-        private ColumnDataType inferDataType(String value) {
-            if (AbstractTableDataSetReader.isEmptyValue(value)) {
-                return null;
-            }
-
-            if (MATCH_DOUBLE_PATTERN.matcher(value).find()) {
-                return ColumnDataType.Double;
-            }
-
-            if (MATCH_LONG_PATTERN.matcher(value).find()) {
-                return ColumnDataType.Long;
-            }
-
-            if (MATCH_INTEGER_PATTERN.matcher(value).find()) {
-                return ColumnDataType.Integer;
-            }
-
-            return ColumnDataType.String;
-        }
-    }
-
-    private Output readFromDatabase(String dataSourceId, String sql) throws StatusCodeWithException {
+    private Output readFromDatabase(String dataSourceId, String sql) throws Exception {
         DataSourceMysqlModel model = tableDataSetService.getDataSourceById(dataSourceId);
         if (model == null) {
-            throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "dataSourceId在数据库不存在");
         }
 
-        Connection conn = JdbcManager.getConnection(
+        JdbcClient client = JdbcClient.create(
                 model.getDatabaseType(),
                 model.getHost(),
                 model.getPort(),
@@ -222,9 +120,9 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
         );
 
         // Get the column header of the data set
-        List<String> header = JdbcManager.getRowHeaders(conn, sql);
+        List<String> header = client.getHeaders(sql);
         if (header.stream().distinct().count() != header.size()) {
-            throw new StatusCodeWithException("数据集包含重复的字段，请处理后重新上传。", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "数据集包含重复的字段，请处理后重新上传。");
         }
 
         // Convert uppercase Y to lowercase y
@@ -238,25 +136,11 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
             ListUtil.moveElement(header, yIndex, 1);
         }
 
-        Output output = new Output();
-        LinkedHashMap<String, DataSetColumnOutputModel> metadata = new LinkedHashMap<>();
-        output.setHeader(header);
-
-        for (String name : output.header) {
-            DataSetColumnOutputModel column = new DataSetColumnOutputModel();
-            column.setName(name);
-            metadata.put(name, column);
-        }
-
-        // Data line consumer
-        DataRowConsumer dataRowConsumer = new DataRowConsumer(metadata, output);
-
-        JdbcManager.readWithFieldRow(conn, sql, dataRowConsumer, 10);
+        ColumnDataTypeInferrer columnDataTypeInferrer = new ColumnDataTypeInferrer(header);
+        client.scan(sql, columnDataTypeInferrer, 10_000);
 
 
-        output.setMetadataList(new ArrayList<>(metadata.values()));
-
-        return output;
+        return new Output(columnDataTypeInferrer);
     }
 
 
@@ -281,11 +165,11 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
             // If the source is a database, dataSourceId and sql must not be empty.
             if (DataSetAddMethod.Database.equals(dataSetAddMethod)) {
                 if (StringUtils.isEmpty(dataSourceId)) {
-                    throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
+                    throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "dataSourceId在数据库不存在");
                 }
 
                 if (StringUtils.isEmpty(sql)) {
-                    throw new StatusCodeWithException("请填入sql查询语句", StatusCode.PARAMETER_CAN_NOT_BE_EMPTY);
+                    throw new StatusCodeWithException(StatusCode.PARAMETER_CAN_NOT_BE_EMPTY, "请填入sql查询语句");
                 }
             }
         }
@@ -331,6 +215,20 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
         @Check(name = "元数据信息")
         private List<DataSetColumnOutputModel> metadataList = new ArrayList<>();
 
+        public Output() {
+        }
+
+        public Output(ColumnDataTypeInferrer inferrer) {
+            header = inferrer.getColumnNames();
+            rawDataList = inferrer.getSamples();
+            metadataList = inferrer.getResult().entrySet().stream().map(x -> {
+                        DataSetColumnOutputModel model = new DataSetColumnOutputModel();
+                        model.setName(x.getKey());
+                        model.setDataType(x.getValue());
+                        return model;
+                    })
+                    .collect(Collectors.toList());
+        }
 
         public List<String> getHeader() {
             return header;

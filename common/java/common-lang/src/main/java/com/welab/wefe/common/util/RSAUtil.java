@@ -18,6 +18,9 @@ package com.welab.wefe.common.util;
 
 import com.alibaba.fastjson.JSON;
 import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.Base64Utils;
 
 import javax.crypto.Cipher;
 import java.io.*;
@@ -34,6 +37,7 @@ import java.util.Enumeration;
  * @author zane.luo
  */
 public class RSAUtil {
+    private static final Logger LOG = LoggerFactory.getLogger(RSAUtil.class);
 
     public static final String KEY_ALGORITHM = "RSA";
     private static final String SIGN_ALGORITHM = "SHA1withRSA";
@@ -66,8 +70,16 @@ public class RSAUtil {
 
     public static String encryptByPublicKey(String data, String publicKeyStr) throws Exception {
         RSAPublicKey publicKey = getPublicKey(publicKeyStr);
-        byte[] enData = encryptByPublicKey(data.getBytes("UTF-8"), publicKey);
+        byte[] enData = encryptByPublicKey(data.getBytes(StandardCharsets.UTF_8), publicKey);
         return Base64Util.encode(enData);
+    }
+
+    public static String decryptByPrivateKey(String data, String privateKeyStr) throws Exception {
+        RSAPrivateKey privateKey = getPrivateKey(privateKeyStr);
+        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
+        Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        return new String(cipher.doFinal(Base64Utils.decode(data.getBytes(StandardCharsets.UTF_8))));
     }
 
     /**
@@ -78,7 +90,7 @@ public class RSAUtil {
      * @return Encrypted string
      */
     public static String encryptByPrivateKey(String data, RSAPrivateKey privateKey) throws Exception {
-        byte[] datas = data.getBytes();
+        byte[] datas = data.getBytes(StandardCharsets.UTF_8);
         byte[] encrypt = null;
         int dataLen = datas.length;
         int nBlock = (dataLen / ENCRYPT_BLOCK);
@@ -117,7 +129,7 @@ public class RSAUtil {
      * @throws Exception
      */
     public static String decryptByPublicKey(String data, RSAPublicKey publicKey) throws Exception {
-        byte[] bytes = Base64.decodeBase64(data.getBytes("UTF-8"));
+        byte[] bytes = Base64.decodeBase64(data.getBytes(StandardCharsets.UTF_8));
         byte[] decrypt = null;
         int dataLen = bytes.length;
 
@@ -165,7 +177,6 @@ public class RSAUtil {
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
         return cipher.doFinal(data);
     }
-
 
     /**
      * The private key signature
@@ -390,9 +401,15 @@ public class RSAUtil {
         return hexRetSb.toString();
     }
 
-    public static RsaKeyPair generateKeyPair() throws NoSuchAlgorithmException {
-        KeyPairGenerator keyPairGen = KeyPairGenerator
-                .getInstance(KEY_ALGORITHM);
+    public static RsaKeyPair generateKeyPair() {
+        KeyPairGenerator keyPairGen = null;
+        try {
+            keyPairGen = KeyPairGenerator
+                    .getInstance(KEY_ALGORITHM);
+        } catch (NoSuchAlgorithmException e) {
+            LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+            return null;
+        }
         keyPairGen.initialize(2048);
         KeyPair keyPair = keyPairGen.generateKeyPair();
         PublicKey publicKey = keyPair.getPublic();

@@ -108,7 +108,7 @@
 
             // init chart
             const initChart = () => {
-                if(chartDom.value.offsetWidth) {
+                if(chartDom.value && chartDom.value.offsetWidth) {
                     chart = init(chartDom.value);
                 }
             };
@@ -187,7 +187,7 @@
         z-index: 20;
     }
     .chart {
-        width: 300px;
+        min-width: 300px;
         height: 400px;
         margin:0 auto;
     }

@@ -9,3 +9,12 @@ token:{{token}}
 }
 
 ###
+
+POST http://localhost:8080/board-service/flow/job/task/result
+Content-Type: application/json
+token:{{token}}
+
+{
+  "task_id": "d580138ccb3b4f848813cccba45392b9_promoter_PaddleClassify_16487118472374021",
+  "type": "loss"
+}
