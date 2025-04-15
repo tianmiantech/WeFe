@@ -24,7 +24,7 @@
 * kernel：建模算法组件包，由 flow 服务调起，目前可以在 spark 和 函数计算 两个计算环境中执行。
 * gateway：网关，是各成员间交互的唯一通信出入口，包含身份验证、防篡改检查、防重播、黑名单等功能。
 
-<img src="_media/system_framework/成员系统架构.png" style="max-height:700px;" />
+<img src="_media/system_framework/member-framework.png" style="max-height:700px;" />
 
 <br>
 
