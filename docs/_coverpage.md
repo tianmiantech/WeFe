@@ -2,7 +2,7 @@
 
 ![logo](_media/icon.svg)
 
-# WeFe <small>2.4</small>
+# WeFe <small>2.5</small>
 
 > 联邦学习建模平台
 
