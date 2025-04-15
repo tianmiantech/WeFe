@@ -6,7 +6,11 @@
 请参数部署文档[deploy/WeFe隐私计算服务部署说明文档-V2.0.md](./deploy/WeFe隐私计算服务部署说明文档-V2.0.md)
 
 #### What's new
-**「 feature & optimize 」**
+**「 feature & optimize 」**  
+部署文档
+- 支持简单快速的基于Docker的部署脚本，便于用户快速搭建联邦学习平台。  
+- 部署文档支持的版本为v3.8.6
+
 Kernel：
 - 修复已知bug；
 
