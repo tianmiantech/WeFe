@@ -49,7 +49,7 @@ WeFe 目前支持的联邦学习算法：横向联邦、纵向联邦、混合联
 
 # 安装使用
 
-WeFe 支持 Linux 操作系统，具体的支持系统架构请参考文档[deploy/WeFe隐私计算服务部署说明文档-V2.0.md](./deploy/WeFe隐私计算服务部署说明文档-V2.0.md)。
+WeFe 支持 Linux 操作系统，具体的支持系统架构请参考文档[deploy/WeFe隐私计算服务部署说明文档.md](./deploy/WeFe隐私计算服务部署说明文档.md)。
 
 WeFe 提供了一套基于 Docker 的便捷部署方式。
 
@@ -57,7 +57,7 @@ WeFe 提供了一套完整的在线体验环境 Demo ENV。
 
 ## Docker 部署
 
-单机部署，详见 [deploy/WeFe隐私计算服务部署说明文档-V2.0.md](./deploy/WeFe隐私计算服务部署说明文档-V2.0.md)
+单机部署，详见 [deploy/WeFe隐私计算服务部署说明文档-V2.0.md](./deploy/WeFe隐私计算服务部署说明文档.md)
 
 # 系统架构
 
