@@ -9,7 +9,7 @@
 
 > union：联邦信息登记服务，使用区块链作为底层存储，是各成员在发起建模前互相了解的媒介。
 > 
-<img src="http://assets.processon.com/chart_image/615fbf34e401fd06aaa68ab2.png" style="max-height:700px;" />
+<img src="_media/system_framework/公共成员信息登记与查询服务.png" style="max-height:700px;" />
 
 
 
@@ -24,7 +24,7 @@
 * kernel：建模算法组件包，由 flow 服务调起，目前可以在 spark 和 函数计算 两个计算环境中执行。
 * gateway：网关，是各成员间交互的唯一通信出入口，包含身份验证、防篡改检查、防重播、黑名单等功能。
 
-<img src="http://assets.processon.com/chart_image/607d4e305653bb2e1c7756a7.png" style="max-height:700px;" />
+<img src="_media/system_framework/成员系统架构.png" style="max-height:700px;" />
 
 <br>
 
@@ -39,6 +39,6 @@ WeFe 中另有两个特殊的服务，这两个服务没有依赖模块，可以
 
 由于建模过程中成员间需要互相观察对方的状态，请确保各成员之间 gateway 服务能互通有无，否则无法进行建模活动。
 
-<img src="http://assets.processon.com/chart_image/615fe2860e3e747620f540e9.png" style="max-height:700px;" />
+<img src="_media/system_framework/建模时多成员架构.png" style="max-height:700px;" />
 
 > 各成员间在执行不同类型的联邦建模任务时，其结构稍有差异，更多内容请查看 [联邦学习](federated_learning/federated_learning) 相关章节。
