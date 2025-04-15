@@ -3,7 +3,7 @@
 
 阿里云 OSS 下载源：　　
 
-请参数部署文档[deploy/WeFe隐私计算服务部署说明文档-V2.0.md](./deploy/WeFe隐私计算服务部署说明文档-V2.0.md)
+请参数部署文档[deploy/WeFe隐私计算服务部署说明文档-V2.0.md](../../deploy/WeFe隐私计算服务部署说明文档-V2.0.md)
 
 #### What's new
 **「 feature & optimize 」**  
