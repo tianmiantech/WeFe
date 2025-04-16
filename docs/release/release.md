@@ -3,8 +3,8 @@
 
 当前版本不提供Docker的部署方案，如果想通过源码编译当前版本请参考原来系统架构下各模块的[源码编译方式。](../../README.md)  
 当前版本提供v3.8.6版本（源码暂时未开源）的联邦学习平台以及联邦SQL服务的Docker部署方案，部署文档如下：
-- 联邦学习平台的部署文档请参考[WeFe隐私计算服务部署说明文档.md]( https://github.com/tianmiantech/WeFe/blob/opensource-v2.5.0/deploy/WeFe%E9%9A%90%E7%A7%81%E8%AE%A1%E7%AE%97%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%E8%AF%B4%E6%98%8E%E6%96%87%E6%A1%A3.md )；
-- 联邦SQL服务的部署文档请参考[WeFe隐私计算服务联邦SQL部署说明文档.md]( https://github.com/tianmiantech/WeFe/blob/opensource-v2.5.0/deploy/WeFe%E9%9A%90%E7%A7%81%E8%AE%A1%E7%AE%97%E6%9C%8D%E5%8A%A1%E8%81%94%E9%82%A6SQL%E9%83%A8%E7%BD%B2%E8%AF%B4%E6%98%8E%E6%96%87%E6%A1%A3.md )；
+- 联邦学习平台的部署文档请参考[WeFe隐私计算服务部署说明文档.md]( https://github.com/tianmiantech/WeFe/blob/main/deploy/WeFe%E9%9A%90%E7%A7%81%E8%AE%A1%E7%AE%97%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%E8%AF%B4%E6%98%8E%E6%96%87%E6%A1%A3.md )；
+- 联邦SQL服务的部署文档请参考[WeFe隐私计算服务联邦SQL部署说明文档.md]( https://github.com/tianmiantech/WeFe/blob/main/deploy/WeFe%E9%9A%90%E7%A7%81%E8%AE%A1%E7%AE%97%E6%9C%8D%E5%8A%A1%E8%81%94%E9%82%A6SQL%E9%83%A8%E7%BD%B2%E8%AF%B4%E6%98%8E%E6%96%87%E6%A1%A3.md )；
 
 
 
