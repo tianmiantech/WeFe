@@ -26,7 +26,7 @@ docker load < /data/.archives/wefe-tee-sim.tar
 
 ## 四、下载FLSQL资源
 ```bash
-# 下载资源并替换目录/opt/wefe/wefe-flsql-service/dist/ 下的config和presto子目录
+# 下载资源并替换目录/opt/wefe/wefe-flsql-service/dist/ 下的presto子目录
 rm -rf /opt/wefe/wefe-flsql-service/dist/presto/* && wget -P /opt/ https://welab-wefe-release.obs.myhuaweicloud.com/deploy/3.8.5/wefe-deploy-flsql-dist-v3.8.5.tar && tar -xvf /opt/wefe-deploy-flsql-dist-v3.8.5.tar -C /opt/wefe/wefe-flsql-service/dist/presto/
 ```
 
