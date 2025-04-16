@@ -27,7 +27,7 @@
                 <el-input-number
                     v-model="item.count"
                     type="number"
-                    :min="1"
+                    :min="2"
                     controls-position="right"
                     @blur="methods.changeMethodCount(item, index)"
                     @change="methods.changeMethodCount(item, index)"
@@ -81,6 +81,11 @@
                         label="特征"
                         width="150"
                     />
+                    <el-table-column
+                        prop="data_type"
+                        label="类型"
+                        width="70"
+                    />
                     <el-table-column label="分箱策略">
                         <template v-slot="scope">
                             <template v-if="scope.row.method === 'custom'">
@@ -89,6 +94,7 @@
                                     v-model.trim="scope.row.points"
                                     style="width:160px;"
                                     clearable
+                                    @input="methods.pointsInput(scope.row.points, index, scope.$index)"
                                 />
                             </template>
                             <template v-else-if="scope.row.method">
@@ -267,19 +273,48 @@
                             const row = member.$feature_list[i];
 
                             if(row.method) {
-                                if(featureName === '' && row.method === 'custom' && !row.points) {
+                                if(featureName === '' && row.method === 'custom') {
                                     featureName = row.name;
-                                    $alert(`<p class="color-danger">${member.member_name} 特征 ${featureName} 未填写, 请检查</p>`, '警告', {
-                                        type:                     'warning',
-                                        dangerouslyUseHTMLString: true,
-                                    });
-                                    return false;
+                                    if(!row.points){
+                                        $alert(`<p class="color-danger">${member.member_name} 特征 ${featureName} 未填写, 请检查</p>`, '警告', {
+                                            type:                     'warning',
+                                            dangerouslyUseHTMLString: true,
+                                        });
+                                        return false;
+                                    } else {
+                                        const array = row.points.split(',');
+                                        /**
+                                         * 验证每一项都为数值
+                                         */
+                                        let judge = undefined;
+                                        array.forEach(item => {
+                                            if(!/^\d+(\.\d+)?$/.test(item)){
+                                                judge = item;
+                                            }
+                                        })
+                                        if(judge !== undefined){
+                                            let html = `<p class="color-danger">${member.member_name} 特征 ${featureName} 分割点【${judge}】格式错误</p>`
+                                            if(!judge){
+                                                html = `<p class="color-danger">${member.member_name} 特征 ${featureName} 分割点格式错误,特别注意最后不能有逗号</p>`
+                                            }
+                                            $alert(html, '警告', {
+                                                type:                     'warning',
+                                                dangerouslyUseHTMLString: true,
+                                            });
+                                            return false
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
 
                     return true;
+                },
+                pointsInput(val, idx, sidx){
+                    val = val.replace(/，/g, ',');
+                    val = val.replace(/。/g, '.');
+                    vData.featureSelectTab[idx].$feature_list[sidx].points = val;
                 },
             };
 
@@ -305,12 +340,12 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-input-number{
+    .board-input-number{
         width: 104px;
         margin-right:10px;
-        :deep(.el-input__inner){
-            padding-left:5px;
-            padding-right: 40px;
-        }
+        // :deep(.board-input__inner){
+        //     padding-left:5px;
+        //     padding-right: 40px;
+        // }
     }
 </style>

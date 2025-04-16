@@ -1,7 +1,7 @@
 <template>
     <div class="label_system">
         <div id="container" ref="container" class="container" :style="{width: vData.width+'px'}" />
-        <div class="loading_layer" :style="{display: vData.imgLoading ? 'block' : 'none', width: vData.width + 'px'}"><el-icon class="el-icon-loading"><elicon-loading /></el-icon></div>
+        <div class="loading_layer" :style="{display: vData.imgLoading ? 'block' : 'none', width: vData.width + 'px'}"><el-icon class="board-icon-loading"><elicon-loading /></el-icon></div>
         <label-modal ref="labelModalRef" :labelList="vData.labelList" :labelPosition="vData.labelPosition" @destroy-node="methods.destroyNode" @label-node="methods.labelNode" @key-code-search=methods.keyCodeSearch />
         <div class="show_label_info">
             <h3 v-if="forJobType === 'classify'">标注结果</h3>
@@ -511,7 +511,6 @@
                 },
                 // set keycode
                 async handleEvent(e) {
-                    console.log(e.keyCode);
                     switch (e.keyCode) {
                     case 48:
                         if(vData.stage.find('Rect').length) methods.labelNode(vData.labelList[Number(e.key)]);

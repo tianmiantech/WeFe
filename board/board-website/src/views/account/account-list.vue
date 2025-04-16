@@ -11,6 +11,7 @@
             <el-form-item
                 label="手机号："
                 label-width="80px"
+                v-if="userInfo.admin_role || userInfo.super_admin_role"
             >
                 <el-input
                     v-model="search.phone_number"
@@ -28,12 +29,14 @@
             </el-form-item>
             <el-form-item
                 label="审核状态："
-                label-width="100px"
+                label-width="90px"
+                v-if="userInfo.admin_role || userInfo.super_admin_role"
             >
                 <el-select
                     v-model="search.audit_status"
-                    style="width: 176px;"
+                    style="width: 100px;"
                     clearable
+                    :disabled="search.source === 'ums'"
                 >
                     <el-option
                         label="待审核"
@@ -53,7 +56,7 @@
                 type="primary"
                 class="inline-block"
                 native-type="submit"
-                @click="getList({ to: true, resetPagination: true })"
+                @click="query"
             >
                 查询
             </el-button>
@@ -83,7 +86,7 @@
                 prop="nickname"
             />
             <el-table-column
-                v-if="userInfo.admin_role"
+                v-if="userInfo.admin_role  && search.source === 'system'"
                 prop="phone_number"
                 min-width="100"
                 label="手机号"
@@ -95,7 +98,7 @@
                 prop="email"
             />
             <el-table-column
-                v-if="userInfo.admin_role"
+                v-if="userInfo.admin_role && search.source === 'system'"
                 label="管理员"
                 align="center"
                 min-width="70"
@@ -448,13 +451,13 @@
             return {
                 dialogAuditAccountVisible: false,
                 formLabelWidth:            '100px',
-
-                search: {
+                defaultSearch:             false,
+                search:                    {
                     phone_number: '',
                     nickname:     '',
                     audit_status: '',
                 },
-                getListApi:     '/account/query',
+                getListApi:     '/account/list_all',
                 viewDataDialog: {
                     visible: false,
                     list:    [],
@@ -499,9 +502,12 @@
             },
         },
         created() {
-            this.getList();
+            this.query();
         },
         methods: {
+            query() {
+                this.getList({ to: true, resetPagination: true });
+            },
             // show audit dialog
             showAuditPanel(row) {
                 this.form.account_id = row.id;

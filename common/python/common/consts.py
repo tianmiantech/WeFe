@@ -19,54 +19,99 @@ CONF_KEY_LOCAL = "local"
 CONF_KEY_FEDERATION = "gateway"
 CONF_KEY_SERVER = "servers"
 
-# global config
-COMM_CONF_KEY_DATA_TYPE = "db.storage.type"
-COMM_CONF_KEY_CK_HOST = "db.storage.clickhouse.host"
-COMM_CONF_KEY_CK_PORT = "db.storage.clickhouse.tcp.port"
-COMM_CONF_KEY_CK_USER = "db.storage.clickhouse.username"
-COMM_CONF_KEY_CK_PWD = "db.storage.clickhouse.password"
-COMM_CONF_KEY_MYSQL_HOST = "db.mysql.host"
-COMM_CONF_KEY_MYSQL_PORT = "db.mysql.port"
-COMM_CONF_KEY_MYSQL_DATABASE = "db.mysql.database"
-COMM_CONF_KEY_MYSQL_USERNAME = "db.mysql.username"
-COMM_CONF_KEY_MYSQL_PASSWORD = "db.mysql.password"
+# global config start ------------------------------------------------------------------------------
 
-# SQLite config
-COMM_CONF_DB_SQLITE_DATABASE = "db.sqlite.database"
+# global config: clickhouse_storage_config
+CLICKHOUSE_STORAGE_CONFIG = "clickhouse_storage_config"
+COMM_CONF_KEY_CK_HOST = CLICKHOUSE_STORAGE_CONFIG, "host"
+COMM_CONF_KEY_CK_PORT = CLICKHOUSE_STORAGE_CONFIG, "tcp_port"
+COMM_CONF_KEY_CK_HTTP_PORT = CLICKHOUSE_STORAGE_CONFIG, "http_port"
+COMM_CONF_KEY_CK_USER = CLICKHOUSE_STORAGE_CONFIG, "username"
+COMM_CONF_KEY_CK_PWD = CLICKHOUSE_STORAGE_CONFIG, "password"
 
-COMM_CONF_WEFE_JOB_WORK_MODE = "wefe.job.work_mode"
+STORAGE_CONFIG = "storage_config"
+COMM_CONF_KEY_DATA_TYPE = STORAGE_CONFIG, "storage_type"
+
+# SPARK_STANDALONE_CONFIG
+SPARK_STANDALONE_CONFIG = "spark_standalone_config"
+COMM_CONF_KEY_SPARK_DEFAULT_DRIVER_MEMORY = SPARK_STANDALONE_CONFIG, "driver_memory"
+COMM_CONF_KEY_SPARK_DEFAULT_DRIVER_MAX_RESULT_SIZE = SPARK_STANDALONE_CONFIG, "driver_max_result_size"
+COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_MEMORY = SPARK_STANDALONE_CONFIG, "executor_memory"
+COMM_CONF_KEY_ACCELERATION = SPARK_STANDALONE_CONFIG, "hardware_acceleration"
+
+FUNCTION_COMPUTE_CONFIG = "function_compute_config"
+COMM_CONF_CLOUD_PROVIDER = FUNCTION_COMPUTE_CONFIG, "cloud_provider"
+
+ALIYUN_FUNCTION_COMPUTE_CONFIG = "aliyun_function_compute_config"
+COMM_CONF_KEY_FC_ACCOUNT_TYPE = ALIYUN_FUNCTION_COMPUTE_CONFIG, "account_type"
+COMM_CONF_KEY_FC_V_SWITCH_IDS = ALIYUN_FUNCTION_COMPUTE_CONFIG, "v_switch_ids"
+COMM_CONF_KEY_FC_VPC_ID = ALIYUN_FUNCTION_COMPUTE_CONFIG, "vpc_id"
+COMM_CONF_KEY_FC_SECURITY_GROUP_ID = ALIYUN_FUNCTION_COMPUTE_CONFIG, "security_group_id"
+COMM_CONF_KEY_FC_REGION = ALIYUN_FUNCTION_COMPUTE_CONFIG, "region"
+COMM_CONF_KEY_FC_ACCOUNT_ID = ALIYUN_FUNCTION_COMPUTE_CONFIG, "account_id"
+COMM_CONF_KEY_FC_ACCESS_KEY_ID = ALIYUN_FUNCTION_COMPUTE_CONFIG, "access_key_id"
+COMM_CONF_KEY_FC_KEY_SECRET = ALIYUN_FUNCTION_COMPUTE_CONFIG, "access_key_secret"
+COMM_CONF_KEY_FC_OSS_BUCKET_NAME = ALIYUN_FUNCTION_COMPUTE_CONFIG, "oss_bucket_name"
+COMM_CONF_KEY_FC_QUALIFIER = ALIYUN_FUNCTION_COMPUTE_CONFIG, "qualifier"
+
+TENCENT_SERVERLESS_CLOUD_FUNCTION_CONFID = "tencent_serverless_cloud_function_config"
+COMM_CONF_KEY_SCF_REGION = TENCENT_SERVERLESS_CLOUD_FUNCTION_CONFID, "region"
+COMM_CONF_KEY_SCF_ACCOUNT_ID = TENCENT_SERVERLESS_CLOUD_FUNCTION_CONFID, "account_id"
+COMM_CONF_KEY_SCF_ACCESS_KEY_ID = TENCENT_SERVERLESS_CLOUD_FUNCTION_CONFID, "access_key_id"
+COMM_CONF_KEY_SCF_KEY_SECRET = TENCENT_SERVERLESS_CLOUD_FUNCTION_CONFID, "access_key_secret"
+COMM_CONF_KEY_SCF_COS_BUCKET_NAME = TENCENT_SERVERLESS_CLOUD_FUNCTION_CONFID, "cos_bucket_name"
+COMM_CONF_KEY_SCF_QUALIFIER = TENCENT_SERVERLESS_CLOUD_FUNCTION_CONFID, "qualifier"
+COMM_CONF_KEY_SCF_SERVER_URL = TENCENT_SERVERLESS_CLOUD_FUNCTION_CONFID, "scf_server_url"
+
+COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_INTERNAL_END_POINT = ALIYUN_FUNCTION_COMPUTE_CONFIG, "temp_auth_internal_end_point"
+COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_END_POINT = ALIYUN_FUNCTION_COMPUTE_CONFIG, "temp_auth_end_point"
+COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_ROLE_ARN = ALIYUN_FUNCTION_COMPUTE_CONFIG, "temp_auth_role_arn"
+COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_ROLE_SESSION_NAME = ALIYUN_FUNCTION_COMPUTE_CONFIG, "temp_auth_role_session_name"
+COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_DURATION_SECONDS = ALIYUN_FUNCTION_COMPUTE_CONFIG, "temp_auth_duration_seconds"
+COMM_CONF_KEY_FC_END_POINT = ALIYUN_FUNCTION_COMPUTE_CONFIG, "end_point"
+COMM_CONF_KEY_FC_SERVICE_NAME = ALIYUN_FUNCTION_COMPUTE_CONFIG, "service_name"
+COMM_CONF_KEY_FC_OSS_ENDPOINT = ALIYUN_FUNCTION_COMPUTE_CONFIG, "oss_endpoint"
+COMM_CONF_KEY_FC_OSS_INTERNAL_ENDPOINT = ALIYUN_FUNCTION_COMPUTE_CONFIG, "oss_internal_endpoint"
+# global config end ------------------------------------------------------------------------------
+
+# member-base.properties start -----------------------------------------------------------
+MEMBER_BASE = "member.base"
+COMM_CONF_KEY_MYSQL_HOST = MEMBER_BASE, "db.mysql.host"
+COMM_CONF_KEY_MYSQL_PORT = MEMBER_BASE, "db.mysql.port"
+COMM_CONF_KEY_MYSQL_DATABASE = MEMBER_BASE, "db.mysql.database"
+COMM_CONF_KEY_MYSQL_USERNAME = MEMBER_BASE, "db.mysql.username"
+COMM_CONF_KEY_MYSQL_PASSWORD = MEMBER_BASE, "db.mysql.password"
+COMM_CONF_KEY_EXAMPLE_RUN = MEMBER_BASE, "example.run"
+COMM_CONF_KEY_LOG_ROOT = MEMBER_BASE, "flow.log.root.path"
+# member-base.properties end -----------------------------------------------------------
+
+
+# common.properties start -------------------------------------------------------------
+COMMON = "common"
+COMM_CONF_KEY_UNION_BASE_URL = COMMON, "wefe.union.base-url"
+COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_ENABLE = COMMON, "privacy.database.encrypt.enable"
+COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_SECRET_KEY = COMMON, "privacy.database.encrypt.secret.key"
+# common.properties end ---------------------------------------------------------------
+
 
 COMM_CONF_KEY_SPARK_NUM_SLICES = "flow.spark.default.num.slices"
-COMM_CONF_KEY_UNION_BASE_URL = "wefe.union.base-url"
-COMM_CONF_KEY_LOG_ROOT = "flow.log.root.path"
 
-COMM_CONF_KEY_SPARK_DEFAULT_DRIVER_MEMORY = "flow.spark.submit.default.driver.memory"
-COMM_CONF_KEY_SPARK_DEFAULT_DRIVER_MAX_RESULT_SIZE = "flow.spark.submit.default.driver.maxResultSize"
+
 COMM_CONF_KEY_SPARK_DEFAULT_NUM_EXECUTORS = "flow.spark.submit.default.num.executors"
-COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_MEMORY = "flow.spark.submit.default.executor.memory"
 COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_CORES = "flow.spark.submit.default.executor.cores"
 # COMM_CONF_KEY_BACKEND = "wefe.job.backend"
-COMM_CONF_KEY_ACCELERATION = "wefe.job.acceleration"
+COMM_CONF_KEY_GPU_INSTANCE = "wefe.gpu.instance"
 
+# FC config
 COMM_CONF_KEY_FC_STORAGE_TYPE = "fc.storage.type"
-COMM_CONF_KEY_FC_REGION = "fc.region"
-COMM_CONF_KEY_FC_ACCOUNT_ID = "fc.account_id"
-COMM_CONF_KEY_FC_OTS_END_POINT = "fc.ots.end_point"
-COMM_CONF_KEY_FC_OTS_INTERNAL_END_POINT = "fc.ots.internal_end_point"
-COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_INTERNAL_END_POINT = "fc.cloud_store.temp_auth_internal_end_point"
-COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_END_POINT = "fc.cloud_store.temp_auth_end_point"
-COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_ROLE_ARN = "fc.cloud_store.temp_auth_role_arn"
-COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_ROLE_SESSION_NAME = "fc.cloud_store.temp_auth_role_session_name"
-COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_DURATION_SECONDS = "fc.cloud_store.temp_auth_duration_seconds"
-COMM_CONF_KEY_FC_ACCESS_KEY_ID = "fc.access_key_id"
-COMM_CONF_KEY_FC_KEY_SECRET = "fc.access_key_secret"
-COMM_CONF_KEY_FC_OTS_INSTANCE_NAME = "fc.ots.instance_name"
-COMM_CONF_KEY_FC_OSS_BUCKET_NAME = "fc.oss.bucket_name"
-COMM_CONF_KEY_FC_END_POINT = "fc.end_point"
-COMM_CONF_KEY_FC_QUALIFIER = "fc.qualifier"
-COMM_CONF_KEY_FC_SERVICE_NAME = 'fc.service.name'
-COMM_CONF_KEY_FC_OSS_ENDPOINT = "fc.oss.endpoint"
-COMM_CONF_KEY_FC_OSS_INTERNAL_ENDPOINT = "fc.oss.internal_endpoint"
+COMM_CONF_MAKE_TENCENT_IMAGE = "fc.make.tencent.image"
+# COMM_CONF_KEY_FC_OTS_END_POINT = "fc.ots.end_point"
+# COMM_CONF_KEY_FC_OTS_INTERNAL_END_POINT = "fc.ots.internal_end_point"
+# COMM_CONF_KEY_FC_OTS_INSTANCE_NAME = "fc.ots.instance_name"
+
+
+# SM4 config
+COMM_CONF_SM4_SECRET_KEY = "sm4.secret.key"
 
 COMM_CONF_KEY_WEB_IP = "flow.web.ip"
 COMM_CONF_KEY_WEB_PORT = "flow.web.port"
@@ -123,6 +168,14 @@ class STORAGETYPE(object):
     LMDB = 'lmdb'
     OTS = 'ots'
     OSS = 'oss'
+    COS = 'cos'
+
+class CLOUDPROVIDER(object):
+    """
+    cloud Provider: aliyun, tencentcloud
+    """
+    ALIYUN = 'aliyun'
+    TENCENTCLOUD = 'tencentcloud'
 
 
 class TABLENAME(object):
@@ -279,6 +332,7 @@ class FunctionConfig(object):
     FC_DEFAULT_PARTITION = 10
     FC_MAX_PARTITION = 100
     FC_PARTITION_DATA_SIZE = 5000
+    SPARK_MAX_PARTITION = 200
 
 
 class AccelerationType(object):
@@ -305,6 +359,7 @@ class RuntimeOptionKey(object):
     SPARK_PARTITION = "spark_partition"
     FEATURE_COUNT = "features_count"
     MEMBERS_BACKEND = "members_backend"
+    MEMBERS_FC_PROVIDER = "members_fc_provider"
 
 
 if __name__ == '__main__':

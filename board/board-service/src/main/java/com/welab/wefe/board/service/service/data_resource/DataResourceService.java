@@ -47,8 +47,8 @@ import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DataResourcePublicLevel;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -285,7 +285,7 @@ public class DataResourceService extends AbstractDataResourceService {
     public DataResourceOutputModel findDataResourceFromLocalOrUnion(ProjectDataSetMySqlModel projectDataSet) throws StatusCodeWithException {
 
         if (CacheObjects.getMemberId().equals(projectDataSet.getMemberId())) {
-            Object obj = dataResourceRepository.findById(projectDataSet).orElse(null);
+            Object obj = dataResourceRepository.findById(projectDataSet.getDataSetId()).orElse(null);
             if (obj == null) {
                 return null;
             }
@@ -300,7 +300,7 @@ public class DataResourceService extends AbstractDataResourceService {
     }
 
 
-    public void delete(String dataResourceId, DataResourceType dataResourceType) throws StatusCodeWithException {
+    public void delete(String dataResourceId, DataResourceType dataResourceType) throws Exception {
         switch (dataResourceType) {
             case ImageDataSet:
                 imageDataSetService.delete(dataResourceId);
@@ -324,7 +324,7 @@ public class DataResourceService extends AbstractDataResourceService {
                 .containsItem("tags", input.getTag())
                 .equal("createdBy", input.getCreator())
                 .equal("derivedResource", false)
-                .orderBy("createdTime", OrderBy.asc);
+                .orderBy("createdTime", OrderBy.desc);
 
         // 查所有资源
         if (CollectionUtils.isEmpty(input.getDataResourceType()) || input.getDataResourceType().size() > 1) {

@@ -16,12 +16,6 @@
 
 package com.welab.wefe.board.service.component.feature;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.component.base.io.IODataType;
@@ -33,30 +27,36 @@ import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.TaskResultType;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
-public class VertPCAComponent extends AbstractComponent<VertOneHotComponent.Params> {
+public class VertPCAComponent extends AbstractComponent<HorzOneHotComponent.Params> {
     @Override
     protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
-    		VertOneHotComponent.Params params) throws FlowNodeException {
+            HorzOneHotComponent.Params params) throws FlowNodeException {
         FlowGraphNode intersectionNode = graph.findOneNodeFromParent(node, ComponentType.Intersection);
         if (intersectionNode == null) {
             throw new FlowNodeException(node, "请在前面添加样本对齐组件。");
         }
         
-        List<VertOneHotComponent.Params.MemberInfoModel> members = params.getMembers();
+        List<HorzOneHotComponent.Params.MemberInfoModel> members = params.getMembers();
         if (members.size() > 2) {
             throw new FlowNodeException(node, "两方纵向PCA参与成员不能超过两方。");
         }
     }
 
     @Override
-    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
-    		VertOneHotComponent.Params params) throws FlowNodeException {
+    protected JSONObject createTaskParams(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
+            HorzOneHotComponent.Params params) throws FlowNodeException {
         JObject resultObj = JObject.create();
         List<String> featureList = new ArrayList<>();
         params.getMembers().forEach(member -> {

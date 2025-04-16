@@ -18,14 +18,14 @@
                 <p class="item-name">
                     <el-icon
                         v-if="item.success"
-                        class="el-icon-success"
+                        class="board-icon-success"
                         style="color:green;"
                     >
                         <elicon-success-filled />
                     </el-icon>
                     <el-icon
                         v-else
-                        class="el-icon-error"
+                        class="board-icon-error"
                         style="color:red;"
                     >
                         <elicon-circle-close-filled />

@@ -435,8 +435,7 @@ class MixSecureBoostingPromoter(BoostingTree):
         reach_leaf = False
         # only need nid here, predict state is not needed
         rs = tree.traverse_tree(tree_=tree.tree_, data_inst=sample, predict_state=(cur_node_idx, -1),
-                                decoder=tree.decode, sitename=tree.sitename, use_missing=tree.use_missing,
-                                split_maskdict=tree.split_maskdict, missing_dir_maskdict=tree.missing_dir_maskdict,
+                                sitename=tree.sitename, use_missing=tree.use_missing,
                                 return_leaf_id=True)
 
         if not isinstance(rs, tuple):
@@ -567,6 +566,14 @@ class MixSecureBoostingPromoter(BoostingTree):
 
         return tree
 
+    def callback_loss(self, iter_num, loss):
+        metric_meta = {'abscissa_name': 'iters', 'ordinate_name': 'loss', 'metric_type': 'LOSS',
+                       'pair_type': ''}
+        self.callback_metric(metric_name='loss',
+                             metric_namespace='train',
+                             metric_meta=metric_meta,
+                             metric_data=(iter_num, loss))
+
     def fit(self, data_inst, validate_data=None):
         LOGGER.info("begin to train secureboosting promoter model")
         self.gen_feature_fid_mapping(data_inst.schema)
@@ -596,7 +603,7 @@ class MixSecureBoostingPromoter(BoostingTree):
             bestIteration = model_param['treeNum']
             self.set_model_param(model_param)
         self.sync_begin_iter(bestIteration)
-        self.tracker.set_task_progress(bestIteration)
+        self.tracker.set_task_progress(bestIteration, self.need_grid_search)
         for epoch_idx in range(bestIteration, self.num_trees):
             self.compute_grad_and_hess(data_inst)
             for tidx in range(self.tree_dim):
@@ -614,14 +621,8 @@ class MixSecureBoostingPromoter(BoostingTree):
             self.history_loss.append(loss)
             LOGGER.info("round {} loss is {}".format(epoch_idx, loss))
             LOGGER.debug("type of loss is {}".format(type(loss).__name__))
-
+            self.callback_loss(epoch_idx,loss)
             self.aggregator.send_local_loss(loss, self.data_bin.count(), suffix=(epoch_idx,))
-
-            # metric_meta = {'abscissa_name': 'iters', 'ordinate_name': 'loss', 'metric_type': 'LOSS'}
-            # self.callback_metric(metric_name='loss',
-            #                      metric_namespace='train',
-            #                      metric_meta=metric_meta,
-            #                      metric_data=(epoch_idx, loss))
 
             if self.validation_strategy:
                 self.validation_strategy.validate(self, epoch_idx)
@@ -640,8 +641,8 @@ class MixSecureBoostingPromoter(BoostingTree):
                 else:
                     self.sync_stop_flag(False, epoch_idx)
 
-            self.tracker.save_training_best_model(self.export_model())
-            self.tracker.add_task_progress(1)
+            self.tracker.save_training_best_model(self.export_model(), self.need_grid_search)
+            self.tracker.add_task_progress(1, self.need_grid_search)
 
         # LOGGER.debug("history loss is {}".format(min(self.history_loss)))
         # self.callback_metric("loss",
@@ -894,8 +895,11 @@ class MixSecureBoostingPromoter(BoostingTree):
 
     def export_model(self):
 
-        if self.need_cv:
-            return None
+        if self.model_output is not None:
+            return self.model_output
+
+        if self.need_cv and not self.need_grid_search:
+            return
 
         meta_name, meta_protobuf = self.get_model_meta()
         param_name, param_protobuf = self.get_model_param()

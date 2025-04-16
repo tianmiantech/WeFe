@@ -16,6 +16,15 @@
 package com.welab.wefe.board.service.service.fusion;
 
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
 import com.welab.wefe.board.service.api.project.fusion.result.ResultExportApi;
@@ -24,22 +33,14 @@ import com.welab.wefe.board.service.dto.fusion.FusionResultExportProgress;
 import com.welab.wefe.board.service.fusion.enums.ExportStatus;
 import com.welab.wefe.board.service.fusion.manager.ExportManager;
 import com.welab.wefe.board.service.service.AbstractService;
-import com.welab.wefe.board.service.util.JdbcManager;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.storage.common.Constant;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.jdbc.JdbcClient;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.StringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author hunter.zhao
@@ -53,13 +54,11 @@ public class FusionResultService extends AbstractService {
     @Autowired
     FusionResultStorageService fusionResultStorageService;
 
-    public String export(ResultExportApi.Input input) throws StatusCodeWithException {
-
+    public String export(ResultExportApi.Input input) throws Exception {
         FusionTaskMySqlModel taskMySqlModel = fusionTaskService.findByBusinessId(input.getBusinessId());
         if (taskMySqlModel == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
-
         //table header
         DataItemModel headerModel = fusionResultStorageService.getByKey(
                 Constant.DBName.WEFE_DATA,
@@ -67,11 +66,7 @@ public class FusionResultService extends AbstractService {
                 "header"
         );
         List<String> columns = StringUtil.splitWithoutEmptyItem(headerModel.getV().toString().replace("\"", ""), ",");
-
-
-        List<DataItemModel> allList = fusionResultStorageService.getList(fusionResultStorageService.createRawDataSetTableName(input.getBusinessId()));
-
-        Connection conn = JdbcManager.getConnection(
+        JdbcClient client = JdbcClient.create(
                 input.getDatabaseType(),
                 input.getHost(),
                 input.getPort(),
@@ -79,32 +74,45 @@ public class FusionResultService extends AbstractService {
                 input.getPassword(),
                 input.getDatabaseName()
         );
-
         String tableName = "fusion_result_" + input.getBusinessId() + "_" + DateUtil.toString(new Date(), DateUtil.Y4_M2_D2_H2_M2_S2);
-        create(columns, conn, tableName);
-
-        FusionResultExportProgress progress = new FusionResultExportProgress(input.getBusinessId(), tableName, allList.size());
+        final FusionResultExportProgress progress = new FusionResultExportProgress(input.getBusinessId(), tableName, 100);
         ExportManager.set(input.getBusinessId(), progress);
-
-        allList.forEach(x -> {
-            CommonThreadPool.run(
-                    () -> {
-                            try {
-                                writer(columns, x, conn, tableName);
-                                progress.increment();
-                            } catch (SQLException e) {
-                                progress.setStatus(ExportStatus.failure);
-                                e.printStackTrace();
-                                return;
-                            }
-                    }
-            );
+        CommonThreadPool.run(()->{
+            try {
+                LOG.info("begin create table");
+                create(columns, client, tableName);
+                LOG.info("begin getList from ck");
+                long start = System.currentTimeMillis();
+                List<DataItemModel> allList;
+                allList = fusionResultStorageService.getList(fusionResultStorageService.createRawDataSetTableName(input.getBusinessId()));
+                LOG.info("end getList from ck, duration = " + (System.currentTimeMillis() - start));
+                progress.setTotalDataCount(allList.size());
+                int partitionSize = 500000;
+                int taskNum = Math.max(allList.size() / partitionSize, 1);
+                List<List<DataItemModel>> lists = partitionList(allList, taskNum);
+                ExecutorService executorService1 = Executors.newFixedThreadPool(5);
+                for (int i = 0; i < lists.size(); i++) {
+                    List<DataItemModel> subList = lists.get(i);
+                    final int finalI = i;
+                    executorService1.submit(() -> {
+                        try {
+                            LOG.info("begin writerBatch index = " + finalI + ", partition size = " + subList.size());
+                            writerBatch(columns, subList, client, tableName);
+                            progress.increment(subList.size());
+                        } catch (Exception e) {
+                            LOG.error("writerBatch error", e);
+                            progress.setStatus(ExportStatus.failure);
+                        }
+                    });
+                }
+            } catch (Exception e1) {
+                LOG.error("export fusion result error", e1);
+            }
         });
-
         return tableName;
     }
 
-    private void create(List<String> headers, Connection conn, String tableName) throws StatusCodeWithException {
+    private void create(List<String> headers, JdbcClient client, String tableName) throws StatusCodeWithException {
         String sql = String.format("CREATE TABLE %s (", tableName);
         StringBuilder s = new StringBuilder(sql);
         for (String row : headers) {
@@ -114,18 +122,16 @@ public class FusionResultService extends AbstractService {
         if (s.length() > 0) {
             s.deleteCharAt(s.length() - 1).append(")");
         }
-
         try {
-            PreparedStatement statement = conn.prepareStatement(s.toString());
-            statement.execute();
-        } catch (SQLException e) {
+            client.execute(s.toString());
+        } catch (Exception e) {
             e.printStackTrace();
             throw new StatusCodeWithException(StatusCode.SQL_ERROR, "create table error:" + e.getMessage());
         }
     }
 
 
-    private void writer(List<String> headers, DataItemModel model, Connection conn, String tableName) throws SQLException {
+    private void writer(List<String> headers, DataItemModel model, JdbcClient client, String tableName) throws Exception {
         StringBuilder sql = new StringBuilder().append("INSERT INTO  " + tableName + "(");
         headers.forEach(
                 x -> {
@@ -141,7 +147,57 @@ public class FusionResultService extends AbstractService {
 
         sql.deleteCharAt(sql.length() - 1).append(")");
 
-        PreparedStatement statement = conn.prepareStatement(sql.toString());
-        statement.execute();
+        client.execute(sql.toString());
+    }
+
+    private void writerBatch(List<String> headers, List<DataItemModel> models, JdbcClient client, String tableName)
+            throws Exception {
+        StringBuilder sql = new StringBuilder().append("INSERT INTO  " + tableName + "(");
+        headers.forEach(x -> {
+            sql.append(x + ",");
+        });
+        sql.deleteCharAt(sql.length() - 1).append(") value (");
+        headers.forEach(x -> {
+            sql.append("?,");
+        });
+        sql.deleteCharAt(sql.length() - 1).append(")");
+        LOG.info("writerBatch sql = " + sql.toString());
+
+        client.saveBatch(sql.toString(), models, (s) -> {
+            List<String> list = Lists.newArrayList();
+            list.add(String.valueOf(s.getK()));
+            list.addAll(StringUtil.splitWithoutEmptyItem(String.valueOf(s.getV()), ","));
+            return list.toArray();
+        });
+    }
+    
+    /**
+     * 分片
+     */
+    public static <T> List<List<T>> partitionList(List<T> list, int numPartitions) {
+        if (list == null) {
+            throw new NullPointerException("The set must not be null");
+        }
+        List<List<T>> partitions = new ArrayList<>(numPartitions);
+        for (int i = 0; i < numPartitions; i++)
+            partitions.add(i, new ArrayList<>());
+
+        int size = list.size();
+        int partitionSize = (int) Math.ceil((double) size / numPartitions);
+        if (numPartitions <= 0)
+            throw new IllegalArgumentException("'numPartitions' must be greater than 0");
+
+        Iterator<T> iterator = list.iterator();
+        int partitionToWrite = 0;
+        int cont = 0;
+        while (iterator.hasNext()) {
+            partitions.get(partitionToWrite).add(iterator.next());
+            cont++;
+            if (cont >= partitionSize) {
+                partitionToWrite++;
+                cont = 0;
+            }
+        }
+        return partitions;
     }
 }

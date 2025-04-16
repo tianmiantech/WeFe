@@ -15,15 +15,12 @@
  */
 package com.welab.wefe.serving.service.api.model;
 
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
+import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.enums.ModelTypeEnum;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.service.model.ModelImportService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,23 +28,40 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author hunter.zhao
  * @date 2022/3/8
  */
-@Api(path = "model/import", name = "导入模型文件", desc = "导入模型文件",login = false)
-public class ImportApi extends AbstractNoneOutputApi<ImportApi.Input> {
+@Api(path = "model/import", name = "导入模型文件", desc = "导入模型文件")
+public class ImportApi extends AbstractApi<ImportApi.Input, ImportApi.Output> {
     @Autowired
     private ModelImportService modelImportService;
 
+
     @Override
-    protected ApiResult handler(Input input) throws StatusCodeWithException {
-        switch (input.getModelType()) {
+    protected ApiResult<Output> handle(Input input) throws Exception {
+        String id = "";
+        ServiceTypeEnum type = ServiceTypeEnum.getType(input.getServiceType());
+        switch (type) {
             case MachineLearning:
-                modelImportService.saveMachineLearningModel(input.getFilename());
+                id = modelImportService.saveMachineLearningModel(input.getName(), input.getFilename());
                 break;
             case DeepLearning:
-                modelImportService.saveDeepLearningModel(input.getName(), input.getFilename());
+                id = modelImportService.saveDeepLearningModel(input.getName(), input.getFilename());
                 break;
         }
+        Output output = new Output();
+        output.setId(id);
+        return success(output);
+    }
 
-        return success();
+    public static class Output {
+        private String id;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
     }
 
     public static class Input extends AbstractApiInput {
@@ -55,20 +69,12 @@ public class ImportApi extends AbstractNoneOutputApi<ImportApi.Input> {
         @Check(name = "主键id", require = true)
         private String filename;
 
-        @Check(name = "主键id", require = true)
-        private ModelTypeEnum modelType;
+        @Check(name = "服务类型", require = true)
+        private int serviceType;
 
-        @Check(name = "模型名称")
+        @Check(name = "模型名称 / 服务名称", require = true)
         private String name;
 
-        @Override
-        public void checkAndStandardize() throws StatusCodeWithException {
-            super.checkAndStandardize();
-
-            if (ModelTypeEnum.DeepLearning.equals(modelType) && StringUtil.isEmpty(name)) {
-                throw new StatusCodeWithException("模型名称不能为空！", StatusCode.PARAMETER_VALUE_INVALID);
-            }
-        }
 
         public String getFilename() {
             return filename;
@@ -78,12 +84,12 @@ public class ImportApi extends AbstractNoneOutputApi<ImportApi.Input> {
             this.filename = filename;
         }
 
-        public ModelTypeEnum getModelType() {
-            return modelType;
+        public int getServiceType() {
+            return serviceType;
         }
 
-        public void setModelType(ModelTypeEnum modelType) {
-            this.modelType = modelType;
+        public void setServiceType(int serviceType) {
+            this.serviceType = serviceType;
         }
 
         public String getName() {
@@ -93,5 +99,8 @@ public class ImportApi extends AbstractNoneOutputApi<ImportApi.Input> {
         public void setName(String name) {
             this.name = name;
         }
+
+
     }
+
 }

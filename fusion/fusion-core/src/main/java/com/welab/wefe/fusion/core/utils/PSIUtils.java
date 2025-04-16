@@ -16,6 +16,8 @@
 
 package com.welab.wefe.fusion.core.utils;
 
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +33,8 @@ import java.util.List;
  * @author hunter.zhao
  */
 public class PSIUtils {
-    protected final static Logger LOG = LoggerFactory.getLogger(PSIUtils.class);
+
+    protected static final Logger LOG = LoggerFactory.getLogger(PSIUtils.class);
 
     private static BufferedOutputStream out = null;
 
@@ -59,6 +62,61 @@ public class PSIUtils {
             }
         }
     }
+
+    // 使用socket快速传输一个long数组
+    public static void sendLongs(Socket socket, long[] longs) {
+        LOG.info("begin send longs, length=" + longs.length);
+        try {
+            DataOutputStream sender = new DataOutputStream(socket.getOutputStream());
+            sender.writeInt(longs.length);
+            LOG.info("send longs, writeInt " + longs.length);
+            for (long i : longs) {
+                sender.writeLong(i);
+                // 批量发送，可以提高性能。
+                if (i % 500 == 0) {
+                    sender.flush();
+                }
+            }
+            sender.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        LOG.info("end send longs");
+    }
+
+    // 使用socket快速接收一个long数组
+    public static long[] receiveLongs(Socket socket) throws StatusCodeWithException {
+        LOG.info("begin receive longs");
+        try {
+            DataInputStream receiver = new DataInputStream(socket.getInputStream());
+            int length = receiver.readInt();
+            LOG.info("receive longs, length = " + length);
+            if (length <= 0) {
+                throw new StatusCodeWithException(
+                        StatusCode.REMOTE_SERVICE_ERROR,
+                        "receiveLongs error, first int = " + length);
+            }
+            long[] datas = new long[length];
+            int count = 0;
+            while (count < length) {
+                long item = receiver.readLong();
+                datas[count++] = item;
+            }
+            return datas;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (socket != null) {
+                    socket.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return new long[0];
+    }
+
 
     public static void sendBytes(Socket socket, byte[] bytes) {
         try {
@@ -116,7 +174,7 @@ public class PSIUtils {
         return stringList;
     }
 
-    public static long receiveInteger(DataInputStream dIn) {
+    public static long receiveLong(DataInputStream dIn) {
         try {
             return dIn.readLong();
         } catch (Exception e) {
@@ -152,8 +210,15 @@ public class PSIUtils {
         }
     }
 
+    public static void sendInteger(DataOutputStream dOut, int integer) {
+        try {
+            dOut.writeInt(integer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-    public static void sendInteger(DataOutputStream dOut, long integer) {
+    public static void sendLong(DataOutputStream dOut, long integer) {
         try {
             dOut.writeLong(integer);
         } catch (IOException e) {

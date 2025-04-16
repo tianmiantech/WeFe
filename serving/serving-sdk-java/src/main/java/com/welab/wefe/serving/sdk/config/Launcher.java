@@ -17,6 +17,8 @@
 package com.welab.wefe.serving.sdk.config;
 
 
+import com.welab.wefe.common.constant.SecretKeyType;
+
 import java.io.Serializable;
 
 /**
@@ -26,7 +28,7 @@ public class Launcher implements Serializable {
 
     private static boolean inited = false;
 
-    public static synchronized void init(String memberId, String rsaPrivateKey, String rsaPublicKey) {
+    public static synchronized void init(String memberId, String rsaPrivateKey, String rsaPublicKey, SecretKeyType secretKeyType) {
 
         if (inited) {
             return;
@@ -35,6 +37,7 @@ public class Launcher implements Serializable {
         Config.MEMBER_ID = memberId;
         Config.RSA_PRIVATE_KEY = rsaPrivateKey;
         Config.RSA_PUBLIC_KEY = rsaPublicKey;
+        Config.SECRET_KEY_TYPE = secretKeyType;
 
         inited = true;
     }

@@ -21,14 +21,14 @@ nas_upload(){
 
   # create env dir
   mkdir -p $nas_env/pythonCode
-  has_env=`s nas command ls  -l nas:///mnt/auto`
+  has_env=`s nas command ls  -l /mnt/auto`
   if [[ $has_env =~ $nas_env ]]
   then
     echo 'has env dir, upload pythonCode ...'
-    s nas upload -r -o ./$nas_env/pythonCode /mnt/auto/$nas_env/ --debug
+    s nas upload -ro ./$nas_env/pythonCode /mnt/auto/$nas_env/pythonCode --debug
   else
     echo 'has not env dir, upload env dir ...'
-    s nas upload -r -o ./$nas_env /mnt/auto/ --debug
+    s nas upload -ro ./$nas_env /mnt/auto/$nas_env --debug
   fi
   rm -rf $nas_env
 
@@ -48,8 +48,8 @@ nas_upload(){
     fi
 
     echo 'upload new python to NAS ...'
-    s nas upload -r -o /data/environment/.s/python /mnt/auto/$nas_env --debug
-    s nas upload -r -o /data/environment/.s/root /mnt/auto/$nas_env --debug
+    s nas upload -ro /data/environment/.s/python /mnt/auto/$nas_env/python --debug
+    s nas upload -ro /data/environment/.s/root /mnt/auto/$nas_env/root --debug
   fi
 
   # cp common, kernel to build dir
@@ -59,12 +59,25 @@ nas_upload(){
   find ./kernel/ -name "*.py" | cpio -pdm ./build
 
   cd common/python/calculation/fc/function/wefe-fc
-  s nas upload -r -o ../../../../../../config.properties nas:///mnt/auto/$nas_env/pythonCode/  --debug
-  s nas upload -r -o ../../../../../../build/ /mnt/auto/$nas_env/pythonCode  --debug
+  s nas upload -o ./config.properties /mnt/auto/$nas_env/pythonCode/  --debug
+  s nas upload -o ./member-base.properties /mnt/auto/$nas_env/pythonCode/  --debug
+  s nas upload -ro ../../../../../../build/ /mnt/auto/$nas_env/pythonCode/  --debug
 
   rm -rf ../../../../../../build
 
 }
+
+get_config_from_db(){
+  echo 'remove old config.properties'
+  rm -f ./config.properties
+  echo 'remove old member-base.properties'
+  rm -f ./member-base.properties
+  echo 'get config from database...'
+  python ./config_util.py
+  echo 'generate new config.properties done!'
+
+}
+
 
 fc_deploy(){
 
@@ -74,30 +87,31 @@ fc_deploy(){
   export PYTHONPATH=$wefe_code_path
   source /data/environment/miniconda3/envs/wefe-python37/bin/activate
 
-  echo "reading configure from config.properties"
+  # 读取数据库的配置，生成配置文件，用于上传函数
+  get_config_from_db
 
   nas_env=$(grep -v "^#" ../../../../../../config.properties | grep "env.name=*")
   nas_env=${nas_env##*=}
 
-  access_key_id=$(grep -v "^#" ../../../../../../config.properties | grep "fc.access_key_id=*")
+  access_key_id=$(grep -v "^#" ./config.properties | grep "fc.access_key_id=*")
   access_key_id=${access_key_id##*=}
 
-  access_key_secret=$(grep -v "^#" ../../../../../../config.properties | grep "fc.access_key_secret=*")
+  access_key_secret=$(grep -v "^#" ./config.properties | grep "fc.access_key_secret=*")
   access_key_secret=${access_key_secret##*=}
 
-  account_id=$(grep -v "^#" ../../../../../../config.properties | grep "fc.account_id=*")
+  account_id=$(grep -v "^#" ./config.properties | grep "fc.account_id=*")
   account_id=${account_id##*=}
 
-  vpc_id=$(grep -v "^#" ../../../../../../config.properties | grep "fc.vpc_id=*")
+  vpc_id=$(grep -v "^#" ./config.properties | grep "fc.vpc_id=*")
   vpc_id=${vpc_id##*=}
 
-  v_switch_ids=$(grep -v "^#" ../../../../../../config.properties | grep "fc.v_switch_ids=*")
+  v_switch_ids=$(grep -v "^#" ./config.properties | grep "fc.v_switch_ids=*")
   v_switch_ids=${v_switch_ids##*=}
 
-  security_group_id=$(grep -v "^#" ../../../../../../config.properties | grep "fc.security_group_id=*")
+  security_group_id=$(grep -v "^#" ./config.properties | grep "fc.security_group_id=*")
   security_group_id=${security_group_id##*=}
 
-  account_type=$(grep -v "^#" ../../../../../../config.properties | grep "fc.account_type=*")
+  account_type=$(grep -v "^#" ./config.properties | grep "fc.account_type=*")
   account_type=${account_type##*=}
 
   if [ ! ${account_id} ]; then
@@ -106,11 +120,6 @@ fc_deploy(){
     sed -i "s|acs:ram::.*:role|acs:ram::${account_id}:role|" s.yaml
   fi
 
-#  if [ ! ${nas_env} ]; then
-#    echo "nas env is null"
-#  else
-#    sed -i "s|fc-env:.*|fc-env: ${nas_env}|" s.yaml
-#  fi
   sed -i "s/fc-env/${nas_env}/g" s.yaml
 
   if [[ ${account_type,,} == "admin" ]]; then

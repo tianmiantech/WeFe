@@ -1,0 +1,16 @@
+{
+  "GridSearchTransferVariable": {
+    "best_iter": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "best_parameters": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    }
+  }
+}

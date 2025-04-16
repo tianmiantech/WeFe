@@ -16,14 +16,6 @@
 
 package com.welab.wefe.serving.service.service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -33,12 +25,19 @@ import com.welab.wefe.serving.service.api.client.QueryClientApi;
 import com.welab.wefe.serving.service.api.client.QueryClientListApi;
 import com.welab.wefe.serving.service.api.client.SaveClientApi;
 import com.welab.wefe.serving.service.api.client.UpdateApi;
-import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.ClientRepository;
-import com.welab.wefe.serving.service.database.serving.repository.ClientServiceRepository;
+import com.welab.wefe.serving.service.database.entity.ClientMysqlModel;
+import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
+import com.welab.wefe.serving.service.database.repository.ClientRepository;
+import com.welab.wefe.serving.service.database.repository.ClientServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.ClientStatusEnum;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ClientService {
@@ -54,14 +53,13 @@ public class ClientService {
 
         ClientMysqlModel clientMysqlModel = queryByCode(input.getCode());
         if (clientMysqlModel != null) {
-            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getCode(), "code");
+            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, "code 【"+input.getCode()+"】已经存在");
         }
 
         ClientMysqlModel clientMysqlModel1 = queryByClientName(input.getName());
         if (null != clientMysqlModel1) {
             throw new StatusCodeWithException(StatusCode.CLIENT_NAME_EXIST);
         }
-
 
         ClientMysqlModel model = clientRepository.findOne("id", input.getId(), ClientMysqlModel.class);
 
@@ -83,7 +81,7 @@ public class ClientService {
         ClientMysqlModel model = clientRepository.findOne("id", input.getId(), ClientMysqlModel.class);
 
         if (null == model) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
         model.setName(input.getName());
         model.setEmail(input.getEmail());

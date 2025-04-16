@@ -5,23 +5,41 @@
         class="nav-title mb30"
         shadow="never"
         :show="project_type !== 'DeepLearning'"
+        :idx="sortIndex"
+        style="background: white"
     >
-        <h3 class="mb10 card-title">
-            数据融合
-            <template v-if="form.isPromoter">
-                <router-link class="el-link" :to="{ name: 'fusion-edit', query: { project_id: form.project_id } }">
-                    <el-button
-                        v-if="!form.closed && !form.is_exited"
-                        type="primary"
-                        class="ml10"
-                        size="small"
-                    >
-                        新建数据融合任务
-                    </el-button>
-                </router-link>
-            </template>
-            <span v-else class="ml10 f12">(协作方无法创建任务)</span>
-        </h3>
+        <template #header>
+            <div class="mb10 flex-row">
+                <div style="display: flex; align-items: center;">
+                    <h3 class="card-title f19" style="position: relative; right: 10px; top: -10px;">
+                        <el-icon :class="['el-icon-connection', 'mr10', 'ml10']" style="font-size: xx-large; top:8px; right: -3px; color: dodgerblue"><elicon-connection />
+                            </el-icon>
+                                数据融合
+                    </h3>
+                    <template v-if="form.isPromoter">
+                        <router-link v-if="form.is_project_admin" class="board-link" :to="{ name: 'fusion-edit', query: { project_id: form.project_id, is_project_admin: form.is_project_admin } }">
+                            <el-button
+                                
+                                v-if="!form.closed && !form.is_exited"
+                                type="primary"
+                                class="ml10"
+                                size="small"
+                                style="position: relative; top:-4px; left: -15px; background: #007ad1; border: none;"
+                            >
+                            发起数据融合
+                            </el-button>
+                        </router-link>
+                    </template>
+                    <span v-else class="ml10 f12">(协作方无法创建任务)</span>
+                </div>
+                <div v-if="form.is_project_admin" class="right-sort-area">
+                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['board-icon-top f14', {'mr10': maxIndex === sortIndex}]" @click="moveUp"><elicon-top /></el-icon>
+                    <el-icon v-if="maxIndex !== sortIndex" :class="['board-icon-bottom f14', 'ml10', 'mr10']" @click="moveDown"><elicon-bottom /></el-icon>
+                    <span v-if="sortIndex !== 0 && sortIndex !== 1" :class="['f12', {'mr10': sortIndex === 2}]" @click="toTop">置顶</span>
+                    <span v-if="sortIndex !== maxIndex && sortIndex !== maxIndex -1" class="f12" @click="toBottom">置底</span>
+                </div>
+            </div>
+        </template>
 
         <el-table
             max-height="500px"
@@ -33,7 +51,7 @@
                 min-width="220px"
             >
                 <template v-slot="scope">
-                    <router-link :to="{ name: 'fusion-detail', query: { id: scope.row.id, project_id } }">
+                    <router-link :to="{ name: 'fusion-detail', query: { id: scope.row.id, project_id, is_project_admin: form.is_project_admin } }">
                         {{ scope.row.name }}
                     </router-link>
                 </template>
@@ -110,8 +128,11 @@
         mixins: [table],
         inject: ['refresh'],
         props:  {
-            form: Object,
+            form:      Object,
+            sortIndex: Number,
+            maxIndex:  Number,
         },
+        emits: ['move-up', 'move-down', 'to-top', 'to-bottom'],
         data() {
             return {
                 timer:      null,
@@ -253,20 +274,37 @@
                     name:  'fusion-detail',
                     query: {
                         id,
-                        project_id: this.project_id,
+                        project_id:       this.project_id,
+                        is_project_admin: this.form.is_project_admin || 'true',
                     },
                 });
+            },
+            moveUp() {
+                this.$emit('move-up', this.sortIndex);
+            },
+            moveDown() {
+                this.$emit('move-down', this.sortIndex);
+            },
+            toTop() {
+                this.$emit('to-top', this.sortIndex);
+            },
+            toBottom() {
+                this.$emit('to-bottom', this.sortIndex);
             },
         },
     };
 </script>
 
+<style lang="scss">
+
+</style>
+
 <style lang="scss" scoped>
-    .el-alert__description{
+    .board-alert__description{
         color: $--color-danger;
     }
     h3{margin: 10px;}
-    .el-link{text-decoration: none;}
+    .board-link{text-decoration: none;}
     .model-list{
         display: flex;
         justify-content: center;
@@ -283,7 +321,7 @@
     }
     .empty-flow{
         .model-img{background: #F5F7FA;}
-        .el-icon-plus{
+        .board-icon-plus{
             font-size: 50px;
             color:#DCDFE6;
         }
@@ -298,8 +336,8 @@
     }
     .link{text-decoration: none;}
     .btn-danger{color: #F85564;}
-    .el-switch{
-        :deep(.el-switch__label){
+    .board-switch{
+        :deep(.board-switch__label){
             color: #999;
             &.is-active{color: $--color-primary;}
         }

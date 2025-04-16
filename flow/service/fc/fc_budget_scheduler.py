@@ -13,8 +13,10 @@
 # limitations under the License.
 
 import traceback
-from common.python.common.consts import TaskStatus
+from common.python.common.consts import TaskStatus, JobStatus
+from common.python.utils import conf_utils
 from flow.utils.budget_utils import BudgetUtils
+from flow.utils.budget_scf_utils import BudgetScfUtils
 from common.python.db.global_config_dao import GlobalConfigDao
 import threading
 from common.python.db.db_models import *
@@ -38,10 +40,15 @@ class FcBudgetScheduler(threading.Thread):
 
     def get_running_task(self):
         with DB.connection_context():
-            task_list = Task.select().where(
-                (Task.status == TaskStatus.RUNNING) &
-                (Task.task_conf % '%FC%')
-            ).execute()
+            # backend = FC 标志已放置于 job
+            where_condition = [Job.status == JobStatus.RUNNING,
+                               json.loads(Job.job_config)['env']['calculation_engine_config']['backend'] == 'FC']
+            job_list = Job.select().where(*tuple(where_condition)).execute()
+
+            task_list = []
+            for job in job_list:
+                where = [Task.status == TaskStatus.RUNNING, Task.job_id == job.job_id]
+                task_list = Task.select().where(*tuple(where)).execute() + task_list
             return task_list
 
     def get_month_budget(self):
@@ -59,20 +66,20 @@ class FcBudgetScheduler(threading.Thread):
             for task in task_list:
                 if task.task_type == 'PaddleClassify' or task.task_type == 'PaddleDetection' or task.task_type == 'ImageDataIO':
                     continue
-                if json.loads(task.task_conf)['job']['env']['backend'] == 'FC':
-                    killed = self.kill_task(task)
-                    if killed:
-                        self.logger.info(f"kill task {task.name}({task.task_id}) process pid: {task.pid} success!")
-                        task.status = TaskStatus.ERROR
-                        if is_month:
-                            task.message = '函数计算当月已使用(￥): ' + ("%.2f" % cost) + ',已超最大月限额(￥): ' + \
-                                           ("%.2f" % budget) + ',随即停止所有任务！'
-                        else:
-                            task.message = '函数计算当日已使用(￥): ' + ("%.2f" % cost) + ',已超最大日限额(￥): ' + \
-                                           ("%.2f" % budget) + ',随即停止所有任务！'
-                        task.save()
+                # if json.loads(task.task_conf)['job']['env']['backend'] == 'FC':
+                killed = self.kill_task(task)
+                if killed:
+                    self.logger.info(f"kill task {task.name}({task.task_id}) process pid: {task.pid} success!")
+                    task.status = TaskStatus.ERROR
+                    if is_month:
+                        task.message = '函数计算当月已使用(￥): ' + ("%.2f" % cost) + ',已超最大月限额(￥): ' + \
+                                       ("%.2f" % budget) + ',随即停止所有任务！'
                     else:
-                        self.logger.error(f"failed to kill task {task.name}({task.task_id}) process pid: {task.pid}")
+                        task.message = '函数计算当日已使用(￥): ' + ("%.2f" % cost) + ',已超最大日限额(￥): ' + \
+                                       ("%.2f" % budget) + ',随即停止所有任务！'
+                    task.save()
+                else:
+                    self.logger.error(f"failed to kill task {task.name}({task.task_id}) process pid: {task.pid}")
 
     def kill_task(self, task: Task):
         """"
@@ -130,33 +137,61 @@ class FcBudgetScheduler(threading.Thread):
         else:
             return True
 
-    def run(self):
+    def check_aliyun(self):
         budget_util = BudgetUtils()
+        month_cost = budget_util.get_month_cost()
+        day_cost = budget_util.get_day_cost()
+        # get current budget
+        month_budget = self.get_month_budget()
+        day_budget = self.get_day_budget()
+        self.logger.info(f"current month budget is: {month_budget}, and month cost is: {month_cost}")
+        self.logger.info(f"current day budget is: {day_budget}, and day cost is: {day_cost}")
+
+        # Overspend daily or monthly
+        if float(month_budget) <= month_cost:
+            task_list = self.get_running_task()
+            self.logger.info("进行函数计算每月限额检测...")
+            self.stop_tasks(task_list, budget=month_budget, cost=month_cost)
+        elif float(day_budget) <= day_cost:
+            task_list = self.get_running_task()
+            self.logger.info("进行函数计算每日限额检测...")
+            self.stop_tasks(task_list, is_month=False, budget=day_budget, cost=day_cost)
+        else:
+            time.sleep(10)
+
+    def check_tencent(self):
+        budget_scf_util = BudgetScfUtils()
+        month_cost = budget_scf_util.get_month_cost()
+        day_cost = budget_scf_util.get_day_cost()
+        # get current budget
+        month_budget = self.get_month_budget()
+        day_budget = self.get_day_budget()
+        self.logger.info(f"current month budget is: {month_budget}, and month cost is: {month_cost}")
+        self.logger.info(f"current day budget is: {day_budget}, and day cost is: {day_cost}")
+
+        # Overspend daily or monthly
+        if float(month_budget) <= month_cost:
+            task_list = self.get_running_task()
+            self.logger.info("进行函数计算每月限额检测...")
+            self.stop_tasks(task_list, budget=month_budget, cost=month_cost)
+        elif float(day_budget) <= day_cost:
+            task_list = self.get_running_task()
+            self.logger.info("进行函数计算每日限额检测...")
+            self.stop_tasks(task_list, is_month=False, budget=day_budget, cost=day_cost)
+        else:
+            time.sleep(10)
+
+    def run(self):
 
         while True:
             # get fc task list
             fc_task_list = self.get_running_task()
             if len(fc_task_list) > 0:
                 try:
-                    month_cost = budget_util.get_month_cost()
-                    day_cost = budget_util.get_day_cost()
-                    # get current budget
-                    month_budget = self.get_month_budget()
-                    day_budget = self.get_day_budget()
-                    self.logger.info(f"current month budget is: {month_budget}, and month cost is: {month_cost}")
-                    self.logger.info(f"current day budget is: {day_budget}, and day cost is: {day_cost}")
-
-                    # Overspend daily or monthly
-                    if float(month_budget) <= month_cost:
-                        task_list = self.get_running_task()
-                        self.logger.info("进行函数计算每月限额检测...")
-                        self.stop_tasks(task_list, budget=month_budget, cost=month_cost)
-                    elif float(day_budget) <= day_cost:
-                        task_list = self.get_running_task()
-                        self.logger.info("进行函数计算每日限额检测...")
-                        self.stop_tasks(task_list, is_month=False, budget=day_budget, cost=day_cost)
-                    else:
-                        time.sleep(10)
+                    if conf_utils.get_comm_config(consts.COMM_CONF_CLOUD_PROVIDER) == consts.CLOUDPROVIDER.ALIYUN:
+                        self.check_aliyun()
+                    elif conf_utils.get_comm_config(consts.COMM_CONF_CLOUD_PROVIDER) == consts.CLOUDPROVIDER.TENCENTCLOUD:
+                        self.check_tencent()
                 except Exception as e:
                     traceback.print_exc()
                     schedule_logger().exception("函数计算预算检测出现异常：%s", e)

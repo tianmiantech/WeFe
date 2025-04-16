@@ -112,7 +112,7 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
             }
 
             if (CollectionUtils.isEmpty(providerList)) {
-                throw new StatusCodeWithException("请选择合作方", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "请选择合作方");
             }
             Set<String> promoterIds = new HashSet<>();
             // When only one promoter member is allowed, the member is duplicated,
@@ -122,16 +122,17 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
             }
             promoterList.forEach(p -> promoterIds.add(p.getMemberId()));
             if (promoterList.size() != promoterIds.size()) {
-                throw new StatusCodeWithException("发起方成员不能重复", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "发起方成员不能重复");
             }
             if (!fromGateway() && !promoterIds.add(CacheObjects.getMemberId())) {
-                throw new StatusCodeWithException("发起方成员不能重复", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "发起方成员不能重复");
             }
             boolean mixFlag = promoterIds.size() >= 2;
             for (ProjectMemberInput m : providerList) {
                 if (promoterIds.contains(m.getMemberId()) && mixFlag) {
-                    throw new StatusCodeWithException("成员【" + CacheObjects.getMemberName(m.getMemberId()) + "】不能重复存在 ",
-                            StatusCode.PARAMETER_VALUE_INVALID);
+                    throw new StatusCodeWithException(
+                            StatusCode.PARAMETER_VALUE_INVALID,
+                            "成员【" + CacheObjects.getMemberName(m.getMemberId()) + "】不能重复存在 ");
                 }
             }
         }

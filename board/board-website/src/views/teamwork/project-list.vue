@@ -15,19 +15,26 @@
                     <i class="icon-add" />
                     创建项目
                 </router-link>
-                <div class="guide" @click="showGuideVideo">
+                <!-- <div class="guide" @click="showGuideVideo">
                     新手指引
-                    <i class="ml10 el-icon-video-play" />
-                </div>
+                    <i class="ml10 board-icon-video-play" />
+                </div> -->
             </div>
             <template v-if="list.length">
                 <router-link
-                    v-for="item in list"
+                    v-for="(item, index) in list"
                     :key="item.project_id"
                     :to="{name: 'project-detail', query: { project_id: item.project_id, project_type: item.project_type }}"
                     class="li"
                 >
-                    <p v-if="item.project_type" class="project_type" :style="{color: item.project_type === 'DeepLearning' ? '#E89B00' : '#438BFF'}">{{item.project_type === 'DeepLearning' ? '视觉处理' : item.project_type === 'MachineLearning' ? '机器学习' : ''}}
+                    <p v-if="item.project_type" class="project_type" :style="{color: item.project_type === 'DeepLearning' ? '#E89B00' : '#438BFF'}">{{item.project_type === 'DeepLearning' ? '视觉处理' : item.project_type === 'MachineLearning' ? '机器学习' : ''}} <span v-if="item.top" style="font-size: 12px;color: #f85564;">(已置顶)</span></p>
+                    <p v-if="userInfo.admin_role" class="top_btn" @click.prevent="toTopClick(item)">
+                        <el-tooltip v-if="item.top" effect="light" content="取消置顶" placement="bottom">
+                            <el-icon style="color: #f85564;"><elicon-bottom /></el-icon>
+                        </el-tooltip>
+                        <el-tooltip v-if="(index !== 0 && !item.top) || (index === 0 && !item.top)" effect="light" content="置顶" placement="bottom">
+                            <el-icon style="color: #438bff;"><elicon-top /></el-icon>
+                        </el-tooltip>
                     </p>
                     <p class="p-name">
                         {{ item.name }}
@@ -36,7 +43,7 @@
                             placement="top"
                             effect="light"
                         >
-                            <el-icon class="el-icon-info desc-icon">
+                            <el-icon class="board-icon-info desc-icon">
                                 <elicon-info-filled />
                             </el-icon>
                         </el-tooltip>
@@ -80,15 +87,19 @@
                         class="flow-list mt10"
                     >
                         <div class="flow-status">
-                            <p class="status-num">{{ item.flow_status_statistics.editing }}</p>
+                            <p class="status-num">{{ item.flow_status_statistics.editing || 0 }}</p>
                             流程配置中
                         </div>
                         <div class="flow-status">
-                            <p class="status-num">{{ item.flow_status_statistics.running }}</p>
+                            <p class="status-num">{{ item.flow_status_statistics.running || 0 }}</p>
                             流程执行中
                         </div>
                         <div class="flow-status">
-                            <p class="status-num">{{ item.flow_status_statistics.finished }}</p>
+                            <p class="status-num">{{ item.flow_status_statistics.interrupted || 0 }}</p>
+                            流程中断
+                        </div>
+                        <div class="flow-status">
+                            <p class="status-num">{{ item.flow_status_statistics.success || 0 }}</p>
                             流程已完成
                         </div>
                     </div>
@@ -172,6 +183,20 @@
                     });
                 });
             },
+
+            async toTopClick(item) {
+                const { code } = await this.$http.post({
+                    url:  '/project/top',
+                    data: {
+                        projectId: item.project_id,
+                        top:       !item.top,
+                    },
+                });
+
+                if(code === 0) {
+                    this.getList();
+                }
+            },
         },
     };
 </script>
@@ -223,7 +248,7 @@
         box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
         &:hover{
             box-shadow: 0 6px 10px -6px rgba(0, 0, 0, 0.1);
-            .el-icon-delete{display: block;}
+            .board-icon-delete{display: block;}
         }
         .project_type {
             position: absolute;
@@ -247,6 +272,14 @@
             }
 
         }
+        .top_btn {
+            position: absolute;
+            top: 26px;
+            right: 0;
+            padding-right: 5px;
+            font-size: 16px;
+            color: #666;
+        }
     }
     @media screen and (min-width: 1000px) and (max-width: 1387px) {
         .li{flex: 45%;
@@ -255,8 +288,8 @@
         }
     }
     .create-button{
-        padding:0;
         cursor: default;
+        background: #f5f7fa;
         .guide{
             height: 62px;
             line-height: 62px;
@@ -264,7 +297,7 @@
             display: inline-block;
             cursor: pointer;
         }
-        .el-icon-video-play{
+        .board-icon-video-play{
             color: $color-link-base;
             cursor: pointer;
         }
@@ -272,18 +305,20 @@
     .add-wrap{
         display: block;
         color: #303133;
-        height: 160px;
+        // height: 160px;
+        height: 100%;
         line-height: 30px;
         text-align: center;
         background: #F5F7FA;
-        border-bottom: 1px solid #DCDFE6;
+        // border-bottom: 1px solid #DCDFE6;
         padding-top: 10px;
         .icon-add{
             display: block;
             position: relative;
             width: 60px;
             height:60px;
-            margin:20px auto 15px;
+            // margin:20px auto 15px;
+            margin:50px auto 20px;
             cursor: pointer;
             &:before,
             &:after{
@@ -387,7 +422,7 @@
         font-size: 12px;
         line-height: 25px;
     }
-    .el-icon-delete{
+    .board-icon-delete{
         display: none;
         position: absolute;
         right: 20px;

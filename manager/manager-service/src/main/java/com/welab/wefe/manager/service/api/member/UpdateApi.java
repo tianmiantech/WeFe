@@ -46,7 +46,7 @@ public class UpdateApi extends AbstractApi<MemberUpdateInput, AbstractApiOutput>
         try {
             Member member = memberMongoReop.findMemberId(input.getId());
             if (member == null) {
-                throw new StatusCodeWithException("成员不存在", StatusCode.DATA_NOT_FOUND);
+                throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "成员不存在");
             }
 
             if (input.getFreezed() != null) {
@@ -59,7 +59,7 @@ public class UpdateApi extends AbstractApi<MemberUpdateInput, AbstractApiOutput>
             memberContractService.update(member);
         } catch (Exception e) {
             LOG.error("Failed to update member: ", e);
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
         return success();

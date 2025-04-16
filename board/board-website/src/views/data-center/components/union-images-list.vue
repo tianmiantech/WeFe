@@ -8,7 +8,7 @@
         <el-table-column label="添加" width="60" v-slot="scope">
             <i
                 title="快捷创建项目"
-                class="el-icon-folder-add"
+                class="board-icon-folder-add"
                 @click="methods.addDataSet($event, scope.row)"
             ></i>
         </el-table-column>
@@ -158,7 +158,7 @@
     }
     .page{
         :deep(.card-dialog) {
-            .el-dialog__body {
+            .board-dialog__body {
                 overflow: hidden;
                 display: flex;
                 justify-content: center;
@@ -166,7 +166,7 @@
             }
         }
     }
-    .el-icon-folder-add{
+    .board-icon-folder-add{
         cursor: pointer;
         font-size: 16px;
         color: $color-link-base;

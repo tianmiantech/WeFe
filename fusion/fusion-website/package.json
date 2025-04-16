@@ -1,14 +1,17 @@
 {
-    "name": "data-fusion-website",
+    "name": "fusion",
     "version": "1.0.0",
     "welab": {
-        "contextPath": "/"
+        "contextPath": "fusion"
     },
     "context": "",
     "description": "data-fusion",
     "scripts": {
         "build": "vue-cli-service build",
-        "dev": "vue-cli-service serve"
+        "dev": "vue-cli-service serve --HOST_ENV dev",
+        "start": "npm run dev",
+        "predev": "node ./src/themeconfig/copyFile.js",
+        "hwfat": "vue-cli-service serve --HOST_ENV hwcloud_fat"
     },
     "keywords": [
         "vue",
@@ -17,12 +20,16 @@
     "author": "claude.wu",
     "license": "ISC",
     "dependencies": {
+        "@tianmiantech/auth": "^1.4.0",
+        "@tianmiantech/theme": "^1.1.24",
+        "@tianmiantech/util": "^2.0.7",
         "axios": "^0.21.1",
         "base64-url": "^2.3.3",
         "echarts": "^4.7.0",
         "element-ui": "^2.15.7",
         "js-cookie": "^2.2.1",
         "js-md5": "^0.7.3",
+        "moment": "^2.29.4",
         "shelljs": "^0.8.4",
         "simple-uploader.js": "^0.5.6",
         "vue": "^2.6.11",
@@ -59,7 +66,7 @@
         "html-webpack-tags-plugin": "^2.0.17",
         "mime": "^2.4.5",
         "mini-css-extract-plugin": "^0.9.0",
-        "minimist": "^1.2.6",
+        "minimist": "^1.2.5",
         "optimize-css-assets-webpack-plugin": "^5.0.3",
         "ora": "^4.0.4",
         "postcss-loader": "^3.0.0",

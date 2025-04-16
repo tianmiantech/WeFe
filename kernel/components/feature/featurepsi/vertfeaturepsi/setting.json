@@ -1,0 +1,8 @@
+{
+  "param_class": "param.py/VertFeaturePSIParam",
+  "role": {
+    "promoter|provider": {
+      "program": "vert_psi.py/VertFeaturePSICalculate"
+    }
+  }
+}

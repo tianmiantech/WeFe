@@ -17,6 +17,7 @@
                 <el-select
                     v-model="search.creator"
                     clearable
+                    filterable
                 >
                     <el-option
                         v-for="item in accounts"
@@ -277,9 +278,9 @@
             },
             async loadMemberList() {
                 const { code, data } = await this.$http.post({
-                    url:  '/account/query',
+                    url:  '/account/list_all',
                     data: {
-                        page_size: 100,
+                        page_size: '',
                     },
                 });
 
@@ -327,8 +328,8 @@
     .dataset-dialog {
         min-width: 800px;
     }
-    .el-form{
-        .el-form-item{
+    .board-form{
+        .board-form-item{
             margin-bottom: 10px;
         }
     }

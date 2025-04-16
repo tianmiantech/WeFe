@@ -107,12 +107,13 @@ class GatewayService:
             transfer_meta = TransferMeta(
                 sessionId=get_commit_id(),
                 dst=dst,
-                content=gateway_meta_pb2.Content(objectData=data),
+                content=gateway_meta_pb2.Content(strData=data),
                 taggedVariableName=None,
                 processor=processor
             )
             JOB_GRPC.send(transfer_meta)
         except grpc.RpcError as error:
+            GatewayService.logger.error(error, exc_info=True, stack_info=True)
             if str(error.code()) == GrpcStatusMessage.UNAVAILABLE:
                 result = {
                     JsonField.CODE: ServiceStatusCode.REMOTE_SERVICE_ERROR,

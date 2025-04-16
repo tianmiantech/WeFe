@@ -16,20 +16,21 @@
 
 package com.welab.wefe.serving.sdk.algorithm.xgboost.single;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.algorithm.AbstractAlgorithm;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author hunter.zhao
  */
-public abstract class AbstractXgboostAlgorithm<T extends BaseXgboostModel, R> extends AbstractAlgorithm<T, R> {
+public abstract class AbstractXgboostAlgorithm<T extends BaseXgboostModel, R extends PredictModel> extends AbstractAlgorithm<T, PredictModel> {
 
     /**
      * Characteristic mapping relation
@@ -51,7 +52,7 @@ public abstract class AbstractXgboostAlgorithm<T extends BaseXgboostModel, R> ex
             tempMap.put(map.getValue(), map.getKey());
         }
 
-        Map<String, Object> features = predictParams.getFeatureData();
+        Map<String, Object> features = predictParams.getFeatureDataModel().getFeatureDataMap();
 
         if (features != null) {
             for (String key : features.keySet()) {
@@ -64,21 +65,25 @@ public abstract class AbstractXgboostAlgorithm<T extends BaseXgboostModel, R> ex
     }
 
     @Override
-    protected R handle(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) throws StatusCodeWithException {
+    protected PredictModel handle(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException {
 
         setFidValueMapping(predictParams);
 
-        return handlePredict(federatedParams, predictParams, params);
+        PredictModel result = handlePredict(predictParams, federatedResult);
+
+        result.setFeatureResult(
+                PredictModel.extractFeatureResult(predictParams.getFeatureDataModel())
+        );
+
+        return result;
     }
 
     /**
      * Model execution method
      *
-     * @param federatedParams
      * @param predictParams
-     * @param params
      * @return predict result
      * @throws StatusCodeWithException
      */
-    protected abstract R handlePredict(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) throws StatusCodeWithException;
+    protected abstract R handlePredict(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException;
 }

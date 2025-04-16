@@ -37,7 +37,7 @@ public class TableDataSetUpdateInputModel extends AbstractDataResourceUpdateInpu
         super.checkAndStandardize();
 
         if (CollectionUtils.isEmpty(metadataList)) {
-            throw new StatusCodeWithException("请设置该数据集的元数据", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "请设置该数据集的元数据");
         }
     }
 

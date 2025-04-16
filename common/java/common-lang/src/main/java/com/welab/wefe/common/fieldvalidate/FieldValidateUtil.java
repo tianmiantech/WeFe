@@ -19,7 +19,6 @@ package com.welab.wefe.common.fieldvalidate;
 import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fastjson.LoggerValueFilter;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.ClassUtils;
 import com.welab.wefe.common.util.StringUtil;
@@ -92,7 +91,7 @@ public class FieldValidateUtil {
                 if (StringUtil.isNotEmpty(check.messageOnEmpty())) {
                     message = check.messageOnEmpty();
                 }
-                throw new StatusCodeWithException(message, StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, message);
             }
 
             if (value == null || StringUtils.isEmpty(value.toString())) {
@@ -108,7 +107,7 @@ public class FieldValidateUtil {
 
                 StandardFieldType standardFieldType = check.type();
                 if (!standardFieldType.check(value)) {
-                    throw new StatusCodeWithException(getInvalidMessage(check, field, value), StatusCode.PARAMETER_VALUE_INVALID);
+                    throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, getInvalidMessage(check, field, value));
                 } else if (standardFieldType.needStandardize()) {
                     field.set(obj, standardFieldType.standardize(value));
                 }
@@ -119,7 +118,7 @@ public class FieldValidateUtil {
              */
             if (StringUtils.isNotEmpty(check.regex())) {
                 if (!Pattern.matches(check.regex(), value.toString())) {
-                    throw new StatusCodeWithException(getInvalidMessage(check, field, value), StatusCode.PARAMETER_VALUE_INVALID);
+                    throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, getInvalidMessage(check, field, value));
                 }
 
             }
@@ -132,15 +131,10 @@ public class FieldValidateUtil {
                 field.set(
                         obj,
                         valueStr
-                                .replace(",", "，")
                                 .replace("\"", "“")
                                 .replace("'", "’")
                                 .replace("#", "")
-                                .replace("-", "")
-                                .replace("%", "")
-                                .replace("<", "")
-                                .replace("\\", "")
-                                .replace("/", "")
+                                .replace("--", "")
                 );
             }
 
@@ -156,7 +150,7 @@ public class FieldValidateUtil {
         }
 
         String valueStr = value instanceof Map
-                ? JSON.toJSONString(value, LoggerValueFilter.instance)
+                ? JSON.toJSONString(value)
                 : value.toString();
 
         String keyword = ReactionaryKeywords.match(valueStr);
@@ -176,7 +170,7 @@ public class FieldValidateUtil {
         }
 
         String valueStr = value instanceof Map
-                ? JSON.toJSONString(value, LoggerValueFilter.instance)
+                ? JSON.toJSONString(value)
                 : value.toString();
 
         for (String keyword : XSS_KEYWORDS) {

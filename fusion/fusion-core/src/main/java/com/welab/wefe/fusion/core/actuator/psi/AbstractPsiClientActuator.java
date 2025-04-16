@@ -16,23 +16,26 @@
 
 package com.welab.wefe.fusion.core.actuator.psi;
 
-import com.welab.wefe.common.CommonThreadPool;
-import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
-import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
-import com.welab.wefe.fusion.core.utils.PSIUtils;
-
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.ThreadUtil;
+import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
+import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
+import com.welab.wefe.fusion.core.utils.PSIUtils;
+
 
 /**
  * @author hunter.zhao
  */
-public abstract class AbstractPsiClientActuator extends AbstractPsiActuator {
+public abstract class AbstractPsiClientActuator extends AbstractPsiActuator implements PsiClientInterface {
 
     protected String dataSetId;
     protected Boolean isTrace;
@@ -48,154 +51,118 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator {
         this.dataCount = dataCount;
     }
 
-    /**
-     * Paging data fetching
-     *
-     * @return
-     * @throws StatusCodeWithException
-     */
-    public abstract List<JObject> next();
-
-    /**
-     * Determine whether there is still data
-     *
-     * @return
-     */
-    public abstract Boolean hasNext();
-
-    /**
-     * Determine whether there is still data
-     *
-     * @return
-     */
-    public abstract Integer sliceNumber();
-
-    /**
-     * Download the Server Square Bloom filter
-     *
-     * @return
-     */
-    public abstract PsiActuatorMeta downloadBloomFilter() throws StatusCodeWithException;
-
-    /**
-     * Download the Server Square Bloom filter
-     *
-     * @param bs
-     * @return
-     * @throws StatusCodeWithException
-     */
-    public abstract byte[][] queryFusionData(byte[][] bs) throws StatusCodeWithException;
-
-    /**
-     * Download the Server Square Bloom filter
-     *
-     * @param rs
-     */
-    public abstract void sendFusionData(List<byte[]> rs);
-
-    /**
-     * Primary key hash processing
-     *
-     * @param value
-     * @return
-     */
-    public abstract String hashValue(JObject value);
-
-    /**
-     * Alignment data into the library implementation method
-     */
-    public abstract void notifyServerClose();
 
     /**
      * Begin to fusion
      */
     @Override
-    public void fusion() throws StatusCodeWithException, InterruptedException {
-        //拉取bf
-        psiClientMeta = downloadBloomFilter();
+    public void fusion() throws Exception {
 
-        CountDownLatch latch = new CountDownLatch(sliceNumber());
+        init();
 
-        for (int j = 0; j < sliceNumber(); j++) {
-            CommonThreadPool.run(
-                    () -> {
-                        //取数
-                        List<JObject> data = next();
-
-                        List<BigInteger> r = new ArrayList<>();
-                        List<BigInteger> rInv = new ArrayList<>();
-                        byte[][] bs = new byte[data.size()][16];
-
-                        //加密
-                        for (int i = 0; i < data.size(); i++) {
-
-                            String key = hashValue(data.get(i));
-
-                            BigInteger h = PSIUtils.stringToBigInteger(key);
-                            BigInteger blindFactor = generateBlindingFactor();
-                            r.add(blindFactor.modPow(psiClientMeta.getE(), psiClientMeta.getN()));
-                            rInv.add(blindFactor.modInverse(psiClientMeta.getN()));
-                            BigInteger x = h.multiply(r.get(i)).mod(psiClientMeta.getN());
-                            bs[i] = PSIUtils.bigIntegerToBytes(x, false);
-                        }
-
-                        //发送
-                        byte[][] result = new byte[0][];
-                        try {
-                            result = queryFusionData(bs);
-                        } catch (StatusCodeWithException e) {
-                            e.printStackTrace();
-                            LOG.error("slice：{} fusion error: {}", e.getMessage());
-                        }
-
-                        //matching
-                        List<JObject> fruit = receiveAndParseResult(result, data, rInv);
-
-                        //dump
-                        dump(fruit);
-                    },
-                    latch
-            );
-
+        while (!isServerReady(businessId)) {
+            ThreadUtil.sleep(2000);
         }
 
-        latch.await();
+        psiClientMeta = downloadActuatorMeta();
+        int bucketSize = bucketSize();
+//        CountDownLatch latch = new CountDownLatch(bucketSize);
+        
+//        for (int j = 0; j < bucketSize; j++) {
+//            int index = j;
+//            CommonThreadPool.run(() -> execute(index), latch);
+//        }
 
+//        latch.await();
+        ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
+        for (int j = 0; j < bucketSize; j++) {
+            final int index = j;
+            executorService.submit(() -> {
+                execute(index);
+            });
+        }
+        executorService.shutdown();
+        try {
+            while (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                // pass
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            executorService.shutdown();
+        }
         status = PSIActuatorStatus.success;
+        notifyServerClose();
+    }
+
+    private void execute(int index) {
+        List<JObject> data = getBucketByIndex(index);
+
+        List<BigInteger> rInv = new ArrayList<>();
+        byte[][] bs = new byte[data.size()][16];
+
+        //数据预处理
+        for (int i = 0; i < data.size(); i++) {
+            BigInteger blindFactor = this.generateBlindingFactor();
+            BigInteger random = this.getRandom(blindFactor);
+            rInv.add(blindFactor.modInverse(psiClientMeta.getN()));
+
+            String key = hashValue(data.get(i));
+            BigInteger h = PSIUtils.stringToBigInteger(key);
+            BigInteger x = h.multiply(random).mod(psiClientMeta.getN());
+
+            bs[i] = PSIUtils.bigIntegerToBytes(x, false);
+        }
+
+        byte[][] result = new byte[0][];
+        try {
+            result = dataTransform(bs);
+        } catch (StatusCodeWithException e) {
+            e.printStackTrace();
+            LOG.error("slice：{} fusion error: {}", e.getMessage());
+        }
+        LOG.info("psi log, dataTransform result size = " + result.length);
+
+        //matching
+        List<JObject> fruit = this.parseAndMatch(result, data, rInv);
+        LOG.info("psi log, parseAndMatch result size = " + fruit.size());
+        dump(fruit);
+
+        sendFusionDataToServer(fruit);
+    }
+
+    private BigInteger getRandom(BigInteger blindFactor) {
+        return blindFactor.modPow(psiClientMeta.getE(), psiClientMeta.getN());
     }
 
     /**
      * Receives encrypted data, parses and matches
      */
-    private List<JObject> receiveAndParseResult(byte[][] ret, List<JObject> cur, List<BigInteger> rInv) {
+    private List<JObject> parseAndMatch(byte[][] ret, List<JObject> cur, List<BigInteger> rInv) {
 
-        LOG.info("client start receive data...");
+        LOG.info("psi log, client start parse data...");
 
-        List<byte[]> rs = new ArrayList<>();
         List<JObject> fruit = new ArrayList<>();
         for (int i = 0; i < ret.length; i++) {
-
             BigInteger y = PSIUtils.bytesToBigInteger(ret[i], 0, ret[i].length);
             BigInteger z = y.multiply(rInv.get(i)).mod(psiClientMeta.getN());
-
             if (psiClientMeta.getBf().contains(z)) {
-                rs.add(cur.get(i).toString().getBytes());
                 fruit.add(cur.get(i));
                 fusionCount.increment();
             }
             processedCount.increment();
         }
-
-
-        LOG.info("fusionCount: " + fusionCount.longValue());
-
-        LOG.info("processedCount: " + processedCount.longValue());
-
-        /**
-         * Send alignment data to the server
-         */
-        sendFusionData(rs);
-
+        long free = Runtime.getRuntime().freeMemory();
+        long total = Runtime.getRuntime().totalMemory();
+        // 得到JVM中的空闲内存量（单位是字节）
+        LOG.info("psi log, free memory" + free + " bytes");
+        // 的JVM内存总量（单位是字节）
+        LOG.info("psi log, total memory" + Runtime.getRuntime().totalMemory() + " bytes");
+        LOG.info("psi log, used = " + ((total - free) / total) + "%");
+        // JVM试图使用额最大内存量（单位是字节）
+        LOG.info("psi log, max memory" + Runtime.getRuntime().maxMemory() + " bytes");
+        // 可用处理器的数目
+        LOG.info("psi log, " + Runtime.getRuntime().availableProcessors() + "cpus");
         return fruit;
     }
 

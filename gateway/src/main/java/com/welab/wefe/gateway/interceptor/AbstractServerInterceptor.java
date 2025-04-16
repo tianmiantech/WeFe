@@ -18,7 +18,7 @@ package com.welab.wefe.gateway.interceptor;
 
 import com.welab.wefe.common.util.IpAddressUtil;
 import com.welab.wefe.gateway.GatewayServer;
-import com.welab.wefe.gateway.base.RpcServerAnnotate;
+import com.welab.wefe.gateway.base.GrpcServerAnnotate;
 import com.welab.wefe.gateway.common.GrpcConstant;
 import com.welab.wefe.gateway.service.MessageService;
 import io.grpc.*;
@@ -81,8 +81,8 @@ public abstract class AbstractServerInterceptor implements ServerInterceptor {
      * @return true, false
      */
     private boolean isInterceptTarget(String serviceName, String targetMethodName) {
-        Map<String, RpcServerAnnotate> rpcConfigMap = RpcServerAnnotate.RPC_SERVER_MAP;
-        RpcServerAnnotate rpcServerAnnotateConfig = rpcConfigMap.get(serviceName);
+        Map<String, GrpcServerAnnotate> rpcConfigMap = GrpcServerAnnotate.RPC_SERVER_MAP;
+        GrpcServerAnnotate rpcServerAnnotateConfig = rpcConfigMap.get(serviceName);
         if (null == rpcServerAnnotateConfig || CollectionUtils.isEmpty(rpcServerAnnotateConfig.getInterceptors())) {
             return false;
         }

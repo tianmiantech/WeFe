@@ -44,7 +44,6 @@ CREATE TABLE `account`
     `last_action_time` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP (6) COMMENT '最后活动时间',
     `history_password_list` text NULL COMMENT '历史曾用密码',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `index_unique_phonenumber` (`phone_number`),
     KEY                `idx_create_time` (`created_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='账号';
 

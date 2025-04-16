@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.service;
 
 import com.welab.wefe.board.service.api.chat.QueryChatDetailApi;
 import com.welab.wefe.board.service.api.chat.UpdateToReadApi;
+import com.welab.wefe.board.service.base.LoginAccountInfo;
 import com.welab.wefe.board.service.constant.ChatConstant;
 import com.welab.wefe.board.service.database.entity.chat.ChatLastAccountMysqlModel;
 import com.welab.wefe.board.service.database.entity.chat.MemberChatMySqlModel;
@@ -34,10 +35,9 @@ import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.common.web.service.account.AccountInfo;
+import com.welab.wefe.common.web.service.account.SsoAccountInfo;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.common.wefe.enums.GatewayActionType;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.common.wefe.enums.ProducerType;
 import org.apache.commons.collections4.CollectionUtils;
@@ -154,7 +154,7 @@ public class MemberChatService extends AbstractService {
 
         // Push the message to the destination member through the gateway
         try {
-            gatewayService.sendToOtherGateway(toMemberId, GatewayActionType.create_chat_msg, data, GatewayProcessorType.dbChatTableProcessor);
+            gatewayService.sendToOtherGateway(toMemberId, data, GatewayProcessorType.dbChatTableProcessor);
         } catch (Exception e) {
             // Message sending failed
             memberChatModel.setStatus(ChatConstant.MESSAGE_STATUS_SEND_FAIL);
@@ -179,11 +179,11 @@ public class MemberChatService extends AbstractService {
     public JObject sendMessage(String toMemberId, String toMemberName, String toAccountId, String toAccountName,
                                String content) throws StatusCodeWithException {
 
-        AccountInfo info = CurrentAccount.get();
+        SsoAccountInfo info = LoginAccountInfo.getInstance().get(CurrentAccountUtil.get().getId());
         if (null == info) {
-            throw new StatusCodeWithException("请登录后访问", StatusCode.LOGIN_REQUIRED);
+            throw new StatusCodeWithException(StatusCode.LOGIN_REQUIRED, "请登录后访问");
         }
-        String fromAccountId = info.id;
+        String fromAccountId = info.getId();
         String fromAccountName = CacheObjects.getAccountMap().get(fromAccountId);
         return sendMessage(fromAccountId, fromAccountName, toMemberId, toAccountId, toMemberName, toAccountName, content);
     }
@@ -196,10 +196,10 @@ public class MemberChatService extends AbstractService {
     public void resendMessage(String memberChatId) throws StatusCodeWithException {
         MemberChatMySqlModel model = memberChatRepository.findById(memberChatId).orElse(null);
         if (null == model) {
-            throw new StatusCodeWithException("该消息无效", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "该消息无效");
         }
         if (null == model.getStatus() || ChatConstant.MESSAGE_STATUS_SEND_FAIL != model.getStatus()) {
-            throw new StatusCodeWithException("该消息为非发送失败状态，禁止重发", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "该消息为非发送失败状态，禁止重发");
         }
         // splicing messages
         String data = JObject.create(ChatConstant.KEY_FROM_MEMBER_ID, model.getFromMemberId())
@@ -216,7 +216,7 @@ public class MemberChatService extends AbstractService {
                 .toString();
 
         // Push the message to the destination member through the gateway
-        gatewayService.sendToOtherGateway(model.getToMemberId(), GatewayActionType.create_chat_msg, data, GatewayProcessorType.dbChatTableProcessor);
+        gatewayService.sendToOtherGateway(model.getToMemberId(), data, GatewayProcessorType.dbChatTableProcessor);
 
         // Update message status is successful
         memberChatRepository.updateById(model.getId(), "status", ChatConstant.MESSAGE_STATUS_SEND_SUCCESS, MemberChatMySqlModel.class, false);
@@ -311,7 +311,6 @@ public class MemberChatService extends AbstractService {
         Specification<MessageQueueMySqlModel> queryCondtion = Where
                 .create()
                 .equal("producer", ProducerType.gateway)
-                .equal("action", GatewayActionType.create_chat_msg)
                 .orderBy("createdTime", OrderBy.asc)
                 .build(MessageQueueMySqlModel.class);
 

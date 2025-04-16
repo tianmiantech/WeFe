@@ -24,12 +24,12 @@ import com.welab.wefe.serving.service.api.paymentsrecords.DownloadApi;
 import com.welab.wefe.serving.service.api.paymentsrecords.QueryListApi;
 import com.welab.wefe.serving.service.api.paymentsrecords.SaveApi;
 import com.welab.wefe.serving.service.config.Config;
-import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.PaymentsRecordsMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.ClientRepository;
-import com.welab.wefe.serving.service.database.serving.repository.PaymentsRecordsRepository;
-import com.welab.wefe.serving.service.database.serving.repository.ServiceRepository;
+import com.welab.wefe.serving.service.database.entity.BaseServiceMySqlModel;
+import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
+import com.welab.wefe.serving.service.database.entity.PaymentsRecordsMysqlModel;
+import com.welab.wefe.serving.service.database.repository.BaseServiceRepository;
+import com.welab.wefe.serving.service.database.repository.PartnerRepository;
+import com.welab.wefe.serving.service.database.repository.PaymentsRecordsRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.PaymentsTypeEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
@@ -59,10 +59,10 @@ public class PaymentsRecordsService {
     private PaymentsRecordsRepository paymentsRecordsRepository;
 
     @Autowired
-    private ServiceRepository serviceRepository;
+    private BaseServiceRepository<BaseServiceMySqlModel> serviceRepository;
 
     @Autowired
-    private ClientRepository clientRepository;
+    private PartnerRepository partnerRepository;
 
     @Autowired
     private Config config;
@@ -165,20 +165,20 @@ public class PaymentsRecordsService {
         model.setPayType(input.getPayType());
 
         // get service by id
-        Optional<ServiceMySqlModel> serviceMySqlModel = serviceRepository.findById(input.getServiceId());
+        Optional<BaseServiceMySqlModel> serviceMySqlModel = serviceRepository.findById(input.getServiceId());
         if (serviceMySqlModel.isPresent()) {
-            ServiceMySqlModel service = serviceMySqlModel.get();
-            model.setServiceId(service.getId());
+            BaseServiceMySqlModel service = serviceMySqlModel.get();
+            model.setServiceId(service.getServiceId());
             model.setServiceName(service.getName());
             model.setServiceType(service.getServiceType());
         }
 
-        // get client
-        Optional<ClientMysqlModel> clientMysqlModel = clientRepository.findById(input.getClientId());
-        if (clientMysqlModel.isPresent()) {
-            ClientMysqlModel client = clientMysqlModel.get();
-            model.setClientId(client.getId());
-            model.setClientName(client.getName());
+        // get partner
+        Optional<PartnerMysqlModel> partnerMysqlModel = partnerRepository.findById(input.getClientId());
+        if (partnerMysqlModel.isPresent()) {
+            PartnerMysqlModel partner = partnerMysqlModel.get();
+            model.setClientId(partner.getId());
+            model.setClientName(partner.getName());
         }
 
 

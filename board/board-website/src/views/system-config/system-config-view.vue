@@ -4,27 +4,29 @@
             <el-form
                 :disabled="!userInfo.admin_role"
                 @submit.prevent
+                label-width="160px"
+                :inline="true"
             >
                 <el-row :gutter="30">
                     <el-col :span="12">
                         <fieldset>
                             <legend>Board</legend>
-                            <el-form-item label="后台内网地址（board-service）：">
+                            <el-form-item label="后台内网地址：">
                                 <el-input
                                     placeholder="http(s)://ip:port/board-service"
                                     v-model="config.wefe_board.intranet_base_uri"
                                 />
                             </el-form-item>
-                            <el-form-item label="新注册的账号是否需要管理员审核：">
+                            <el-form-item label="账号是否需要审核：">
                                 <el-radio
                                     v-model="config.wefe_board.account_need_audit_when_register"
-                                    :label="'true'"
+                                    :label="true"
                                 >
                                     需要审核
                                 </el-radio>
                                 <el-radio
                                     v-model="config.wefe_board.account_need_audit_when_register"
-                                    :label="'false'"
+                                    :label="false"
                                 >
                                     不需要审核
                                 </el-radio>
@@ -73,7 +75,7 @@
                                             183.3.218.18
                                         </div>
                                     </template>
-                                    <el-icon class="el-icon-opportunity">
+                                    <el-icon class="board-icon-opportunity">
                                         <elicon-opportunity />
                                     </el-icon>
                                 </el-tooltip>
@@ -81,7 +83,7 @@
                         </fieldset>
                         <fieldset>
                             <legend>Flow</legend>
-                            <el-form-item label="内网地址：">
+                            <el-form-item label="后台内网地址：">
                                 <el-input
                                     placeholder="http(s)://ip:port"
                                     v-model="config.wefe_flow.intranet_base_uri"
@@ -90,23 +92,92 @@
                         </fieldset>
                         <fieldset>
                             <legend>Serving</legend>
-                            <el-form-item label="内网地址：">
+                            <el-form-item label="后台内网地址：">
                                 <el-input
                                     placeholder="http(s)://ip:port/serving-service"
                                     v-model="config.wefe_serving.intranet_base_uri"
                                 />
                             </el-form-item>
+                            <el-form-item>
+                                <el-button type="success"
+                                           @click="showDialog"
+                                >
+                                    初始化
+                                </el-button>
+                            </el-form-item>
                         </fieldset>
+
+                        <el-dialog title="初始化" v-model="dialogVisibleInfo" width="500px" custom-class="unset-dialog-height">
+                            <!-- <el-form :model="form">
+                                <el-form-item label="账号" :label-width="formLabelWidth">
+                                    <el-input v-model="form.phone_number" type="text" clearable
+                                              placeholder="请输入Serving管理员账号(手机号)"></el-input>
+                                </el-form-item>
+                                <el-form-item label="密码" :label-width="formLabelWidth">
+                                    <el-input v-model="form.password" type="password" clearable
+                                              placeholder="请输入密码"></el-input>
+                                </el-form-item>
+                            </el-form> -->
+                            <p>确认初始化吗？</p>
+                            <template #footer>
+                                <el-button @click="dialogVisibleInfo = false">取消</el-button>
+                                <el-button type="primary" @click="init">确定</el-button>
+                            </template>
+                        </el-dialog>
                     </el-col>
                     <el-col :span="12">
                         <fieldset>
+                            <legend>数据集存储</legend>
+                            <el-form-item label="类型：">
+                                <el-radio v-model="config.storage_config.storage_type" label="CLICKHOUSE">
+                                    Clickhouse
+                                </el-radio>
+                                <el-radio v-model="config.storage_config.storage_type" disabled label="HDFS">
+                                    <el-tooltip class="item" effect="dark" content="coming soon" placement="top-start">
+                                        HDFS
+                                    </el-tooltip>
+                                </el-radio>
+                            </el-form-item>
+                            <el-form-item label="host：">
+                                <el-input v-model="config.clickhouse_storage_config.host" />
+                            </el-form-item>
+                            <el-form-item label="http port：">
+                                <el-input v-model="config.clickhouse_storage_config.http_port" />
+                            </el-form-item>
+                            <el-form-item label="tcp port：">
+                                <el-input v-model="config.clickhouse_storage_config.tcp_port" />
+                            </el-form-item>
+                            <el-form-item label="username：">
+                                <el-input v-model="config.clickhouse_storage_config.username" />
+                            </el-form-item>
+                            <el-form-item label="password：">
+                                <el-input
+                                    v-model="config.clickhouse_storage_config.password"
+                                    type="password"
+                                    placeholder="请输入密码"
+                                    autocomplete="new-password"
+                                    @contextmenu.prevent
+                                    @change="dataStoragePwdChange"
+                                    clearable
+                                />
+                            </el-form-item>
+                        </fieldset>
+                        <!-- <fieldset>
                             <legend>提醒</legend>
-                            <el-form-item label="是否开启任务失败邮件提醒功能：">
-                                <el-radio v-model="config.alert_config.email_alert_on_job_error" :label="'true'">
+                            <el-form-item label="任务失败邮件提醒：">
+                                <el-radio v-model="config.alert_config.email_alert_on_job_error" :label="true">
                                     开启
                                 </el-radio>
-                                <el-radio v-model="config.alert_config.email_alert_on_job_error" :label="'false'">
+                                <el-radio v-model="config.alert_config.email_alert_on_job_error" :label="false">
                                     关闭
+                                </el-radio>
+                            </el-form-item>
+                            <el-form-item label="找回密码验证码通道：">
+                                <el-radio v-model="config.alert_config.retrieve_password_captcha_channel" label="email">
+                                    邮件
+                                </el-radio>
+                                <el-radio v-model="config.alert_config.retrieve_password_captcha_channel" label="sms">
+                                    短信
                                 </el-radio>
                             </el-form-item>
                         </fieldset>
@@ -127,23 +198,42 @@
                                     type="password"
                                     placeholder="请输入密码"
                                     autocomplete="new-password"
-                                    @paste.prevent
-                                    @copy.prevent
                                     @contextmenu.prevent
+                                    @change="mailPasswordChange"
+                                    clearable
                                 />
                             </el-form-item>
                         </fieldset>
+                        <fieldset>
+                            <legend>阿里云短信通道</legend>
+                            <el-form-item label="AccessKeyId：">
+                                <el-input v-model="config.aliyun_sms_channel.access_key_id" />
+                            </el-form-item>
+                            <el-form-item label="AccessKeySecret：">
+                                <el-input
+                                    v-model="config.aliyun_sms_channel.access_key_secret"
+                                    type="password"
+                                    placeholder="请输入密码"
+                                    autocomplete="new-password"
+                                    @contextmenu.prevent
+                                    @change="accessKeySecretChange"
+                                    clearable
+                                />
+                            </el-form-item>
+                            <el-form-item label="找回密码短信模板码：">
+                                <el-input v-model="config.aliyun_sms_channel.retrieve_password_template_code" />
+                            </el-form-item>
+                            <el-form-item label="短信签名：">
+                                <el-input v-model="config.aliyun_sms_channel.sign_name" />
+                            </el-form-item>
+
+                        </fieldset> -->
                     </el-col>
                 </el-row>
+
+
                 <el-divider/>
-                <el-row :gutter="30">
-                    <el-col :span="12">
 
-                    </el-col>
-                    <el-col :span="12">
-
-                    </el-col>
-                </el-row>
                 <el-button
                     v-loading="loading"
                     class="save-btn mt10"
@@ -160,6 +250,8 @@
 
 <script>
     import { mapGetters } from 'vuex';
+    import md5 from 'js-md5';
+    import Rsa from '@/utils/rsa.js';
 
     export default {
         data() {
@@ -167,14 +259,28 @@
                 loading: false,
                 // model
                 config:  {
-                    wefe_board:   {},
-                    wefe_gateway: {},
-                    wefe_flow:    {},
-                    wefe_serving: {},
-                    alert_config: {},
-                    mail_server:  {},
+                    wefe_board:                {},
+                    wefe_gateway:              {},
+                    wefe_flow:                 {},
+                    wefe_serving:              {},
+                    alert_config:              {},
+                    mail_server:               {},
+                    storage_config:            {},
+                    clickhouse_storage_config: {},
+                    aliyun_sms_channel:        {},
                 },
-                visible: true,
+                form: {
+                    phone_number: '',
+                    password:     '',
+                },
+                visible:                    true,
+                dialogVisibleInfo:          false,
+                formLabelWidth:             '80px',
+                // initDialogVisible: false,
+                publicKey:                  '',
+                isChangeMailpwd:            false,
+                isChangeAccessKeySecretPwd: false,
+                isChangeDataStoragePwd:     false,
             };
         },
         computed: {
@@ -184,11 +290,75 @@
             this.getData();
         },
         methods: {
+            showDialog() {
+                this.dialogVisibleInfo = true;
+            },
+
+            async init() {
+
+                // const password = [
+                //     this.form.phone_number,
+                //     this.form.password,
+                //     this.form.phone_number,
+                //     this.form.phone_number.substr(0, 3),
+                //     this.form.password.substr(this.form.password.length - 3),
+                // ].join('');
+
+                const { code, message } = await this.$http.post({
+                    url:  '/member/sync_to_serving',
+                    data: {
+                        // phone_number: this.form.phone_number,
+                        // password:     md5(password),
+                    },
+                });
+
+                if (code === 0) {
+                    this.$message.success('初始化成功');
+                    this.dialogVisibleInfo = false;
+                } else {
+                    this.$message.error('初始化失败：', message);
+                    this.dialogVisibleInfo = false;
+
+                }
+
+
+            },
+
+
+            async getGenerate_rsa_key_pair() {
+                const { code, data } = await this.$http.get('/crypto/generate_rsa_key_pair');
+
+                if (code === 0 && data && data.public_key) {
+                    const { public_key } = data;
+
+                    this.publicKey = public_key;
+                }
+            },
+            dataStoragePwdChange() {
+                this.isChangeDataStoragePwd = true;
+            },
+            mailPasswordChange(val) {
+                this.isChangeMailpwd = true;
+            },
+            accessKeySecretChange() {
+                this.isChangeAccessKeySecretPwd = true;
+            },
             async getData() {
                 this.loading = true;
                 const { code, data } = await this.$http.post({
                     url:  '/global_config/get',
-                    data: { groups: ['wefe_board','wefe_gateway','alert_config','mail_server', 'wefe_flow', 'wefe_serving'] },
+                    data: {
+                        groups: [
+                            'wefe_board',
+                            'wefe_gateway',
+                            'alert_config',
+                            'mail_server',
+                            'wefe_flow',
+                            'wefe_serving',
+                            'storage_config',
+                            'clickhouse_storage_config',
+                            'aliyun_sms_channel',
+                        ] },
                 });
 
                 if (code === 0) {
@@ -197,6 +367,60 @@
                 this.loading = false;
             },
             async update() {
+                // 检查配置的密码部分是否有修改
+                // 1. 如果 数据集存储密码、邮件密码、AccessKeySecret密码 都没有被修改，则三个密码置空
+                if (!this.isChangeDataStoragePwd && !this.isChangeMailpwd && !this.isChangeAccessKeySecretPwd) {
+                    this.config.clickhouse_storage_config.password = null;
+                    this.config.mail_server.mail_password = null;
+                    this.config.aliyun_sms_channel.access_key_secret = null;
+                }
+
+                // 2. 如果 数据集存储密码、邮件密码、AccessKeySecret密码 三个中有其中一个被修改，调用接口获取public_key
+                if (this.isChangeDataStoragePwd || this.isChangeMailpwd || this.isChangeAccessKeySecretPwd) {
+                    await this.getGenerate_rsa_key_pair();
+                    // 一个true，两个false
+                    if (this.isChangeDataStoragePwd && !this.isChangeMailpwd && !this.isChangeAccessKeySecretPwd) {
+                        this.config.clickhouse_storage_config.password = Rsa.encrypt(this.publicKey, this.config.clickhouse_storage_config.password);
+                        this.config.mail_server.mail_password = null;
+                        this.config.aliyun_sms_channel.access_key_secret = null;
+                    }
+                    if (this.isChangeMailpwd && !this.isChangeDataStoragePwd && !this.isChangeAccessKeySecretPwd) {
+                        this.config.mail_server.mail_password = Rsa.encrypt(this.publicKey, this.config.mail_server.mail_password);
+                        this.config.clickhouse_storage_config.password = null;
+                        this.config.aliyun_sms_channel.access_key_secret = null;
+                    }
+                    if (this.isChangeAccessKeySecretPwd && !this.isChangeMailpwd && !this.isChangeDataStoragePwd) {
+                        this.config.aliyun_sms_channel.access_key_secret = Rsa.encrypt(this.publicKey, this.config.aliyun_sms_channel.access_key_secret);
+                        this.config.clickhouse_storage_config.password = null;
+                        this.config.mail_server.mail_password = null;
+                    }
+                    // 三个true
+                    if (this.isChangeDataStoragePwd && this.isChangeMailpwd && this.isChangeAccessKeySecretPwd) {
+                        this.config.clickhouse_storage_config.password = Rsa.encrypt(this.publicKey, this.config.clickhouse_storage_config.password);
+                        this.config.mail_server.mail_password = Rsa.encrypt(this.publicKey, this.config.mail_server.mail_password);
+                        this.config.aliyun_sms_channel.access_key_secret = Rsa.encrypt(this.publicKey, this.config.aliyun_sms_channel.access_key_secret);
+                    }
+
+                    // 两个true，一个false
+                    if (this.isChangeDataStoragePwd && this.isChangeMailpwd && !this.isChangeAccessKeySecretPwd) {
+                        this.config.clickhouse_storage_config.password = Rsa.encrypt(this.publicKey, this.config.clickhouse_storage_config.password);
+                        this.config.mail_server.mail_password = Rsa.encrypt(this.publicKey, this.config.mail_server.mail_password);
+                        this.config.aliyun_sms_channel.access_key_secret = null;
+                    }
+                    if (!this.isChangeDataStoragePwd && this.isChangeMailpwd && this.isChangeAccessKeySecretPwd) {
+                        this.config.mail_server.mail_password = Rsa.encrypt(this.publicKey, this.config.mail_server.mail_password);
+                        this.config.clickhouse_storage_config.password = null;
+                        this.config.aliyun_sms_channel.access_key_secret = Rsa.encrypt(this.publicKey, this.config.aliyun_sms_channel.access_key_secret);
+
+                    }
+                    if (this.isChangeDataStoragePwd && !this.isChangeMailpwd && this.isChangeAccessKeySecretPwd) {
+                        this.config.clickhouse_storage_config.password = Rsa.encrypt(this.publicKey, this.config.clickhouse_storage_config.password);
+                        this.config.mail_server.mail_password = null;
+                        this.config.aliyun_sms_channel.access_key_secret = Rsa.encrypt(this.publicKey, this.config.aliyun_sms_channel.access_key_secret);
+                    }
+                }
+
+
                 this.loading = true;
                 const { code } = await this.$http.post({
                     url:  '/global_config/update',
@@ -208,14 +432,63 @@
                     this.$router.push({ name: 'system-config-view' });
                     this.getData();
                 }
+                this.isChangeMailpwd = false;
+                this.isChangeAccessKeySecretPwd = false;
+                this.isChangeDataStoragePwd = false;
                 this.loading = false;
+            },
+            async preconditions() {
+                // 未编辑，都置空 null
+                if (!this.isChangeDataStoragePwd && !this.isChangeMailpwd && !this.isChangeAccessKeySecretPwd) {
+                    this.config.clickhouse_storage_config.password = null;
+                    this.config.mail_server.mail_password = null;
+                    this.config.aliyun_sms_channel.access_key_secret = null;
+                }
+                // 有被编辑
+                if (this.isChangeDataStoragePwd || this.isChangeMailpwd || this.isChangeAccessKeySecretPwd) {
+                    await this.getGenerate_rsa_key_pair();
+                    if (this.isChangeDataStoragePwd) {
+                        this.config.clickhouse_storage_config.password = Rsa.encrypt(this.publicKey, this.config.clickhouse_storage_config.password);
+                        if (!this.isChangeMailpwd && !this.isChangeAccessKeySecretPwd) {
+                            this.config.mail_server.mail_password = null;
+                            this.config.aliyun_sms_channel.access_key_secret = null;
+                        }
+                        if (this.isChangeMailpwd && this.isChangeAccessKeySecretPwd) {
+                            this.config.mail_server.mail_password = Rsa.encrypt(this.publicKey, this.config.mail_server.mail_password);
+                            this.config.aliyun_sms_channel.access_key_secret = Rsa.encrypt(this.publicKey, this.config.aliyun_sms_channel.access_key_secret);
+                        }
+                        if (this.isChangeMailpwd && !this.isChangeAccessKeySecretPwd) {
+                            this.config.mail_server.mail_password = Rsa.encrypt(this.publicKey, this.config.mail_server.mail_password);
+                            this.config.aliyun_sms_channel.access_key_secret = null;
+                        }
+                        if (!this.isChangeMailpwd && this.isChangeAccessKeySecretPwd) {
+                            this.config.mail_server.mail_password = null;
+                            this.config.aliyun_sms_channel.access_key_secret = Rsa.encrypt(this.publicKey, this.config.aliyun_sms_channel.access_key_secret);
+                        }
+                    }
+                    if (this.isChangeMailpwd) {
+                        this.config.mail_server.mail_password = Rsa.encrypt(this.publicKey, this.config.mail_server.mail_password);
+                        if (!this.isChangeDataStoragePwd && !this.isChangeAccessKeySecretPwd) {
+                            this.config.clickhouse_storage_config.password = null;
+                            this.config.aliyun_sms_channel.access_key_secret = null;
+                        }
+                        if (this.isChangeDataStoragePwd && this.isChangeAccessKeySecretPwd) {
+                            this.config.clickhouse_storage_config.password = Rsa.encrypt(this.publicKey, this.config.clickhouse_storage_config.password);
+                            this.config.aliyun_sms_channel.access_key_secret = Rsa.encrypt(this.publicKey, this.config.aliyun_sms_channel.access_key_secret);
+                        }
+                        // ...
+                    }
+                }
             },
         },
     };
 </script>
 
 <style lang="scss" scoped>
-    .el-icon-opportunity {
+    .board-form-item{
+        width: 100%;
+    }
+    .board-icon-opportunity {
         font-size: 16px;
         color: $--color-warning;
         position: absolute;

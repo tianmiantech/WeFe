@@ -33,9 +33,10 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
 import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
+import com.welab.wefe.union.service.cache.MemberActivityCache;
 import com.welab.wefe.union.service.dto.common.SM2SignedApiInput;
 import com.welab.wefe.union.service.operation.UnionApiLogger;
-import com.welab.wefe.union.service.service.MemberContractService;
+import com.welab.wefe.union.service.service.contract.MemberContractService;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
@@ -80,7 +81,7 @@ public class UnionService implements ApplicationContextAware {
                 .apiLogger(new UnionApiLogger())
                 .apiPackageClass(UnionService.class)
                 .apiPermissionPolicy((api, annotation, params) -> {
-                    if (annotation.rsaVerify()) {
+                    if (annotation.allowAccessWithSign()) {
                         rsaVerify(params);
                     }
                     if (annotation.sm2Verify()) {
@@ -106,25 +107,30 @@ public class UnionService implements ApplicationContextAware {
         MemberMongoReop memberMongoReop = CONTEXT.getBean(MemberMongoReop.class);
         Member member = memberMongoReop.findMemberId(signedApiInput.getMemberId());
         if (member == null) {
-            throw new StatusCodeWithException("成员不存在", StatusCode.INVALID_MEMBER);
+            throw new StatusCodeWithException(StatusCode.INVALID_MEMBER, "成员不存在");
         }
 
 
         if ("1".equals(member.getFreezed())) {
-            throw new StatusCodeWithException("该成员已被冻结，请联系管理员", StatusCode.INVALID_MEMBER);
+            throw new StatusCodeWithException(StatusCode.INVALID_MEMBER, "该成员已被冻结，请联系管理员");
         }
 
+        // 更新成员活跃时间
         if (Long.parseLong(member.getLastActivityTime()) < DateUtil.currentDateMillis()) {
             member.setLastActivityTime(String.valueOf(System.currentTimeMillis()));
-            MemberContractService memberContractService = UnionService.CONTEXT.getBean(MemberContractService.class);
-            memberContractService.updateLastActivityTimeById(member.getMemberId(), member.getLastActivityTime());
+            MemberActivityCache memberActivityCache = MemberActivityCache.getInstance();
+            if (!memberActivityCache.isActivePeriod(member)) {
+                MemberContractService memberContractService = UnionService.CONTEXT.getBean(MemberContractService.class);
+                memberContractService.updateLastActivityTimeById(member.getMemberId(), member.getLastActivityTime());
+                memberActivityCache.add(member);
+            }
         }
 
         String publicKey = member.getPublicKey();
         SecretKeyType secretKeyType = getSecretKeyType(member);
         boolean verified = SignUtil.verify(signedApiInput.getData().getBytes(StandardCharsets.UTF_8.toString()), publicKey, signedApiInput.getSign(), secretKeyType);
         if (!verified) {
-            throw new StatusCodeWithException("错误的签名", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "错误的签名");
         }
 
         params.put("cur_member_id", signedApiInput.getMemberId());
@@ -141,11 +147,11 @@ public class UnionService implements ApplicationContextAware {
         UnionNodeMongoRepo unionNodeMongoRepo = CONTEXT.getBean(UnionNodeMongoRepo.class);
         UnionNode unionNode = unionNodeMongoRepo.findByBlockchainNodeId(signedApiInput.getCurrentBlockchainNodeId());
         if (unionNode == null) {
-            throw new StatusCodeWithException("UnionNode not registered blockchainNodeId: " + signedApiInput.getCurrentBlockchainNodeId(), StatusCode.INVALID_MEMBER);
+            throw new StatusCodeWithException(StatusCode.INVALID_MEMBER, "UnionNode not registered blockchainNodeId: " + signedApiInput.getCurrentBlockchainNodeId());
         }
 
         if ("0".equals(unionNode.getEnable())) {
-            throw new StatusCodeWithException("UnionNode has been disabled nodeId: " + unionNode.getNodeId(), StatusCode.INVALID_MEMBER);
+            throw new StatusCodeWithException(StatusCode.INVALID_MEMBER, "UnionNode has been disabled nodeId: " + unionNode.getNodeId());
         }
 
 
@@ -153,7 +159,7 @@ public class UnionService implements ApplicationContextAware {
 
         boolean verified = SM2Util.verify(signedApiInput.getData().getBytes("UTF-8"), SM2Util.getPublicKey(publicKey), signedApiInput.getSign());
         if (!verified) {
-            throw new StatusCodeWithException("错误的签名", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "错误的签名");
         }
         params.putAll(JSONObject.parseObject(signedApiInput.getData()));
         params.put("cur_blockchain_id", signedApiInput.getCurrentBlockchainNodeId());

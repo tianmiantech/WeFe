@@ -16,40 +16,28 @@
 
 package com.welab.wefe.union.service.api.member.authtype;
 
-import com.welab.wefe.common.data.mongodb.dto.member.MemberAuthQueryOutput;
-import com.welab.wefe.common.data.mongodb.repo.MemberAuthTypeMongoRepo;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
+import com.welab.wefe.union.service.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Query the default tag of the dataset
  *
  * @author yuxin.zhang
  */
-@Api(path = "member/authtype/query", name = "member_authtype_query", rsaVerify = true, login = false)
+@Api(path = "member/authtype/query", name = "member_authtype_query", allowAccessWithSign = true)
 public class QueryAllApi extends AbstractApi<BaseInput, JObject> {
 
     @Autowired
-    protected MemberAuthTypeMongoRepo memberAuthTypeMongoRepo;
+    private MemberService memberService;
 
     @Override
     protected ApiResult<JObject> handle(BaseInput input) {
-        List<MemberAuthQueryOutput> list = memberAuthTypeMongoRepo.findList().stream().map(memberAuthType -> {
-            MemberAuthQueryOutput memberAuthQueryOutput = new MemberAuthQueryOutput();
-            memberAuthQueryOutput.setTypeId(memberAuthType.getTypeId());
-            memberAuthQueryOutput.setTypeName(memberAuthType.getTypeName());
-            memberAuthQueryOutput.setStatus(memberAuthType.getStatus());
-            return memberAuthQueryOutput;
-        }).collect(Collectors.toList());
-        return success(JObject.create("list", JObject.toJSON(list)));
+        return success(JObject.create("list", JObject.toJSON(memberService.queryAllAuthType(input))));
     }
-
 
 }

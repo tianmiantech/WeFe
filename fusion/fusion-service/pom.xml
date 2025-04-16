@@ -23,11 +23,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.welab.wefe</groupId>
             <artifactId>common-lang</artifactId>
             <version>${project.parent.version}</version>
@@ -123,6 +118,12 @@
             <artifactId>hibernate-types-52</artifactId>
             <version>2.4.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.welab.wefe</groupId>
+            <artifactId>common-jdbc</artifactId>
+            <version>1.0.0</version>
+            <scope>compile</scope>
+        </dependency>
 
     </dependencies>
 
@@ -133,7 +134,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.welab.wefe.data.fusion.service.FusionService</mainClass>
+                    <mainClass>com.welab.wefe.data.fusion.service.FusionService</mainClass> 
                     <includeSystemScope>true</includeSystemScope>
                 </configuration>
             </plugin>

@@ -17,6 +17,11 @@
 package com.welab.wefe.mpc.psi.sdk.service;
 
 import com.welab.wefe.mpc.config.CommunicationConfig;
+import com.welab.wefe.mpc.pir.PrivateInformationRetrievalApiName;
+import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
+import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasRandomResponse;
+import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasResultRequest;
+import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasResultResponse;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
 import com.welab.wefe.mpc.trasfer.AbstractHttpTransferVariable;
@@ -27,8 +32,19 @@ import com.welab.wefe.mpc.trasfer.AbstractHttpTransferVariable;
  **/
 public class PrivateSetIntersectionService extends AbstractHttpTransferVariable {
 
-	public QueryPrivateSetIntersectionResponse handle(CommunicationConfig config, QueryPrivateSetIntersectionRequest request) {
-		return query(request, config.getApiName(), config, QueryPrivateSetIntersectionResponse.class);
-	}
+    public QueryPrivateSetIntersectionResponse handle(CommunicationConfig config,
+            QueryPrivateSetIntersectionRequest request) {
+        return query(request, config.getApiName(), config, QueryPrivateSetIntersectionResponse.class);
+    }
+
+    public QueryNaorPinkasRandomResponse handlePirResult(CommunicationConfig config, QueryKeysRequest request) {
+        return query(request, config.getApiName(), config, QueryNaorPinkasRandomResponse.class);
+    }
+
+    public QueryNaorPinkasResultResponse queryNaorPinkasResult(CommunicationConfig config,
+            QueryNaorPinkasResultRequest request) {
+        return query(request, PrivateInformationRetrievalApiName.NAORPINKAS_RESULTS, config,
+                QueryNaorPinkasResultResponse.class);
+    }
 
 }

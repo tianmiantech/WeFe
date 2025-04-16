@@ -26,8 +26,8 @@ from common.python.common import consts
 from common.python.protobuf.pyproto import intermediate_data_pb2
 from common.python.storage.fc_storage import FCStorage
 from common.python.utils import log_utils, conf_utils, network_utils
+from common.python.utils.sm4_utils import SM4CBC
 from common.python.utils.core_utils import deserialize, serialize
-
 
 LOGGER = log_utils.get_logger()
 
@@ -130,6 +130,7 @@ class OssStorage(FCStorage):
 
         """
         internal_end_point = temp_auth.get("temp_auth_internal_end_point")
+        print ("temp_auth_internal_end_point:",internal_end_point)
 
         # if in fc environment, and then determines to use internal address whether in the same region
         if RuntimeInstance.BACKEND is not None and RuntimeInstance.BACKEND.is_fc():
@@ -148,10 +149,17 @@ class OssStorage(FCStorage):
 
         if self._cloud_store_temp_auth is None or self._cloud_store_temp_auth == "":
             end_point = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_OSS_INTERNAL_ENDPOINT)
+            # enable = conf_utils.get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_ENABLE)
+            # if enable == "true":
+            #     key = bytes.fromhex(conf_utils.get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_SECRET_KEY))
+            #     access_key_id = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID)
+            #     key_secret = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_KEY_SECRET)
+            # else:
             access_key_id = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID)
             key_secret = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_KEY_SECRET)
-            bucket_name = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_OSS_BUCKET_NAME)
+            LOGGER.debug(f'access_key_id: {access_key_id}, key_secret: {key_secret}')
 
+            bucket_name = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_OSS_BUCKET_NAME)
             auth = oss2.Auth(access_key_id, key_secret)
             bucket = oss2.Bucket(auth, end_point, bucket_name)
 
@@ -162,6 +170,7 @@ class OssStorage(FCStorage):
             temp_access_key_secret = temp_auth.get("temp_access_key_secret")
             temp_auth_bucket_name = temp_auth.get("temp_auth_bucket_name")
             temp_access_end_point = self.get_optimal_endpoint_from_temp_auth(temp_auth)
+            print ("temp_access_end_point:",temp_access_end_point)
             sts_token = temp_auth.get("sts_token")
 
             auth = oss2.StsAuth(temp_access_key_id,
@@ -454,11 +463,3 @@ def get_object_data_4poolmap(param_list):
     """
     ins = OssStorage(param_list[1], param_list[2], param_list[3], cloud_store_temp_auth=param_list[4])
     return list(ins.read_each_object(param_list[0], only_key=param_list[5]))
-
-
-if __name__ == '__main__':
-    pass
-    oss_ins = OssStorage("test", "20220125", partitions=10)
-    oss_ins.count()
-    # # oss_ins.put("k", "v")
-    # print(list(oss_ins.collect()))

@@ -43,8 +43,8 @@ CREATE TABLE `account`
     `cancelled`             tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已注销',
     `last_action_time`      datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP (6) COMMENT '最后活动时间',
     `history_password_list` text NULL COMMENT '历史曾用密码',
+    `ui_config`             text NULL COMMENT 'UI 相关配置信息',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `index_unique_phonenumber` (`phone_number`),
     KEY                     `idx_create_time` (`created_time`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='账号';
@@ -91,66 +91,23 @@ CREATE TABLE `cur_best_model`
   DEFAULT CHARSET = utf8mb4 COMMENT ='当前最优模型';
 
 -- ----------------------------
--- Table structure for data_set
--- ----------------------------
-DROP TABLE IF EXISTS `data_set`;
-CREATE TABLE `data_set`
-(
-    `id`                       varchar(32)   NOT NULL COMMENT '全局唯一标识',
-    `created_by`               varchar(32) COMMENT '创建人',
-    `created_time`             datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
-    `updated_by`               varchar(32) COMMENT '更新人',
-    `updated_time`             datetime(6) COMMENT '更新时间',
-    `name`                     varchar(128)  NOT NULL COMMENT '数据集名称',
-    `tags`                     varchar(128) COMMENT '标签',
-    `description`              varchar(3072) COMMENT '描述',
-    `storage_type`             varchar(32) COMMENT '存储类型',
-    `namespace`                varchar(1000) NOT NULL COMMENT '命名空间',
-    `table_name`               varchar(1000) NOT NULL COMMENT '表名',
-    `row_count`                bigint(20) NOT NULL COMMENT '数据行数',
-    `primary_key_column`       varchar(32)   NOT NULL COMMENT '主键字段',
-    `column_count`             int(11) NOT NULL COMMENT '数据集列数',
-    `column_name_list`         text          NOT NULL COMMENT '数据集字段列表',
-    `feature_count`            int(11) NOT NULL COMMENT '特征数量',
-    `feature_name_list`        text COMMENT '特征列表',
-    `contains_y`               tinyint(1) NOT NULL COMMENT '是否包含 Y 值',
-    `y_count`                  int(11) NOT NULL COMMENT 'y列的数量',
-    `y_name_list`              text COMMENT 'y列名称列表',
-    `public_level`             varchar(32) COMMENT '数据集的可见性',
-    `public_member_list`       varchar(3072) COMMENT '可见成员列表 只有在列表中的联邦成员才可以看到该数据集的基本信息',
-    `usage_count_in_job`       int(11) NOT NULL DEFAULT '0' COMMENT '使用次数',
-    `usage_count_in_flow`      int(11) NOT NULL DEFAULT '0' COMMENT '使用次数',
-    `usage_count_in_project`   int(11) NOT NULL DEFAULT '0' COMMENT '使用次数',
-    `source_type`              varchar(32) COMMENT '来源类型，枚举（原始、对齐、分箱）',
-    `source_flow_id`           varchar(64) COMMENT '来源流程id',
-    `source_job_id`            varchar(64) COMMENT '来源任务id',
-    `source_task_id`           varchar(100) COMMENT '来源子任务id',
-    `y_positive_example_count` bigint(20) COMMENT '正例数量',
-    `y_positive_example_ratio` double(10, 4
-) COMMENT '正例比例',
-    PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='数据集';
-
-
--- ----------------------------
 -- Table structure for data_source
 -- ----------------------------
 DROP TABLE IF EXISTS `data_source`;
 CREATE TABLE `data_source`
 (
-    `database_type` varchar(255) COMMENT '数据库类型',
-    `host`          varchar(255) COMMENT '数据库ip',
-    `port`          int(255) COMMENT '数据库端口',
-    `database_name` varchar(255) COMMENT '数据库名',
-    `user_name`     varchar(255) COMMENT '数据库用户名',
-    `password`      varchar(255) COMMENT '数据库密码',
+    `database_type` varchar(32) COMMENT '数据库类型',
+    `host`          varchar(32) COMMENT '数据库ip',
+    `port`          int(6) COMMENT '数据库端口',
+    `database_name` varchar(32) COMMENT '数据库名',
+    `user_name`     varchar(128) COMMENT '数据库用户名',
+    `password`      varchar(128) COMMENT '数据库密码',
     `id`            varchar(32) NOT NULL COMMENT '全局唯一标识',
     `created_time`  datetime(0) COMMENT '创建时间',
     `updated_time`  datetime(0) COMMENT '更新时间',
-    `name`          varchar(255) COMMENT '记录名',
-    `created_by`    varchar(255) COMMENT '创建者',
-    `updated_by`    varchar(255) COMMENT '更新者',
+    `name`          varchar(128) COMMENT '记录名',
+    `created_by`    varchar(32) COMMENT '创建者',
+    `updated_by`    varchar(32) COMMENT '更新者',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='数据源';
@@ -250,6 +207,7 @@ CREATE TABLE `job`
     `star`                     tinyint(1) NOT NULL DEFAULT '0' COMMENT '收藏/置顶/标记',
     `job_middle_data_is_clear` tinyint(1) NOT NULL DEFAULT '0' COMMENT '中间数据是否已清理',
     `remark`                   text COMMENT '备注',
+    `job_config`               MEDIUMTEXT COMMENT '配置信息',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique` (`job_id`, `my_role`)
 ) ENGINE = InnoDB
@@ -283,16 +241,21 @@ CREATE TABLE `job_member`
 DROP TABLE IF EXISTS `message`;
 CREATE TABLE `message`
 (
-    `id`           varchar(32) NOT NULL COMMENT '全局唯一标识',
-    `created_by`   varchar(32) COMMENT '创建人',
-    `created_time` datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
-    `updated_by`   varchar(32) COMMENT '更新人',
-    `updated_time` datetime(6) COMMENT '更新时间',
-    `producer`     varchar(32) NOT NULL COMMENT '消息生产者 枚举（board/gateway）',
-    `level`        varchar(32) COMMENT '消息级别 枚举（info/success/error/warning）',
-    `title`        varchar(128) COMMENT '标题',
-    `content`      text COMMENT '内容',
-    `unread`       tinyint(1) NOT NULL DEFAULT '0' COMMENT '未读',
+    `id`               varchar(32) NOT NULL COMMENT '全局唯一标识',
+    `created_by`       varchar(32) COMMENT '创建人',
+    `created_time`     datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
+    `updated_by`       varchar(32) COMMENT '更新人',
+    `updated_time`     datetime(6) COMMENT '更新时间',
+    `producer`         varchar(32) NOT NULL COMMENT '消息生产者 枚举（board/gateway）',
+    `level`            varchar(32) COMMENT '消息级别 枚举（info/success/error/warning）',
+    `event`            varchar(32) NOT NULL COMMENT '消息关联的事件',
+    `title`            varchar(128) COMMENT '标题',
+    `content`          text COMMENT '内容',
+    `unread`           tinyint(1) NOT NULL DEFAULT '0' COMMENT '未读',
+    `todo`             tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否是待办事项',
+    `todo_complete`    tinyint(1) NOT NULL DEFAULT '0' COMMENT '待办事项是否已处理',
+    `todo_related_id1` varchar(128) COMMENT '待办事项关联对象Id1',
+    `todo_related_id2` varchar(128) COMMENT '待办事项关联对象Id2',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='消息列表 ';
@@ -310,9 +273,7 @@ CREATE TABLE `message_queue`
     `updated_time` datetime(6) COMMENT '更新时间',
     `producer`     varchar(32) NOT NULL COMMENT '消息生产者',
     `priority`     int(11) NOT NULL DEFAULT '0' COMMENT '优先级 优先级大的会被先消费',
-    `action`       varchar(32) NOT NULL COMMENT '动作名称',
     `params`       text COMMENT '动作参数',
-    `channel`      varchar(50) COMMENT '消息产生渠道',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='消息队列';
@@ -445,6 +406,8 @@ CREATE TABLE `project`
     `closed_time`              datetime(6) NULL COMMENT '关闭时间',
     `flow_status_statistics`   varchar(512) COMMENT '流程状态统计',
     `project_type`             varchar(36)  NOT NULL DEFAULT 'MachineLearning' COMMENT '项目类型',
+    `top`                      tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否置顶',
+    `sort_num`                 int          NOT NULL DEFAULT 0 COMMENT '排序序号',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique` (`project_id`)
 ) ENGINE = InnoDB
@@ -531,6 +494,8 @@ CREATE TABLE `project_flow`
     `flow_desc`               text COMMENT '流程描述',
     `graph`                   longtext COMMENT '画布中编辑的图',
     `creator_member_id`       varchar(36) COMMENT '创建此流程的成员的ID',
+    `top`                     tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否置顶',
+    `sort_num`                int          NOT NULL DEFAULT 0 COMMENT '排序序号',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique` (`flow_id`)
 ) ENGINE = InnoDB
@@ -586,7 +551,7 @@ DROP TABLE IF EXISTS `project_flow_template`;
 CREATE TABLE `project_flow_template`
 (
     `id`                      varchar(32) NOT NULL COMMENT '全局唯一标识',
-    `graph`                   text COMMENT '流程图',
+    `graph`                   MEDIUMTEXT COMMENT '流程图',
     `name`                    varchar(32) DEFAULT NULL COMMENT '模板名称',
     `enname`                  VARCHAR(45) NULL COMMENT '模板英文名称',
     `description`             varchar(32) DEFAULT NULL COMMENT '模板描述',
@@ -803,8 +768,8 @@ CREATE TABLE `global_config`
     `created_time` datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
     `updated_by`   varchar(32) COMMENT '更新人',
     `updated_time` datetime(6) COMMENT '更新时间',
-    `group`        varchar(32) COMMENT '配置项所在的组',
-    `name`         varchar(32) COMMENT '配置项名称',
+    `group`        varchar(128) COMMENT '配置项所在的组',
+    `name`         varchar(128) COMMENT '配置项名称',
     `value`        longtext COMMENT '配置项的值',
     `comment`      text COMMENT '配置项的解释说明',
     PRIMARY KEY (`id`) USING BTREE,
@@ -924,10 +889,10 @@ CREATE TABLE `table_data_set`
     `created_time`            datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
     `updated_by`              varchar(32) COMMENT '更新人',
     `updated_time`            datetime(6) COMMENT '更新时间',
-    `column_name_list`        text        NOT NULL COMMENT '数据集字段列表',
+    `column_name_list`        MEDIUMTEXT        NOT NULL COMMENT '数据集字段列表',
     `column_count`            int(11) NOT NULL COMMENT '数据集列数',
     `primary_key_column`      varchar(32) NOT NULL COMMENT '主键字段',
-    `feature_name_list`       text COMMENT '特征列表',
+    `feature_name_list`       MEDIUMTEXT COMMENT '特征列表',
     `feature_count`           int(11) NOT NULL COMMENT '特征数量',
     `contains_y`              bool        NOT NULL COMMENT '是否包含 Y 值',
     `y_name_list`             text COMMENT 'y列名称列表',
@@ -936,6 +901,7 @@ CREATE TABLE `table_data_set`
     `y_positive_sample_count` bigint(20) COMMENT '正例数量',
     `y_positive_sample_ratio` double(10, 4
 ) COMMENT '正例比例',
+    `label_distribution`      MEDIUMTEXT COMMENT 'label 分布情况',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='数据集';
@@ -1063,6 +1029,7 @@ CREATE TABLE `fusion_task`
     `processed_count`            int(11) DEFAULT NULL COMMENT '已处理数据量',
     `hash_function`              varchar(100)  DEFAULT NULL COMMENT '主键hash方式',
     `partner_hash_function`      varchar(100)  DEFAULT NULL COMMENT '合作方主键hash方式',
+    `deleted`                    tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已删除',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='融合任务表';
 
@@ -1124,3 +1091,62 @@ CREATE TABLE `job_apply_result`
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='深度学习任务申请结果';
+
+DROP TABLE IF EXISTS `partner_config`;
+CREATE TABLE `partner_config`
+(
+    `id`              varchar(32) NOT NULL COMMENT '全局唯一标识',
+    `created_by`      varchar(32) COMMENT '创建人',
+    `created_time`    datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
+    `updated_by`      varchar(32) COMMENT '更新人',
+    `updated_time`    datetime(6) COMMENT '更新时间',
+    `member_id`       varchar(32) NOT NULL COMMENT '成员Id',
+    `gateway_address` varchar(128) COMMENT '自定义gateway address',
+    PRIMARY KEY (`id`) USING BTREE,
+    UNIQUE KEY `index_unique_member` (`member_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='合作伙伴设置';
+  
+CREATE TABLE `cert_info` (
+  `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
+  `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
+  `created_time` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '创建时间',
+  `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
+  `updated_time` datetime(6) DEFAULT NULL COMMENT '更新时间',
+  `member_id` varchar(32) DEFAULT NULL COMMENT '成员ID',
+  `subject_pub_key` text COMMENT '申请人公钥内容',
+  `subject_org` varchar(256) DEFAULT NULL COMMENT '申请人组织名称',
+  `subject_cn` varchar(256) DEFAULT NULL COMMENT '申请人常用名称',
+  `serial_number` varchar(256) DEFAULT NULL COMMENT '证书序列号',
+  `cert_content` text COMMENT '证书pem内容',
+  `csr_id` varchar(32) DEFAULT NULL COMMENT '证书请求ID',
+  `status` varchar(32) DEFAULT NULL COMMENT '证书状态',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='证书';
+
+CREATE TABLE `cert_key_info` (
+  `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
+  `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
+  `created_time` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '创建时间',
+  `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
+  `updated_time` datetime(6) DEFAULT NULL COMMENT '更新时间',
+  `key_pem` text COMMENT '私钥pem内容',
+  `member_id` varchar(32) DEFAULT NULL COMMENT '成员ID',
+  `key_alg` varchar(32) DEFAULT NULL COMMENT '密钥算法',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='密钥';
+
+CREATE TABLE `cert_request_info` (
+  `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
+  `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
+  `created_time` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '创建时间',
+  `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
+  `updated_time` datetime(6) DEFAULT NULL COMMENT '更新时间',
+  `member_id` varchar(32) DEFAULT NULL COMMENT '成员ID',
+  `subject_key_id` varchar(32) DEFAULT NULL COMMENT '申请人私钥ID',
+  `subject_org` varchar(256) DEFAULT NULL COMMENT '申请人组织名称',
+  `subject_cn` varchar(256) DEFAULT NULL COMMENT '申请人常用名称',
+  `cert_request_content` text COMMENT '证书请求内容',
+  `issue` tinyint(2) DEFAULT NULL COMMENT '是否签发',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='证书请求';

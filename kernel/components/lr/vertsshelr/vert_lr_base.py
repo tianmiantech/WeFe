@@ -207,7 +207,7 @@ class VertLRBase(BaseLRModel, ABC):
                 self.iter_transfer.sync_cur_iter(self.n_iter_)
             else:
                 self.n_iter_ = self.iter_transfer.get_cur_iter()
-            self.tracker.set_task_progress(self.n_iter_)
+            self.tracker.set_task_progress(self.n_iter_, self.need_grid_search)
             w = self.model_weights.unboxed
 
         last_models = copy.deepcopy(self.model_weights)
@@ -369,8 +369,8 @@ class VertLRBase(BaseLRModel, ABC):
                         break
 
                 LOGGER.info("iter: {},  is_converged: {}".format(self.n_iter_, self.is_converged))
-                self.tracker.save_training_best_model(self.export_model())
-                self.tracker.add_task_progress(1)
+                self.tracker.save_training_best_model(self.export_model(), self.need_grid_search)
+                self.tracker.add_task_progress(1, self.need_grid_search)
                 self.n_iter_ += 1
 
                 if self.is_converged:

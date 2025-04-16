@@ -28,9 +28,13 @@ import com.welab.wefe.board.service.service.DataSetColumnService;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTaskService;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
-import com.welab.wefe.board.service.util.*;
+import com.welab.wefe.board.service.util.AbstractTableDataSetReader;
+import com.welab.wefe.board.service.util.CsvTableDataSetReader;
+import com.welab.wefe.board.service.util.ExcelTableDataSetReader;
+import com.welab.wefe.board.service.util.SqlTableDataSetReader;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.jdbc.JdbcClient;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.apache.commons.io.FileUtils;
@@ -39,7 +43,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,7 +68,7 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
 
 
     @Override
-    public void doAdd(AbstractDataResourceUpdateInputModel in, DataResourceUploadTaskMysqlModel task, DataResourceMysqlModel m) throws StatusCodeWithException {
+    public void doAdd(AbstractDataResourceUpdateInputModel in, DataResourceUploadTaskMysqlModel task, DataResourceMysqlModel m) throws Exception {
         TableDataSetAddInputModel input = (TableDataSetAddInputModel) in;
         TableDataSetMysqlModel model = (TableDataSetMysqlModel) m;
 
@@ -123,7 +126,7 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
     /**
      * create AbstractDataSetReader
      */
-    private AbstractTableDataSetReader createDataSetReader(TableDataSetAddInputModel input) throws StatusCodeWithException {
+    private AbstractTableDataSetReader createDataSetReader(TableDataSetAddInputModel input) throws Exception {
         switch (input.getDataSetAddMethod()) {
             case Database:
                 return createSqlDataSetReader(input);
@@ -151,7 +154,7 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
                     : new ExcelTableDataSetReader(input.getMetadataList(), file);
 
         } catch (IOException e) {
-            StatusCode.FILE_IO_ERROR.throwException(e);
+            StatusCode.FILE_IO_READ_ERROR.throwException(e);
             return null;
         }
     }
@@ -159,12 +162,12 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
     /**
      * create SqlDataSetReader
      */
-    private SqlTableDataSetReader createSqlDataSetReader(TableDataSetAddInputModel input) throws StatusCodeWithException {
+    private SqlTableDataSetReader createSqlDataSetReader(TableDataSetAddInputModel input) throws Exception {
         DataSourceMysqlModel dataSource = tableDataSetService.getDataSourceById(input.getDataSourceId());
         if (dataSource == null) {
-            throw new StatusCodeWithException("此dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "此dataSourceId在数据库不存在");
         }
-        Connection conn = JdbcManager.getConnection(
+        JdbcClient client = JdbcClient.create(
                 dataSource.getDatabaseType(),
                 dataSource.getHost(),
                 dataSource.getPort(),
@@ -173,7 +176,7 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
                 dataSource.getDatabaseName()
         );
 
-        return new SqlTableDataSetReader(input.getMetadataList(), conn, input.getSql());
+        return new SqlTableDataSetReader(input.getMetadataList(), client, input.getSql());
     }
 
     /**
@@ -181,12 +184,13 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
      *
      * @param deduplication Do you need to de-duplicate the data set
      */
-    private void readAllToStorage(TableDataSetMysqlModel model, AbstractTableDataSetReader dataSetReader, boolean deduplication) throws StatusCodeWithException {
+    private void readAllToStorage(TableDataSetMysqlModel model, AbstractTableDataSetReader dataSetReader, boolean deduplication) throws Exception {
         long start = System.currentTimeMillis();
         LOG.info("开始解析数据集：" + model.getId());
 
         // update data set upload task info
         DataResourceUploadTaskMysqlModel uploadProgress = dataResourceUploadTaskService.findByDataResourceId(model.getId());
+        dataResourceUploadTaskService.updateMessageBeforeStart(model.getId(), "正在计算数据集样本总量...");
         dataResourceUploadTaskService.update(uploadProgress, x -> x.setTotalDataCount(dataSetReader.getTotalDataRowCount()));
 
         // get data set headers
@@ -205,7 +209,7 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
         // wait for the consumption queue to finish
         dataRowConsumer.waitForFinishAndClose();
 
-        LOG.info("数据集解析完毕：" + model.getId() + " spend:" + ((System.currentTimeMillis() - start) / 1000) + "s");
+        LOG.info("数据集写入 storage 完毕：" + model.getId() + " spend:" + ((System.currentTimeMillis() - start) / 1000) + "s");
 
         // fill model
         model.setContainsY(dataSetReader.isContainsY());
@@ -219,7 +223,7 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
         model.setyNameList(dataSetReader.isContainsY() ? "y" : null);
         model.setyPositiveSampleCount(dataRowConsumer.getPositiveExampleCount());
         model.setyPositiveSampleRatio(dataRowConsumer.getPositiveExampleRatio());
-
+        model.setLabelDistribution(dataRowConsumer.getLabelDistribution());
     }
 
     /**

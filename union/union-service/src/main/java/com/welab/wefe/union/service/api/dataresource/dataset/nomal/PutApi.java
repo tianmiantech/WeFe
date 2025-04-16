@@ -16,61 +16,27 @@
 
 package com.welab.wefe.union.service.api.dataresource.dataset.nomal;
 
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.wefe.enums.DataResourcePublicLevel;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.dataresource.dataset.table.DataSetOutput;
-import com.welab.wefe.union.service.entity.DataSet;
-import com.welab.wefe.union.service.service.DataSetContractService;
-import com.welab.wefe.union.service.service.DataSetMemberPermissionContractService;
-import org.springframework.beans.BeanUtils;
+import com.welab.wefe.union.service.service.DataSetService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Jervis
  **/
-@Api(path = "data_set/put", name = "data_set_put", rsaVerify = true, login = false)
+@Api(path = "data_set/put", name = "data_set_put", allowAccessWithSign = true)
 public class PutApi extends AbstractApi<PutApi.Input, DataSetOutput> {
     @Autowired
-    protected DataSetContractService mDataSetContractService;
-
-
-    @Autowired
-    private DataSetMemberPermissionContractService mDataSetMemberPermissionContractService;
+    private DataSetService dataSetService;
 
     @Override
     protected ApiResult<DataSetOutput> handle(PutApi.Input input) throws StatusCodeWithException {
-
-        DataSet dataSet = new DataSet();
-        BeanUtils.copyProperties(input, dataSet);
-        dataSet.setContainsY(input.containsY ? 1 : 0);
-        dataSet.setMemberId(input.curMemberId);
-
-        String publicMemberList = input.publicMemberList;
-
-        if (DataResourcePublicLevel.OnlyMyself.name().equals(input.publicLevel)) {
-            mDataSetMemberPermissionContractService.deleteByDataSetId(dataSet.getId());
-            dataSet.setPublicLevel(input.publicLevel);
-
-        } else if (DataResourcePublicLevel.Public.name().equals(input.publicLevel)) {
-            mDataSetMemberPermissionContractService.deleteByDataSetId(dataSet.getId());
-            dataSet.setPublicLevel(input.publicLevel);
-
-        } else if (DataResourcePublicLevel.PublicWithMemberList.name().equals(input.publicLevel)) {
-            mDataSetMemberPermissionContractService.save(dataSet.getId(), publicMemberList);
-            dataSet.setPublicLevel(input.publicLevel);
-
-        } else {
-            throw new StatusCodeWithException("Invalid public level", StatusCode.SYSTEM_ERROR);
-        }
-
-        mDataSetContractService.upsert(dataSet);
-
+        dataSetService.add(input);
         return success();
     }
 

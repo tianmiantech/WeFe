@@ -19,6 +19,8 @@ package com.welab.wefe.common.web.dto;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
+import java.util.Set;
+
 /**
  * @author lonnie
  */
@@ -105,4 +107,76 @@ public class AbstractLRInput extends AbstractCheckModel {
         }
     }
 
+    @Check(require = true)
+    private GridSearchParam gridSearchParam;
+
+    public GridSearchParam getGridSearchParam() {
+        return gridSearchParam;
+    }
+
+    public void setGridSearchParam(GridSearchParam gridSearchParam) {
+        this.gridSearchParam = gridSearchParam;
+    }
+
+    public static class GridSearchParam extends AbstractGridSearchParam {
+        @Check(name = "批量大小")
+        private int[] batchSize;
+
+        @Check(name = "最大迭代次数")
+        private int[] maxIter;
+
+        @Check(name = "学习率")
+        private float[] learningRate;
+
+        @Check(name = "惩罚项系数")
+        private float[] alpha;
+
+        @Check(name = "优化算法")
+        private Set<String> optimizer;
+
+        // region getter/setter
+
+        public int[] getBatchSize() {
+            return batchSize;
+        }
+
+        public void setBatchSize(int[] batchSize) {
+            this.batchSize = batchSize;
+        }
+
+        public int[] getMaxIter() {
+            return maxIter;
+        }
+
+        public void setMaxIter(int[] maxIter) {
+            this.maxIter = maxIter;
+        }
+
+        public float[] getLearningRate() {
+            return learningRate;
+        }
+
+        public void setLearningRate(float[] learningRate) {
+            this.learningRate = learningRate;
+        }
+
+        public float[] getAlpha() {
+            return alpha;
+        }
+
+        public void setAlpha(float[] alpha) {
+            this.alpha = alpha;
+        }
+
+        public Set<String> getOptimizer() {
+            return optimizer;
+        }
+
+        public void setOptimizer(Set<String> optimizer) {
+            this.optimizer = optimizer;
+        }
+
+
+        // endregion
+    }
 }

@@ -31,10 +31,10 @@ from kernel.examples.handler.config import IODataType
 
 
 class Output(object):
-    def __init__(self, name, data_type='single', has_data=True, has_model=True, output_unit=1):
+    def __init__(self, name, data_type='single', has_data=True, has_model=True, output_unit=1, is_binning = False):
         if has_model:
             self.model = Model(name).model
-            self.model_output = Model(name).get_all_output()
+            self.model_output = Model(name).get_all_output(is_binning)
 
         if has_data:
             if data_type == "single":
@@ -57,7 +57,9 @@ class Model(object):
         return ".".join([self.prefix, "model"])
 
     @staticmethod
-    def get_all_output():
+    def get_all_output(is_binning):
+        if is_binning:
+            return [ModelType.BINNING_MODEL]
         return [ModelType.TRAIN_MODEL]
 
 

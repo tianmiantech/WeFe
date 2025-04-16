@@ -169,14 +169,16 @@ class Tracking(object):
                 data_table_namespace=save_namespace, data_table_name=save_name)
 
             data_input = {'table_name': save_name, 'table_namespace': save_namespace, 'partition': save_partitions,
-                          'table_create_count': data_table.count() if data_table else 0, 'fcs_info': fcs_info}
+                          'table_create_count': data_table.count() if data_table else 0, 'fcs_info': fcs_info,
+                          'show_name': None}
 
             # self.save_data_info(data_input=data_input, mark=True, data_name=data_name)
+            if save_dataset:
+                self.save_dataset(data_input, data_table.schema, data_table)
 
             self.save_task_result(data_input, self._get_task_result_type(TaskResultDataType.DATA, data_name))
 
-            if save_dataset:
-                self.save_dataset(data_input, data_table.schema, data_table)
+
 
     def get_output_data_table(self, data_name: str = 'component'):
         """
@@ -342,7 +344,9 @@ class Tracking(object):
 
         return TaskResultDao.get(*tuple(where_condition))
 
-    def save_training_best_model(self, model_buffers):
+    def save_training_best_model(self, model_buffers, need_grid_search=False):
+        if need_grid_search or model_buffers is None:
+            return
         # save to task_result
         model_json_obj = self._model_buffers_to_json_obj(model_buffers, self.member_model_id, self.model_version,
                                                          component_model_key='{}.{}'.format(self.component_name,
@@ -488,26 +492,46 @@ class Tracking(object):
         return None
 
     def get_binning_result(self):
-        model = TaskResultDao.get_last_task_result(self.job_id, self.role, 'model_train')
+        model = TaskResultDao.get_last_task_result(self.job_id, self.role, 'model_binning')
         if model:
             result = json.loads(model.result)
             LOGGER.debug("mysql result:{}".format(result))
             binning_result = result.get('model_param').get('binningResult').get('binningResult')
             binning_results = {}
             for feature, value in binning_result.items():
-                binning_results[feature] = {'woe': value.get('woeArray'), 'split_points': value.get('splitPoints')}
+                binning_results[feature] = {'woe': value.get('woeArray'), 'split_points': value.get('splitPoints'),
+                                            'eventCount':value.get('eventCountArray'),'noneventCount':value.get('nonEventCountArray'),
+                                            'countArray':value.get('countArray')}
             model_meta = result.get('model_meta')
             model_param = {'header': model_meta.get('cols')}
             transform_cols = model_meta.get('transformParam').get('transformCols')
             model_param['transform_bin_indexes'] = [int(x) for x in transform_cols]
+            model_param['component_type'] = model.component_type
             return model_param, binning_results
         return None, None
+
+    def get_score_result(self):
+        model = TaskResultDao.get_last_task_result(self.job_id, self.role, 'metric_score')
+        if model:
+            score_result = json.loads(model.result)
+            for component, component_result in score_result.items():
+                score_result = component_result['data']
+            return score_result
+        return None
+
+    def saveProbBinsResult(self,metric_name: str, metric_namespace: str, metric_meta, kv , job_level=False,
+                           need_value = False):
+        self.save_metric_data_to_task_result(metric_name, metric_namespace, metric_meta, kv, job_level, need_value)
 
     def saveSingleMetricData(self, metric_name: str, metric_namespace: str, metric_meta, kv, job_level=False):
         self.save_metric_data_to_task_result(metric_name, metric_namespace, metric_meta, kv, job_level)
 
     def saveMetricData(self, metric_name: str, metric_namespace: str, metric_meta, kv, job_level=False):
         self.save_metric_data_to_task_result(metric_name, metric_namespace, metric_meta, kv, job_level)
+
+    def saveScoreData(self, metric_name: str, metric_namespace: str, metric_meta, kv, job_level=False):
+        self.save_metric_data_to_task_result(metric_name, metric_namespace, metric_meta, kv, job_level,
+                                             need_value=False)
 
     def _get_item_metric(self, metric_name: str, metric_namespace: str, metric_meta: {}, data: {}):
         """
@@ -654,6 +678,9 @@ class Tracking(object):
         table_data_set.primary_key_column = data_set_old.primary_key_column
         table_data_set.y_count = data_set_old.y_count
 
+        # save resource name to task result
+        data_input['show_name'] = data_resource.name
+
         # column = primary_key + y + feature
         if table_data_set.y_name_list is None:
             table_data_set.column_name_list = table_data_set.primary_key_column + "," + ",".join(header_list)
@@ -663,8 +690,8 @@ class Tracking(object):
             # y positive count
             y_positive_count = data_table.filter(lambda k, v: int(v.label) > 0).count()
             y_positive_ratio = round(y_positive_count / data_input['table_create_count'], 4)
-            table_data_set.y_positive_example_count = y_positive_count
-            table_data_set.y_positive_example_ratio = y_positive_ratio
+            table_data_set.y_positive_sample_count = y_positive_count
+            table_data_set.y_positive_sample_ratio = y_positive_ratio
 
         if len(header_list) == 0:
             table_data_set.column_name_list = table_data_set.column_name_list[1:]
@@ -797,7 +824,7 @@ class Tracking(object):
 
         return model
 
-    def init_task_progress(self, work_amount: int):
+    def init_task_progress(self, work_amount: int, to_disable=False):
         """
 
         Initialize the total engineering quantity of the task schedule
@@ -816,6 +843,9 @@ class Tracking(object):
 
         """
         if self.oot:
+            return
+
+        if to_disable:
             return
 
         is_insert = True
@@ -861,7 +891,7 @@ class Tracking(object):
 
         TaskProgressDao.save(model, force_insert=is_insert)
 
-    def set_task_progress(self, work_amount: int):
+    def set_task_progress(self, work_amount: int, to_disable=False):
         """
         Update the progress according to the specified work amount
 
@@ -877,6 +907,9 @@ class Tracking(object):
         if self.oot:
             return
 
+        if to_disable:
+            return
+
         if work_amount >= 0:
             model = TaskProgressDao.get_by_unique_id(self.task_id, self.role)
             if model:
@@ -885,7 +918,7 @@ class Tracking(object):
                 self._calc_progress(model)
                 TaskProgressDao.save(model)
 
-    def add_task_progress(self, step: int = 1):
+    def add_task_progress(self, step: int = 1, to_disable=False):
         """
 
         Increase progress according to step
@@ -899,6 +932,9 @@ class Tracking(object):
 
         """
         if self.oot:
+            return
+
+        if to_disable:
             return
 
         model = TaskProgressDao.get_by_unique_id(self.task_id, self.role)

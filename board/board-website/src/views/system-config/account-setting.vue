@@ -224,5 +224,5 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-col{border-left: 1px solid $border-color-base;}
+    .board-col{border-left: 1px solid $border-color-base;}
 </style>

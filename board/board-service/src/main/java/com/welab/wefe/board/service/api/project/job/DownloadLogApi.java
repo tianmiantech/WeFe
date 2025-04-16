@@ -24,6 +24,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.dto.global_config.FlowConfigModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
@@ -42,7 +43,7 @@ public class DownloadLogApi extends AbstractApi<DownloadLogApi.Input, ResponseEn
     @Override
     protected ApiResult<ResponseEntity> handle(DownloadLogApi.Input input) throws StatusCodeWithException {
 
-        String url = globalConfigService.getFlowConfig().intranetBaseUri + "/job/download_logs?job_id=" + input.jobId;
+        String url = globalConfigService.getModel(FlowConfigModel.class).intranetBaseUri + "/job/download_logs?job_id=" + input.jobId;
         RequestEntity requestEntity = new RequestEntity<>(null, null, HttpMethod.GET, UrlUtil.createUri(url));
 
         RestTemplate restTemplate = new RestTemplate();

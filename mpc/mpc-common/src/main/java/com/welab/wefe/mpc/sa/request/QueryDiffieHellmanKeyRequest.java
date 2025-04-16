@@ -25,6 +25,7 @@ import com.alibaba.fastjson.annotation.JSONField;
  * @Date 2021/12/17
  **/
 public class QueryDiffieHellmanKeyRequest {
+    private String requestId;
     private String uuid;
     private String p;
     private String g;
@@ -62,5 +63,13 @@ public class QueryDiffieHellmanKeyRequest {
 
     public void setQueryParams(JSONObject queryParams) {
         this.queryParams = queryParams;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 }

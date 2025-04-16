@@ -16,11 +16,10 @@
 
 package com.welab.wefe.data.fusion.service.manager;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.wefe.enums.DatabaseType;
+import com.welab.wefe.common.jdbc.base.DatabaseType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,11 +30,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+
 /**
+ * jdbc management tool
+ *
+ * @deprecated 建议使用 JdbcClient
  * @author Johnny.lin
- * @Description: JDBC Management Tool
- * @date 2020/9/17
  */
+@Deprecated
 public class JdbcManager {
     protected static final Logger LOG = LoggerFactory.getLogger(JdbcManager.class);
 
@@ -55,7 +57,7 @@ public class JdbcManager {
      * @return
      * @throws StatusCodeWithException
      */
-    public Connection getConnection(DatabaseType databaseType, String host, Integer port, String userName
+    public static Connection getConnection(DatabaseType databaseType, String host, Integer port, String userName
             , String password, String dbName) throws StatusCodeWithException {
 
         Connection conn = null;
@@ -72,13 +74,13 @@ public class JdbcManager {
                     url = String.format("jdbc:hive2://%s:%d/%s", host, port, dbName);
                     break;
                 default:
-                    throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, databaseType.toString());
+                    StatusCode.UNEXPECTED_ENUM_CASE.throwExWithFormatMsg(databaseType.name());
             }
 
             conn = getConnection(databaseType, url, userName, password);
         } catch (Exception e) {
             LOG.error("Database connection failure", e);
-            throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "Database connection failure");
+            throw StatusCodeWithException.of(StatusCode.DATABASE_LOST, "Database connection failure");
         }
 
         return conn;
@@ -95,7 +97,7 @@ public class JdbcManager {
      * @return
      * @throws StatusCodeWithException
      */
-    public Connection getConnection(DatabaseType databaseType, String url, String userName
+    public static Connection getConnection(DatabaseType databaseType, String url, String userName
             , String password) throws StatusCodeWithException {
 
         Connection conn = null;
@@ -113,31 +115,34 @@ public class JdbcManager {
                     Class.forName("org.apache.hive.jdbc.HiveDriver");
                     break;
                 default:
-                    throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, databaseType.toString());
+                    StatusCode.UNEXPECTED_ENUM_CASE.throwExWithFormatMsg(databaseType);
             }
 
             LOG.info("url: " + url);
             conn = DriverManager.getConnection(url, userName, password);
         } catch (Exception e) {
             LOG.error("数据库连接失败", e);
-            throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "数据库连接失败");
+            StatusCode.DATABASE_LOST.throwException("数据库连接失败：" + e.getMessage());
         }
 
         return conn;
     }
 
-    public boolean testQuery(Connection conn) throws StatusCodeWithException {
+    public static boolean testQuery(Connection conn) throws StatusCodeWithException {
         return testQuery(conn, "select 1", false);
     }
 
-    public boolean testQuery(Connection conn, String sql, boolean judgeFieldNum) throws StatusCodeWithException {
+    public static boolean testQuery(Connection conn, String sql, boolean judgeFieldNum) throws StatusCodeWithException {
+        long start = System.currentTimeMillis();
+        LOG.info("JdbcManager testQuery start: " + start);
         PreparedStatement ps = null;
         ResultSet rs = null;
 
         try {
             ps = conn.prepareStatement(sql);
+            ps.setFetchSize(1);
+            ps.setMaxRows(1);
             rs = ps.executeQuery();
-
             if (!rs.next()) {
                 return false;
             }
@@ -148,7 +153,7 @@ public class JdbcManager {
                 int columnCount = metaData.getColumnCount();
 
                 if (columnCount < 2) {
-                    throw new StatusCodeWithException("列字段数必须大于1！", StatusCode.ILLEGAL_REQUEST);
+                    throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "列字段数必须大于1！");
                 }
             }
         } catch (SQLException e) {
@@ -161,42 +166,39 @@ public class JdbcManager {
             return false;
         } finally {
             close(conn, ps, rs);
+            long duration = System.currentTimeMillis() - start;
+            LOG.info("JdbcManager testQuery duration: " + duration);
         }
 
         return true;
     }
 
     /**
-     * Iterate over the data read from the database
-     */
-    public void readWithFieldRow(Connection conn, String sql, Consumer<List<String>> headRowConsumer, Consumer<JSONObject> dataRowConsumer) {
-        readWithFieldRow(conn, sql, headRowConsumer, dataRowConsumer, -1);
-    }
-
-    /**
-     * Iterate over the data read from the database
-     */
-    public void readWithFieldRow(Connection conn, String sql, Consumer<Map<String, Object>> dataRowConsumer) {
-        readWithFieldRow(conn, sql, dataRowConsumer, -1);
-    }
-
-    /**
      * Traversal reads the specified column from the database
      */
-    public void readWithSelectRow(Connection conn, String sql, Consumer<Map<String, Object>> dataRowConsumer, List<String> rows) {
+    public static void readWithSelectRow(Connection conn, String sql, Consumer<Map<String, Object>> dataRowConsumer, List<String> rows) {
         readWithSelectRow(conn, sql, dataRowConsumer, -1, rows);
     }
 
     /**
      * Iterate over the data read from the database
      */
-    public void readWithSelectRow(Connection conn, String sql, Consumer<Map<String, Object>> dataRowConsumer, long maxReadLineCount, List<String> rows) {
+    public static void readWithSelectRow(Connection conn, String sql, Consumer<Map<String, Object>> dataRowConsumer, long maxReadLineCount, List<String> rows) {
+        long start = System.currentTimeMillis();
+        LOG.info("JdbcManager readWithSelectRow4 start: " + start);
         PreparedStatement ps = null;
         ResultSet rs = null;
         long readLineCount = 0;
 
         try {
-            ps = conn.prepareStatement(sql);
+//            ps = conn.prepareStatement(sql);
+            // 使用流式获取数据
+            ps = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            ps.setFetchSize(Integer.MIN_VALUE);
+            ps.setFetchDirection(ResultSet.FETCH_REVERSE);
+            if (maxReadLineCount > 0) {
+                ps.setLargeMaxRows(maxReadLineCount);
+            }
             rs = ps.executeQuery();
             ResultSetMetaData metaData = rs.getMetaData();
             int columnCount = metaData.getColumnCount();
@@ -222,97 +224,17 @@ public class JdbcManager {
             LOG.error(e.getMessage(), e);
         } finally {
             close(conn, ps, rs);
+            long duration = System.currentTimeMillis() - start;
+            LOG.info("JdbcManager readWithSelectRow4 duration: " + duration);
         }
     }
-
-
+    
     /**
      * Iterate over the data read from the database
      */
-    public void readWithFieldRow(Connection conn, String sql, Consumer<List<String>> headRowConsumer, Consumer<JSONObject> dataRowConsumer, long maxReadLineCount) {
-        List<String> heads = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        long readLineCount = 0;
-
-        try {
-            ps = conn.prepareStatement(sql);
-            rs = ps.executeQuery();
-            ResultSetMetaData metaData = rs.getMetaData();
-            int columnCount = metaData.getColumnCount();
-
-            while (rs.next()) {
-                // Gets all field names
-                if (heads == null) {
-                    heads = new ArrayList<String>();
-                    for (int i = 1; i <= columnCount; i++) {
-                        heads.add(metaData.getColumnName(i));
-                    }
-
-                    headRowConsumer.accept(heads);
-                }
-
-                // Data loading, one item for each row of data
-                JSONObject item = new JSONObject(new LinkedHashMap<>());
-                for (int i = 1; i <= columnCount; i++) {
-                    item.put(metaData.getColumnName(i), rs.getObject(i));
-                }
-
-                dataRowConsumer.accept(item);
-
-                readLineCount++;
-                // Completes the traversal after reading the specified number of rows
-                if (maxReadLineCount > 0 && readLineCount == maxReadLineCount) {
-                    break;
-                }
-            }
-        } catch (SQLException e) {
-            LOG.error(e.getMessage(), e);
-        } finally {
-            close(conn, ps, rs);
-        }
-    }
-
-    /**
-     * Iterate over the data read from the database
-     */
-    public void readWithFieldRow(Connection conn, String sql, Consumer<Map<String, Object>> dataRowConsumer, long maxReadLineCount) {
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        long readLineCount = 0;
-
-        try {
-            ps = conn.prepareStatement(sql);
-            rs = ps.executeQuery();
-            ResultSetMetaData metaData = rs.getMetaData();
-            int columnCount = metaData.getColumnCount();
-
-            while (rs.next()) {
-                // Data loading. One map corresponds to one row of data
-                LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-                for (int i = 1; i <= columnCount; i++) {
-                    map.put(metaData.getColumnName(i), rs.getObject(i));
-                }
-
-                dataRowConsumer.accept(map);
-
-                readLineCount++;
-                // Completes the traversal after reading the specified number of rows
-                if (maxReadLineCount > 0 && readLineCount == maxReadLineCount) {
-                    break;
-                }
-            }
-        } catch (SQLException e) {
-            LOG.error(e.getMessage(), e);
-        } finally {
-            close(conn, ps, rs);
-        }
-    }
-
-    /**
-     * Iterate over the data read from the database
-     */
-    public void readWithFieldRow(Connection conn, String sql, Consumer<Map<String, Object>> dataRowConsumer, long maxReadLineCount, List<String> rowsList) {
+    public static void readWithFieldRow(Connection conn, String sql, Consumer<Map<String, Object>> dataRowConsumer, long maxReadLineCount, List<String> rowsList) {
+        long start = System.currentTimeMillis();
+        LOG.info("JdbcManager readWithFieldRow1 start: " + start);
         PreparedStatement ps = null;
         ResultSet rs = null;
         long readLineCount = 0;
@@ -347,14 +269,18 @@ public class JdbcManager {
             LOG.error(e.getMessage(), e);
         } finally {
             close(conn, ps, rs);
+            long duration = System.currentTimeMillis() - start;
+            LOG.info("JdbcManager readWithFieldRow1 duration: " + duration);
         }
     }
 
-
+    
     /**
      * 获取查询数据的总记录数
      */
-    public long count(Connection conn, String sql) throws Exception {
+    public static long count(Connection conn, String sql) throws Exception {
+        long start = System.currentTimeMillis();
+        LOG.info("JdbcManager count start: " + start);
         PreparedStatement ps = null;
         ResultSet rs = null;
         long totalCount = 0;
@@ -370,6 +296,8 @@ public class JdbcManager {
             throw e;
         } finally {
             close(ps, rs);
+            long duration = System.currentTimeMillis() - start;
+            LOG.info("JdbcManager count duration: " + duration);
         }
 
         return totalCount;
@@ -382,7 +310,9 @@ public class JdbcManager {
      * @param sql
      * @return
      */
-    public List<String> getRowHeaders(Connection conn, String sql) {
+    public static List<String> getRowHeaders(Connection conn, String sql) {
+        long start = System.currentTimeMillis();
+        LOG.info("JdbcManager getRowHeaders start: " + start);
         List<String> headers = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -393,6 +323,9 @@ public class JdbcManager {
                 sql = sql + " limit 1";
             }
             ps = conn.prepareStatement(sql);
+            // 务必加上这两个设置，否则默认取全量数据内存会炸。
+            ps.setFetchSize(1);
+            ps.setMaxRows(1);
             rs = ps.executeQuery();
             ResultSetMetaData metaData = rs.getMetaData();
             int columnCount = metaData.getColumnCount();
@@ -410,12 +343,14 @@ public class JdbcManager {
             LOG.error(e.getMessage(), e);
         } finally {
             close(ps, rs);
+            long duration = System.currentTimeMillis() - start;
+            LOG.info("JdbcManager getRowHeaders duration: " + duration);
         }
 
         return headers;
     }
 
-    public void close(Connection conn, PreparedStatement ps, ResultSet rs) {
+    public static void close(Connection conn, PreparedStatement ps, ResultSet rs) {
         if (rs != null) try {
             rs.close();
         } catch (SQLException e) {
@@ -433,7 +368,7 @@ public class JdbcManager {
         }
     }
 
-    public void close(PreparedStatement ps, ResultSet rs) {
+    public static void close(PreparedStatement ps, ResultSet rs) {
         if (rs != null) {
             try {
                 rs.close();

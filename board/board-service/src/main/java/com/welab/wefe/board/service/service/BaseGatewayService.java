@@ -20,20 +20,28 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.protobuf.MessageOrBuilder;
 import com.google.protobuf.util.JsonFormat;
-import com.welab.wefe.board.service.dto.globalconfig.GatewayConfigModel;
+import com.welab.wefe.board.service.cache.CaCertificateCache;
 import com.welab.wefe.board.service.proto.TransferServiceGrpc;
 import com.welab.wefe.board.service.proto.meta.basic.BasicMetaProto;
 import com.welab.wefe.board.service.proto.meta.basic.GatewayMetaProto;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
+import com.welab.wefe.board.service.util.TlsUtil;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.wefe.enums.GatewayActionType;
+import com.welab.wefe.common.wefe.dto.global_config.GatewayConfigModel;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.NegotiationType;
+import io.grpc.netty.NettyChannelBuilder;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.security.cert.X509Certificate;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -49,16 +57,16 @@ public class BaseGatewayService extends AbstractService {
     /**
      * Send a message to your own gateway service
      */
-    protected JSONObject sendToMyselfGateway(GatewayActionType action, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
-        return sendToMyselfGateway(null, action, data, processorType);
+    public JSONObject sendToMyselfGateway(String data, GatewayProcessorType processorType) throws StatusCodeWithException {
+        return sendToMyselfGateway(null, data, processorType);
     }
 
     /**
      * Send a message to your own gateway service
      */
-    protected JSONObject sendToMyselfGateway(String gatewayUri, GatewayActionType action, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
+    protected JSONObject sendToMyselfGateway(String gatewayUri, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
         if (gatewayUri == null) {
-            GatewayConfigModel gatewayConfig = globalConfigService.getGatewayConfig();
+            GatewayConfigModel gatewayConfig = globalConfigService.getModel(GatewayConfigModel.class);
             if (gatewayConfig != null) {
                 gatewayUri = gatewayConfig.intranetBaseUri;
             }
@@ -68,7 +76,7 @@ public class BaseGatewayService extends AbstractService {
                 gatewayUri,
                 CacheObjects.getMemberId(),
                 CacheObjects.getMemberName(),
-                action,
+                null,
                 data,
                 processorType);
     }
@@ -76,12 +84,26 @@ public class BaseGatewayService extends AbstractService {
     /**
      * Send message to other party's gateway service
      */
-    protected JSONObject sendToOtherGateway(String dstMemberId, GatewayActionType action, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
+    protected JSONObject sendToOtherGateway(String dstMemberId, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
         return callGateway(
-                globalConfigService.getGatewayConfig().intranetBaseUri,
+                globalConfigService.getModel(GatewayConfigModel.class).intranetBaseUri,
                 dstMemberId,
                 CacheObjects.getMemberName(dstMemberId),
-                action,
+                null,
+                data,
+                processorType
+        );
+    }
+
+    /**
+     * Send message to other party's gateway service
+     */
+    public JSONObject sendToOtherGateway(String dstMemberId, String dstGatewayUri, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
+        return callGateway(
+                globalConfigService.getModel(GatewayConfigModel.class).intranetBaseUri,
+                dstMemberId,
+                CacheObjects.getMemberName(dstMemberId),
+                dstGatewayUri,
                 data,
                 processorType
         );
@@ -93,33 +115,39 @@ public class BaseGatewayService extends AbstractService {
      * @param gatewayUri    gateway service address
      * @param dstMemberId   the member_id of the target member
      * @param dstMemberName The member_name of the target member
-     * @param action        action of the message
      * @param data          data of the message
      * @param processorType enum, see:{@link com.welab.wefe.common.wefe.enums.GatewayProcessorType}
      */
-    private JSONObject callGateway(String gatewayUri, String dstMemberId, String dstMemberName, GatewayActionType action, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
+    private JSONObject callGateway(String gatewayUri, String dstMemberId, String dstMemberName, String dstGatewayUri, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
+
+        long start = System.currentTimeMillis();
 
         if (StringUtil.isEmpty(gatewayUri)) {
             StatusCode.RPC_ERROR.throwException("尚未设置 gateway 内网地址，请在[全局设置][系统设置]中设置 gateway 服务的内网地址。");
         }
+        if (StringUtil.isNotEmpty(dstGatewayUri) && !isValidGatewayUri(dstGatewayUri)) {
+            StatusCode.RPC_ERROR.throwException("目的网关地址格式不正确，格式应为 HOST:PORT。");
+        }
 
-        GatewayMetaProto.TransferMeta transferMeta = buildTransferMeta(dstMemberId, dstMemberName, action, data, processorType);
+        GatewayMetaProto.TransferMeta transferMeta = buildTransferMeta(dstMemberId, dstMemberName, dstGatewayUri, data, processorType);
         ManagedChannel grpcChannel = null;
-        String message = "[grpc] end to " + dstMemberName;
+        String message = "[grpc] end to " + dstMemberName + " ";
         try {
-            grpcChannel = getGrpcChannel(gatewayUri);
+            grpcChannel = buildManagedChannel(gatewayUri);
             TransferServiceGrpc.TransferServiceBlockingStub clientStub = TransferServiceGrpc.newBlockingStub(grpcChannel);
             BasicMetaProto.ReturnStatus returnStatus = clientStub.send(transferMeta);
             if (returnStatus.getCode() != 0) {
                 StatusCode.REMOTE_SERVICE_ERROR.throwException(returnStatus.getMessage());
             }
 
-            message += "success request:" + data;
+            long spend = System.currentTimeMillis() - start;
+            message += "success(" + spend + "ms) request:" + data;
             LOG.info(message);
 
             return JSON.parseObject(returnStatus.getData());
         } catch (Exception e) {
-            message += "fail message:" + e.getMessage() + " request:" + data;
+            long spend = System.currentTimeMillis() - start;
+            message += "fail(" + spend + "ms) message:" + e.getMessage() + " request:" + data;
             LOG.error(message);
 
             LOG.error("Request gateway exception, message: " + transferMetaToString(transferMeta) + ",exception：" + e.getMessage(), e);
@@ -171,23 +199,23 @@ public class BaseGatewayService extends AbstractService {
         // The gateway responds to the signature and prompts abnormal information
         String signPermissionTips = "UNAUTHENTICATED";
         if (StringUtil.isEmpty(errorMsg) || errorMsg.contains(connectionDisableTips)) {
-            throw new StatusCodeWithException("连接不可用，请检查网关地址是否正确或网络连接是否正常或网关服务是否已启动", StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "gateway 连接不可用，请检查网关地址是否正确或网络连接是否正常或网关服务是否已启动");
         }
         if (errorMsg.contains(ipPermissionTips)) {
-            throw new StatusCodeWithException("请在 [全局设置] -> [系统设置] 菜单下添加 board 服务的 IP 地址到 gateway 白名单，详细信息请查看 [Dashboard] 菜单", StatusCode.IP_LIMIT);
+            throw new StatusCodeWithException(StatusCode.IP_LIMIT, "请在 [全局设置] -> [系统设置] 菜单下添加 board 服务的 IP 地址到 gateway 白名单，详细信息请查看 [Dashboard] 菜单");
         }
         if (errorMsg.contains(signPermissionTips)) {
-            throw new StatusCodeWithException("签名失败，请确保Member的公私钥正确性以及公钥是否已上传", StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException(StatusCode.RPC_ERROR, "签名失败，请确保Member的公私钥正确性以及公钥是否已上传");
         }
     }
 
     private ManagedChannel getGrpcChannel(String gatewayUri) throws StatusCodeWithException {
         if (StringUtil.isEmpty(gatewayUri)) {
-            throw new StatusCodeWithException("请到 [全局设置] -> [系统设置] 菜单下配置网关地址信息，格式为 IP:PORT", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "请到 [全局设置] -> [系统设置] 菜单下配置网关地址信息，格式为 HOST:PORT");
         }
 
         if (!isValidGatewayUri(gatewayUri)) {
-            throw new StatusCodeWithException("网关地址格式不正确，格式应为 IP:PORT", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "网关地址格式不正确，格式应为 HOST:PORT");
         }
 
         return ManagedChannelBuilder
@@ -197,7 +225,7 @@ public class BaseGatewayService extends AbstractService {
                 .build();
     }
 
-    protected GatewayMetaProto.TransferMeta buildTransferMeta(String dstMemberId, String dstMemberName, GatewayActionType action, String data, GatewayProcessorType processorType) {
+    protected GatewayMetaProto.TransferMeta buildTransferMeta(String dstMemberId, String dstMemberName, String dstGatewayUri, String data, GatewayProcessorType processorType) {
         GatewayMetaProto.Member.Builder builder = GatewayMetaProto.Member.newBuilder()
                 .setMemberId(dstMemberId);
 
@@ -208,12 +236,17 @@ public class BaseGatewayService extends AbstractService {
         GatewayMetaProto.Member dstMember = builder
                 .build();
 
+        if (StringUtil.isNotEmpty(dstGatewayUri)) {
+            String dstIp = dstGatewayUri.split(":")[0];
+            int dstPort = Integer.parseInt(dstGatewayUri.split(":")[1]);
+            dstMember = dstMember.toBuilder().setEndpoint(BasicMetaProto.Endpoint.newBuilder().setIp(dstIp).setPort(dstPort).build()).build();
+        }
+
         GatewayMetaProto.Content content = GatewayMetaProto.Content.newBuilder()
-                .setObjectData(data)
+                .setStrData(data)
                 .build();
 
         return GatewayMetaProto.TransferMeta.newBuilder()
-                .setAction(action.name())
                 .setDst(dstMember)
                 .setContent(content)
                 .setSessionId(UUID.randomUUID().toString().replaceAll("-", ""))
@@ -225,15 +258,45 @@ public class BaseGatewayService extends AbstractService {
     /**
      * Check if it is a legal gateway format
      *
-     * @param gatewayUri Gateway address, the format must be: <ip/host>:<port>
+     * @param gatewayUri Gateway address, the format must be: <host>:<port>
      */
-    private boolean isValidGatewayUri(String gatewayUri) {
-        if (StringUtil.isEmpty(gatewayUri)) {
+    public boolean isValidGatewayUri(String gatewayUri) {
+        String separator = ":";
+        if (StringUtil.isEmpty(gatewayUri) || gatewayUri.split(separator).length != 2
+                || StringUtil.isEmpty(gatewayUri.split(separator)[0]) || !NumberUtils.isDigits(gatewayUri.split(separator)[1])) {
             return false;
         }
-
-        String splitSymbol = ":";
-        return gatewayUri.contains(splitSymbol) && gatewayUri.split(splitSymbol).length <= 2 && StringUtil.isNumeric(gatewayUri.split(splitSymbol)[1]);
+        return true;
     }
+
+
+    private ManagedChannel buildManagedChannel(String gatewayUri) throws Exception {
+        if (!isValidGatewayUri(gatewayUri)) {
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "网关地址格式不正确，格式应为 HOST:PORT");
+        }
+//        MemberInfoModel memberInfoModel = globalConfigService.getModel(MemberInfoModel.class);
+//        if (gatewayUri.equals(memberInfoModel.getMemberGatewayUri()) && Boolean.TRUE.equals(memberInfoModel.getMemberGatewayTlsEnable())) {
+//            return getSslGrpcChannel(gatewayUri);
+//        }
+        return getGrpcChannel(gatewayUri);
+
+    }
+
+    private ManagedChannel getSslGrpcChannel(String gatewayUri) throws Exception {
+        X509Certificate[] x509Certificates = TlsUtil.buildCertificates(CaCertificateCache.getInstance().getAll());
+        SslContextBuilder sslContextBuilder = GrpcSslContexts.forClient();
+        if (null == x509Certificates || x509Certificates.length == 0) {
+            sslContextBuilder.trustManager(InsecureTrustManagerFactory.INSTANCE);
+        } else {
+            sslContextBuilder.trustManager(x509Certificates);
+        }
+        return NettyChannelBuilder.forTarget(gatewayUri)
+                .negotiationType(NegotiationType.TLS)
+                .overrideAuthority("wefe.tianmiantech.com.test")
+                .sslContext(sslContextBuilder.build())
+                .maxInboundMessageSize(2000 * 1024 * 1024)
+                .build();
+    }
+
 
 }

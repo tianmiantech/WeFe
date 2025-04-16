@@ -17,6 +17,7 @@
 package com.welab.wefe.serving.service.feature.sql;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.jdbc.base.DatabaseType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,36 +31,45 @@ public abstract class AbstractTemplate {
 
     protected final String placeholder = "?";
 
-    public String url;
+    public DatabaseType databaseType;
+
+    public String host;
+
+    public int port;
+
+    public String database;
 
     public String username;
 
     public String password;
 
-    public String sql;
-
-    public String userId;
-
-    public AbstractTemplate(String url, String username, String password, String sql, String userId) {
-        this.url = url;
+    public AbstractTemplate(DatabaseType databaseType,
+                            String host,
+                            int port,
+                            String database,
+                            String username,
+                            String password) {
+        this.databaseType = databaseType;
+        this.host = host;
+        this.port = port;
+        this.database = database;
         this.username = username;
         this.password = password;
-        this.sql = sql;
-        this.userId = userId;
     }
 
     /**
      * sql execute
+     *
      * @return featureDataMap
      * @throws StatusCodeWithException
      */
-    protected abstract Map<String, Object> execute() throws StatusCodeWithException;
+    protected abstract Map<String, Object> execute(String sql) throws StatusCodeWithException;
 
-    public Map<String, Object> handle() throws StatusCodeWithException {
+    public Map<String, Object> handle(String sql) throws StatusCodeWithException {
 
         long start = System.currentTimeMillis();
 
-        Map<String, Object> featureData = execute();
+        Map<String, Object> featureData = execute(sql);
 
         logger.debug(getClass().getSimpleName() + ":" + (System.currentTimeMillis() - start) + " ms");
 

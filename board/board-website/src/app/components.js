@@ -15,6 +15,7 @@ import { dateFormat, dateLast } from '@src/utils/date';
 import { timeFormat } from '@src/utils/timer';
 import '@js/polyfill/requestAnimationFrame';
 import '@styles/base.scss';
+import JsonViewer from 'vue-json-viewer';
 
 export default {
     install (app) {
@@ -26,9 +27,9 @@ export default {
         app.config.globalProperties.$bus = bus;
 
         // register element-plus components on demand
-        for (const component in elComponents) {
+        /* for (const component in elComponents) {
             app.use(elComponents[component]);
-        }
+        } */
         for (const component in elIcons) {
             app.component(`elicon${component}`, elIcons[component]);
         }
@@ -55,5 +56,6 @@ export default {
         app.use(VueSimpleUploader);
         app.use(VueDragResize);
         app.use(CGrid);
+        app.use(JsonViewer);
     },
 };

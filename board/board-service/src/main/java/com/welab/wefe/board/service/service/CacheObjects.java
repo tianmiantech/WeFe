@@ -20,7 +20,6 @@ import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.database.repository.BlacklistRepository;
 import com.welab.wefe.board.service.database.repository.data_resource.DataResourceRepository;
-import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.sdk.union.UnionService;
 import com.welab.wefe.board.service.sdk.union.dto.MemberBaseInfo;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
@@ -29,6 +28,7 @@ import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.dto.global_config.MemberInfoModel;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.springframework.data.domain.Sort;
 
@@ -236,7 +236,7 @@ public class CacheObjects {
      */
     public static void refreshMemberInfo() {
         GlobalConfigService service = Launcher.getBean(GlobalConfigService.class);
-        MemberInfoModel model = service.getMemberInfo();
+        MemberInfoModel model = service.getModel(MemberInfoModel.class);
 
         if (model == null) {
             return;
@@ -320,6 +320,14 @@ public class CacheObjects {
 
     public static SecretKeyType getSecretKeyType() {
         return null == SECRET_KEY_TYPE ? SecretKeyType.rsa : SECRET_KEY_TYPE;
+    }
+
+    public static synchronized void putAccount(AccountMysqlModel account) {
+        if(null == account) {
+            return;
+        }
+        ACCOUNT_MAP.put(account.getId(), account.getNickname());
+        ACCOUNT_ID_LIST.add(account.getId());
     }
 
 }

@@ -25,6 +25,7 @@ import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
@@ -53,7 +54,7 @@ public class MixLrComponent extends AbstractModelingComponent<MixLrComponent.Par
     }
 
     @Override
-    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) {
+    protected JSONObject createTaskParams(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) {
 
         JObject output = JObject.create();
         output.append("penalty", params.otherParam.penalty)
@@ -72,6 +73,8 @@ public class MixLrComponent extends AbstractModelingComponent<MixLrComponent.Par
                 .append("n_splits", params.getCvParam().getnSplits())
                 .append("shuffle", params.getCvParam().isShuffle())
                 .append("need_cv", params.getCvParam().isNeedCv());
+
+        output.append("grid_search_param",params.getGridSearchParam().toKernelParam());
 
         return output;
     }

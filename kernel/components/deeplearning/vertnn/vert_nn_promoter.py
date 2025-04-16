@@ -141,7 +141,7 @@ class VertNNPromoter(VertNNBase):
 
             cur_epoch += 1
 
-            self.tracker.add_task_progress(1)
+            self.tracker.add_task_progress(1, self.need_grid_search)
 
         if cur_epoch == self.epochs:
             LOGGER.debug("Training process reach max training epochs {} and not converged".format(self.epochs))

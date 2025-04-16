@@ -4,7 +4,7 @@
             <el-image :src="item.img_src" :id="item.id" fit="contain" style="max-height: 114px;">
                 <template #reference>
                     <div class="image-slot">
-                        <i class="el-icon-picture-outline"></i>
+                        <i class="board-icon-picture-outline"></i>
                     </div>
                 </template>
             </el-image>
@@ -32,7 +32,6 @@
             });
             const methods = {
                 async getSampleList(id) {
-                    console.log(vData.sampleList);
                     vData.imgLoading = true;
                     const params = {
                         page_index:  vData.search.page_index - 1,

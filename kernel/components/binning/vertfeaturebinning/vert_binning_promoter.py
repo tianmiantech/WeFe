@@ -63,6 +63,7 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
 
     def fit(self, data_instances):
         LOGGER.info("Start feature binning fit and transform")
+
         self._abnormal_detection(data_instances)
 
         label_counts_dict = data_util.get_label_count(data_instances)
@@ -116,8 +117,10 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
 
         self.set_schema(data_instances)
         LOGGER.debug("Finish set_schema,data_instances{}".format(data_instances.first()))
-        self.transform_v2(data_instances)
+        self.transform(data_instances)
         LOGGER.debug("Finish feature binning fit and transform,data_output,{}".format(self.data_output))
+        LOGGER.info('transform_type====>:{}, bining_data_output：{}'.format(self.transform_type,
+                                                                      self.data_output.first()[1].features))
         return self.data_output
 
     @staticmethod
@@ -292,7 +295,9 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
                     provider_binning_obj.cal_iv_woe(result_counts, provider_model_params.adjustment_factor)
                 provider_binning_obj.set_role_party(role=consts.PROVIDER, member_id=provider_member_id)
                 self.provider_results.append(provider_binning_obj)
-                per_provider_result["result"] = provider_binning_obj
+
+                res_provider_binning_obj = self.restructure_binning_result(provider_binning_obj)
+                per_provider_result["result"] = res_provider_binning_obj
                 per_provider_result["method"] = provider_model_params.method
                 per_provider_result["bin_num"] = provider_model_params.bin_num
                 encoded_split_points_result = encoded_split_points
@@ -302,3 +307,12 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
             all_provider_result_list.append(per_provider_results_list)
             LOGGER.debug(f"per_provider_results_list={per_provider_results_list}")
         return all_provider_result_list
+
+    def restructure_binning_result(self, binning_obj):
+        binning_obj_copy = copy.deepcopy(binning_obj)
+        to_none_list = ["event_count_array", "event_rate_array", "non_event_count_array", "non_event_rate_array"]
+        for bin_result_obj in binning_obj_copy.bin_results.all_cols_results.items():
+            if bin_result_obj:
+                for static in to_none_list:
+                    setattr(bin_result_obj[1], static, None)
+        return binning_obj_copy

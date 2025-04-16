@@ -3,8 +3,8 @@ six==1.15.0
 cachetools==4.1.1
 numba==0.50.1
 numpy==1.19.0
-pycryptodome==3.4.7
-pycryptodomex==3.9.8
+pycryptodome==3.14.1
+pycryptodomex==3.14.1
 Deprecated==1.2.10
 scipy==1.5.1
 psutil==5.7.2
@@ -28,3 +28,5 @@ aiohttp==3.7.3
 oss2==2.14.0
 pandas==1.1.5
 netifaces==0.11.0
+gmssl==3.2.1
+cos-python-sdk-v5==1.9.15

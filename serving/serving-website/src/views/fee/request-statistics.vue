@@ -53,14 +53,16 @@
                 </div>
             </el-form-item>
 
-            <el-button class="ml10"
+            <el-button
+                class="ml10"
                 type="primary"
                 @click="getList({ to: true})"
             >
                 查询
             </el-button>
 
-            <el-button class="ml10"
+            <el-button
+                class="ml10"
                 @click="downloadStatistics"
             >
                 下载
@@ -74,14 +76,14 @@
             border
         >
             <div slot="empty">
-                <TableEmptyData/>
+                <TableEmptyData />
             </div>
 
             <el-table-column
                 label="序号"
                 min-width="50"
                 type="index"
-            ></el-table-column>
+            />
 
             <el-table-column
                 label="服务名称"
@@ -90,7 +92,6 @@
                 <template slot-scope="scope">
                     <p>{{ scope.row.service_name }}</p>
                     <p class="id">{{ scope.row.service_id }}</p>
-
                 </template>
             </el-table-column>
             <el-table-column
@@ -100,7 +101,6 @@
                 <template slot-scope="scope">
                     <p>{{ scope.row.client_name }}</p>
                     <p class="id">{{ scope.row.client_id }}</p>
-
                 </template>
             </el-table-column>
             <el-table-column
@@ -162,12 +162,11 @@
             width="70%"
         >
             <el-table :data="apiCallDetails">
-
                 <el-table-column
                     label="序号"
                     min-width="40"
                     type="index"
-                ></el-table-column>
+                />
 
                 <el-table-column
                     label="服务名称"
@@ -256,31 +255,32 @@
 
 <script>
 import table from '@src/mixins/table';
-import {mapGetters} from 'vuex';
+import { mapGetters } from 'vuex';
+import { downLoadFileTool } from '@src/utils/tools';
 
 export default {
-    name: 'RequestStatistics',
+    name:   'RequestStatistics',
     mixins: [table],
     data() {
         return {
             services: [],
-            clients: [],
-            search: {
+            clients:  [],
+            search:   {
                 serviceId: '',
-                clientId: '',
+                clientId:  '',
                 startTime: '',
-                endTime: '',
+                endTime:   '',
             },
-            defaultTime: [],
+            defaultTime:      [],
             dialogPagination: {
-                total: '',
-                page_size: 10,
-                page_index: 1,
-                serviceId: '',
-                clientId: '',
+                total:       '',
+                page_size:   10,
+                page_index:  1,
+                serviceId:   '',
+                clientId:    '',
                 change_flag: false,
             },
-            getListApi: '/requeststatistics/query-list',
+            getListApi:  '/requeststatistics/query-list',
             serviceType: {
                 1: '两方匿踪查询',
                 2: '两方交集查询',
@@ -324,40 +324,37 @@ export default {
     methods: {
 
         dialogCurrentPageChange(val) {
-            this.dialogPagination.change_flag = true
-            this.dialogPagination.page_index = val
-            this.getDetails(this.dialogPagination.serviceId, this.dialogPagination.clientId, this.dialogPagination.change_flag)
+            this.dialogPagination.change_flag = true;
+            this.dialogPagination.page_index = val;
+            this.getDetails(this.dialogPagination.serviceId, this.dialogPagination.clientId, this.dialogPagination.change_flag);
         },
 
         dialogCurrentPageSizeChange(val) {
-            this.dialogPagination.change_flag = true
-            this.dialogPagination.page_size = val
-            this.dialogPagination.page_index = 1
-            this.getDetails(this.dialogPagination.serviceId, this.dialogPagination.clientId, this.dialogPagination.change_flag)
+            this.dialogPagination.change_flag = true;
+            this.dialogPagination.page_size = val;
+            this.dialogPagination.page_index = 1;
+            this.getDetails(this.dialogPagination.serviceId, this.dialogPagination.clientId, this.dialogPagination.change_flag);
         },
 
 
         downloadStatistics() {
-
-            const api = `${window.api.baseUrl}/apirequestrecord/download?serviceId=${this.search.serviceId}&clientId=${this.search.clientId}&startTime=${this.search.startTime}&endTime=${this.search.endTime}&token=${this.userInfo.token}`;
-            const link = document.createElement('a');
-
-            link.href = api;
-            link.target = '_blank';
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-
+            downLoadFileTool('/apirequestrecord/download', {
+                serviceId: this.search.serviceId,
+                clientId:  this.search.clientId,
+                startTime: this.search.startTime,
+                endTime:   this.search.endTime,
+                version:   Math.random(),
+            });
         },
 
 
         timeChange() {
             if (!this.defaultTime) {
-                this.search.startTime = ''
-                this.search.endTime = ''
+                this.search.startTime = '';
+                this.search.endTime = '';
             } else {
-                this.search.startTime = this.defaultTime[0]
-                this.search.endTime = this.defaultTime[1]
+                this.search.startTime = this.defaultTime[0];
+                this.search.endTime = this.defaultTime[1];
             }
         },
 
@@ -380,11 +377,11 @@ export default {
         },
 
         async getServices() {
-            const {code, data} = await this.$http.post({
-                url: '/service/query',
+            const { code, data } = await this.$http.post({
+                url:  '/service/query',
                 data: {
                     status: 1,
-                }
+                },
             });
 
             if (code === 0) {
@@ -393,7 +390,7 @@ export default {
         },
 
         async getClients() {
-            const {code, data} = await this.$http.post({
+            const { code, data } = await this.$http.post({
                 url: '/client/query-list',
             });
 
@@ -405,26 +402,26 @@ export default {
 
         async getDetails(serviceId, clientId, change_flag) {
 
-            this.dialogPagination.serviceId = serviceId
-            this.dialogPagination.clientId = clientId
+            this.dialogPagination.serviceId = serviceId;
+            this.dialogPagination.clientId = clientId;
 
-            this.apiCallDetails = []
-            const {code, data} = await this.$http.post({
-                url: '/apirequestrecord/query-list',
+            this.apiCallDetails = [];
+            const { code, data } = await this.$http.post({
+                url:  '/apirequestrecord/query-list',
                 data: {
-                    serviceId: this.dialogPagination.serviceId,
-                    clientId: this.dialogPagination.clientId,
+                    serviceId:  this.dialogPagination.serviceId,
+                    clientId:   this.dialogPagination.clientId,
                     page_index: change_flag ? this.dialogPagination.page_index - 1 : 0,
-                    page_size: change_flag ? this.dialogPagination.page_size : 10,
-                    startTime: this.search.startTime,
-                    endTime: this.search.endTime
+                    page_size:  change_flag ? this.dialogPagination.page_size : 10,
+                    startTime:  this.search.startTime,
+                    endTime:    this.search.endTime,
                 },
             });
 
             if (code === 0) {
-                this.apiCallDetails = data.list
-                this.dialogTableVisible = true
-                this.dialogPagination.total = data.total
+                this.apiCallDetails = data.list;
+                this.dialogTableVisible = true;
+                this.dialogPagination.total = data.total;
 
             }
         },

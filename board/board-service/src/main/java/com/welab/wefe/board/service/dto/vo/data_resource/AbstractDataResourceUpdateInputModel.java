@@ -17,7 +17,6 @@
 package com.welab.wefe.board.service.dto.vo.data_resource;
 
 import com.welab.wefe.board.service.database.repository.data_resource.DataResourceRepository;
-import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -25,6 +24,7 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.wefe.dto.global_config.MemberInfoModel;
 import com.welab.wefe.common.wefe.enums.DataResourcePublicLevel;
 import org.apache.commons.lang3.StringUtils;
 
@@ -69,7 +69,7 @@ public class AbstractDataResourceUpdateInputModel extends AbstractApiInput {
         super.checkAndStandardize();
 
         // 当全局拒绝暴露时，禁止选择暴露资源。
-        MemberInfoModel member = Launcher.getBean(GlobalConfigService.class).getMemberInfo();
+        MemberInfoModel member = Launcher.getBean(GlobalConfigService.class).getModel(MemberInfoModel.class);
         if (publicLevel != DataResourcePublicLevel.OnlyMyself) {
             if (!member.getMemberAllowPublicDataSet()) {
                 StatusCode.PARAMETER_VALUE_INVALID.throwException("当前联邦成员不允许资源对外可见，请在[全局设置][成员设置]中开启。");
@@ -82,7 +82,7 @@ public class AbstractDataResourceUpdateInputModel extends AbstractApiInput {
 
 
         if (publicLevel == DataResourcePublicLevel.PublicWithMemberList && StringUtils.isEmpty(publicMemberList)) {
-            throw new StatusCodeWithException("请指定可见成员", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "请指定可见成员");
         }
 
         int countByName = 0;
@@ -94,7 +94,7 @@ public class AbstractDataResourceUpdateInputModel extends AbstractApiInput {
         }
 
         if (countByName > 0) {
-            throw new StatusCodeWithException("此资源名称已存在，请换一个名称", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "此资源名称已存在，请换一个名称");
         }
     }
 

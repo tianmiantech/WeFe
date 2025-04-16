@@ -31,6 +31,7 @@ import com.welab.wefe.board.service.fusion.actuator.ClientActuator;
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.fusion.manager.ExportManager;
+import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.ProjectService;
@@ -42,6 +43,7 @@ import com.welab.wefe.board.service.util.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
@@ -94,8 +96,8 @@ public class FusionTaskService extends AbstractService {
     @Autowired
     ProjectService projectService;
 
-    public FusionTaskMySqlModel find(String taskId) throws StatusCodeWithException {
-        return fusionTaskRepository.findOne("id", taskId, FusionTaskMySqlModel.class);
+    public FusionTaskMySqlModel find(String id) throws StatusCodeWithException {
+        return fusionTaskRepository.findOne("id", id, FusionTaskMySqlModel.class);
     }
 
     public FusionTaskMySqlModel findByBusinessId(String businessId) throws StatusCodeWithException {
@@ -112,7 +114,7 @@ public class FusionTaskService extends AbstractService {
     public void updateErrorByBusinessId(String businessId, FusionTaskStatus status, Long dataCount, Long fusionCount, Long processedCount, long spend, String error) throws StatusCodeWithException {
         FusionTaskMySqlModel model = findByBusinessId(businessId);
         if (model == null) {
-            throw new StatusCodeWithException("task does not exist，businessId：" + businessId, StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "task does not exist，businessId：" + businessId);
         }
         model.setStatus(status);
         model.setUpdatedTime(new Date());
@@ -142,12 +144,12 @@ public class FusionTaskService extends AbstractService {
         //A non promoter cannot create a task
         ProjectMySqlModel project = projectService.findByProjectId(input.getProjectId());
         if (!JobMemberRole.promoter.equals(project.getMyRole())) {
-            throw new StatusCodeWithException("A non promoter cannot create a task", StatusCode.UNSUPPORTED_HANDLE);
+            throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "只有发起方才能创建融合任务");
         }
 
         //If a task is being executed, add it after the task is completed
 //        if (ActuatorManager.size() > 0) {
-//            throw new StatusCodeWithException("If a task is being executed, add it after the task is completed", StatusCode.SYSTEM_BUSY);
+//            throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "If a task is being executed, add it after the task is completed");
 //        }
 
         String businessId = UUID.randomUUID().toString().replaceAll("-", "");
@@ -178,7 +180,7 @@ public class FusionTaskService extends AbstractService {
 
             BloomFilterMysqlModel bloomFilterMysqlModel = bloomFilterService.findOne(input.getDataResourceId());
             if (bloomFilterMysqlModel == null) {
-                throw new StatusCodeWithException(DATA_NOT_FOUND);
+                StatusCode.DATA_NOT_FOUND.throwException();
             }
 
             task.setPsiActuatorRole(PSIActuatorRole.server);
@@ -194,7 +196,7 @@ public class FusionTaskService extends AbstractService {
 
         TableDataSetMysqlModel dataSet = tableDataSetService.findOneById(input.getDataResourceId());
         if (dataSet == null) {
-            throw new StatusCodeWithException(DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
 
         JSONObject jsonObject = unionService.getDataResourceDetail(input.getPartnerDataResourceId(), input.getPartnerDataResourceType(), JSONObject.class);
@@ -217,7 +219,7 @@ public class FusionTaskService extends AbstractService {
         FusionTaskMySqlModel task = fusionTaskRepository.findOne("id", input.getId(), FusionTaskMySqlModel.class);
 
         if (task == null) {
-            throw new StatusCodeWithException("The task to update does not exist", DATA_NOT_FOUND);
+            throw new StatusCodeWithException(DATA_NOT_FOUND, "The task to update does not exist");
         }
 
         //The update task
@@ -235,7 +237,7 @@ public class FusionTaskService extends AbstractService {
         TableDataSetMysqlModel dataSet = tableDataSetService.findOneById(input.getDataResourceId());
 
         if (dataSet == null) {
-            throw new StatusCodeWithException(DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
 
         if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm())) {
@@ -251,7 +253,7 @@ public class FusionTaskService extends AbstractService {
 
         FusionTaskMySqlModel task = findByBusinessIdAndStatus(input.getBusinessId(), FusionTaskStatus.Pending);
         if (task == null) {
-            throw new StatusCodeWithException("businessId error:" + input.getBusinessId(), DATA_NOT_FOUND);
+            throw new StatusCodeWithException(DATA_NOT_FOUND, "businessId error:" + input.getBusinessId());
         }
 
         if (!input.getAuditStatus().equals(AuditStatus.agree)) {
@@ -260,7 +262,7 @@ public class FusionTaskService extends AbstractService {
         }
 
 //        if (ActuatorManager.size() > 0) {
-//            throw new StatusCodeWithException("If a task is being executed, add it after the task is completed", StatusCode.SYSTEM_BUSY);
+//            throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "If a task is being executed, add it after the task is completed");
 //        }
 
         switch (task.getAlgorithm()) {
@@ -287,7 +289,7 @@ public class FusionTaskService extends AbstractService {
     public void restart(AuditApi.Input input) throws StatusCodeWithException {
         FusionTaskMySqlModel task = findByBusinessId(input.getBusinessId());
         if (task == null) {
-            throw new StatusCodeWithException("businessId error:" + input.getBusinessId(), DATA_NOT_FOUND);
+            throw new StatusCodeWithException(DATA_NOT_FOUND, "businessId error:" + input.getBusinessId());
         }
 
         if (!input.getAuditStatus().equals(AuditStatus.agree)) {
@@ -301,7 +303,7 @@ public class FusionTaskService extends AbstractService {
         }
 
 //        if (ActuatorManager.size() > 0) {
-//            throw new StatusCodeWithException("If a task is being executed, add it after the task is completed", StatusCode.SYSTEM_BUSY);
+//            throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "If a task is being executed, add it after the task is completed");
 //        }
 
         switch (task.getAlgorithm()) {
@@ -358,7 +360,7 @@ public class FusionTaskService extends AbstractService {
 
         fusionTaskRepository.save(task);
 
-        ClientActuator client = new ClientActuator(
+        new ClientActuator(
                 task.getBusinessId(),
                 task.getDataResourceId(),
                 input.getTrace(),
@@ -366,11 +368,7 @@ public class FusionTaskService extends AbstractService {
                 task.getDstMemberId(),
                 DataResourceType.TableDataSet.equals(task.getDataResourceType()) ?
                         task.getRowCount() : task.getPartnerRowCount()
-        );
-
-        ActuatorManager.set(client);
-
-        client.run();
+        ).run();
     }
 
 
@@ -395,29 +393,21 @@ public class FusionTaskService extends AbstractService {
          */
         BloomFilterMysqlModel bf = bloomFilterService.findOne(task.getDataResourceId());
         if (bf == null) {
-            throw new StatusCodeWithException("Bloom filter not found", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "Bloom filter not found");
         }
 
         /**
          * Generate the corresponding task handler
          */
-        ServerActuator server = new ServerActuator(
-                task.getBusinessId(),
-                BloomFilterUtils.readFrom(
-                        Paths.get(bf.getStorageNamespace(), bf.getStorageResourceName()).toString()
-                ),
-                new BigInteger(bf.getRsaN()),
-                new BigInteger(bf.getRsaE()),
-                new BigInteger(bf.getRsaD()),
-                new BigInteger(bf.getRsaP()),
-                new BigInteger(bf.getRsaQ()),
-                DataResourceType.TableDataSet.equals(task.getDataResourceType()) ?
-                        task.getRowCount() : task.getPartnerRowCount()
-        );
-
-        ActuatorManager.set(server);
-
-        server.run();
+        new Thread(() -> {
+            new ServerActuator(task.getBusinessId(),
+                    BloomFilterUtils
+                            .readFrom(Paths.get(bf.getStorageNamespace(), bf.getStorageResourceName()).toString()),
+                    new BigInteger(bf.getRsaN()), new BigInteger(bf.getRsaE()), new BigInteger(bf.getRsaD()),
+                    new BigInteger(bf.getRsaP()), new BigInteger(bf.getRsaQ()),
+                    DataResourceType.TableDataSet.equals(task.getDataResourceType()) ? task.getRowCount()
+                            : task.getPartnerRowCount()).run();
+        }).start();
     }
 
     /**
@@ -428,7 +418,7 @@ public class FusionTaskService extends AbstractService {
         //A non promoter cannot create a task
         ProjectMySqlModel project = projectService.findByProjectId(input.getProjectId());
         if (!JobMemberRole.provider.equals(project.getMyRole())) {
-            throw new StatusCodeWithException("非发起方不能发起融合任务", StatusCode.UNSUPPORTED_HANDLE);
+            throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "非发起方不能发起融合任务");
         }
 
         //Add tasks
@@ -440,13 +430,13 @@ public class FusionTaskService extends AbstractService {
         if (DataResourceType.TableDataSet.equals(input.getDataResourceType())) {
             TableDataSetMysqlModel tableDataSet = tableDataSetService.findOneById(model.getDataResourceId());
             if (tableDataSet == null) {
-                throw new StatusCodeWithException("未查找到数据集！", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未查找到数据集！");
             }
             model.setRowCount(tableDataSet.getTotalDataCount());
         } else {
             BloomFilterMysqlModel bloomFilter = bloomFilterService.findOne(model.getDataResourceId());
             if (bloomFilter == null) {
-                throw new StatusCodeWithException("未查找到过滤器！", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未查找到过滤器！");
             }
             model.setRowCount(bloomFilter.getTotalDataCount());
             model.setHashFunction(bloomFilter.getHashFunction());
@@ -484,7 +474,7 @@ public class FusionTaskService extends AbstractService {
     public FusionTaskOutput detail(String taskId) throws StatusCodeWithException {
         FusionTaskMySqlModel model = fusionTaskRepository.findOne("id", taskId, FusionTaskMySqlModel.class);
         if (model == null) {
-            throw new StatusCodeWithException("融合任务不存在", DATA_NOT_FOUND);
+            throw new StatusCodeWithException(DATA_NOT_FOUND, "融合任务不存在");
         }
         FusionTaskOutput output = ModelMapper.map(model, FusionTaskOutput.class);
 
@@ -548,10 +538,39 @@ public class FusionTaskService extends AbstractService {
      * Delete the data
      */
     @Transactional(rollbackFor = Exception.class)
-    public void delete(String id) throws StatusCodeWithException {
+    public void delete(DeleteApi.Input input) throws StatusCodeWithException {
+        FusionTaskMySqlModel task = find(input.getId());
+        if (task == null) {
+            return;
+        }
+
+        OnlineDemoBranchStrategy.hackOnDelete(input, task, "只能删除自己创建的流程。");
+
+        if (!input.fromGateway() && !task.getCreatedBy().equals(CurrentAccountUtil.get().getId())) {
+            throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "只能删除自己创建的流程。");
+        }
 
         //Judge task status
-        fusionTaskRepository.deleteById(id);
+        task.setDeleted(true);
+        task.setUpdatedBy(input);
+        fusionTaskRepository.save(task);
+
+        thirdPartyService.delete(task);
     }
 
+    /**
+     * Delete the data
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteCallback(DeleteCallbackApi.Input input) throws StatusCodeWithException {
+        FusionTaskMySqlModel model = findByBusinessId(input.getBusinessId());
+        if (model == null) {
+            return;
+        }
+
+        //Judge task status
+        model.setDeleted(true);
+        model.setUpdatedTime(new Date());
+        fusionTaskRepository.save(model);
+    }
 }

@@ -32,6 +32,7 @@
 
 import functools
 import random
+import time
 
 import numpy as np
 import scipy.sparse as sp
@@ -244,7 +245,14 @@ class Promoter(VertGradientBase, loss_sync.Promoter):
         self.provider_forwards = self.get_provider_forward(suffix=current_suffix)
 
         self.fore_gradient, y_hat = self.compute_fore_gradient(data_instances, model_weights, offset)
-        encrypted_fore_gradient = encrypted_calculator[batch_index].encrypt(self.fore_gradient)
+        # start = time.time()
+        if check_aclr_support():
+            encrypted_fore_gradient = encrypted_calculator[batch_index].encrypt_list(self.fore_gradient)
+            # print(f'加密耗时gpu：{time.time() - start}')
+        else:
+            encrypted_fore_gradient = encrypted_calculator[batch_index].encrypt(self.fore_gradient)
+            # print(f'加密耗时cpu：{time.time() - start}')
+
         self.remote_fore_gradient(encrypted_fore_gradient, suffix=current_suffix)
 
         self.decrypt_provider_gradient_and_remote(cipher_operator, suffix=current_suffix)
@@ -360,8 +368,8 @@ class Provider(VertGradientBase, loss_sync.Provider):
         gradient = optimizer.apply_gradients(gradient)
 
         loss_regular = optimizer.loss_norm(model_weights)
-        norm_r = random.uniform(-loss_regular * 0.1, loss_regular * 0.1)
-        loss_regular = loss_regular + norm_r
+        # norm_r = random.uniform(-loss_regular * 0.1, loss_regular * 0.1)
+        # loss_regular = loss_regular + norm_r
         # if loss_regular is not None:
         #     loss_regular = cipher_operator.encrypt(loss_regular)
         self.remote_loss_regular(loss_regular, suffix=current_suffix)

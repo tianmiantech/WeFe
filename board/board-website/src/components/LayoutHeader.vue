@@ -10,7 +10,7 @@
                     type="text"
                     @click="backward"
                 >
-                    <el-icon class="el-icon-arrow-left">
+                    <el-icon class="board-icon-arrow-left">
                         <elicon-arrow-left />
                     </el-icon>返回{{ vData.meta.titleParams ? (vData.meta.titleParams.parentTitle || vData.meta.title) : '' }}
                 </el-button>
@@ -30,7 +30,7 @@
                 class="heading-bar-title text-l f14"
             />
             <div class="heading-tools">
-                <el-tooltip
+                <!-- <el-tooltip
                     v-model="vData.videoTip"
                     popper-class="video-guide-tip"
                     placement="left"
@@ -38,18 +38,41 @@
                 >
                     <template #content>
                         <div class="video-guide-tip-content">视频在这里 👉
-                            <div class="el-popper__arrow" data-popper-arrow></div>
+                            <div class="board-popper__arrow" data-popper-arrow></div>
                         </div>
                     </template>
                     <a
                         href="javascript:;"
                         @click="showVideoGuide"
                     >操作指引</a>
-                </el-tooltip>
-                <a
-                    href="https://www.wjx.top/vj/hW9y0cp.aspx"
-                    target="_blank"
-                >建议与反馈</a>
+                </el-tooltip> -->
+                <div class="heading-user ml10" v-if="!vData.isInQianKun">
+                    你好,
+                    <span class="board-dropdown-link">
+                        <strong>{{ userInfo.nickname }}</strong>
+                    </span>
+                    <!-- <el-dropdown
+                        class="ml5"
+                        @command="handleCommand"
+                    >
+                        <span class="board-dropdown-link">
+                            <strong>{{ userInfo.nickname }}</strong>
+                            <el-icon class="board-icon-arrow-left">
+                                <elicon-arrow-down />
+                            </el-icon>
+                        </span>
+                        <template #dropdown>
+                            <el-dropdown-menu>
+                                <el-dropdown-item command="logout">
+                                    <el-icon>
+                                        <elicon-switch-button />
+                                    </el-icon>
+                                    退出
+                                </el-dropdown-item>
+                            </el-dropdown-menu>
+                        </template>
+                    </el-dropdown> -->
+                </div>
                 <el-tooltip
                     effect="light"
                     content="开启聊天"
@@ -65,6 +88,11 @@
                         >{{ vData.hasUnreadNums >= 99 ? `99+` : vData.hasUnreadNums }}</i>
                     </i>
                 </el-tooltip>
+                <a
+                    href="https://www.wjx.top/vj/hW9y0cp.aspx"
+                    target="_blank"
+                    class="help"
+                >建议与反馈</a>
                 <el-tooltip
                     effect="light"
                     :content="vData.isFullScreen ? '退出全屏' : '切换全屏'"
@@ -72,44 +100,20 @@
                 >
                     <el-icon class="el-icon-full-screen" @click="fullScreenSwitch"><elicon-full-screen /></el-icon>
                 </el-tooltip>
-                <div class="heading-user ml10">
-                    你好,
-                    <el-dropdown
-                        class="ml5"
-                        @command="handleCommand"
-                    >
-                        <span class="el-dropdown-link">
-                            <strong>{{ userInfo.nickname }}</strong>
-                            <el-icon class="el-icon-arrow-left">
-                                <elicon-arrow-down />
-                            </el-icon>
-                        </span>
-                        <template #dropdown>
-                            <el-dropdown-menu>
-                                <el-dropdown-item command="logout">
-                                    <el-icon>
-                                        <elicon-switch-button />
-                                    </el-icon>
-                                    退出
-                                </el-dropdown-item>
-                            </el-dropdown-menu>
-                        </template>
-                    </el-dropdown>
-                </div>
             </div>
         </div>
         <layout-tags v-show="tagsList.length" />
 
-        <VideoGuideDialog
+        <!-- <VideoGuideDialog
             ref="VideoGuideDialog"
             @show-video-tip="showVideoTip"
-        />
+        /> -->
     </div>
 </template>
 
 <script>
     import {
-        ref,
+        // ref,
         computed,
         reactive,
         getCurrentInstance,
@@ -121,6 +125,7 @@
     import { useRoute, useRouter } from 'vue-router';
     import { baseLogout } from '@src/router/auth';
     import LayoutTags from './LayoutTags.vue';
+    import {appCode} from '@src/utils/constant';
 
     export default {
         components: {
@@ -136,7 +141,7 @@
             const { appContext } = getCurrentInstance();
             const { $bus } = appContext.config.globalProperties;
 
-            const VideoGuideDialog = ref();
+            // const VideoGuideDialog = ref();
             const vData = reactive({
                 headingTitle:  '',
                 videoTip:      false,
@@ -144,6 +149,7 @@
                 loading:       false,
                 hasUnreadNums: 0,
                 meta:          route.meta,
+                isInQianKun:   window.__POWERED_BY_QIANKUN__ || false,
             });
             const backward = () => {
                 const { meta: { titleParams }, query } = route;
@@ -229,7 +235,7 @@
             };
             // chat connection
             const getConnect = () => {
-                const key = `${window.api.baseUrl}_chat`;
+                const key = `${appCode()}_chat`;
                 const inited = window.localStorage.getItem(key);
 
                 if(inited !== 'connect') {
@@ -238,9 +244,9 @@
                 }
             };
             // show video help
-            const showVideoGuide = () => {
+            /* const showVideoGuide = () => {
                 VideoGuideDialog.value.vData.show = true;
-            };
+            }; */
             const showVideoTip = () => {
                 vData.videoTip = true;
                 setTimeout(() => {
@@ -249,25 +255,28 @@
             };
 
             onBeforeMount(() => {
-                $bus.$on('change-layout-header-title', data => {
-                    // update title
-                    if(data.meta) {
-                        if(vData.meta.titleParams) {
-                            vData.meta.titleParams.htmlTitle = data.meta;
+                if($bus){
+                    $bus.$on('change-layout-header-title', data => {
+                        // update title
+                        if(data.meta) {
+                            if(vData.meta.titleParams) {
+                                vData.meta.titleParams.htmlTitle = data.meta;
+                            } else {
+                                vData.meta = {
+                                    titleParams: {
+                                        htmlTitle: data.meta,
+                                    },
+                                };
+                            }
                         } else {
-                            vData.meta = {
-                                titleParams: {
-                                    htmlTitle: data.meta,
-                                },
-                            };
+                            vData.headingTitle = data;
                         }
-                    } else {
-                        vData.headingTitle = data;
-                    }
-                });
-                $bus.$on('has-new-message', num => {
-                    vData.hasUnreadNums = num;
-                });
+                    });
+                    $bus.$on('has-new-message', num => {
+                        vData.hasUnreadNums = num;
+                    });
+                }
+
 
                 // disable f11
                 window.onkeydown = function(e) {
@@ -295,15 +304,15 @@
 
             return {
                 vData,
+                backward,
                 userInfo: userInfo.value,
                 tagsList: tagsList.value,
-                backward,
                 handleCommand,
                 fullScreenSwitch,
-                VideoGuideDialog,
-                getConnect,
-                showVideoGuide,
+                // VideoGuideDialog,
+                // showVideoGuide,
                 showVideoTip,
+                getConnect,
             };
         },
     };
@@ -320,7 +329,7 @@
             background:transparent;
             padding:0;
         }
-        & > .el-popper__arrow{display:none;}
+        & > .board-popper__arrow{display:none;}
     }
     .video-guide-tip-content{
         position: relative;
@@ -329,7 +338,7 @@
         border-radius: 4px;
         background: #303133;
         animation: shift 1s ease-in-out infinite;
-        .el-popper__arrow{
+        .board-popper__arrow{
             top: 12px;
             right: -4px;
         }
@@ -337,7 +346,11 @@
 </style>
 
 <style lang="scss" scoped>
-    .heading-bar {
+
+    .layout-header .heading-bar {
+        .help{
+            font-size: 14px;
+        }
         white-space: nowrap;
         text-align: right;
         line-height: 30px;
@@ -363,7 +376,8 @@
             flex: 1;
             height: 30px;
             line-height: 30px;
-            [class*="el-icon-"],
+            text-align: right;
+            [class*="board-icon-"],
             .iconfont {
                 width: 30px;
                 height: 30px;
@@ -376,8 +390,11 @@
                     transform: scale(1.1);
                 }
             }
+            .board-full-screen::before{
+                content: none;
+            }
 
-            .el-icon svg{
+            .board-icon svg{
                 position: relative;
                 top: 4px;
             }
@@ -394,9 +411,9 @@
             height: 30px;
             line-height: 30px;
             cursor: pointer;
-            .el-icon-arrow-left{top:-2px;}
+            .board-icon-arrow-left{top:-2px;}
         }
-        .el-dropdown{
+        .board-dropdown{
             line-height: 30px;
         }
     }

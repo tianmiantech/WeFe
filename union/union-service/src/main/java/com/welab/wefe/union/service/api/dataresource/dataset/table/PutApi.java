@@ -16,55 +16,27 @@
 
 package com.welab.wefe.union.service.api.dataresource.dataset.table;
 
-import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
-import com.welab.wefe.common.data.mongodb.entity.union.TableDataSet;
-import com.welab.wefe.common.data.mongodb.repo.TableDataSetMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.union.service.api.dataresource.dataset.AbstractDatResourcePutApi;
 import com.welab.wefe.union.service.dto.dataresource.DataResourcePutInput;
-import com.welab.wefe.union.service.mapper.TableDataSetMapper;
-import com.welab.wefe.union.service.service.TableDataSetContractService;
-import org.mapstruct.factory.Mappers;
+import com.welab.wefe.union.service.service.TableDataSetService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "table_data_set/put", name = "table_data_set", rsaVerify = true, login = false)
-public class PutApi extends AbstractDatResourcePutApi<PutApi.Input, AbstractApiOutput> {
+@Api(path = "table_data_set/put", name = "table_data_set", allowAccessWithSign = true)
+public class PutApi extends AbstractApi<PutApi.Input, AbstractApiOutput> {
     @Autowired
-    protected TableDataSetContractService tableDataSetContractService;
-    @Autowired
-    protected TableDataSetMongoReop tableDataSetMongoReop;
-
-    protected TableDataSetMapper tableDataSetMapper = Mappers.getMapper(TableDataSetMapper.class);
+    private TableDataSetService tableDataSetService;
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
-        TableDataSet tableDataSet = tableDataSetMongoReop.findByDataResourceId(input.getDataResourceId());
-        DataResource dataResource = dataResourceMongoReop.find(input.getDataResourceId(), input.curMemberId);
-        if (dataResource == null) {
-            if (tableDataSet == null) {
-                tableDataSetContractService.add(tableDataSetMapper.transferPutInputToTableDataSet(input));
-                dataResourceContractService.add(dataResourceMapper.transferPutInputToDataResource(input));
-            } else {
-                dataResourceContractService.add(dataResourceMapper.transferPutInputToDataResource(input));
-            }
-        } else {
-            tableDataSet.setContainsY(input.containsY ? "1" : "0");
-            tableDataSet.setColumnCount(String.valueOf(input.columnCount));
-            tableDataSet.setColumnNameList(input.columnNameList);
-            tableDataSet.setFeatureCount(String.valueOf(input.featureCount));
-            tableDataSet.setFeatureNameList(input.featureNameList);
-            tableDataSetContractService.update(tableDataSet);
-
-            updateDataResource(dataResource,input);
-        }
-
+        tableDataSetService.add(input);
         return success();
     }
 

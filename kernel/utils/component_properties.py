@@ -58,6 +58,7 @@ class RunningFuncs(object):
 class ComponentProperties(object):
     def __init__(self):
         self.need_cv = False
+        self.need_grid_search = False
         self.need_run = False
         self.has_model = False
         self.has_binning_model = False
@@ -86,16 +87,23 @@ class ComponentProperties(object):
         LOGGER.debug(component_parameters)
 
         try:
+            need_grid_search = param.grid_search_param.need_grid_search
+        except AttributeError:
+            need_grid_search = False
+        self.need_grid_search = need_grid_search
+        LOGGER.debug(component_parameters)
+
+        try:
             need_run = param.need_run
         except AttributeError:
             need_run = True
         self.need_run = need_run
-        LOGGER.debug("need_run: {}, need_cv: {}".format(self.need_run, self.need_cv))
+        LOGGER.debug("need_run: {}, need_cv: {}, need_grid_search: {}".format(self.need_run, self.need_cv, self.need_grid_search))
         self.role = component_parameters["local"]["role"]
         self.provider_member_idlist = component_parameters["role"].get("provider")
         self.local_member_id = component_parameters["local"].get("member_id")
         self.promoter_member_id = component_parameters["role"].get("promoter")
-        if self.promoter_member_id is not None:
+        if len(self.promoter_member_id) != 0:
             self.promoter_member_id = self.promoter_member_id[0]
         if 'mix_promoter_member_id' in component_parameters:
             self.mix_promoter_member_id = component_parameters["mix_promoter_member_id"]
@@ -172,6 +180,11 @@ class ComponentProperties(object):
             # todo_func_list.append(self.pass_data)
             # todo_func_params.append([data])
             # use_previews_result.append(False)
+            return running_funcs
+
+        if self.need_grid_search:
+            running_funcs.add_func(model.grid_search, [train_data, eval_data, self.need_cv], save_result=True)
+
             return running_funcs
 
         if self.need_cv:

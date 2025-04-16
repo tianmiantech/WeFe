@@ -4,8 +4,8 @@
         class="flex-form"
         @submit.prevent
     >
-        <el-form-item label="案例:">
-            <p class="f12"><span class="color-danger">x1</span>>2<span class="strong">&</span><span class="color-danger">x1</span>&lt;50<span class="strong">&</span><span class="color-danger">x3</span>=100<span class="strong">&</span><span class="color-danger">x5</span>!=30</p>
+        <!-- <el-form-item label="案例:">
+            <p class="f12"><span class="color-danger">date</span><span>>2022-01-01</span>或<span class="color-danger">x1</span>>2<span class="strong">&</span><span class="color-danger">x1</span>&lt;50<span class="strong">&</span><span class="color-danger">x3</span>=100<span class="strong">&</span><span class="color-danger">x5</span>!=30</p>
         </el-form-item>
         <el-form-item label="含义:">
             <p class="f12">其中 <span class="color-danger">x1, x3, x5</span> 为特征名称, 满足 x1>2 <span class="strong">并且</span> x1&lt;50 <span class="strong">并且</span> x3 = 100 <span class="strong">并且</span> x5!=30 的数据样本保留，其他的样本将被删除</p>
@@ -17,11 +17,11 @@
             <p class="f12">&</p>
         </el-form-item>
         <el-form-item label="注意:">
-            <p class="f12 color-danger">对于同一个特征的操作符 >, &lt; 和 !=, = 不能同时存在</p>
-        </el-form-item>
+            <p class="f12 color-danger">操作符两边只能有一个特征</p>
+        </el-form-item> -->
 
         <el-form
-            v-for="member in vData.members"
+            v-for="(member, midx) in vData.members"
             :key="`${member.member_id}-${member.member_role}`"
             :disabled="disabled"
             class="flex-form li"
@@ -58,20 +58,26 @@
             <el-form-item
                 label="过滤规则:"
                 prop="filter_rules"
-                :rules="formRules.filterRule"
+                class="is-required"
             >
-                <el-input
+                <filter-rules
+                    :disabled="disabled"
+                    :memberData="member"
+                    :ref="el => { if(el) filterRulesRef[midx] = el }"
+                />
+                <!-- <el-input
                     type="textarea"
                     v-model="member.filter_rules"
                     clearable
-                />
+                /> -->
             </el-form-item>
         </el-form>
     </el-form>
 </template>
 
 <script>
-    import { reactive, getCurrentInstance } from 'vue';
+    import { reactive, getCurrentInstance, ref } from 'vue';
+    import filterRules from './filterRules.vue';
 
     export default {
         name:  'VertFilter',
@@ -87,28 +93,18 @@
             jobId:              String,
             class:              String,
         },
+        components: {
+            filterRules,
+        },
+
         setup(props, context) {
             const { appContext } = getCurrentInstance();
             const { $alert, $http } = appContext.config.globalProperties;
-            const formRules = {
-                filterRule: [
-                    { required: true, message: '请输入过滤规则' },
-                    {
-                        validator: (rule, value, callback) => {
-                            if (/([\da-zA-Z])?([\da-zA-Z]$)/.test(value)) {
-                                callback();
-                            } else {
-                                callback(new Error('请输入正确的过滤规则'));
-                            }
-                        },
-                        trigger: 'blur',
-                    },
-                ],
-            };
             const vData = reactive({
                 loading: false,
                 members: [],
             });
+            const filterRulesRef = ref([]);
             const methods = {
                 async readData (model) {
                     vData.loading = true;
@@ -171,24 +167,17 @@
                     for(const i in vData.members) {
                         const member = vData.members[i];
 
-                        if(!member.filter_rules) {
-                            $alert('警告:', {
-                                type:                     'warning',
-                                title:                    '警告:',
-                                message:                  '<div class="color-danger">过滤规则必填!</div>',
-                                dangerouslyUseHTMLString: true,
-                            });
-                            return false;
-                        }
-
+                        member.filter_rules = filterRulesRef.value?.[i].getRule();
                         members.push({
                             member_id:    member.member_id,
                             member_role:  member.member_role,
                             member_name:  member.member_name,
                             filter_rules: member.filter_rules,
                         });
+                        if (!member.filter_rules) {
+                            return false;
+                        }
                     }
-
                     return {
                         params: {
                             members,
@@ -199,7 +188,7 @@
 
             return {
                 vData,
-                formRules,
+                filterRulesRef,
                 methods,
             };
         },
@@ -211,6 +200,6 @@
         padding-top: 15px;
         border-top: 1px solid $border-color-base;
     }
-    .el-form-item{margin-bottom:0;}
+    .board-form-item{margin-bottom:0;}
     .strong{color:$--color-success;}
 </style>

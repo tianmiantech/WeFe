@@ -19,7 +19,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.database.serving.entity.FeeConfigMysqlModel;
+import com.welab.wefe.serving.service.database.entity.FeeConfigMysqlModel;
 import com.welab.wefe.serving.service.service.FeeConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 

@@ -45,7 +45,7 @@ class VisualFLService:
 
     @staticmethod
     def _request(api, data):
-        url = GlobalSetting.get_visualfl_base_url().value + api
+        url = GlobalSetting.get_paddle_visual_dl_baseurl().value + api
 
         # 发送请求
         start_time = current_timestamp()

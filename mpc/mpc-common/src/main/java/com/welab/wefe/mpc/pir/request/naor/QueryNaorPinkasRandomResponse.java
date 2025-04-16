@@ -18,7 +18,9 @@ package com.welab.wefe.mpc.pir.request.naor;
 
 import java.util.List;
 
-public class QueryNaorPinkasRandomResponse {
+import com.welab.wefe.mpc.pir.request.BaseResponse;
+
+public class QueryNaorPinkasRandomResponse extends BaseResponse {
 
     private String uuid;
 
@@ -35,14 +37,9 @@ public class QueryNaorPinkasRandomResponse {
      */
     private String secret;
     /**
-     * 随机大数，十六进制字符串
-     * 大小比混淆ids少1
+     * 随机大数，十六进制字符串 大小比混淆ids少1
      */
     private List<String> randoms;
-    
-    private int code;
-    
-    private String message;
 
     public String getUuid() {
         return uuid;

@@ -73,6 +73,7 @@
     import md5 from 'js-md5';
     import { mapGetters } from 'vuex';
     import { clearUserInfo } from '../router/auth';
+    import {appCode} from '@src/utils/constant';
 
     export default {
         inject: ['refresh'],
@@ -96,7 +97,7 @@
             this.$bus.$on('show-login-dialog', () => {
                 if(!this.show) {
                     // hide the chat room
-                    window.localStorage.setItem(`${window.api.baseUrl}_chat`, 'disconnect');
+                    window.localStorage.setItem(`${appCode()}_chat`, 'disconnect');
                     this.$store.commit('SYSTEM_INITED', false);
                     this.$store.commit('UPDATE_USERINFO', {});
                     this.form.code = '';
@@ -148,6 +149,7 @@
                         ...data,
                     });
                     this.$store.commit('SYSTEM_INITED', true);
+                    this.$store.commit('UI_CONFIG', data.ui_config);
                     this.$message.success('登录成功');
 
                     const res = await this.$http.get({
@@ -164,10 +166,42 @@
                         this.refresh();
                         this.$bus.$emit('loginAndRefresh'); // notice other components
                     }
+                    this.checkEnv();
+                    this.getUserList();
                 } else {
                     this.getImgCode();
                 }
                 this.loading = false;
+            },
+            async checkEnv() {
+                const { code, data } = await this.$http.get('/env');
+
+                if (code === 0) {
+                    const is_demo = data.env_properties.is_demo === 'true';
+
+                    this.$store.commit('IS_DEMO', is_demo);
+                } else {
+                    this.$store.commit('IS_DEMO', false);
+                }
+            },
+            async getUserList() {
+                const { code, data } = await this.$http.post({
+                    url:  '/account/list_all',
+                    data: {
+                        nickname:   '',
+                        page_index: '',
+                        page_size:  '',
+                    },
+                });
+
+                if (code === 0 && data) {
+                    let admin_list = [];
+
+                    if (data.list && data.list.length) {
+                        admin_list = data.list.filter(item => item.admin_role);
+                    }
+                    this.$store.commit('ADMIN_USER_LIST', admin_list);
+                }
             },
 
             register() {
@@ -178,14 +212,14 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-dialog__wrapper{
-        :deep(.el-dialog){
+    .board-dialog__wrapper{
+        :deep(.board-dialog){
             min-width: 360px;
             max-width: 460px;
         }
     }
     .form-code{
-        :deep(.el-input-group__append){
+        :deep(.board-input-group__append){
             padding:0;
             width: 90px;
             overflow: hidden;
@@ -196,7 +230,7 @@
         height: 30px;
         cursor: pointer;
     }
-    .login-form :deep(.el-input) {width: 90%;}
+    .login-form :deep(.board-input) {width: 90%;}
     .login-form :deep(.login-btn) {
         width: 100px;
         display: block;
@@ -204,9 +238,9 @@
         font-size: 14px;
     }
     .login-form{
-        .el-form-item{display: flex;}
-        :deep(.el-form-item__label) {width: 70px;}
-        :deep(.el-form-item__content) {flex: 1;}
+        .board-form-item{display: flex;}
+        :deep(.board-form-item__label) {width: 70px;}
+        :deep(.board-form-item__content) {flex: 1;}
     }
-    .el-button + .el-button{margin-left:0;}
+    .board-button + .board-button{margin-left:0;}
 </style>

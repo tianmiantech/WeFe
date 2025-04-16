@@ -106,7 +106,7 @@
 
 <style lang="scss" scoped>
     .tip {
-        padding: 8px 8px 8px 16px;
+        padding: 22px 8px 22px 16px;
         border-radius: 4px;
         margin-top: 15px;
 
@@ -115,7 +115,7 @@
             font-weight: bold;
             display: flex;
             align-items: center;
-            .el-icon{
+            .board-icon{
                 top:2px;
                 margin-left: 4px;
                 cursor: pointer;
@@ -146,27 +146,27 @@
         align-items: center;
     }
 
-    .el-collapse{
+    .board-collapse{
         border:0;
         display: inline-block;
     }
-    .el-collapse-item{
-        :deep(.el-collapse-item__header) {
+    .board-collapse-item{
+        :deep(.board-collapse-item__header) {
             height: 30px;
             line-height: 30px;
             display: inline-block;
             background: none;
             border:0;
         }
-        :deep(.el-collapse-item__arrow) {
+        :deep(.board-collapse-item__arrow) {
             margin-left: 10px;
             top: 2px;
         }
-        :deep(.el-collapse-item__wrap) {
+        :deep(.board-collapse-item__wrap) {
             background:none;
             border:0;
         }
-        :deep(.el-collapse-item__content) {
+        :deep(.board-collapse-item__content) {
             padding-bottom:0;
         }
     }

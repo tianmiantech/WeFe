@@ -16,9 +16,6 @@
 
 package com.welab.wefe.union.service.api.dataresource;
 
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
-import com.welab.wefe.common.data.mongodb.repo.DataResourceMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -26,10 +23,7 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
-import com.welab.wefe.union.service.service.BloomFilterContractService;
-import com.welab.wefe.union.service.service.DataResourceContractService;
-import com.welab.wefe.union.service.service.ImageDataSetContractService;
-import com.welab.wefe.union.service.service.TableDataSetContractService;
+import com.welab.wefe.union.service.service.DataResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -39,43 +33,15 @@ import java.io.IOException;
  *
  * @author yuxin.zhang
  **/
-@Api(path = "data_resource/delete", name = "data_resource_delete", rsaVerify = true, login = false)
+@Api(path = "data_resource/delete", name = "data_resource_delete", allowAccessWithSign = true)
 public class DeleteApi extends AbstractApi<DeleteApi.Input, AbstractApiOutput> {
     @Autowired
-    private DataResourceContractService dataResourceContractService;
-    @Autowired
-    private DataResourceMongoReop dataResourceMongoReop;
-    @Autowired
-    private ImageDataSetContractService imageDataSetContractService;
-    @Autowired
-    private TableDataSetContractService tableDataSetContractService;
-    @Autowired
-    private BloomFilterContractService bloomFilterContractService;
+    private DataResourceService dataResourceService;
 
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException, IOException {
-        DataResource dataResource = dataResourceMongoReop.findByDataResourceId(input.dataResourceId);
-        if(dataResource != null) {
-            if(dataResource.getMemberId().equals(input.curMemberId)){
-                switch (dataResource.getDataResourceType()) {
-                    case BloomFilter:
-                        bloomFilterContractService.delete(input.dataResourceId);
-                        break;
-                    case TableDataSet:
-                        tableDataSetContractService.delete(input.dataResourceId);
-                        break;
-                    case ImageDataSet:
-                        imageDataSetContractService.delete(input.dataResourceId);
-                }
-                dataResourceContractService.delete(input.dataResourceId);
-            } else {
-                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
-            }
-        } else {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND,"资源不存在");
-        }
-
+        dataResourceService.delete(input);
         return success();
     }
 

@@ -39,7 +39,7 @@
                 </el-form-item>
                 <el-form-item
                     prop="learning_rate"
-                    label="学习率"
+                    label="学习率："
                 >
                     <el-input
                         v-model="vData.form.learning_rate"
@@ -74,7 +74,7 @@
                 </el-form-item>
                 <el-form-item label="底层参数：">
                     <p v-if="!disabled" class="add-one-group">
-                        <el-icon class="el-icon-plus" @click="methods.addOneGroup('bottom_nn_define')">
+                        <el-icon class="board-icon-plus" @click="methods.addOneGroup('bottom_nn_define')">
                             <elicon-plus />
                         </el-icon>
                     </p>
@@ -127,7 +127,7 @@
                                     </el-select>
                                 </div>
                             </div>
-                            <el-icon v-if="!disabled && idx !== 0" class="el-icon-delete" @click="methods.deleteOneGroup('bottom_nn_define', idx)">
+                            <el-icon v-if="!disabled && idx !== 0" class="board-icon-delete" @click="methods.deleteOneGroup('bottom_nn_define', idx)">
                                 <elicon-delete />
                             </el-icon>
                         </div>
@@ -135,7 +135,7 @@
                 </el-form-item>
                 <el-form-item label="中层参数：">
                     <p hidden class="add-one-group">
-                        <el-icon class="el-icon-plus" @click="methods.addOneGroup('interactive_layer_define')">
+                        <el-icon class="board-icon-plus" @click="methods.addOneGroup('interactive_layer_define')">
                             <elicon-plus />
                         </el-icon>
                     </p>
@@ -189,7 +189,7 @@
                                 </div>
                             </div>
                             <el-icon
-                                v-if="idx !== 0" class="el-icon-delete"
+                                v-if="idx !== 0" class="board-icon-delete"
                                 @click="methods.deleteOneGroup('interactive_layer_define', idx)"
                             >
                                 <elicon-delete />
@@ -199,7 +199,7 @@
                 </el-form-item>
                 <el-form-item label="顶层参数：">
                     <p class="add-one-group">
-                        <el-icon class="el-icon-plus" @click="methods.addOneGroup('top_nn_define')">
+                        <el-icon class="board-icon-plus" @click="methods.addOneGroup('top_nn_define')">
                             <elicon-plus />
                         </el-icon>
                     </p>
@@ -253,7 +253,7 @@
                                 </div>
                             </div>
                             <el-icon
-                                v-if="idx !== 0" class="el-icon-delete"
+                                v-if="idx !== 0" class="board-icon-delete"
                                 @click="methods.deleteOneGroup('top_nn_define', idx)"
                             >
                                 <elicon-delete />
@@ -309,7 +309,7 @@
                     config:     {
                         units:       1,
                         input_shape: [],
-                        activation:  'relu',
+                        activation:  'sigmoid',
                     },
                 },
             ],
@@ -381,6 +381,10 @@
 
                             members.forEach(member => {
                                 totalCount += member.data_set_features;
+                                if (member.label_distribution) {
+                                    vData.label_species_count = member.label_distribution.label_species_count;
+                                    return;
+                                }
                             });
                             methods.changeInputShape(totalCount);
                         }
@@ -388,6 +392,16 @@
                 },
                 changeInputShape(data) {
                     vData.form.bottom_nn_define.layers[0].config.input_shape[0] = data;
+                },
+                setDefaulValue() {
+                    vData.form.top_nn_define.layers.forEach(item => {
+                        if (vData.label_species_count <= 2) { // 二分类
+                            item.config.units = 1;
+                        } else { // 多分类
+                            item.config.units = vData.label_species_count;
+                            item.config.activation = 'softmax';
+                        }
+                    });
                 },
 
                 reactiveInputShape() {
@@ -497,29 +511,29 @@
 </script>
 
 <style lang="scss" scoped>
-.el-form {margin-top: 25px;}
-.el-form-item{
+.board-form {margin-top: 25px;}
+.board-form-item{
     margin-bottom: 10px;
-    :deep(.el-form-item__label){
+    :deep(.board-form-item__label){
         flex:1;
     }
-    :deep(.el-form-item__content){
+    :deep(.board-form-item__content){
         flex:2;
     }
 }
-.el-collapse-item {
-    :deep(.el-collapse-item__header) {
+.board-collapse-item {
+    :deep(.board-collapse-item__header) {
         color: #438bff;
         font-size: 16px;
         padding-left: 5px;
-        .el-collapse-item__arrow {
+        .board-collapse-item__arrow {
             color: #999;
         }
     }
-    :deep(.el-collapse-item__wrap) {
+    :deep(.board-collapse-item__wrap) {
         padding: 0 10px;
     }
-    :deep(.el-collapse-item__content) {
+    :deep(.board-collapse-item__content) {
         padding-bottom: 0;
     }
 }
@@ -530,10 +544,10 @@
 .readonly-form:before {
     position: unset !important;
 }
-.el-input{max-width:190px;}
+.board-input{max-width:190px;}
 .add-one-group {
     margin-right:10px;
-    .el-icon-plus {
+    .board-icon-plus {
         font-size: 16px;
         color: #438bff;
         cursor: pointer;
@@ -556,7 +570,7 @@
             width: 102px;
         }
     }
-    .el-icon-delete {
+    .board-icon-delete {
         color: #ff4949;
         cursor: pointer;
         padding-left: 5px;

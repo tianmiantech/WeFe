@@ -705,7 +705,7 @@ class MultivariateStatistical(object):
 
         if cols_dict is None:
             cols_dict = self.cols_dict
-        self.mode = self._get_mode(cols_dict)
+        self.mode = self._get_mode2(cols_dict)
         for col_name, col_index in cols_dict.items():
             if col_name not in self.mode:
                 LOGGER.warning("The column {}, has not set in selection parameters."
@@ -735,10 +735,79 @@ class MultivariateStatistical(object):
         for data_instance in self.data_instances.collect():
             features = data_instance[1].features
             for col_name, col_index in cols_dict.items():
+                if np.isnan(features[col_index]):
+                    continue
                 if features[col_index] not in col_dict[col_name].keys():
                     col_dict[col_name][features[col_index]] = 1
                 else:
                     col_dict[col_name][features[col_index]] += 1
+
+        mode = {}
+        for col_name in col_dict.keys():
+            mode[col_name] = max(col_dict[col_name], key=col_dict[col_name].get)
+
+        return mode
+
+    @staticmethod
+    def mode_in_partition(data_instance, cols_dict):
+        col_dict = {}
+        # init col_dict
+        for col_name, col_index in cols_dict.items():
+            col_dict[col_name] = {}
+
+        for data in data_instance:
+            features = data[1].features
+            for col_name, col_index in cols_dict.items():
+                if np.isnan(features[col_index]):
+                    continue
+                if features[col_index] not in col_dict[col_name].keys():
+                    col_dict[col_name][features[col_index]] = 1
+                else:
+                    col_dict[col_name][features[col_index]] += 1
+
+        return col_dict
+
+    @staticmethod
+    def mode_reduce(mode_dict1, mode_dict2):
+        if mode_dict1 is None and mode_dict2 is None:
+            return None
+        if mode_dict1 is None:
+            return mode_dict2
+        if mode_dict2 is None:
+            return mode_dict1
+
+        new_dict = {}
+        for col_name, static_1 in mode_dict1.items():
+            value_dict1 = static_1
+            value_dict2 = mode_dict2[col_name]
+            for value, count in value_dict2.items():
+                if value in value_dict1:
+                    value_dict1[value] = value_dict1[value] + count
+                else:
+                    value_dict1[value] = count
+            new_dict[col_name] = value_dict1
+
+        return new_dict
+
+    def _get_mode2(self, cols_dict):
+        """
+            Moore voting method to calculate the mode
+        Parameters
+        ----------
+        cols_dict : dict
+           cols_dict = {
+               'x0': 0,
+               'x1': 1,
+               'x3': 3
+           }
+        Returns
+        -------
+
+        """
+        partition_cal = functools.partial(self.mode_in_partition,
+                                          cols_dict=cols_dict)
+        mode_dict = self.data_instances.mapPartitions(partition_cal)
+        col_dict = mode_dict.reduce(self.mode_reduce)
 
         mode = {}
         for col_name in col_dict.keys():
@@ -756,7 +825,7 @@ class MultivariateStatistical(object):
             cols_index.append(idx)
         return cols_index
 
-    def get_percentile(self, percentage_list, cols_dict=None, unique_num=None):
+    def get_percentile(self, percentage_list, cols_dict=None, unique_num=None, allow_duplicate=False):
         """
 
         Args:
@@ -769,13 +838,14 @@ class MultivariateStatistical(object):
 
         Returns: dict of percentiles result
         :param unique_num:
+        :param allow_duplicate:
 
         """
         # percentiles = {}
         # if cols_dict is None:
         #     cols_dict = self.cols_dict
 
-        percentiles_dict = self._get_percentile(percentage_list)
+        percentiles_dict = self._get_percentile(percentage_list, allow_duplicate=allow_duplicate)
 
         # for col_name in cols_dict:
         #     if col_name not in self.percentiles:
@@ -786,11 +856,11 @@ class MultivariateStatistical(object):
 
         return percentiles_dict
 
-
-    def _get_percentile(self, percentage_list):
+    def _get_percentile(self, percentage_list, allow_duplicate=False):
         """
         Percentile index: continuous characteristic index
         :param percentage:
+        :param allow_duplicate:
         :return:
         """
         for p in percentage_list:
@@ -808,7 +878,7 @@ class MultivariateStatistical(object):
         cols_index = self._get_cols_index()
         # if the type of data < 100, the split_points < 100, cause out of bounds
         bin_param = FeatureBinningParam(bin_num=100, bin_indexes=cols_index)
-        binning_obj = QuantileBinning(bin_param, abnormal_list=self.abnormal_list)
+        binning_obj = QuantileBinning(bin_param, abnormal_list=self.abnormal_list, allow_duplicate=allow_duplicate)
         split_points = binning_obj.fit_split_points(self.data_instances)
         percentiles_dict = {}
         log_utils.get_logger().info('分箱点' + ','.join(list(map(str, split_points))))
@@ -824,8 +894,8 @@ class MultivariateStatistical(object):
 
         return percentiles_dict
 
-    def get_percentile_dict(self, percentage_list):
-        percentile_dict = self.get_percentile(percentage_list=percentage_list)
+    def get_percentile_dict(self, percentage_list, allow_duplicate=False):
+        percentile_dict = self.get_percentile(percentage_list=percentage_list, allow_duplicate=allow_duplicate)
         # percentile_dict = {}
         # for p in percentage_list:
         #     percentile_dict[p] = self.get_percentile(percentage=p)
@@ -865,7 +935,7 @@ def get_statistics_value(data_instances=None, origin_data=None, percentage_list=
     statistics_dict['kurtosis'] = statistic.get_kurtosis()
     statistics_dict['skewness'] = statistic.get_skewness()
     if is_vert:
-        statistics_dict['percentile'] = statistic.get_percentile_dict(percentage_list)
+        statistics_dict['percentile'] = statistic.get_percentile_dict(percentage_list, allow_duplicate=True)
     statistics_dict['m'] = statistic.get_m()
     statistics_dict['m2'] = statistic.get_m(d_type='m2')
     statistics_dict['m3'] = statistic.get_m(d_type='m3')

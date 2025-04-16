@@ -17,73 +17,25 @@
 package com.welab.wefe.union.service.api.dataresource;
 
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
-import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
-import com.welab.wefe.common.data.mongodb.repo.BloomFilterMongoReop;
-import com.welab.wefe.common.data.mongodb.repo.DataResourceMongoReop;
-import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
-import com.welab.wefe.common.data.mongodb.repo.TableDataSetMongoReop;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
 import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryOutput;
-import com.welab.wefe.union.service.mapper.BloomFilterMapper;
-import com.welab.wefe.union.service.mapper.DataResourceMapper;
-import com.welab.wefe.union.service.mapper.ImageDataSetMapper;
-import com.welab.wefe.union.service.mapper.TableDataSetMapper;
-import org.mapstruct.factory.Mappers;
+import com.welab.wefe.union.service.service.DataResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "data_resource/query", name = "data_resource_query", rsaVerify = true, login = false)
+@Api(path = "data_resource/query", name = "data_resource_query", allowAccessWithSign = true)
 public class QueryApi extends AbstractApi<ApiDataResourceQueryInput, PageOutput<ApiDataResourceQueryOutput>> {
     @Autowired
-    protected DataResourceMongoReop dataResourceMongoReop;
-    @Autowired
-    protected BloomFilterMongoReop bloomFilterMongoReop;
-    @Autowired
-    protected ImageDataSetMongoReop imageDataSetMongoReop;
-    @Autowired
-    protected TableDataSetMongoReop tableDataSetMongoReop;
-
-    protected TableDataSetMapper tableDataSetMapper = Mappers.getMapper(TableDataSetMapper.class);
-    protected ImageDataSetMapper imageDataSetMapper = Mappers.getMapper(ImageDataSetMapper.class);
-    protected BloomFilterMapper bloomFilterMapper = Mappers.getMapper(BloomFilterMapper.class);
-    protected DataResourceMapper dataResourceMapper = Mappers.getMapper(DataResourceMapper.class);
+    private DataResourceService dataResourceService;
 
     @Override
     protected ApiResult<PageOutput<ApiDataResourceQueryOutput>> handle(ApiDataResourceQueryInput input) {
-        PageOutput<DataResourceQueryOutput> pageOutput = dataResourceMongoReop.findOneByDataResourceId(dataResourceMapper.transferInput(input));
-
-        List<ApiDataResourceQueryOutput> list = pageOutput.getList().stream()
-                .map(x -> {
-                    if (x.getDataResourceType().compareTo(DataResourceType.TableDataSet) == 0) {
-                        return tableDataSetMapper.transferDetail(x);
-                    } else if (x.getDataResourceType().compareTo(DataResourceType.ImageDataSet) == 0) {
-                        return imageDataSetMapper.transferDetail(x);
-                    } else if (x.getDataResourceType().compareTo(DataResourceType.BloomFilter) == 0) {
-                        return bloomFilterMapper.transferDetail(x);
-                    } else {
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-        return success(new PageOutput<>(
-                pageOutput.getPageIndex(),
-                pageOutput.getTotal(),
-                pageOutput.getPageSize(),
-                pageOutput.getTotalPage(),
-                list
-        ));
+        return success(dataResourceService.query(input));
     }
 
 }

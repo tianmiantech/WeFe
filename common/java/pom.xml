@@ -22,6 +22,8 @@
         <module>common-data-mongodb</module>
         <module>common-wefe</module>
         <module>common-verification-code</module>
+        <module>common-cert</module>
+        <module>common-jdbc</module>
     </modules>
 
 </project>

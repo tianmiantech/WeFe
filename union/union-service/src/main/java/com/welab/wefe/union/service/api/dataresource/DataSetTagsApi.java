@@ -16,51 +16,32 @@
 
 package com.welab.wefe.union.service.api.dataresource;
 
-import com.welab.wefe.common.data.mongodb.repo.DataResourceMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.dataresource.TagsDTO;
+import com.welab.wefe.union.service.service.DataResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * data resoure tags query
  *
  * @author yuxin.zhang
  **/
-@Api(path = "data_resource/tags/query", name = "data_resource_tags_query", rsaVerify = true, login = false)
+@Api(path = "data_resource/tags/query", name = "data_resource_tags_query", allowAccessWithSign = true)
 public class DataSetTagsApi extends AbstractApi<DataSetTagsApi.Input, List<TagsDTO>> {
     @Autowired
-    protected DataResourceMongoReop dataResourceMongoReop;
-
+    private DataResourceService dataResourceService;
 
     @Override
     protected ApiResult<List<TagsDTO>> handle(Input input) throws StatusCodeWithException, IOException {
-        List<String> tagsList = dataResourceMongoReop.findByDataResourceType(input.dataResourceType);
-
-        Map<String, Long> tagGroupMap = tagsList.stream()
-                .flatMap(tags -> Arrays.stream(tags.split(",")))
-                .filter(tag -> !tag.isEmpty())
-                .collect(Collectors.groupingBy(String::trim, Collectors.counting()));
-
-        List<TagsDTO> result = tagGroupMap
-                .entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .map(x -> new TagsDTO(x.getKey(), x.getValue()))
-                .collect(Collectors.toList());
-        return success(result);
+        return success(dataResourceService.queryTags(input));
     }
-
 
     public static class Input extends BaseInput {
         private String dataResourceType;

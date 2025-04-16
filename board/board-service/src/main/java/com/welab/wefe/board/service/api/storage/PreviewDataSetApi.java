@@ -31,6 +31,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.dto.global_config.FlowConfigModel;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class PreviewDataSetApi extends AbstractApi<PreviewDataSetApi.Input, Prev
     private GlobalConfigService globalConfigService;
 
     @Override
-    protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<Output> handle(Input input) throws Exception {
         TableDataSetMysqlModel model = dataSetRepository.findById(input.getId()).orElse(null);
         if (model == null) {
             return success();
@@ -83,7 +84,7 @@ public class PreviewDataSetApi extends AbstractApi<PreviewDataSetApi.Input, Prev
      * View the data of the derived data set from flow service
      */
     private List<List<String>> getRowsFromFlow(TableDataSetMysqlModel model) throws StatusCodeWithException {
-        String url = globalConfigService.getFlowConfig().intranetBaseUri
+        String url = globalConfigService.getModel(FlowConfigModel.class).intranetBaseUri
                 + String.format(
                 "/data_set/view?table_name=%s&table_namespace=%s",
                 model.getStorageResourceName(),

@@ -24,6 +24,7 @@ import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDa
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +45,8 @@ public class ProjectDataSetAuditService extends AbstractService {
 
     @Autowired
     ProjectDataSetService projectDataSetService;
+    @Autowired
+    private MessageService messageService;
 
 
     /**
@@ -54,12 +57,12 @@ public class ProjectDataSetAuditService extends AbstractService {
 
         ProjectMySqlModel project = projectService.findByProjectId(input.getProjectId());
         if (project == null) {
-            throw new StatusCodeWithException("未找到相应的项目！", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "未找到相应的项目！");
         }
 
         if (!input.fromGateway()) {
             if (project.getAuditStatus() != AuditStatus.agree || project.isExited()) {
-                throw new StatusCodeWithException("请在成为该项目的正式成员后再进行相关操作", StatusCode.ILLEGAL_REQUEST);
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "请在成为该项目的正式成员后再进行相关操作");
             }
         }
 
@@ -72,13 +75,15 @@ public class ProjectDataSetAuditService extends AbstractService {
                 .findFirst().orElse(null);
 
         if (dataSet == null || dataSet.getAuditStatus() != AuditStatus.auditing) {
-            throw new StatusCodeWithException("请勿重复审核！", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "请勿重复审核！");
         }
 
         if (!input.fromGateway()) {
             if (!CacheObjects.getMemberId().equals(dataSet.getMemberId())) {
-                throw new StatusCodeWithException("你不能审核别人的数据集", StatusCode.ILLEGAL_REQUEST);
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "你不能审核别人的数据集");
             }
+
+            messageService.completeApplyDataResourceTodo(dataSet);
         }
 
         projectDataSetService.update(dataSet, (x) -> x.setAuditStatus(input.getAuditStatus()));
@@ -86,6 +91,16 @@ public class ProjectDataSetAuditService extends AbstractService {
         // Update the number of data sets used in the project
         tableDataSetService.updateUsageCountInProject(dataSet.getDataSetId());
 
+        // 如果我方是 promoter，添加一条提醒消息。
+        if (input.fromGateway() && project.getMyRole() == JobMemberRole.promoter) {
+            messageService.addAuditDataResourceMessage(
+                    input.callerMemberInfo.getMemberId(),
+                    project,
+                    dataSet,
+                    input.getAuditStatus(),
+                    input.getAuditComment()
+            );
+        }
 
         gatewayService.syncToNotExistedMembers(input.getProjectId(), input, AuditDataSetApi.class);
 

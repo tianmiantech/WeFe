@@ -17,12 +17,11 @@
 package com.welab.wefe.serving.sdk.test;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.serving.sdk.config.Launcher;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
+import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
 import org.apache.commons.compress.utils.Lists;
 
 import java.util.HashMap;
@@ -38,7 +37,7 @@ public class Example {
 
     static {
         try {
-            Launcher.init("memberId", "rsaPrivateKey", "rsaPublicKey");
+            Launcher.init("memberId", "rsaPrivateKey", "rsaPublicKey", SecretKeyType.rsa);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -57,14 +56,13 @@ public class Example {
         featureData.put("x3", 3.432);
         featureData.put("x4", 4.543);
         featureData.put("x5", 5.654);
-        PredictParams predictParams = PredictParams.of("15555555555", featureData);
 
         try {
 
             /**
              * promoter
              */
-            ExamplePromoterPredicter promoter = new ExamplePromoterPredicter("modelId", predictParams, new JSONObject(), providers, "memberId");
+            ExamplePromoterPredicter promoter = new ExamplePromoterPredicter("modelId", "15555555555", featureData);
             PredictResult promoterResult = promoter.predict();
             System.err.println(JSON.toJSONString(promoterResult));
 
@@ -72,10 +70,7 @@ public class Example {
             /**
              * provider
              */
-            ExampleProviderPredicter provider = new ExampleProviderPredicter(
-                    FederatedParams.of("", "modelId-02", "memberId"),
-                    predictParams,
-                    new JSONObject());
+            AbstractBasePredictor provider = new ExampleProviderPredicter("modelId-02", "15555555555", featureData);
             PredictResult providerResult = provider.predict();
             System.err.println(JSON.toJSONString(providerResult));
 

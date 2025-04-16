@@ -38,6 +38,9 @@ public class ExcelSecurityChecker extends FileSecurityChecker {
         long totalRowCount = reader.getRowCount(0);
         for (int i = 0; i < totalRowCount; i++) {
             List<Object> row = reader.getRowData(0, i);
+            if (row == null) {
+                continue;
+            }
             for (Object item : row) {
                 String str = String.valueOf(item);
                 for (String key : keywords) {

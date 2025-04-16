@@ -44,8 +44,10 @@ public class DateUtil {
     public final static String YYYYMM = "yyyyMM";
     public static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd.HH.mm.ss";
     public static final String YYYY_MM_DD_HH_MM_SS2 = "yyyy-MM-dd HH:mm:ss";
+    public static final String YYYY_MM_DD_HH_MM_SS3 = "yyyy-MM-dd HH:mm:00";
+    public static final String YYYY_MM_DD_HH_MM_SS4 = "yyyy-MM-dd HH:00:00";
     public static final String YYYY_MM_DD_HH_MM = "yyyy-MM-dd HH:mm";
-    public static final String YYYY_MM_DD_HH = "yyyy-MM-dd HH";
+    public static final String YYYY_MM_DD_HH = "yyyy-MM-dd HH:00:00";
     public static final String Y4_M2_D2_H2_M2_S2 = "yyyyMMddHHmmss";
     public static final String Y4_M2_D2_H2 = "yyyyMMddHH";
     public static final String YYYY_MM_DDTHH_MM_SS_SSSZ = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
@@ -330,13 +332,47 @@ public class DateUtil {
         return sdf.format(new Date());
     }
 
+    /**
+     * Gets the current date: time
+     *
+     * @return String
+     */
+    public static String getCurrentDate2() {
+        SimpleDateFormat sdf = new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS3);
+        return sdf.format(new Date());
+    }
+
+    /**
+     * Gets the current date: time
+     *
+     * @return String
+     */
+    public static String getCurrentDate3() {
+        SimpleDateFormat sdf = new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS4);
+        return sdf.format(new Date());
+    }
+
     public static long currentDateMillis() {
         Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTimeInMillis();
+    }
+
+    public static long dateMillis(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
         calendar.set(Calendar.HOUR_OF_DAY,0);
         calendar.set(Calendar.MINUTE,0);
         calendar.set(Calendar.SECOND,0);
         calendar.set(Calendar.MILLISECOND,0);
         return calendar.getTimeInMillis();
+    }
+
+    public static Date getCurrentDay() {
+        return new Date(currentDateMillis());
     }
 
     /**

@@ -38,6 +38,7 @@ def get_log_root_path():
     from common.python.common import consts
     from common.python.utils import conf_utils
     log_root = conf_utils.get_comm_config(consts.COMM_CONF_KEY_LOG_ROOT)
+    print(f'log_root: {log_root}')
     abs_log_root = os.path.abspath(log_root) if os.path.isabs(log_root) \
         else os.path.abspath(os.path.join(file_utils.get_project_base_directory(), log_root))
     # print(f"log_root:{abs_log_root}")

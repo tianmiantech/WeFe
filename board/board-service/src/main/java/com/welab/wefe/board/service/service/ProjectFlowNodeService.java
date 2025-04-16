@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.service;
 
+import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.api.project.node.CheckExistEvaluationComponentApi;
 import com.welab.wefe.board.service.api.project.node.UpdateApi;
 import com.welab.wefe.board.service.component.Components;
@@ -36,6 +37,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
@@ -156,8 +158,11 @@ public class ProjectFlowNodeService {
     @Transactional(rollbackFor = Exception.class)
     public List<ProjectFlowNodeOutputModel> updateFlowNode(UpdateApi.Input input) throws StatusCodeWithException {
 
-        // Update flow status
-        projectFlowService.updateFlowStatus(input.getFlowId(), ProjectFlowStatus.editing);
+        // 对于网格搜索任务参数自动回写等程序自动修改参数的场景，不需要将状态修改为 editing
+        if (CurrentAccountUtil.get() != null || input.fromGateway()) {
+            // Update flow status
+            projectFlowService.updateFlowStatus(input.getFlowId(), ProjectFlowStatus.editing);
+        }
 
         ProjectFlowNodeMySqlModel node = findOne(input.getFlowId(), input.getNodeId());
 
@@ -179,6 +184,14 @@ public class ProjectFlowNodeService {
         }
         // If the node already exists, update it.
         else {
+            // 如果参数没有变化，不执行更新，避免刷新 params_version 字段导致缓存不可用。
+            // 这里为了增强鲁棒性，使用相同的序列化方式消除因字段顺序差异等原因导致的字符串不一致。
+            String oldParams = node.getParams() == null ? "" : JSON.parseObject(node.getParams()).toString();
+            String newParams = JSON.parseObject(input.getParams()).toString();
+            if (newParams.equals(oldParams)) {
+                return list;
+            }
+
             node.setParams(input.getParams());
             node.setParamsVersion(System.currentTimeMillis());
             node.setUpdatedBy(input);
@@ -191,15 +204,35 @@ public class ProjectFlowNodeService {
             for (ProjectFlowNodeMySqlModel flowNode : nodes) {
                 if (Components.get(flowNode.getComponentType()).canSelectFeatures()) {
                     flowNode.setParams(null);
+                    flowNode.setParamsVersion(System.currentTimeMillis());
                     projectFlowNodeRepository.save(flowNode);
                     list.add(ModelMapper.map(flowNode, ProjectFlowNodeOutputModel.class));
                 }
             }
         }
 
+        // 特征筛选组件重新选择特征后，后续节点已选择的特征需要重新选择。
+        if (node.getComponentType() == ComponentType.FeatureSelection) {
+            FlowGraph graph = jobService.createFlowGraph(input.getFlowId());
+            for (FlowGraphNode step : graph.getAllJobSteps()) {
+                // 有特征列表选项，且是当前编辑节点的子节点
+                if (Components.get(step.getComponentType()).canSelectFeatures()
+                        && graph.isChild(step.getNodeId(), input.getNodeId())) {
+
+                    ProjectFlowNodeMySqlModel stepNode = findOne(input.getFlowId(), step.getNodeId());
+                    stepNode.setParams(null);
+                    stepNode.setParamsVersion(System.currentTimeMillis());
+                    projectFlowNodeRepository.save(stepNode);
+                    list.add(ModelMapper.map(stepNode, ProjectFlowNodeOutputModel.class));
+                }
+            }
+        }
+
         projectFlowNodeRepository.save(node);
 
+        input.stopwatch.tapAndPrint("start syncToOtherFormalProjectMembers");
         gatewayService.syncToOtherFormalProjectMembers(node.getProjectId(), input, UpdateApi.class);
+        input.stopwatch.tapAndPrint("end syncToOtherFormalProjectMembers");
 
         return list;
     }
@@ -215,34 +248,34 @@ public class ProjectFlowNodeService {
     }
 
     /**
-     * Check whether the current node has an evaluation node type
+     * Check whether the current node has specific node type
      */
-    public boolean checkExistEvaluationComponent(CheckExistEvaluationComponentApi.Input input) throws StatusCodeWithException {
+    public boolean checkExistSpecificComponent(CheckExistEvaluationComponentApi.Input input, List<ComponentType> targetComponentList) throws StatusCodeWithException {
         // Whether it is oot mode (click into the canvas in the model list, that is,
         // oot mode, in oot mode, only check whether there is an evaluation node)
         boolean isOotMode = StringUtil.isNotEmpty(input.getJobId());
         if (isOotMode) {
             JobMySqlModel jobMySqlModel = jobService.findByJobId(input.getJobId(), JobMemberRole.promoter);
             if (null == jobMySqlModel) {
-                throw new StatusCodeWithException("作业信息不存在。", StatusCode.DATA_NOT_FOUND);
+                throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "作业信息不存在。");
             }
             // Find out all the task information of the promoter under the job
             List<TaskMySqlModel> totalTaskMySqlModelList = taskService.listByJobId(jobMySqlModel.getJobId(), jobMySqlModel.getMyRole());
             if (CollectionUtils.isEmpty(totalTaskMySqlModelList)) {
-                throw new StatusCodeWithException("任务信息不存在。", StatusCode.DATA_NOT_FOUND);
+                throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "任务信息不存在。");
             }
 
             // Find out the task ID of the current model
             List<TaskMySqlModel> myRoleTaskMySqlModelList = taskService.findAll(jobMySqlModel.getJobId(), input.getModelNodeId(), jobMySqlModel.getMyRole());
             if (CollectionUtils.isEmpty(myRoleTaskMySqlModelList)) {
-                throw new StatusCodeWithException("模型任务信息不存在。", StatusCode.DATA_NOT_FOUND);
+                throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "模型任务信息不存在。");
             }
 
             // Find out all the branch nodes of the model with the same origin and judge whether there is an evaluation node in all nodes
             String modelTaskId = myRoleTaskMySqlModelList.get(0).getTaskId();
             List<TaskMySqlModel> resultList = taskService.baseFindHomologousBranch(totalTaskMySqlModelList, modelTaskId);
             for (TaskMySqlModel taskMySqlModel : resultList) {
-                if (ComponentType.Evaluation == taskMySqlModel.getTaskType()) {
+                if (targetComponentList.contains(taskMySqlModel.getTaskType())) {
                     return true;
                 }
             }
@@ -251,21 +284,25 @@ public class ProjectFlowNodeService {
         }
         ProjectFlowMySqlModel projectFlowMySqlModel = projectFlowService.findOne(input.getFlowId());
         if (null == projectFlowMySqlModel) {
-            throw new StatusCodeWithException("流程信息不存在。", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "流程信息不存在。");
         }
         List<ProjectFlowNodeMySqlModel> flowNodeMySqlModelList = projectFlowNodeService.findNodesByFlowId(input.getFlowId());
         if (CollectionUtils.isEmpty(flowNodeMySqlModelList)) {
-            throw new StatusCodeWithException("流程节点信息不存在。", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "流程节点信息不存在。");
         }
 
         FlowGraph flowGraph = new FlowGraph(projectFlowMySqlModel.getFederatedLearningType(), flowNodeMySqlModelList);
         FlowGraphNode node = flowGraph.getNode(input.getNodeId());
         if (null == node) {
-            throw new StatusCodeWithException("节点信息不存在。", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "节点信息不存在。");
         }
 
         // Find related parent node types
-        FlowGraphNode preModelNode = flowGraph.findOneNodeFromParent(node, ComponentType.Evaluation);
-        return null != preModelNode;
+        for (ComponentType componentType : targetComponentList) {
+            if (null != flowGraph.findOneNodeFromParent(node, componentType)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

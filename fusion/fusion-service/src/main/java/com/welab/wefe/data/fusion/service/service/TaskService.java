@@ -16,6 +16,7 @@
 
 package com.welab.wefe.data.fusion.service.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -44,6 +45,7 @@ import com.welab.wefe.data.fusion.service.task.PsiServerTask;
 import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
 import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -54,6 +56,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import static com.welab.wefe.common.StatusCode.DATA_NOT_FOUND;
@@ -100,7 +103,7 @@ public class TaskService extends AbstractService {
     public void updateByBusinessId(String businessId, TaskStatus status, Integer fusionCount, Integer processedCount, long spend) throws StatusCodeWithException {
         TaskMySqlModel model = findByBusinessId(businessId);
         if (model == null) {
-            throw new StatusCodeWithException("任务不存在，检查参数businessId：" + businessId, StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "任务不存在，检查参数businessId：" + businessId);
         }
         model.setStatus(status);
         model.setUpdatedTime(new Date());
@@ -142,7 +145,7 @@ public class TaskService extends AbstractService {
 
         DataSetMySqlModel dataSet = dataSetRepository.findOne("id", input.getDataResourceId(), DataSetMySqlModel.class);
         if (dataSet == null) {
-            throw new StatusCodeWithException(DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
 
         if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm())) {
@@ -163,7 +166,7 @@ public class TaskService extends AbstractService {
         TaskMySqlModel task = taskRepository.findOne("id", input.getId(), TaskMySqlModel.class);
 
         if (task == null) {
-            throw new StatusCodeWithException("任务不存在！", DATA_NOT_FOUND);
+            throw new StatusCodeWithException(DATA_NOT_FOUND, "任务不存在！");
         }
 
         //The update task
@@ -181,7 +184,7 @@ public class TaskService extends AbstractService {
         DataSetMySqlModel dataSet = dataSetRepository.findOne("id", input.getDataResourceId(), DataSetMySqlModel.class);
 
         if (dataSet == null) {
-            throw new StatusCodeWithException(DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
 
         if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm())) {
@@ -197,18 +200,18 @@ public class TaskService extends AbstractService {
     @Transactional(rollbackFor = Exception.class)
     public void handle(HandleApi.Input input) throws StatusCodeWithException {
         if (ActuatorManager.size() > 0) {
-            throw new StatusCodeWithException("有正在运行的任务, 请等待任务完成后再尝试审核运行！", StatusCode.SYSTEM_BUSY);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "有正在运行的任务, 请等待任务完成后再尝试审核运行！");
         }
 
         TaskMySqlModel task = find(input.getId());
         if (task == null) {
-            throw new StatusCodeWithException("任务不存在！taskId:" + input.getId(), DATA_NOT_FOUND);
+            throw new StatusCodeWithException(DATA_NOT_FOUND, "任务不存在！taskId:" + input.getId());
         }
 
         //Find partner information
         PartnerMySqlModel partner = partnerService.findByPartnerId(task.getPartnerMemberId());
         if (partner == null) {
-            throw new StatusCodeWithException("未找到合作方！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未找到合作方！");
         }
 
 
@@ -226,6 +229,7 @@ public class TaskService extends AbstractService {
      * RSA-psi Algorithm to deal with
      */
     private void psi(HandleApi.Input input, TaskMySqlModel task, PartnerMySqlModel partner) throws StatusCodeWithException {
+        LOG.info("fusion task log , role = " + task.getPsiActuatorRole());
         switch (task.getPsiActuatorRole()) {
             case server:
                 psiServer(input, task, partner);
@@ -242,13 +246,14 @@ public class TaskService extends AbstractService {
      * psi-client
      */
     private void psiClient(HandleApi.Input input, TaskMySqlModel task, PartnerMySqlModel partner) throws StatusCodeWithException {
+        LOG.info("fusion task log , psiClient begin");
         if (StringUtil.isEmpty(input.getDataResourceId())) {
-            throw new StatusCodeWithException(input.getDataResourceId(), PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(PARAMETER_VALUE_INVALID, input.getDataResourceId());
         }
 
         DataSetMySqlModel dataSet = dataSetRepository.findOne("id", input.getDataResourceId(), DataSetMySqlModel.class);
         if (dataSet == null) {
-            throw new StatusCodeWithException("未查找到数据集", DATA_NOT_FOUND);
+            throw new StatusCodeWithException(DATA_NOT_FOUND, "未查找到数据集");
         }
 
         //Add fieldinfo
@@ -266,7 +271,9 @@ public class TaskService extends AbstractService {
         taskRepository.save(task);
 
         //The callback
-        thirdPartyService.callback(partner.getBaseUrl(), task.getBusinessId(), CallbackType.init, dataSet.getRowCount());
+        JSONObject response = thirdPartyService.callback(partner.getBaseUrl(), task.getBusinessId(), CallbackType.init, dataSet.getRowCount());
+        LOG.info("fusion task log ,psiClient callback, url = " + partner.getBaseUrl() + ", response = "
+                + JSONObject.toJSONString(response));
     }
 
 
@@ -278,56 +285,64 @@ public class TaskService extends AbstractService {
      * @throws StatusCodeWithException
      */
     private void psiServer(HandleApi.Input input, TaskMySqlModel task, PartnerMySqlModel partner) throws StatusCodeWithException {
-
-        task.setStatus(TaskStatus.Running);
-        task.setDataResourceId(input.getDataResourceId());
-        task.setDataResourceType(input.getDataResourceType());
-        task.setRowCount(input.getRowCount());
-        task.setUpdatedTime(new Date());
-        taskRepository.save(task);
-
+        LOG.info("fusion task log , psiServer begin");
         if (ActuatorManager.get(task.getBusinessId()) != null) {
             return;
         }
-
         /**
          * Find your party by task ID
          */
         BloomFilterMySqlModel bf = bloomFilterService.findById(input.getDataResourceId());
         if (bf == null) {
-            throw new StatusCodeWithException("未查找到布隆过滤器", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "未查找到布隆过滤器");
         }
-
+        if (StringUtils.isBlank(ActuatorManager.ip())) {
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "socket.servier.ip 配置未找到");
+        }
+        LOG.info("fusion task log , psiServer bf = " + JSONObject.toJSONString(bf));
         /**
          * Generate the corresponding task handler
          */
-        AbstractTask server = new PsiServerTask(
-                task.getBusinessId(),
-                bf.getSrc(),
-                new PsiServerActuator(task.getBusinessId(),
-                        task.getDataCount(),
-                        "localhost",
-                        CacheObjects.getOpenSocketPort(),
-                        new BigInteger(bf.getN()),
-                        new BigInteger(bf.getE()),
-                        new BigInteger(bf.getD())
-                )
-        );
+        new Thread(() -> {
+            task.setStatus(TaskStatus.Ready);
+            task.setDataResourceId(input.getDataResourceId());
+            task.setDataResourceType(input.getDataResourceType());
+            task.setRowCount(input.getRowCount());
+            task.setUpdatedTime(new Date());
+            taskRepository.save(task);
+            
+            final CountDownLatch latch = new CountDownLatch(1);
+            AbstractTask server = new PsiServerTask(task.getBusinessId(), bf.getSrc(),
+                    new PsiServerActuator(task.getBusinessId(), task.getDataCount(), "localhost",
+                            CacheObjects.getOpenSocketPort(), new BigInteger(bf.getN()), new BigInteger(bf.getE()),
+                            new BigInteger(bf.getD())),
+                    latch);
+            ActuatorManager.set(server);
+            LOG.info("fusion task log , server run");
+            server.run();
+            try {
+                latch.await();// 等待服务端bloomfilter等相关数据加载好
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            // 通知客户端，服务端已经准备好了，客户端可以跑了
+            try {
+                task.setStatus(TaskStatus.Running);
+                task.setDataResourceId(input.getDataResourceId());
+                task.setDataResourceType(input.getDataResourceType());
+                task.setRowCount(input.getRowCount());
+                task.setUpdatedTime(new Date());
+                taskRepository.save(task);
 
-        ActuatorManager.set(server);
-
-        server.run();
-
-        //The callback
-        thirdPartyService.callback(
-                partner.getBaseUrl(),
-                task.getBusinessId(),
-                CallbackType.running,
-                ActuatorManager.ip(),
-                CacheObjects.getOpenSocketPort()
-        );
+                JSONObject response = thirdPartyService.callback(partner.getBaseUrl(), task.getBusinessId(),
+                        CallbackType.running, ActuatorManager.ip(), CacheObjects.getOpenSocketPort());
+                LOG.info("fusion task log , call " + partner.getBaseUrl() + ", response = "
+                        + JSONObject.toJSONString(response));
+            } catch (StatusCodeWithException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
-
 
     /**
      * Receive alignment request
@@ -336,7 +351,7 @@ public class TaskService extends AbstractService {
     public void alignByPartner(ReceiveApi.Input input) throws StatusCodeWithException {
 
         if (PSIActuatorRole.server.equals(input.getPsiActuatorRole()) && input.getDataCount() <= 0) {
-            throw new StatusCodeWithException("请求参数缺失", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "请求参数缺失");
         }
 
         //Add tasks
@@ -392,7 +407,7 @@ public class TaskService extends AbstractService {
 
         TaskOutput output = ModelMapper.map(model, TaskOutput.class);
         if (output == null) {
-            throw new StatusCodeWithException("数据不存在！", DATA_NOT_FOUND);
+            throw new StatusCodeWithException(DATA_NOT_FOUND, "数据不存在！");
         }
         setName(output);
         setDataResouceList(output);

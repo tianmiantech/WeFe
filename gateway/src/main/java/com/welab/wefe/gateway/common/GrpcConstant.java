@@ -45,7 +45,7 @@ public class GrpcConstant {
     /**
      * The difference of the maximum system time cut, in seconds
      */
-    public static final int MAX_SYSTEM_TIMESTAMP_DIFF = 120;
+    public static final int MAX_SYSTEM_TIMESTAMP_DIFF = 300;
 
     /**
      * Connection unavailable exception keyword

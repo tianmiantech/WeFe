@@ -16,48 +16,27 @@
 
 package com.welab.wefe.union.service.api.dataresource.bloomfilter;
 
-import com.welab.wefe.common.data.mongodb.entity.union.BloomFilter;
-import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
-import com.welab.wefe.common.data.mongodb.repo.BloomFilterMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.union.service.api.dataresource.dataset.AbstractDatResourcePutApi;
 import com.welab.wefe.union.service.dto.dataresource.DataResourcePutInput;
-import com.welab.wefe.union.service.mapper.BloomFilterMapper;
-import com.welab.wefe.union.service.service.BloomFilterContractService;
-import org.mapstruct.factory.Mappers;
+import com.welab.wefe.union.service.service.BloomFilterService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "bloom_filter/put", name = "bloom_filter_put", rsaVerify = true, login = false)
-public class PutApi extends AbstractDatResourcePutApi<PutApi.Input, AbstractApiOutput> {
-    @Autowired
-    protected BloomFilterContractService bloomFilterContractService;
-    @Autowired
-    protected BloomFilterMongoReop bloomFilterMongoReop;
+@Api(path = "bloom_filter/put", name = "bloom_filter_put", allowAccessWithSign = true)
+public class PutApi extends AbstractApi<PutApi.Input, AbstractApiOutput> {
 
-    protected BloomFilterMapper bloomFilterMapper = Mappers.getMapper(BloomFilterMapper.class);
+    @Autowired
+    private BloomFilterService bloomFilterService;
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
-        BloomFilter bloomFilter = bloomFilterMongoReop.findByDataResourceId(input.getDataResourceId());
-        DataResource dataResource = dataResourceMongoReop.find(input.getDataResourceId(), input.curMemberId);
-        if (dataResource == null) {
-            if (bloomFilter == null) {
-                bloomFilterContractService.add(new BloomFilter(input.getDataResourceId(), input.getHashFunction()));
-                dataResourceContractService.add(dataResourceMapper.transferPutInputToDataResource(input));
-            } else {
-                dataResourceContractService.add(dataResourceMapper.transferPutInputToDataResource(input));
-            }
-        } else {
-            bloomFilterContractService.updateHashFuntion(input.getDataResourceId(), input.getHashFunction());
-            updateDataResource(dataResource, input);
-        }
-
+        bloomFilterService.add(input);
         return success();
     }
 

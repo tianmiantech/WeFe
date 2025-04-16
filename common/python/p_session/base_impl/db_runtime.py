@@ -66,7 +66,7 @@ class DBRuntime:
             meta_table_db_type = DBTypes.SQLITE
 
         self.meta_table = _DSource(StoreType.PERSISTENCE.value, NAMESPACE.DATA, TABLENAME.FRAGMENTS, 10,
-                                      db_type=meta_table_db_type)
+                                   db_type=meta_table_db_type)
         self.pool = Executor()
         DBRuntime.__instance = self
 
@@ -74,9 +74,9 @@ class DBRuntime:
 
         self.unique_id_template = '_Storage_%s_%s_%s_%.20f_%d'
 
-        storage_session.set_gc_table(self)
-        storage_session.add_cleanup_task(storage_session.clean_duplicated_table)
-
+        if self.db_type == DBTypes.LMDB:
+            storage_session.set_gc_table(self)
+            storage_session.add_cleanup_task(storage_session.clean_duplicated_table)
         try:
             self.host_name = socket.gethostname()
             self.host_ip = socket.gethostbyname(self.host_name)

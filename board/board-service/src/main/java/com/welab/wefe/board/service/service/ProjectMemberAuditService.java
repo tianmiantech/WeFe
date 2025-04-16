@@ -60,6 +60,8 @@ public class ProjectMemberAuditService {
 
     @Autowired
     GatewayService gatewayService;
+    @Autowired
+    private MessageService messageService;
 
     @Autowired
     ProjectMemberAuditRepository projectMemberAuditRepository;
@@ -105,20 +107,26 @@ public class ProjectMemberAuditService {
 
         ProjectMySqlModel project = projectService.findByProjectId(input.getProjectId());
         if (project == null) {
-            throw new StatusCodeWithException("未找到相应的项目！", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "未找到相应的项目！");
         }
 
         List<ProjectMemberMySqlModel> needAuditMembers = projectMemberService.findListByMemberId(input.getProjectId(),
                 input.getMemberId());
         if (needAuditMembers == null || needAuditMembers.isEmpty()) {
-            throw new StatusCodeWithException("未找到项目关联的member！", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "未找到项目关联的member！");
         }
 
+        // 被审核成员
         ProjectMemberMySqlModel needAuditMember = needAuditMembers.stream()
                 .filter(s -> s.getAuditStatus() == AuditStatus.auditing && !s.isExited()).findFirst().get();
 
         if (needAuditMember == null) {
-            throw new StatusCodeWithException("未找到项目关联的member！", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "未找到项目关联的member！");
+        }
+
+        // 如果是自审，完成待办事项。
+        if (CacheObjects.getMemberId().equals(needAuditMember.getMemberId())) {
+            messageService.completeApplyJoinProjectTodo(project.getProjectId());
         }
 
         String auditorId = input.fromGateway() ? input.callerMemberInfo.getMemberId() : CacheObjects.getMemberId();
@@ -128,7 +136,7 @@ public class ProjectMemberAuditService {
         List<ProjectMemberMySqlModel> auditors = projectMemberService.findListByMemberId(input.getProjectId(), auditorId);
 
         if (auditors.stream().anyMatch(x -> !AuditStatus.agree.equals(x.getAuditStatus()))) {
-            throw new StatusCodeWithException("只有正式成员才能对其他人进行审核", StatusCode.ILLEGAL_REQUEST);
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST, "只有正式成员才能对其他人进行审核");
         }
 
         // save audit result
@@ -137,6 +145,16 @@ public class ProjectMemberAuditService {
         model.setAuditResult(input.getAuditResult());
         model.setUpdatedBy(input);
         projectMemberAuditRepository.save(model);
+
+
+        if (input.fromGateway()) {
+            messageService.addAuditJoinProjectMessage(
+                    input.callerMemberInfo.getMemberId(),
+                    project,
+                    input.getAuditResult(),
+                    input.getAuditComment()
+            );
+        }
 
         gatewayService.syncToNotExistedMembers(input.getProjectId(), input, AuditApi.class);
 

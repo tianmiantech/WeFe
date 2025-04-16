@@ -25,7 +25,7 @@
                 <span class="name f14">
                     <el-icon
                         v-if="member.audit_status !== 'agree'"
-                        class="el-icon-warning-outline color-danger"
+                        class="board-icon-warning-outline color-danger"
                     >
                         <elicon-warning />
                     </el-icon>
@@ -68,7 +68,7 @@
                             <el-icon
                                 v-if="!disabled"
                                 title="移除"
-                                class="el-icon-circle-close f20"
+                                class="board-icon-circle-close f20"
                                 @click="methods.removeDataSet(index)"
                             >
                                 <elicon-circle-close />
@@ -80,6 +80,9 @@
                     </el-form-item>
                     <el-form-item label="数据量/特征量：">
                         {{ row.total_data_count ? row.total_data_count : row.row_count }} / {{ row.feature_count }}
+                    </el-form-item>
+                    <el-form-item label="分类数：" v-if="(row.contains_y && row.label_species_count)">
+                        {{ row.label_species_count > 10000 ? '10000+':row.label_species_count }}
                     </el-form-item>
                     <template v-if="row.contains_y">
                         <el-form-item v-if="row.y_positive_sample_count" label="正例样本数量：">
@@ -174,20 +177,23 @@
                 >
                     <template #checkbox="{ index, list }">
                         <template
-                            v-for="i in 5"
-                            :key="`${index * 5 + i - 1}`"
+                            v-for="i in 4"
+                            :key="`${index * 4 + i - 1}`"
                         >
                             <label
-                                v-if="list[index * 5 + i - 1]"
-                                :for="`label-${index * 5 + i - 1}`"
-                                class="el-checkbox"
-                                @click.prevent.stop="methods.checkboxChange($event, list[index * 5 + i - 1])"
+                                v-if="list[index * 4 + i - 1]"
+                                :for="`label-${index * 4 + i - 1}`"
+                                class="board-checkbox"
+                                @click.prevent.stop="methods.checkboxChange($event, list[index * 4 + i - 1])"
                             >
-                                <span :class="['el-checkbox__input', { 'is-checked': vData.checkedColumnsArr.includes(list[index * 5 + i - 1]) }]">
-                                    <span class="el-checkbox__inner"></span>
-                                    <input :id="`label-${index * 5 + i - 1}`" class="el-checkbox__original" type="checkbox" />
+                                <span :class="['board-checkbox__input', { 'is-checked': vData.checkedColumnsArr.includes(list[index * 4 + i - 1]) }]">
+                                    <span class="board-checkbox__inner"></span>
+                                    <input :id="`label-${index * 4 + i - 1}`" class="board-checkbox__original" type="checkbox" />
                                 </span>
-                                <span class="el-checkbox__label">{{ list[index * 5 + i - 1] }}</span>
+                                <span class="board-checkbox__label">
+                                    <FeatureTagVue :name="list[index * 4 + i - 1]" :data_set_id="vData.check_data_set_id" :featureTypeList="vData.featureTypeList" />
+                                    <span>{{ list[index * 4 + i - 1] }}</span>
+                                </span>
                             </label>
                         </template>
                     </template>
@@ -215,6 +221,7 @@
             destroy-on-close
             append-to-body
             width="70%"
+            :before-close="methods.selectDataClose"
         >
             <el-tabs
                 v-model="vData.dataSetTabName"
@@ -228,15 +235,9 @@
                         inline
                         @submit.prevent
                     >
-                        <el-form-item label="名称">
-                            <el-input
-                                v-model="vData.rawSearch.name"
-                                clearable
-                            />
-                        </el-form-item>
                         <el-form-item label="id">
                             <el-input
-                                v-model="vData.rawSearch.data_set_id"
+                                v-model="vData.rawSearch.data_resource_id"
                                 clearable
                             />
                         </el-form-item>
@@ -264,7 +265,7 @@
                             <el-button
                                 type="primary"
                                 native-type="submit"
-                                @click="methods.dataSetSearch"
+                                @click="methods.dataSetSearch('raw')"
                             >
                                 搜索
                             </el-button>
@@ -275,6 +276,8 @@
                         :audit-status="true"
                         :search-field="vData.rawSearch"
                         :paramsExclude="['allList', 'list']"
+                        :member-id="vData.memberId"
+                        :needClassify="true"
                         @list-loaded="methods.listLoaded"
                         @selectDataSet="methods.selectDataSet"
                         @close-dialog="vData.showSelectDataSet=false;"
@@ -297,12 +300,6 @@
                         title="使用衍生数据资源将 自动替换 关联成员已选的数据资源"
                     />
                     <el-form class="mt10" inline>
-                        <el-form-item label="名称">
-                            <el-input
-                                v-model="vData.derivedSearch.name"
-                                clearable
-                            />
-                        </el-form-item>
                         <el-form-item label="id">
                             <el-input
                                 v-model="vData.derivedSearch.data_set_id"
@@ -312,7 +309,7 @@
                         <el-button
                             class="mb20"
                             type="primary"
-                            @click="dataSetTabChange('derived')"
+                            @click="methods.dataSetTabChange('derived')"
                         >
                             搜索
                         </el-button>
@@ -322,6 +319,7 @@
                         :paramsExclude="['allList', 'list']"
                         :search-field="vData.derivedSearch"
                         :project-type="projectType"
+                        :member-id="vData.memberId"
                         @selectDataSet="methods.selectDataSet"
                         @close-dialog="vData.showSelectDataSet=false;"
                     >
@@ -346,11 +344,14 @@
     } from 'vue';
     import { useStore } from 'vuex';
     import DataSetList from '@comp/views/data-set-list';
+    import FeatureTagVue from '../common/featureTag.vue';
+    import { getDataSetFeatureType } from '@src/service';
 
     export default {
         name:       'DataIO',
         components: {
             DataSetList,
+            FeatureTagVue,
         },
         props: {
             projectId:    String,
@@ -390,6 +391,7 @@
                 column_list:       [],
                 checkedColumns:    '',
                 checkedColumnsArr: [],
+                check_data_set_id: '',
                 showColumnList:    false,
                 columnListLoading: false,
                 indeterminate:     false,
@@ -397,19 +399,18 @@
                 showSelectDataSet: false,
                 dataSetTabName:    'raw',
                 derivedSearch:     {
-                    name:        '',
                     data_set_id: '',
                 },
                 rawSearch: {
-                    allList:     [],
-                    list:        [],
-                    name:        '',
-                    contains_y:  '',
-                    data_set_id: '',
+                    allList:          [],
+                    list:             [],
+                    contains_y:       '',
+                    data_resource_id: '',
                 },
-                currentItem:  {}, // current member
-                providerList: [],
-                promoterList: [],
+                currentItem:     {}, // current member
+                providerList:    [],
+                promoterList:    [],
+                featureTypeList: {},
             });
 
             const methods = {
@@ -431,7 +432,10 @@
 
                             if(~datasetIndex) {
                                 const item = dataset_list[datasetIndex];
-                                const column_name_list = item.derived_from ? item.features : item.feature_name_list.split(',');
+
+                                let column_name_list = [];
+
+                                if ((item.features && item.features.length) || (item.feature_name_list && item.feature_name_list.length)) column_name_list = item.derived_from ? item.features : item.feature_name_list.split(',');
 
                                 member.$data_set_list.push({
                                     ...item,
@@ -506,13 +510,19 @@
                     vData.rawSearch.allList = list;
                 },
 
+                selectDataClose() {
+                    vData.rawSearch.data_resource_id = '';
+                    vData.derivedSearch.data_set_id = '';
+                    vData.showSelectDataSet = false;
+                },
+
                 // search raw dataset
                 dataSetSearch() {
-                    const { allList, name, contains_y, data_set_id } = vData.rawSearch;
+                    const { allList, name, contains_y, data_resource_id } = vData.rawSearch;
                     const list = [];
 
                     allList.forEach(row => {
-                        if(row.data_resource.name.includes(name) && row.data_resource.data_resource_id.includes(data_set_id)) {
+                        if(row.data_resource.name.includes(name) && row.data_resource.data_resource_id.includes(data_resource_id)) {
                             if(contains_y === '' || row.contains_y === contains_y) {
                                 list.push(row);
                             }
@@ -565,7 +575,7 @@
                         raw:     rawDataSetListRef,
                         derived: derivedDataSetListRef,
                     };
-                    const refInstance = refInstances[ref.paneName].value;
+                    const refInstance = refInstances[ref.paneName || ref].value;
 
                     refInstance.searchField.project_id = props.projectId;
                     refInstance.searchField.member_id = vData.memberId;
@@ -574,7 +584,7 @@
                     refInstance.searchField.data_resource_type = 'TableDataSet';
                     refInstance.isFlow = true;
 
-                    switch(ref.paneName) {
+                    switch(ref.paneName || ref) {
                     case 'raw':
                         params.url = '/project/raw_data_set/list';
                         break;
@@ -588,27 +598,46 @@
                         refInstance.getDataList(params);
                     });
                 },
+                getDataFeatureType(params){
+                    getDataSetFeatureType(params).then(res => {
+                        console.error('res', res);
+                        vData.featureTypeList = {
+                            ...vData.featureTypeList.value,
+                            [params.dataSetId]: res,
+                        };
+                    });
+                },
 
                 /* add dataset to list */
                 selectDataSet(item) {
+                    console.log('item',item);
+                    const { data_set_id, member_id, project_id } = item;
+
+                    methods.getDataFeatureType({ dataSetId: data_set_id, memberId: member_id, projectId: project_id });
+
                     vData.showSelectDataSet = false;
                     if(item.data_resource.derived_from) {
+                        // 衍生数据集
                         // derived dataset
                         const memberIds = {}; // cache member_id
 
                         item.members.forEach(member => {
                             if(member.job_role === 'promoter' || member.job_role === 'provider') {
                                 const features = member.feature_name_list ? member.feature_name_list.split(',') : [];
+                                const { data_resource,data_set_id } = item || {};
+                                const { label_species_count,derived_from,name } = data_resource || {};
 
                                 memberIds[member.member_id] = {
                                     member_role:       member.job_role,
                                     member_id:         member.member_id,
                                     member_name:       member.member_name,
                                     feature_count:     member.feature_count,
-                                    data_set_id:       item.data_set_id,
-                                    derived_from:      item.data_resource.derived_from,
+                                    data_set_id,
+                                    derived_from,
                                     row_count:         item.row_count ? item.row_count : item.data_resource.total_data_count,
-                                    name:              item.data_resource.name,
+                                    name,
+                                    /** 分类数,用于区分二分类 */
+                                    label_species_count,
                                     column_name_list:  features,
                                     $column_name_list: features,
                                 };
@@ -667,6 +696,7 @@
                 },
 
                 checkColumns(row, index) {
+                    vData.check_data_set_id = row.data_set_id;
                     vData.checkedColumns = '';
                     vData.memberIndex = index;
                     vData.checkedAll = false;
@@ -785,6 +815,7 @@
                 confirmCheck() {
                     vData.member_list[vData.memberIndex].$data_set_list[0].$column_name_list = [...vData.checkedColumnsArr];
                     vData.checkedColumnsArr = [];
+                    vData.check_data_set_id = '';
                     vData.showColumnList = false;
                 },
 
@@ -806,6 +837,7 @@
                                 derived_from:      row[0].derived_from,
                                 row_count:         row[0].row_count || row[0].total_data_count,
                                 name:              row[0].name,
+                                label_species_count: row[0].label_species_count,
                             });
                         }
                     });
@@ -813,6 +845,11 @@
                     return {
                         params: {
                             dataset_list,
+                        },
+                        callback: () => {
+                            store.dispatch('getFeatureType', {
+                                flow_id: props.flowId,
+                            });
                         },
                     };
                 },
@@ -851,7 +888,7 @@
         top: -4px;
     }
     .dialog-min-width{min-width: 800px;}
-    .el-icon-circle-close{
+    .board-icon-circle-close{
         cursor: pointer;
         color:$--color-danger;
         position: absolute;
@@ -860,21 +897,21 @@
     }
     .data-set{
         border-top: 1px solid $border-color-base;
-        .el-form{
+        .board-form{
             padding: 5px 10px;
             border: 1px solid $border-color-base;
             border-top: 0;
         }
-        :deep(.el-form-item){
+        :deep(.board-form-item){
             display:flex;
             margin-bottom:0;
             flex-wrap: wrap;
-            .el-form-item__label{
+            .board-form-item__label{
                 font-size: 12px;
                 text-align: left;
-                line-height: 24px;
+                // line-height: 24px;
             }
-            .el-form-item__content{
+            .board-form-item__content{
                 font-size: 12px;
                 line-height: 22px;
                 word-break:break-all;

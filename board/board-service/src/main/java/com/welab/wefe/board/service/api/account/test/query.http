@@ -1,0 +1,9 @@
+POST http://localhost:8080/board-service/account/query
+Content-Type: application/json
+token: {{token}}
+
+{
+  "adminRole": false
+}
+
+###

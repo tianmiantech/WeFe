@@ -19,6 +19,7 @@ package com.welab.wefe.board.service.service;
 import com.welab.wefe.board.service.api.member.InitializeApi;
 import com.welab.wefe.board.service.api.member.UpdateMemberInfoApi;
 import com.welab.wefe.board.service.api.member.UpdateMemberLogoApi;
+import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.ImageDataSetMysqlModel;
@@ -27,21 +28,19 @@ import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.database.repository.data_resource.BloomFilterRepository;
 import com.welab.wefe.board.service.database.repository.data_resource.ImageDataSetRepository;
 import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
-import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.board.service.util.BoardSM4Util;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.common.util.SignUtil;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
+import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
+import com.welab.wefe.common.wefe.dto.global_config.MemberInfoModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.UUID;
 
 /**
  * @author zane.luo
@@ -64,17 +63,20 @@ public class SystemInitializeService extends AbstractService {
     @Autowired
     private BloomFilterRepository bloomFilterRepository;
 
+    @Autowired
+    private Config config;
+
     /**
      * Synchronize member information to union for the recovery of membership after union data is lost.
      */
     public synchronized void syncMemberToUnion() throws StatusCodeWithException {
 
-        AccountMysqlModel account = accountRepository.findByPhoneNumber(BoardSM4Util.encryptPhoneNumber(CurrentAccount.phoneNumber()));
+        AccountMysqlModel account = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(CurrentAccountUtil.get().getPhoneNumber()));
         if (!account.getSuperAdminRole()) {
-            throw new StatusCodeWithException("您没有初始化系统的权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
+            throw new StatusCodeWithException(StatusCode.INVALID_USER, "您没有初始化系统的权限，请联系超级管理员（第一个注册的人）进行操作。");
         }
 
-        unionService.initializeSystem(globalConfigService.getMemberInfo());
+        unionService.initializeSystem(globalConfigService.getModel(MemberInfoModel.class));
 
         for (TableDataSetMysqlModel model : tableDataSetRepository.findAll()) {
             unionService.upsertDataResource(model);
@@ -89,10 +91,18 @@ public class SystemInitializeService extends AbstractService {
 
 
     /**
+     * Synchronize member information to union for the recovery of membership after union data is lost.
+     */
+    public synchronized void syncMemberToServing() throws StatusCodeWithException {
+        servingService.refreshMemberInfo(globalConfigService.getModel(MemberInfoModel.class), config.getUnionBaseUrl());
+    }
+
+    /**
      * Is the system initialized
      */
     public boolean isInitialized() {
-        return globalConfigService.getMemberInfo() != null;
+        MemberInfoModel member = globalConfigService.getModel(MemberInfoModel.class);
+        return member.memberInitialized;
     }
 
     /**
@@ -101,21 +111,16 @@ public class SystemInitializeService extends AbstractService {
     @Transactional(rollbackFor = Exception.class)
     public synchronized void initialize(InitializeApi.Input input) throws StatusCodeWithException {
         if (isInitialized()) {
-            throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "系统已初始化，不能重复操作。");
+            throw StatusCodeWithException.of(StatusCode.UNSUPPORTED_HANDLE, "系统已初始化，不能重复操作。");
         }
 
-        AccountMysqlModel account = accountRepository.findByPhoneNumber(BoardSM4Util.encryptPhoneNumber(CurrentAccount.phoneNumber()));
-        if (!account.getSuperAdminRole()) {
-            throw new StatusCodeWithException("您没有初始化系统的权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
-        }
-
-        MemberInfoModel model = new MemberInfoModel();
-        model.setMemberId(UUID.randomUUID().toString().replaceAll("-", ""));
+        MemberInfoModel model = globalConfigService.getModel(MemberInfoModel.class);
         model.setMemberName(input.getMemberName());
         model.setMemberEmail(input.getMemberEmail());
         model.setMemberMobile(input.getMemberMobile());
         model.setMemberAllowPublicDataSet(input.getMemberAllowPublicDataSet());
         model.setMemberHidden(false);
+        model.setMemberInitialized(true);
 
         try {
             input.setSecretKeyType(null == input.getSecretKeyType() ? SecretKeyType.rsa : input.getSecretKeyType());
@@ -124,10 +129,10 @@ public class SystemInitializeService extends AbstractService {
             model.setRsaPublicKey(keyPair.publicKey);
             model.setSecretKeyType(input.getSecretKeyType());
         } catch (NoSuchAlgorithmException e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
-        globalConfigService.setMemberInfo(model);
+        globalConfigService.put(model);
 
         CacheObjects.refreshMemberInfo();
 
@@ -138,53 +143,41 @@ public class SystemInitializeService extends AbstractService {
     @Transactional(rollbackFor = Exception.class)
     public void updateMemberInfo(UpdateMemberInfoApi.Input input) throws StatusCodeWithException {
 
-        AccountMysqlModel account = accountRepository.findByPhoneNumber(BoardSM4Util.encryptPhoneNumber(CurrentAccount.phoneNumber()));
-        if (!account.getSuperAdminRole()) {
-            throw new StatusCodeWithException("您没有编辑权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
-        }
-
-        MemberInfoModel model = globalConfigService.getMemberInfo();
+        MemberInfoModel model = globalConfigService.getModel(MemberInfoModel.class);
         model.setMemberName(input.getMemberName());
         model.setMemberEmail(input.getMemberEmail());
         model.setMemberMobile(input.getMemberMobile());
         model.setMemberAllowPublicDataSet(input.getMemberAllowPublicDataSet());
         model.setMemberGatewayUri(input.getMemberGatewayUri());
         model.setMemberHidden(input.getMemberHidden());
-
-        globalConfigService.setMemberInfo(model);
+        model.setMemberGatewayTlsEnable(input.getMemberGatewayTlsEnable());
+        globalConfigService.put(model);
 
         unionService.uploadMemberInfoExcludeLogo(model);
 
         CacheObjects.refreshMemberInfo();
-        // Notify the gateway to also refresh the corresponding cache
-        gatewayService.refreshSystemConfigCache();
     }
 
 
     @Transactional(rollbackFor = Exception.class)
     public void updateMemberRsaKey() throws StatusCodeWithException {
 
-        AccountMysqlModel account = accountRepository.findByPhoneNumber(BoardSM4Util.encryptPhoneNumber(CurrentAccount.phoneNumber()));
-        if (!account.getSuperAdminRole()) {
-            throw new StatusCodeWithException("您没有编辑权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
-        }
-
-        MemberInfoModel model = globalConfigService.getMemberInfo();
+        MemberInfoModel model = globalConfigService.getModel(MemberInfoModel.class);
 
         try {
             SignUtil.KeyPair keyPair = SignUtil.generateKeyPair(model.getSecretKeyType());
             model.setRsaPrivateKey(keyPair.privateKey);
             model.setRsaPublicKey(keyPair.publicKey);
         } catch (NoSuchAlgorithmException e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, e.getMessage());
         }
 
         // notify union
         unionService.resetPublicKey(model);
-        globalConfigService.setMemberInfo(model);
+        globalConfigService.put(model);
 
         // Update serving global settings
-        servingService.asynRefreshMemberInfo(model);
+//        servingService.asynRefreshMemberInfo(model);
 
         CacheObjects.refreshMemberInfo();
 
@@ -198,14 +191,10 @@ public class SystemInitializeService extends AbstractService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void updateMemberLogo(UpdateMemberLogoApi.Input input) throws StatusCodeWithException {
-        AccountMysqlModel account = accountRepository.findByPhoneNumber(BoardSM4Util.encryptPhoneNumber(CurrentAccount.phoneNumber()));
-        if (!account.getSuperAdminRole()) {
-            throw new StatusCodeWithException("您没有编辑权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
-        }
 
-        MemberInfoModel model = globalConfigService.getMemberInfo();
+        MemberInfoModel model = globalConfigService.getModel(MemberInfoModel.class);
         model.setMemberLogo(input.getMemberLogo());
-        globalConfigService.setMemberInfo(model);
+        globalConfigService.put(model);
 
         unionService.updateMemberLogo(model);
     }

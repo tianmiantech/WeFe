@@ -195,6 +195,7 @@
 <script>
     import table from '@src/mixins/table.js';
     import TaskStatusTag from '@src/components/views/task-status-tag';
+    import { getHeader } from '@src/http/utils';
 
     export default {
         components: {
@@ -212,7 +213,12 @@
                 statusList: [{
                     name:  '等待合作方审核',
                     value: 'Pending',
-                }, {
+                },
+                {
+                    name:  '准备中',
+                    value: 'Ready',
+                },
+                {
                     name:  '等待我方审核',
                     value: 'Await',
                 }, {
@@ -230,7 +236,8 @@
                 }],
 
                 headers: {
-                    token: localStorage.getItem('token') || '',
+                    // token: localStorage.getItem('token') || '',
+                    ... getHeader(),
                 },
                 getListApi: '/task/paging',
                 myRoleList: [

@@ -23,11 +23,16 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.gateway.GatewayServer;
+import com.welab.wefe.gateway.cache.CaCertificateCache;
 import com.welab.wefe.gateway.cache.MemberCache;
+import com.welab.wefe.gateway.config.CommonConfig;
 import com.welab.wefe.gateway.config.ConfigProperties;
 import com.welab.wefe.gateway.entity.MemberEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Union service tool class
@@ -44,8 +49,8 @@ public class UnionHelper {
 
     static {
         try {
-            ConfigProperties configProperties = GatewayServer.CONTEXT.getBean(ConfigProperties.class);
-            BASE_URL = configProperties.getWefeUnionBaseUrl();
+            CommonConfig commonConfig = GatewayServer.CONTEXT.getBean("commonConfig", CommonConfig.class);
+            BASE_URL = commonConfig.getUnionBaseUrl();
             BASE_URL = (BASE_URL.endsWith("/") ? BASE_URL : BASE_URL + "/");
 
         } catch (Exception e) {
@@ -88,6 +93,38 @@ public class UnionHelper {
             return dataStr;
         } catch (Exception e) {
             LOG.error("Failed to query member information：", e);
+            throw e;
+        }
+    }
+
+    /**
+     * Query all ca certificate
+     */
+    public static String getCaCertificate() throws Exception {
+        try {
+            String verifyMemberId = MemberCache.getInstance().getSelfMember().getId();
+            JObject data = JObject.create();
+            HttpResponse httpResponse = HttpRequest
+                    .create(BASE_URL + "trust/certs/query").closeLog()
+                    .appendParameters(generateReqParam(verifyMemberId, data.toString()))
+                    .postJson();
+            String responseBodyStr = httpResponse.getBodyAsString();
+            if (StringUtil.isEmpty(responseBodyStr)) {
+                throw new Exception(
+                        "查询CA信息失败，httpCode：" + httpResponse.getCode() + ", httpMessage：" + httpResponse.getMessage());
+            }
+            JObject responseBody = JObject.create(responseBodyStr);
+            String code = responseBody.getString("code");
+            if (!RESP_CODE_SUCCESS.equals(code)) {
+                throw new Exception("查询CA信息失败，code：" + code);
+            }
+            String dataStr = responseBody.getStringByPath("data.list");
+            if (StringUtil.isEmpty(dataStr)) {
+                throw new Exception("查询CA信息失败，业务数据为空");
+            }
+            return dataStr;
+        } catch (Exception e) {
+            LOG.error("Failed to query ca information：", e);
             throw e;
         }
     }

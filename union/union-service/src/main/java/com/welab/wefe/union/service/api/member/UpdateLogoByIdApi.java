@@ -23,13 +23,13 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.member.MemberOutput;
-import com.welab.wefe.union.service.service.MemberContractService;
+import com.welab.wefe.union.service.service.contract.MemberContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author aaron.li
  **/
-@Api(path = "member/update_logo", name = "member_update_logo", rsaVerify = true, login = false)
+@Api(path = "member/update_logo", name = "member_update_logo", allowAccessWithSign = true)
 public class UpdateLogoByIdApi extends AbstractApi<UpdateLogoByIdApi.Input, MemberOutput> {
     @Autowired
     private MemberContractService memberContractService;

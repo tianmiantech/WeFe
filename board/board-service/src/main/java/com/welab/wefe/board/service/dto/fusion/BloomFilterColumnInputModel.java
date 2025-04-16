@@ -42,7 +42,7 @@ public class BloomFilterColumnInputModel extends AbstractCheckModel {
         super.checkAndStandardize();
 
         if (getDataType() == null) {
-            throw new StatusCodeWithException("请给字段【" + getName() + "】设置数据类型", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "请给字段【" + getName() + "】设置数据类型");
         }
     }
 

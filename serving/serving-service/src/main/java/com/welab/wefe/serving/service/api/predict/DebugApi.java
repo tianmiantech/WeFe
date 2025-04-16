@@ -17,15 +17,18 @@
 package com.welab.wefe.serving.service.api.predict;
 
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
-import com.welab.wefe.serving.service.predicter.Predicter;
+import com.welab.wefe.serving.service.predicter.Predictor;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
@@ -36,7 +39,6 @@ import java.util.Map;
 @Api(
         path = "predict/debug",
         name = "模型预测"
-        , login = false
 )
 public class DebugApi extends AbstractApi<DebugApi.Input, PredictResult> {
 
@@ -44,19 +46,18 @@ public class DebugApi extends AbstractApi<DebugApi.Input, PredictResult> {
     protected ApiResult<PredictResult> handle(Input input) {
 
         try {
-            PredictResult result = Predicter.debug(
+            PredictResult result = Predictor.debug(
                     input.getModelId(),
                     input.getUserId(),
                     input.getFeatureData(),
-                    input.getParams() == null ? null : new JSONObject(input.getParams()),
                     input.getFeatureSource(),
-                    input.getMyRole()
+                    input.getParams() == null ? null : new JSONObject(input.getParams())
             );
 
             return success(result);
         } catch (Exception e) {
             e.printStackTrace();
-            return fail("predict error : " + e.getMessage());
+            return fail(e.getMessage());
         }
     }
 
@@ -64,7 +65,7 @@ public class DebugApi extends AbstractApi<DebugApi.Input, PredictResult> {
 
         @Check(require = true, name = "模型唯一标识")
         private String modelId;
-        @Check(require = true, name = "用户 id")
+        @Check(name = "用户 id")
         private String userId;
 
         @Check(name = "预测入参")
@@ -76,9 +77,17 @@ public class DebugApi extends AbstractApi<DebugApi.Input, PredictResult> {
         @Check(name = "特征来源类型")
         private PredictFeatureDataSource featureSource;
 
-        @Check(name = "我的角色")
-        private JobMemberRole myRole;
+        @Override
+        public void checkAndStandardize() throws StatusCodeWithException {
+            super.checkAndStandardize();
+            if (PredictFeatureDataSource.sql.equals(featureSource) && MapUtils.isEmpty(params)) {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("选择特征来源于SQL配置时，SQL配置项不能为空！");
+            }
 
+            if (MapUtils.isEmpty(featureData) && StringUtils.isEmpty(userId)) {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("请输入样本ID或样本特征");
+            }
+        }
 
         //region getter/setter
 
@@ -121,14 +130,6 @@ public class DebugApi extends AbstractApi<DebugApi.Input, PredictResult> {
 
         public void setFeatureSource(PredictFeatureDataSource featureSource) {
             this.featureSource = featureSource;
-        }
-
-        public JobMemberRole getMyRole() {
-            return myRole;
-        }
-
-        public void setMyRole(JobMemberRole myRole) {
-            this.myRole = myRole;
         }
 
         //endregion

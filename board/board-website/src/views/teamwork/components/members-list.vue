@@ -3,8 +3,27 @@
         name="参与成员"
         class="nav-title mb30"
         shadow="never"
+        :idx="sortIndex"
+        style="background: white;"
     >
-        <h3 class="mb10 card-title">参与成员</h3>
+        <template #header>
+            <div class="mb10 flex-row">
+                
+                <h3 class="card-title f19">
+                    <el-icon :class="['board-icon-office-building', 'mr10', 'ml10']" style="font-size: xx-large; top:9px; right: -3px; color: dodgerblue"><elicon-office-building />
+                    </el-icon>
+                    参与成员
+                </h3>
+                <div v-if="form.is_project_admin" class="right-sort-area">
+                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['board-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp" title="向上" style="color: lightgray"><elicon-top /></el-icon>
+                    <el-icon v-if="maxIndex !== sortIndex" :class="['board-icon-bottom', 'mr10', 'ml10']" @click="moveDown" title="向下" style="color: lightgray"><elicon-bottom /></el-icon>
+                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['board-icon-caret-top', {'mr10': maxIndex === sortIndex}]" @click="toTop" title="置顶" style="color: lightgray"><elicon-caret-top /></el-icon>
+                    <el-icon v-if="maxIndex !== sortIndex" :class="['board-icon-caret-bottom', 'mr10', 'ml10']" @click="toBottom" title="置底" style="color: lightgray"><elicon-caret-bottom /></el-icon>
+                    
+                </div>
+            </div>
+        </template>
+
         <el-tabs
             v-if="promoter.member_id"
             v-model="memberTabName"
@@ -30,7 +49,7 @@
                 </p>
 
                 <el-button
-                    v-if="form.isCreator && !form.closed"
+                    v-if="form.isCreator && !form.closed && form.is_project_admin"
                     type="primary"
                     @click="addDataSet('promoter_creator', 0, promoter.member_id, promoter.$data_set)"
                 >
@@ -45,7 +64,7 @@
                     border
                     stripe
                 >
-                    <el-table-column type="index" />
+                    <el-table-column label="序号" type="index" />
                     <el-table-column
                         label="数据资源"
                         width="260"
@@ -68,11 +87,6 @@
                                 <br>
                                 <span>{{ scope.row.data_resource.data_resource_id }}</span>
                             </template>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="数据类型" min-width="100">
-                        <template v-slot="scope">
-                            {{ sourceTypeMap[scope.row.data_resource_type] }}
                         </template>
                     </el-table-column>
                     <el-table-column label="关键词">
@@ -99,19 +113,19 @@
                                 <br>
                                 主键组合方式: {{ scope.row.data_resource.hash_function }}
                             </p>
-                            <template v-else>
-                                特征量：{{ scope.row.data_resource.feature_count }}
+                            <template v-if="scope.row.data_resource">
+                                特征量：{{ scope.row.data_resource.feature_count || 0 }}
                                 <br>
-                                样本量：{{ scope.row.data_resource.total_data_count }}
+                                样本量：{{ scope.row.data_resource.total_data_count || 0 }}
                             </template>
                         </template>
                     </el-table-column>
                     <el-table-column
                         label="使用次数"
-                        width="80"
+                        min-width="90"
                     >
                         <template v-slot="scope">
-                            {{ scope.row.data_resource ? scope.row.data_resource.usage_count_in_job : '-' }}
+                            {{ scope.row.data_resource ? scope.row.data_resource.usage_count_in_job : 0 }}
                         </template>
                     </el-table-column>
                     <el-table-column v-if="projectType === 'MachineLearning'" label="是否包含 Y">
@@ -123,7 +137,7 @@
                         v-if="projectType === 'DeepLearning'"
                         label="样本分类"
                         prop="for_job_type"
-                        width="100"
+                        min-width="100"
                     >
                         <template v-slot="scope">
                             <template v-if="scope.row.data_resource">
@@ -133,40 +147,18 @@
                     </el-table-column>
                     <el-table-column
                         v-if="projectType === 'DeepLearning'"
-                        label="数据总量"
-                        width="80"
-                    >
-                        <template v-slot="scope">
-                            {{ scope.row.data_resource ? scope.row.data_resource.total_data_count : 0 }}
-                        </template>
-                    </el-table-column>
-                    <el-table-column
-                        v-if="projectType === 'DeepLearning'"
-                        label="已标注"
-                        prop="labeled_count"
-                        width="100"
+                        label="已标注/样本量"
+                        min-width="120"
                     >
                         <template v-slot="scope">
                             <template v-if="scope.row.data_resource">
-                                {{scope.row.data_resource ? scope.row.data_resource.labeled_count : scope.row.labeled_count}}
-                            </template>
-                        </template>
-                    </el-table-column>
-                    <el-table-column
-                        v-if="projectType === 'DeepLearning'"
-                        label="标注状态"
-                        prop="label_completed"
-                        width="100"
-                    >
-                        <template v-slot="scope">
-                            <template v-if="scope.row.data_resource">
-                                {{scope.row.data_resource.label_completed ? '已完成' : '标注中'}}
+                                {{scope.row.data_resource.labeled_count}}/{{ scope.row.data_resource.total_data_count }}
                             </template>
                         </template>
                     </el-table-column>
                     <el-table-column
                         label="状态"
-                        width="100"
+                        min-width="100"
                     >
                         <template v-slot="scope">
                             {{ scope.row.audit_status === 'auditing' ? '待授权' : scope.row.audit_status === 'disagree' ? '已拒绝' : scope.row.audit_status === 'agree' ? '已授权' : '-' }}
@@ -186,7 +178,7 @@
                     >
                         <template v-slot="scope">
                             <el-tooltip
-                                v-if="!scope.row.deleted && scope.row.member_id === userInfo.member_id"
+                                v-if="(scope.row.data_resource && !scope.row.data_resource.deleted) && scope.row.member_id === userInfo.member_id"
                                 :disabled="scope.row.data_resource_type === 'BloomFilter'"
                                 content="预览数据"
                                 placement="top"
@@ -203,19 +195,15 @@
                                     </el-icon>
                                 </el-button>
                             </el-tooltip>
-                            <!--
-                                1. 数据资源未被删除
-                                2. 成员是 promoter or 成员是自己
-                            -->
                             <el-button
-                                v-if="form.isPromoter || scope.row.member_id === userInfo.member_id"
+                                v-if="(scope.row.data_resource && !scope.row.data_resource.deleted) && form.is_project_admin && (form.isPromoter || scope.row.member_id === userInfo.member_id)"
                                 circle
                                 type="danger"
                                 class="mr10"
                                 icon="elicon-delete"
                                 @click="removeDataSet(scope.row, scope.$index)"
                             />
-                            <template v-if="scope.row.deleted">
+                            <template v-if="scope.row.data_resource && scope.row.data_resource.deleted">
                                 该数据资源已被移除
                             </template>
                         </template>
@@ -295,7 +283,7 @@
             class="mt20"
         >
             <el-button
-                v-if="projectType === 'MachineLearning'"
+                v-if="projectType === 'MachineLearning' && form.is_project_admin"
                 class="add-provider-btn mr20"
                 @click="showSelectMemberDialog('promoter')"
             >
@@ -303,6 +291,7 @@
             </el-button>
 
             <el-button
+                v-if="form.is_project_admin"
                 type="primary"
                 class="add-provider-btn"
                 @click="showSelectMemberDialog('provider')"
@@ -369,7 +358,10 @@
             form:        Object,
             promoter:    Object,
             projectType: String,
+            sortIndex:   Number,
+            maxIndex:    Number,
         },
+        emits: ['move-up', 'move-down', 'to-top', 'to-bottom'],
         data() {
             return {
                 dataSetPreviewDialog: false,
@@ -389,10 +381,23 @@
                     ImageDataSet: '图像数据集',
                     BloomFilter:  '布隆过滤器',
                 },
+                privateMembers: [],
             };
         },
         computed: {
             ...mapGetters(['userInfo']),
+            selectedPrivateMembers: ({ form, privateMembers, promoter }) =>
+                privateMembers.filter(({ member_id }) =>
+                    [promoter, ...form.memberList, ...form.promoterList].find(
+                        (each) => each.member_id === member_id,
+                    ),
+                ),
+        },
+        created() {
+            this.$http.post('/partner_config/query').then(({ code,data }) => {
+                if(code === 0)
+                    this.privateMembers = data.list;
+            });
         },
         methods: {
             showDataSetPreview(item){
@@ -598,7 +603,18 @@
                         }
                     });
             },
-
+            moveUp() {
+                this.$emit('move-up', this.sortIndex);
+            },
+            moveDown() {
+                this.$emit('move-down', this.sortIndex);
+            },
+            toTop() {
+                this.$emit('to-top', this.sortIndex);
+            },
+            toBottom() {
+                this.$emit('to-bottom', this.sortIndex);
+            },
         },
     };
 </script>
@@ -608,16 +624,17 @@
     position: absolute;
     right: 0px;
     top: 0px;
-    .el-icon-setting{
+    .board-icon-setting{
         cursor: pointer;
         color:#5088fc;
     }
 }
+
 </style>
 
 <style lang="scss" scoped>
-    .el-tabs{
-        :deep(.el-tab-pane){position: relative;}
+    .board-tabs{
+        :deep(.board-tab-pane){position: relative;}
     }
     .service-offline{
         color: $--color-danger;
@@ -642,4 +659,14 @@
             &:hover{opacity:0.9;}
         }
     }
+    .privatenetwork{
+            font-size: 14px;
+            .title{
+                font-weight: 600;
+            }
+            .desc{
+                font-size: 12px;
+                color:#808080;
+            }
+        }
 </style>

@@ -16,20 +16,17 @@
 
 package com.welab.wefe.serving.service.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.serving.service.api.operation.LogQueryApi;
-import com.welab.wefe.serving.service.database.serving.entity.OperationLogMysqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.OperationLogRepository;
+import com.welab.wefe.serving.service.database.entity.OperationLogMysqlModel;
+import com.welab.wefe.serving.service.database.repository.OperationLogRepository;
 import com.welab.wefe.serving.service.dto.OperationLogOutputModel;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
 
 /**
  * @author eval
@@ -41,10 +38,6 @@ public class OperationLogService {
     OperationLogRepository mOperationLogRepository;
 
     public PagingOutput<OperationLogOutputModel> query(LogQueryApi.Input input) throws StatusCodeWithException {
-        if (!CurrentAccount.isAdmin()) {
-            StatusCode.PERMISSION_DENIED.throwException("普通用户无法进行此操作。");
-        }
-
         Specification<OperationLogMysqlModel> where = Where.create().equal("logInterface", input.logInterface)
                 .equal("operatorId", input.operatorId)
                 .betweenAndDate("createdTime", input.getStartTime(), input.getEndTime())

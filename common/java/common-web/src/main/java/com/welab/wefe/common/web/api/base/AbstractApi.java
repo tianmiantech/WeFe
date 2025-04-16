@@ -37,8 +37,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
 
 /**
@@ -49,7 +49,7 @@ public abstract class AbstractApi<In extends AbstractApiInput, Out> {
     /**
      * The concurrency of the API, used to limit the concurrency of the API
      */
-    private static final Map<String, LongAdder> API_PARALLELISM = new HashMap<>();
+    private static final Map<String, LongAdder> API_PARALLELISM = new ConcurrentHashMap<>();
 
     protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
@@ -152,9 +152,14 @@ public abstract class AbstractApi<In extends AbstractApiInput, Out> {
 
         Type[] types = ((ParameterizedType) clazz.getGenericSuperclass()).getActualTypeArguments();
         if (types.length > 0) {
-            Class<?> type = (Class<?>) types[0];
-            if (AbstractApiInput.class.isAssignableFrom(type)) {
-                return (Class<In>) type;
+            try {
+                Class<?> type = (Class<?>) types[0];
+                if (AbstractApiInput.class.isAssignableFrom(type)) {
+                    return (Class<In>) type;
+                }
+            } catch (ClassCastException e) {
+                // 当此处发生异常时，通常是因为接口中的泛型参数不是AbstractApiInput的子类。
+                // 这里不用做任何处理，下面的代码会尝试从父类中继续寻找。
             }
         }
 
@@ -242,6 +247,7 @@ public abstract class AbstractApi<In extends AbstractApiInput, Out> {
         headers.add("Content-Disposition", "attachment; filename=" + file.getName());
         headers.add("Last-Modified", file.lastModified() + "");
         headers.add("ETag", String.valueOf(file.lastModified()));
+        headers.add("Access-Control-Expose-Headers", "Content-Disposition");
 
         ResponseEntity<FileSystemResource> response = ResponseEntity
                 .ok()

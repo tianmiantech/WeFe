@@ -17,6 +17,9 @@ cd $workdir
 ## 子项目编译命令，需要根据实际项目更改
 mvn clean install -Dmaven.test.skip=true -am -pl manager/manager-service
 
+echo "将加密后的包重命名为 wefe-manager-service.jar"
+mv manager/manager-service/target/manager-service.jar manager/manager-service/target/wefe-manager-service.jar
+
 
 ## 生成 JSON 配置文件，此文件作用告知运维怎么拿到实际要部署的代码、配置文件（以目录形式存放）
 ## JSON 中的 key 值，事先和运维约定好

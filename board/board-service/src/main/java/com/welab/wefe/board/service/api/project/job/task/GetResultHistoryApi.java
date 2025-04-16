@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.api.project.job.task;
 
+import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.dto.entity.job.TaskResultOutputModel;
@@ -68,10 +69,12 @@ public class GetResultHistoryApi extends AbstractApi<GetResultHistoryApi.Input, 
             result.setErrorCause(task.getErrorCause());
             result.setPosition(task.getPosition());
             result.setSpend(task.getSpend());
+            result.setTaskConfig(JSON.parseObject(task.getTaskConf()));
             result.setJobId(task.getJobId());
             result.setFlowId(task.getFlowId());
             result.setFlowNodeId(task.getFlowNodeId());
             result.setTaskId(task.getTaskId());
+
             list.add(result);
         }
 

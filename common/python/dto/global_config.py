@@ -33,6 +33,8 @@ class MemberInfo(object):
     member_logo: str
     # 成员隐身状态
     member_hidden: bool
+    # 密钥类型参数：rsa、sm2
+    secret_key_type: str
 
 
 class BoardConfigModel(object):
@@ -54,3 +56,23 @@ class MailServerModel(object):
 class FunctionComputeConfig(object):
     max_cost_in_day: int
     max_cost_in_month: int
+    cloud_provider: str
+
+
+class SparkStandaloneConfig(object):
+    executor_memory: str
+    driver_max_result_size: str
+    driver_memory: str
+    hardware_acceleration: str
+
+
+class StorageConfig(object):
+    storage_type: str
+
+
+class ClickhouseStorageConfig(object):
+    tcp_port: str
+    password: str
+    host: str
+    http_port: str
+    username: str

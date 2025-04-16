@@ -16,14 +16,26 @@
 
 package com.welab.wefe.board.service.service.globalconfig;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.PropertyNamingStrategy;
+import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.welab.wefe.board.service.api.global_config.GlobalConfigUpdateApi;
-import com.welab.wefe.board.service.dto.globalconfig.*;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.Env;
+import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.GatewayService;
+import com.welab.wefe.board.service.service.JobService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.IpAddressUtil;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.wefe.dto.global_config.GatewayConfigModel;
+import com.welab.wefe.common.wefe.dto.global_config.base.AbstractConfigModel;
+import com.welab.wefe.common.wefe.dto.global_config.base.ConfigGroupConstant;
+import com.welab.wefe.common.wefe.dto.global_config.base.ConfigModel;
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
+import com.welab.wefe.common.wefe.enums.JobBackendType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,25 +49,40 @@ import java.util.Map;
 public class GlobalConfigService extends BaseGlobalConfigService {
     @Autowired
     private GatewayService gatewayService;
+    @Autowired
+    private JobService jobService;
+    @Autowired
+    private DataSetStorageService dataSetStorageService;
 
-
-    public void update(GlobalConfigUpdateApi.Input input) throws StatusCodeWithException {
-        if (!CurrentAccount.isAdmin()) {
-            StatusCode.ILLEGAL_REQUEST.throwException("只有管理员才能执行此操作。");
+    public void update(GlobalConfigUpdateApi.Input input) throws Exception {
+        int runningJobCount = jobService.runningJobCount();
+        if (runningJobCount > 0) {
+            StatusCode.ILLEGAL_REQUEST.throwException("当前有" + runningJobCount + "个任务正在运行，暂时不允许修改配置项，请在任务结束后重试。");
         }
 
         for (Map.Entry<String, Map<String, String>> group : input.groups.entrySet()) {
-            String groupName = group.getKey();
-            Map<String, String> groupItems = group.getValue();
-            for (Map.Entry<String, String> item : groupItems.entrySet()) {
-                String key = item.getKey();
-                String value = item.getValue();
-                put(groupName, key, value, null);
-            }
+            AbstractConfigModel model = toModel(group.getKey(), group.getValue());
+            put(model);
         }
 
         // Notify the gateway to update the system configuration cache
         gatewayService.refreshSystemConfigCache();
+
+        // Refresh persistent storage objects
+        if (input.groups.containsKey(ConfigGroupConstant.STORAGE)) {
+            dataSetStorageService.initStorage();
+        }
+
+        // Refresh function calculation storage
+        if (input.groups.containsKey(ConfigGroupConstant.FC_CONFIG)) {
+            if (Env.get().getCalculationEngineConfig().backend == JobBackendType.FC) {
+                gatewayService.sendToMyselfGateway(
+                        "",
+                        GatewayProcessorType.refreshFcStorageProcessor
+                );
+            }
+        }
+
     }
 
 
@@ -73,7 +100,7 @@ public class GlobalConfigService extends BaseGlobalConfigService {
             ip = StringUtil.join(array, ".");
         }
 
-        GatewayConfigModel gatewayConfig = getGatewayConfig();
+        GatewayConfigModel gatewayConfig = getModel(GatewayConfigModel.class);
         List<String> list = IpAddressUtil.parseStringToIpList(gatewayConfig.ipWhiteList);
 
         // Already exist, do not add repeatedly.
@@ -88,143 +115,35 @@ public class GlobalConfigService extends BaseGlobalConfigService {
                 + ip
                 + System.lineSeparator();
 
-        setGatewayConfig(gatewayConfig);
+        put(gatewayConfig);
     }
 
 
     /**
-     * init global config items
+     * 初始化配置项
      */
-    public void init() throws StatusCodeWithException {
+    public synchronized void init() throws StatusCodeWithException, InstantiationException, IllegalAccessException {
         LOG.info("start init global config");
-        GatewayConfigModel gatewayConfig = getGatewayConfig();
-        if (gatewayConfig == null) {
-            setGatewayConfig(new GatewayConfigModel());
-        }
 
-        MailServerModel mailServer = getMailServer();
-        if (mailServer == null) {
-            setMailServer(new MailServerModel());
-        }
 
-        BoardConfigModel boardConfig = getBoardConfig();
-        if (boardConfig == null) {
-            setBoardConfig(new BoardConfigModel());
-        }
+        // 遍历所有 ConfigModel，将配置项添加到数据库。
+        for (Class<?> aClass : AbstractConfigModel.getModelClasses()) {
+            SerializeConfig config = new SerializeConfig();
+            config.propertyNamingStrategy = PropertyNamingStrategy.SnakeCase;
+            String jsonString = JSON.toJSONString(aClass.newInstance(), config, SerializerFeature.WriteMapNullValue);
 
-        AlertConfigModel alertConfig = getAlertConfig();
-        if (alertConfig == null) {
-            setAlertConfig(new AlertConfigModel());
-        }
+            ConfigModel annotation = aClass.getAnnotation(ConfigModel.class);
 
-        FlowConfigModel flowConfig = getFlowConfig();
-        if (flowConfig == null) {
-            setFlowConfig(new FlowConfigModel());
-        }
-
-        ServingConfigModel servingConfig = getServingConfig();
-        if (servingConfig == null) {
-            setServingConfig(new ServingConfigModel());
-        }
-
-        FunctionComputeConfigModel functionComputeConfig = getFunctionComputeConfig();
-        if (functionComputeConfig == null) {
-            setFunctionComputeConfig(new FunctionComputeConfigModel());
-        }
-
-        DeepLearningConfigModel deepLearningConfig = getDeepLearningConfig();
-        if (deepLearningConfig == null) {
-            setDeepLearningConfig(new DeepLearningConfigModel());
-        }
-
-        CalculationEngineConfigModel calculationEngineConfig = getCalculationEngineConfig();
-        if (calculationEngineConfig == null) {
-            setCalculationEngineConfig(new CalculationEngineConfigModel());
+            JSONObject json = JSON.parseObject(jsonString);
+            for (String name : json.keySet()) {
+                // 当数据库中没有该配置项时，添加该配置项。
+                if (findOne(annotation.group(), name) == null) {
+                    put(annotation.group(), name, json.getString(name), null);
+                }
+            }
         }
 
         LOG.info("init global config success!");
-    }
-
-
-    public GatewayConfigModel getGatewayConfig() {
-        return getModel(Group.WEFE_GATEWAY, GatewayConfigModel.class);
-    }
-
-    public void setGatewayConfig(GatewayConfigModel model) throws StatusCodeWithException {
-        put(Group.WEFE_GATEWAY, model);
-    }
-
-    public void setMemberInfo(MemberInfoModel model) throws StatusCodeWithException {
-        put(Group.MEMBER_INFO, model);
-    }
-
-    public MemberInfoModel getMemberInfo() {
-        return getModel(Group.MEMBER_INFO, MemberInfoModel.class);
-    }
-
-    public void setMailServer(MailServerModel model) throws StatusCodeWithException {
-        put(Group.MAIL_SERVER, model);
-    }
-
-    public MailServerModel getMailServer() {
-        return getModel(Group.MAIL_SERVER, MailServerModel.class);
-    }
-
-    public void setBoardConfig(BoardConfigModel model) throws StatusCodeWithException {
-        put(Group.WEFE_BOARD, model);
-    }
-
-    public BoardConfigModel getBoardConfig() {
-        return getModel(Group.WEFE_BOARD, BoardConfigModel.class);
-    }
-
-    public void setAlertConfig(AlertConfigModel model) throws StatusCodeWithException {
-        put(Group.ALERT_CONFIG, model);
-    }
-
-    public AlertConfigModel getAlertConfig() {
-        return getModel(Group.ALERT_CONFIG, AlertConfigModel.class);
-    }
-
-
-    public void setFlowConfig(FlowConfigModel model) throws StatusCodeWithException {
-        put(Group.WEFE_FLOW, model);
-    }
-
-    public FlowConfigModel getFlowConfig() {
-        return getModel(Group.WEFE_FLOW, FlowConfigModel.class);
-    }
-
-    public void setServingConfig(ServingConfigModel model) throws StatusCodeWithException {
-        put(Group.WEFE_SERVING, model);
-    }
-
-    public ServingConfigModel getServingConfig() {
-        return getModel(Group.WEFE_SERVING, ServingConfigModel.class);
-    }
-
-    public FunctionComputeConfigModel getFunctionComputeConfig() {
-        return getModel(Group.FC_CONFIG, FunctionComputeConfigModel.class);
-    }
-
-    public void setFunctionComputeConfig(FunctionComputeConfigModel model) throws StatusCodeWithException {
-        put(Group.FC_CONFIG, model);
-    }
-
-    public DeepLearningConfigModel getDeepLearningConfig() {
-        return getModel(Group.DEEP_LEARNING_CONFIG, DeepLearningConfigModel.class);
-    }
-
-    public void setDeepLearningConfig(DeepLearningConfigModel model) throws StatusCodeWithException {
-        put(Group.DEEP_LEARNING_CONFIG, model);
-    }
-
-    public CalculationEngineConfigModel getCalculationEngineConfig() {
-        return getModel(Group.CALCULATION_ENGINE_CONFIG, CalculationEngineConfigModel.class);
-    }
-
-    public void setCalculationEngineConfig(CalculationEngineConfigModel model) throws StatusCodeWithException {
-        put(Group.CALCULATION_ENGINE_CONFIG, model);
     }
 
 

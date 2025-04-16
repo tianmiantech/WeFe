@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author zane.luo
  */
-@Api(path = "gateway/derived_data_set/detail", name = "get a list of derived data sets in the project", rsaVerify = true, login = false)
+@Api(path = "gateway/derived_data_set/detail", name = "get a list of derived data sets in the project", allowAccessWithSign = true)
 public class GetDerivedDataSetDetailApi extends AbstractApi<GetDerivedDataSetDetailApi.Input, DerivedProjectDataSetOutputModel> {
 
     @Autowired

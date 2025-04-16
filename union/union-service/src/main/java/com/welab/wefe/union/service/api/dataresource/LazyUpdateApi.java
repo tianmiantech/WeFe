@@ -16,66 +16,53 @@
 
 package com.welab.wefe.union.service.api.dataresource;
 
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
-import com.welab.wefe.common.data.mongodb.entity.union.DataResourceLazyUpdateModel;
-import com.welab.wefe.common.data.mongodb.repo.DataResourceLazyUpdateModelMongoReop;
-import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.union.service.dto.base.BaseInput;
+import com.welab.wefe.union.service.service.contract.DataSetContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "data_resource/lazy_update", name = "image_data_set_update_labeled_count", rsaVerify = true, login = false)
+@Api(path = "data_resource/lazy_update", name = "image_data_set_update_labeled_count", allowAccessWithSign = true)
 public class LazyUpdateApi extends AbstractApi<LazyUpdateApi.Input, AbstractApiOutput> {
     @Autowired
-    private ImageDataSetMongoReop imageDataSetMongoReop;
-
-    @Autowired
-    private DataResourceLazyUpdateModelMongoReop dataResourceLazyUpdateModelMongoReop;
+    private DataSetContractService dataSetContractService;
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
-        ImageDataSet imageDataSet = imageDataSetMongoReop.findByDataResourceId(input.getDataResourceId());
-        if (imageDataSet == null) {
-            throw new StatusCodeWithException(StatusCode.INVALID_DATASET, input.getDataResourceId());
-        }
-
-        if ("1".equals(imageDataSet.getLabelCompleted())) {
-            return success();
-        }
-
-        saveImageDataSetLabeledCount(input);
-
+        dataSetContractService.lazyUpdate(input);
         return success();
-    }
-
-    private void saveImageDataSetLabeledCount(Input input) {
-        DataResourceLazyUpdateModel dataResourceLazyUpdateModel = dataResourceLazyUpdateModelMongoReop.findByDataResourceId(input.getDataResourceId());
-        if (dataResourceLazyUpdateModel == null) {
-            dataResourceLazyUpdateModel = new DataResourceLazyUpdateModel();
-        }
-        dataResourceLazyUpdateModel.setDataResourceId(input.getDataResourceId());
-        dataResourceLazyUpdateModel.setLabeledCount(input.getLabeledCount());
-        dataResourceLazyUpdateModel.setTotalDataCount(input.getTotalDataCount());
-        dataResourceLazyUpdateModel.setLabelList(input.getLabelList());
-        dataResourceLazyUpdateModelMongoReop.save(dataResourceLazyUpdateModel);
     }
 
     public static class Input extends BaseInput {
         @Check(require = true)
+        private DataResourceType dataResourceType;
+        @Check(require = true)
         private String dataResourceId;
         @Check(require = true)
-        private int totalDataCount;
+        private Integer totalDataCount;
         private String labelList;
-        private int labeledCount;
+        private Integer labeledCount;
+        private Integer usageCountInJob;
+        private Integer usageCountInFlow;
+        private Integer usageCountInProject;
+        private Integer usageCountInMember;
+        private Boolean labelCompleted;
+
+        public DataResourceType getDataResourceType() {
+            return dataResourceType;
+        }
+
+        public void setDataResourceType(DataResourceType dataResourceType) {
+            this.dataResourceType = dataResourceType;
+        }
 
         public String getDataResourceId() {
             return dataResourceId;
@@ -85,6 +72,13 @@ public class LazyUpdateApi extends AbstractApi<LazyUpdateApi.Input, AbstractApiO
             this.dataResourceId = dataResourceId;
         }
 
+        public Integer getTotalDataCount() {
+            return totalDataCount;
+        }
+
+        public void setTotalDataCount(Integer totalDataCount) {
+            this.totalDataCount = totalDataCount;
+        }
 
         public String getLabelList() {
             return labelList;
@@ -94,20 +88,52 @@ public class LazyUpdateApi extends AbstractApi<LazyUpdateApi.Input, AbstractApiO
             this.labelList = labelList;
         }
 
-        public int getTotalDataCount() {
-            return totalDataCount;
-        }
-
-        public void setTotalDataCount(int totalDataCount) {
-            this.totalDataCount = totalDataCount;
-        }
-
-        public int getLabeledCount() {
+        public Integer getLabeledCount() {
             return labeledCount;
         }
 
-        public void setLabeledCount(int labeledCount) {
+        public void setLabeledCount(Integer labeledCount) {
             this.labeledCount = labeledCount;
+        }
+
+        public Integer getUsageCountInJob() {
+            return usageCountInJob;
+        }
+
+        public void setUsageCountInJob(Integer usageCountInJob) {
+            this.usageCountInJob = usageCountInJob;
+        }
+
+        public Integer getUsageCountInFlow() {
+            return usageCountInFlow;
+        }
+
+        public void setUsageCountInFlow(Integer usageCountInFlow) {
+            this.usageCountInFlow = usageCountInFlow;
+        }
+
+        public Integer getUsageCountInProject() {
+            return usageCountInProject;
+        }
+
+        public void setUsageCountInProject(Integer usageCountInProject) {
+            this.usageCountInProject = usageCountInProject;
+        }
+
+        public Integer getUsageCountInMember() {
+            return usageCountInMember;
+        }
+
+        public void setUsageCountInMember(Integer usageCountInMember) {
+            this.usageCountInMember = usageCountInMember;
+        }
+
+        public Boolean getLabelCompleted() {
+            return labelCompleted;
+        }
+
+        public void setLabelCompleted(Boolean labelCompleted) {
+            this.labelCompleted = labelCompleted;
         }
     }
 }

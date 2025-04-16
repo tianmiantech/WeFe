@@ -87,17 +87,22 @@ def main(config="../../config.yaml", param="./param_conf_binary.yaml", namespace
     vert_nn_0 = VertNN(name="vert_nn_0", epochs=param["epochs"],
                        interactive_layer_lr=param["learning_rate"], batch_size=param["batch_size"],
                        early_stop="diff")
-    vert_nn_0.add_bottom_model(Dense(units=param["bottom_layer_units"], input_shape=(10,), activation="tanh",
-                                     kernel_initializer=initializers.RandomUniform(minval=-1, maxval=1, seed=123)))
-    vert_nn_0.set_interactve_layer(
-        Dense(units=param["interactive_layer_units"], input_shape=(param["bottom_layer_units"],), activation="relu",
-              kernel_initializer=initializers.RandomUniform(minval=-1, maxval=1, seed=123)))
-    vert_nn_0.add_top_model(
-        Dense(units=param["top_layer_units"], input_shape=(param["interactive_layer_units"],),
-              activation=param["top_act"],
-              kernel_initializer=initializers.RandomUniform(minval=-1, maxval=1, seed=123)))
-    opt = getattr(optimizers, param["opt"])(lr=param["learning_rate"])
-    vert_nn_0.compile(optimizer=opt, metrics=param["metrics"],
+
+    bottom_nn_define = {"class_name":"Sequential","layers":[{"class_name":"Dense","config":{"activation":"relu","input_shape":[30],"units":5}}]}
+    interactive_layer_define = {"class_name":"Sequential","layers":[{"class_name":"Dense","config":{"activation":"relu","input_shape":[5],"units":3}}]}
+    top_nn_define = {"class_name":"Sequential","layers":[{"class_name":"Dense","config":{"activation":"relu","input_shape":[3],"units":1}}]}
+    vert_nn_0.set_nn_define(bottom_nn_define, interactive_layer_define, top_nn_define)
+    # vert_nn_0.add_bottom_model(Dense(units=param["bottom_layer_units"], input_shape=(10,), activation="tanh",
+    #                                  kernel_initializer=initializers.RandomUniform(minval=-1, maxval=1, seed=123)))
+    # vert_nn_0.set_interactve_layer(
+    #     Dense(units=param["interactive_layer_units"], input_shape=(param["bottom_layer_units"],), activation="relu",
+    #           kernel_initializer=initializers.RandomUniform(minval=-1, maxval=1, seed=123)))
+    # vert_nn_0.add_top_model(
+    #     Dense(units=param["top_layer_units"], input_shape=(param["interactive_layer_units"],),
+    #           activation=param["top_act"],
+    #           kernel_initializer=initializers.RandomUniform(minval=-1, maxval=1, seed=123)))
+    # opt = getattr(optimizers, param["opt"])(lr=param["learning_rate"])
+    vert_nn_0.compile(optimizer=param["opt"], metrics=param["metrics"],
                       loss=param["loss"])
 
     if param["loss"] == "categorical_crossentropy":

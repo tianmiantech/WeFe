@@ -10,7 +10,7 @@
             ref="component-panel"
             class="component-form"
         >
-            <div class="ctrl-btns">
+            <div class="ctrl-btns" :class="{'is-recover': maxSize}">
                 <i
                     v-if="maxSize"
                     title="原始大小"
@@ -19,19 +19,26 @@
                 />
                 <i
                     v-else
-                    title="网页全屏"
+                    title="全屏显示"
                     class="iconfont icon-enlarge"
                     @click="changeSize"
                 />
             </div>
             <template v-if="showComponentPanel">
+                <el-alert
+                    v-if="(!isProjectAdmin || isProjectAdmin === 'false') && !isCreator"
+                    title="当前项目由管理员创建，您仅有查看权限，不能编辑。"
+                    type="warning"
+                    show-icon
+                    class="unedit-tips">
+                </el-alert>
                 <el-scrollbar
                     v-if="componentType === 'defaultPanel'"
                     height="100%"
                 >
                     <el-form
                         :class="['p20', { 'readonly-form': myRole !== 'promoter' || !isCreator }]"
-                        :disabled="myRole !== 'promoter' || !isCreator"
+                        :disabled="myRole !== 'promoter' || !isCreator || isProjectAdmin === 'false'"
                         @submit.prevent
                     >
                         <div v-if="!isCreator" class="mb10">
@@ -93,7 +100,7 @@
                                 label="参数"
                                 name="params"
                             >
-                                <el-scrollbar height="100%">
+                                <el-scrollbar style="height:calc(100% - 40px);">
                                     <div v-if="!isCreator" class="mb10">
                                         <el-alert
                                             title="!!! 仅允许查看"
@@ -104,45 +111,26 @@
                                             show-icon
                                         />
                                     </div>
-                                    <el-popover
-                                        title="参数说明"
-                                        :offset="15"
-                                        :width="250"
-                                        placement="left-start"
-                                        popper-class="explain-popper"
-                                        v-model:visible="isExplainShow"
-                                        trigger="manual"
-                                        effect="dark"
+                                    <component
+                                        :is="`${key}-params`"
+                                        :ref="`${key}-params`"
+                                        :is-creator="isCreator"
+                                        :disabled="jobGraphShow || myRole !== 'promoter' || !isCreator"
+                                        :class="{ 'readonly-form': myRole !== 'promoter' || !isCreator }"
+                                        :current-obj="currentObj"
+                                        :project-id="projectId"
+                                        :flow-id="flowId"
+                                        :job-id="jobId"
+                                        :learning-type="learningType"
+                                        :ootModelFlowNodeId="ootModelFlowNodeId"
+                                        :ootJobId="ootJobId"
+                                        :project-type="projectType"
                                     >
-                                        <components-params-explain
-                                            :is="`${key}`"
-                                            :components-name="`${key}`"
-                                            @closeExplainPop="closeExplainPop"
-                                        />
-
-                                        <template #reference>
-                                            <component
-                                                :is="`${key}-params`"
-                                                :ref="`${key}-params`"
-                                                :is-creator="isCreator"
-                                                :disabled="jobGraphShow || myRole !== 'promoter' || !isCreator"
-                                                :class="{ 'readonly-form': myRole !== 'promoter' || !isCreator }"
-                                                :current-obj="currentObj"
-                                                :project-id="projectId"
-                                                :flow-id="flowId"
-                                                :job-id="jobId"
-                                                :learning-type="learningType"
-                                                :ootModelFlowNodeId="ootModelFlowNodeId"
-                                                :ootJobId="ootJobId"
-                                                :project-type="projectType"
-                                            >
-                                            </component>
-                                        </template>
-                                    </el-popover>
-
-                                    <div
-                                        v-if="!jobGraphShow && isCreator"
-                                        class="mt20"
+                                    </component>
+                                </el-scrollbar>
+                                <div
+                                    v-if="!jobGraphShow && isCreator && (isProjectAdmin === 'true' || isProjectAdmin === '1')"
+                                    style="line-height: 40px;"
                                     >
                                         <el-button
                                             v-if="tabName === 'params'"
@@ -153,7 +141,6 @@
                                         </el-button>
                                         <el-button @click="resetGraphState">取消</el-button>
                                     </div>
-                                </el-scrollbar>
                             </el-tab-pane>
                             <el-tab-pane
                                 v-if="component.result && jobGraphShow"
@@ -172,6 +159,7 @@
                                         :flow-id="flowId"
                                         :job-id="jobId"
                                         :project-type="projectType"
+                                        :learning-type="learningType"
                                     />
                                 </el-scrollbar>
                             </el-tab-pane>
@@ -225,6 +213,7 @@
             oldLearningType:    String,
             ootModelFlowNodeId: String,
             ootJobId:           String,
+            isProjectAdmin:     String,
         },
         emits: ['component-panel-change-size', 'getComponents', 'resetGraphState', 'update-currentObj', 'changeHeaderTitle', 'updateFlowInfo', 'remove-params-node', 'update-empty-params-node'],
         data() {
@@ -256,9 +245,12 @@
             },
 
             changeSize() {
+                // console.log('this.$refs',this.$refs['component-panel-box'],this.$refs['component-panel-box'].vData);
                 if(this.maxSize) {
-                    this.$refs['component-panel-box'].vData.rect.width = 350;
-                } else {
+                    if(this.$refs['component-panel-box']){
+                        this.$refs['component-panel-box'].vData.rect.width = 350;
+                    }
+                } else if(this.$refs['component-panel-box']) {
                     this.$refs['component-panel-box'].vData.rect.width = this.pageRef.offsetWidth;
                 }
                 this.maxSize = !this.maxSize;
@@ -271,7 +263,7 @@
 
                 if(paneName === 'result') {
                     child.methods.readData(this.nodeModel);
-                } else if(paneName === 'params' && (child.vData.inited === false || this.jobGraphShow)) {
+                } else if(paneName === 'params' && (child?.vData?.inited === false || this.jobGraphShow)) {
                     // never inited
                     child.methods.readData && child.methods.readData(this.nodeModel);
                 }
@@ -411,13 +403,13 @@
                         const formData = refInstance.methods.checkParams();
 
                         if(formData) {
-                            this.submitFormData($event, formData.params);
+                            this.submitFormData($event, formData.params, formData.callback);
                         }
                     }
                 }
             },
 
-            async submitFormData($event, params) {
+            async submitFormData($event, params,callback) {
                 const btnState = {};
 
                 if($event !== 'node-update') {
@@ -459,6 +451,10 @@
                             message:  '保存成功!',
                         });
                     }
+
+                    if(typeof callback === 'function'){
+                        callback();
+                    }
                 }
             },
         },
@@ -469,79 +465,91 @@
 .drag-resize{
     min-width: 350px;
     background: #fff;
-    z-index: 10;
+    z-index: 100;
     :deep(.drag-content){overflow: visible;}
     :deep(.ctrl-left){
         left: -24px;
         padding:12px 3px;
-        background: #fff;
-        border-radius:4px 0 0 4px;
-        border: 1px solid #e5e9f2;
+        color: white;
+        background: #888;
+        border-radius:4px;
+        border: 1px solid #888;
     }
     :deep(.control-points.covered){
-        .ctrl-left{background: #f5f5f5;}
+        .ctrl-left{
+            background: #bdbdbd;
+            border-color: #bdbdbd;
+        }
     }
 }
 .ctrl-btns{
     position: absolute;
-    top: 10px;
-    right:15px;
-    z-index: 200;
+    top: 57.3%;
+    left: -24px;
+    z-index: 101;
+    &.is-recover {
+        top: 8px;
+        left: 97%;
+    }
     .iconfont{
         cursor: pointer;
-        font-size: 20px;
-        color: $color-light;
-        background: #fff;
+        font-size: 22px;
+        color: white;
+        background: #888;
         border-radius: 4px;
-        padding:5px;
-        &:hover{color:$--color-primary;}
+        border: 1px solid #888;
+
+
     }
 }
 .component-form{
     min-width: 350px;
     box-shadow: none;
     height:100%;
-    :deep(.el-form-item__label){
+    :deep(.board-form-item__label){
         color:#909399;
         font-size: 13px;
     }
-    :deep(.el-input),
-    :deep(.el-textarea){max-width: 300px;}
+    :deep(.board-input),
+    :deep(.board-textarea){max-width: 300px;}
 }
 #pane-help, .component-panel-content{height: 100%;}
 #pane-params, #pane-result{
     height: 100%;
-    :deep(.el-scrollbar__view){
+    :deep(.board-scrollbar__view){
         min-height: 100%;
         position: relative;
-        & > .el-loading-parent--relative{
+        & > .board-loading-parent--relative{
             position: static !important;
         }
     }
 }
-.el-tabs--border-card{
+.board-tabs--border-card{
     box-shadow: none;
     position: relative;
     overflow: visible;
     height:100%;
+    // 这个会横向滚动条
+    // left: 8px;
     border:0;
-    & > :deep(.el-tabs__header) {
+    & > :deep(.board-tabs__header) {
         margin:0;
         border-left: 1px solid #dfe4ed;
+        border-top: 1px solid #dfe4ed;
         position: absolute;
-        left: -51px;
+        left: -52px;
         top: 0;
         z-index: 1;
         height:auto;
-        .el-tabs__nav{transform: translateY(0) !important;}
-        .el-tabs__nav-prev,
-        .el-tabs__nav-next{display:none;}
-        .el-tabs__nav-scroll,
-        .el-tabs__nav-wrap{
+        .board-tabs__nav{transform: translateY(0) !important;}
+        .board-tabs__nav-prev,
+        .board-tabs__nav-next{display:none;}
+        .board-tabs__nav-scroll,
+        .board-tabs__nav-wrap{
             height:auto;
             padding:0;
         }
-        .el-tabs__item{
+        .board-tabs__item{
             width: 50px;
             height: auto;
             padding: 10px 7px;
@@ -552,13 +560,13 @@
             margin-left: 1px !important;
         }
     }
-    & > :deep(.el-tabs__content) {
+    & > :deep(.board-tabs__content) {
         position: absolute;
         top:0;
         left:0;
         right:0;
         height:100%;
-        overflow-y: hidden;
+        overflow-y: auto;
     }
 }
 .readonly-form{
@@ -571,10 +579,29 @@
         height:100%;
     }
 }
-.el-tabs{
-    :deep(.el-tabs__item){
+.board-tabs{
+    :deep(.board-tabs__item){
         font-size: 13px;
         color:#909399;
+        &.is-active {
+            color: #409eff;
+        }
+    }
+}
+</style>
+
+<style lang="scss">
+.unedit-tips {
+    z-index: 201;
+    padding: 8px 0 8px 8px;
+    .board-alert__content {
+        height: 18px;
+        line-height: 23px;
+        padding: unset;
+        .board-alert__close-btn {
+            top: 10px;
+            right: 6px;
+        }
     }
 }
 </style>

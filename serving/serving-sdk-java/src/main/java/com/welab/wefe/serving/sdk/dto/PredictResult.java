@@ -27,13 +27,13 @@ public class PredictResult {
     private Algorithm algorithm;
     private FederatedLearningType type;
     private JobMemberRole myRole;
-    private Object data;
+    private Object result;
 
-    public PredictResult(Algorithm algorithm, FederatedLearningType type, JobMemberRole myRole, Object data) {
+    public PredictResult(Algorithm algorithm, FederatedLearningType type, JobMemberRole myRole, Object result) {
         this.algorithm = algorithm;
         this.type = type;
         this.myRole = myRole;
-        this.data = data;
+        this.result = result;
     }
 
 
@@ -53,12 +53,12 @@ public class PredictResult {
         this.myRole = myRole;
     }
 
-    public Object getData() {
-        return data;
+    public Object getResult() {
+        return result;
     }
 
-    public void setData(Object data) {
-        this.data = data;
+    public void setResult(Object result) {
+        this.result = result;
     }
 
     public FederatedLearningType getType() {

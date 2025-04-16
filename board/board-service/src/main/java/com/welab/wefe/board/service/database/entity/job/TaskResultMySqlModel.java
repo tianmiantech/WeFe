@@ -78,6 +78,16 @@ public class TaskResultMySqlModel extends AbstractBaseMySqlModel {
      */
     private String projectId;
 
+    /**
+     * 模型Id
+     */
+    public String getModelId() {
+        if (!isServingModel()) {
+            return null;
+        }
+        return this.getJobId() + "_" + this.getComponentType() + "_" + this.getFlowNodeId();
+    }
+
     //region getter/setter
 
     public String getJobId() {

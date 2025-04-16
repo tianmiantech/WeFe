@@ -16,16 +16,21 @@
 
 package com.welab.wefe.serving.service.service;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-
+import com.welab.wefe.common.constant.SecretKeyType;
+import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.serving.service.database.entity.*;
+import com.welab.wefe.serving.service.database.repository.AccountRepository;
+import com.welab.wefe.serving.service.database.repository.PartnerRepository;
+import com.welab.wefe.serving.service.database.repository.TableModelRepository;
+import com.welab.wefe.serving.service.database.repository.TableServiceRepository;
+import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
+import com.welab.wefe.serving.service.dto.globalconfig.UnionInfoModel;
+import com.welab.wefe.serving.service.enums.ServingModeEnum;
+import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
 import org.springframework.data.domain.Sort;
 
-import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.GlobalSettingMySqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
-import com.welab.wefe.serving.service.database.serving.repository.GlobalSettingRepository;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * Global cache
@@ -38,65 +43,112 @@ import com.welab.wefe.serving.service.database.serving.repository.GlobalSettingR
  */
 public class CacheObjects {
 
-    private static String MEMBER_ID;
-    private static String RSA_PRIVATE_KEY;
-    private static String RSA_PUBLIC_KEY;
-    private static String BASE_URL;
-    private static String MEMBER_NAME;
+    private static String MEMBER_ID; // 系统ID
+    private static String RSA_PRIVATE_KEY; // 私钥
+    private static String RSA_PUBLIC_KEY; // 公钥
+    private static SecretKeyType SECRET_KEY_TYPE;//公私钥类型
+    private static String SERVING_BASE_URL; // Serving服务地址
+    private static String UNION_BASE_URL; // Union服务地址
+    //    private static String MEMBER_NAME;
+    private static String MEMBER_NAME; // 系统名称
+    private static String MODE; // 运行模式 standalone-独立模式 union-联邦模式
 
     /**
      * accountId : nickname
      */
     private static LinkedHashMap<String, String> ACCOUNT_MAP = new LinkedHashMap<>();
 
+
+    /**
+     * partnerId : partnerName
+     */
+    private static LinkedHashMap<String, String> PARTNER_MAP = new LinkedHashMap<>();
+
+    /**
+     * serviceId : serviceName
+     */
+    private static LinkedHashMap<String, String> SERVICE_MAP = new LinkedHashMap<>();
+
+
     public static String getMemberId() {
         if (MEMBER_ID == null) {
-            refreshMemberInfo();
+            refreshGlobalConfig();
         }
         return MEMBER_ID;
     }
 
     public static String getRsaPrivateKey() {
         if (RSA_PRIVATE_KEY == null) {
-            refreshMemberInfo();
+            refreshGlobalConfig();
         }
         return RSA_PRIVATE_KEY;
     }
 
     public static String getRsaPublicKey() {
         if (RSA_PUBLIC_KEY == null) {
-            refreshMemberInfo();
+            refreshGlobalConfig();
         }
         return RSA_PUBLIC_KEY;
     }
 
-    public static String getBaseUrl() {
-        if (BASE_URL == null) {
-            refreshMemberInfo();
+    public static String getServingBaseUrl() {
+        if (SERVING_BASE_URL == null) {
+            refreshGlobalConfig();
         }
-        return BASE_URL;
+        return SERVING_BASE_URL;
+    }
+
+    public static String getUnionBaseUrl() {
+        if (UNION_BASE_URL == null) {
+            refreshGlobalConfig();
+        }
+        return UNION_BASE_URL;
     }
 
     public static String getMemberName() {
         if (MEMBER_NAME == null) {
-            refreshMemberInfo();
+            refreshGlobalConfig();
         }
         return MEMBER_NAME;
     }
 
+    public static String getMODE() {
+        if (MODE == null) {
+            refreshGlobalConfig();
+        }
+        return MODE;
+    }
+
+    public static SecretKeyType getSecretKeyType() {
+        if (SECRET_KEY_TYPE == null) {
+            refreshGlobalConfig();
+        }
+        return null != SECRET_KEY_TYPE ? SECRET_KEY_TYPE : SecretKeyType.rsa;
+    }
+
+    public static boolean isUnionModel() {
+        return ServingModeEnum.union.name().equalsIgnoreCase(getMODE());
+    }
 
     /**
      * Reload member information
      */
-    public static void refreshMemberInfo() {
-        GlobalSettingRepository repo = Launcher.CONTEXT.getBean(GlobalSettingRepository.class);
-        GlobalSettingMySqlModel model = repo.singleton();
-
-        MEMBER_ID = model.getMemberId();
-        RSA_PUBLIC_KEY = model.getRsaPublicKey();
-        RSA_PRIVATE_KEY = model.getRsaPrivateKey();
-        BASE_URL = model.getGatewayUri();
-        MEMBER_NAME = model.getMemberName();
+    public static void refreshGlobalConfig() {
+        GlobalConfigService service = Launcher.getBean(GlobalConfigService.class);
+        IdentityInfoModel identityModel = service.getModel(IdentityInfoModel.class);
+        UnionInfoModel unionModel = service.getModel(UnionInfoModel.class);
+        if (identityModel != null) {
+            MEMBER_ID = identityModel.getMemberId();
+            RSA_PUBLIC_KEY = identityModel.getRsaPublicKey();
+            RSA_PRIVATE_KEY = identityModel.getRsaPrivateKey();
+            MEMBER_NAME = identityModel.getMemberName();
+            MODE = identityModel.getMode();
+            SERVING_BASE_URL = identityModel.getServingBaseUrl();
+            SECRET_KEY_TYPE = (null != identityModel.getSecretKeyType() ? identityModel.getSecretKeyType() : SecretKeyType.rsa);
+        }
+        if (unionModel != null) {
+            UNION_BASE_URL = unionModel.getIntranetBaseUri();
+        }
     }
 
 
@@ -129,5 +181,82 @@ public class CacheObjects {
             return null;
         }
         return getAccountMap().get(accountId) == null ? "未知" : getAccountMap().get(accountId);
+    }
+
+
+    /**
+     * Reload account list
+     */
+    public static void refreshPartnerMap() {
+        PartnerRepository repo = Launcher.CONTEXT.getBean(PartnerRepository.class);
+        List<PartnerMysqlModel> list = repo.findAll(Sort.by("name"));
+
+        PARTNER_MAP.clear();
+
+        for (PartnerMysqlModel item : list) {
+            PARTNER_MAP.put(item.getId(), item.getName());
+        }
+    }
+
+    public static LinkedHashMap<String, String> getPartnerMap() {
+        if (PARTNER_MAP.isEmpty()) {
+            refreshPartnerMap();
+        }
+        return PARTNER_MAP;
+    }
+
+    /**
+     * Get the account's nickname
+     */
+    public static String getPartnerName(String partnerId) {
+        if (partnerId == null) {
+            return null;
+        }
+        return getPartnerMap().get(partnerId) == null ? "未知" : getPartnerMap().get(partnerId);
+    }
+
+
+    /**
+     * Reload account list
+     */
+    public static void refreshServiceMap() {
+        TableModelRepository repo = Launcher.CONTEXT.getBean(TableModelRepository.class);
+        List<TableModelMySqlModel> modelServicelist = repo.findAll(Sort.by("name"));
+
+        TableServiceRepository tableServiceRepository = Launcher.CONTEXT.getBean(TableServiceRepository.class);
+        List<TableServiceMySqlModel> serviceList = tableServiceRepository.findAll(Sort.by("name"));
+
+        SERVICE_MAP.clear();
+
+        for (BaseServiceMySqlModel item : modelServicelist) {
+            SERVICE_MAP.put(item.getServiceId(), item.getName());
+        }
+        for (BaseServiceMySqlModel item : serviceList) {
+            SERVICE_MAP.put(item.getServiceId(), item.getName());
+        }
+    }
+
+    public static LinkedHashMap<String, String> getServiceMap() {
+        if (SERVICE_MAP.isEmpty()) {
+            refreshServiceMap();
+        }
+        return SERVICE_MAP;
+    }
+
+    /**
+     * Get the account's nickname
+     */
+    public static String getServiceName(String serviceId) {
+        if (serviceId == null) {
+            return null;
+        }
+        return getServiceMap().get(serviceId) == null ? "未知" : getServiceMap().get(serviceId);
+    }
+
+    public static synchronized void putAccount(AccountMySqlModel account) {
+        if (null == account) {
+            return;
+        }
+        ACCOUNT_MAP.put(account.getId(), account.getNickname());
     }
 }

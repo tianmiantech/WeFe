@@ -18,7 +18,8 @@ package com.welab.wefe.mpc.pir.request;
 
 import java.io.Serializable;
 
-public class QueryRandomResponse implements Serializable {
+public class QueryRandomResponse extends BaseResponse implements Serializable {
+    private static final long serialVersionUID = 9183224785171833749L;
     private String uuid;
     private String s;
 

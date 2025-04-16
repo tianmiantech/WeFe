@@ -16,6 +16,7 @@
 
 package com.welab.wefe.union.service.api.member;
 
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -23,7 +24,7 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.member.MemberOutput;
-import com.welab.wefe.union.service.service.MemberContractService;
+import com.welab.wefe.union.service.service.contract.MemberContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -31,7 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author aaron.li
  **/
-@Api(path = "member/update_exclude_logo", name = "member_update_exclude_logo", rsaVerify = true, login = false)
+@Api(path = "member/update_exclude_logo", name = "member_update_exclude_logo", allowAccessWithSign = true)
 public class UpdateExcludeLogoApi extends AbstractApi<UpdateExcludeLogoApi.Input, MemberOutput> {
     @Autowired
     private MemberContractService memberContractService;
@@ -55,6 +56,8 @@ public class UpdateExcludeLogoApi extends AbstractApi<UpdateExcludeLogoApi.Input
         @Check(require = true)
         private String publicKey;
         private String gatewayUri;
+        private SecretKeyType secretKeyType;
+        private Boolean memberGatewayTlsEnable;
 
         public String getId() {
             return id;
@@ -134,6 +137,23 @@ public class UpdateExcludeLogoApi extends AbstractApi<UpdateExcludeLogoApi.Input
 
         public void setGatewayUri(String gatewayUri) {
             this.gatewayUri = gatewayUri;
+        }
+
+
+        public SecretKeyType getSecretKeyType() {
+            return secretKeyType;
+        }
+
+        public void setSecretKeyType(SecretKeyType secretKeyType) {
+            this.secretKeyType = secretKeyType;
+        }
+
+        public Boolean getMemberGatewayTlsEnable() {
+            return memberGatewayTlsEnable;
+        }
+
+        public void setMemberGatewayTlsEnable(Boolean memberGatewayTlsEnable) {
+            this.memberGatewayTlsEnable = memberGatewayTlsEnable;
         }
     }
 }

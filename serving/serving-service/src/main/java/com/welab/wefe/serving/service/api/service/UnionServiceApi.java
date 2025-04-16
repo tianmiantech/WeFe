@@ -17,11 +17,13 @@
 package com.welab.wefe.serving.service.api.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -29,151 +31,177 @@ import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.dto.PagingInput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.UnionServiceService;
 
 @Api(path = "service/union/query", name = "query union service list")
 public class UnionServiceApi extends AbstractApi<UnionServiceApi.Input, PagingOutput<UnionServiceApi.Output>> {
 
-	@Autowired
-	UnionServiceService unionServiceService;
+    @Autowired
+    UnionServiceService unionServiceService;
 
-	@Override
-	protected ApiResult<PagingOutput<Output>> handle(Input input) throws StatusCodeWithException, IOException {
-		return success(unionServiceService.query(input));
-	}
+    @Override
+    protected ApiResult<PagingOutput<Output>> handle(Input input) throws StatusCodeWithException, IOException {
+        if (CacheObjects.isUnionModel()) {
+            return success(unionServiceService.query(input));
+        } else {
+            PagingOutput<Output> page = PagingOutput.of(0, new ArrayList<>());
+            return success(page);
+        }
+    }
 
-	public static class Output extends AbstractApiOutput {
-		private String id;// 服务ID
-		private String name; // 服务名
-		private String supplierId;// 供应商Id
-		private String supplierName;// 供应商
-		private String baseUrl;
-		private String apiName;
-		private List<String> params;
-		private String keyCalcRule;// 求交主键
-		private int serviceType; // 服务类型
-		private Date createdTime;// 创建时间
-		private Date updatedTime;// 更新时间
+    public static class Output extends AbstractApiOutput {
+        private String id;// 服务ID
+        private String name; // 服务名
+        private String supplierId;// 供应商Id
+        private String supplierName;// 供应商
+        private String baseUrl;
+        private String apiName;
+        private List<String> params;
+        private String keyCalcRule;// 求交主键
+        private int serviceType; // 服务类型
+        private Date createdTime;// 创建时间
+        private Date updatedTime;// 更新时间
 
-		public String getId() {
-			return id;
-		}
+        private JSONObject memberInfo;
 
-		public void setId(String id) {
-			this.id = id;
-		}
+        public String getId() {
+            return id;
+        }
 
-		public String getName() {
-			return name;
-		}
+        public void setId(String id) {
+            this.id = id;
+        }
 
-		public void setName(String name) {
-			this.name = name;
-		}
+        public String getName() {
+            return name;
+        }
 
-		public String getSupplierId() {
-			return supplierId;
-		}
+        public void setName(String name) {
+            this.name = name;
+        }
 
-		public void setSupplierId(String supplierId) {
-			this.supplierId = supplierId;
-		}
+        public String getSupplierId() {
+            return supplierId;
+        }
 
-		public String getSupplierName() {
-			return supplierName;
-		}
+        public void setSupplierId(String supplierId) {
+            this.supplierId = supplierId;
+        }
 
-		public void setSupplierName(String supplierName) {
-			this.supplierName = supplierName;
-		}
+        public String getSupplierName() {
+            return supplierName;
+        }
 
-		public String getBaseUrl() {
-			return baseUrl;
-		}
+        public void setSupplierName(String supplierName) {
+            this.supplierName = supplierName;
+        }
 
-		public void setBaseUrl(String baseUrl) {
-			this.baseUrl = baseUrl;
-		}
+        public String getBaseUrl() {
+            return baseUrl;
+        }
 
-		public String getApiName() {
-			return apiName;
-		}
+        public void setBaseUrl(String baseUrl) {
+            this.baseUrl = baseUrl;
+        }
 
-		public void setApiName(String apiName) {
-			this.apiName = apiName;
-		}
+        public String getApiName() {
+            return apiName;
+        }
 
-		public List<String> getParams() {
-			return params;
-		}
+        public void setApiName(String apiName) {
+            this.apiName = apiName;
+        }
 
-		public void setParams(List<String> params) {
-			this.params = params;
-		}
+        public List<String> getParams() {
+            return params;
+        }
 
-		public int getServiceType() {
-			return serviceType;
-		}
+        public void setParams(List<String> params) {
+            this.params = params;
+        }
 
-		public void setServiceType(int serviceType) {
-			this.serviceType = serviceType;
-		}
+        public int getServiceType() {
+            return serviceType;
+        }
 
-		public Date getCreatedTime() {
-			return createdTime;
-		}
+        public void setServiceType(int serviceType) {
+            this.serviceType = serviceType;
+        }
 
-		public void setCreatedTime(Date createdTime) {
-			this.createdTime = createdTime;
-		}
+        public Date getCreatedTime() {
+            return createdTime;
+        }
 
-		public Date getUpdatedTime() {
-			return updatedTime;
-		}
+        public void setCreatedTime(Date createdTime) {
+            this.createdTime = createdTime;
+        }
 
-		public void setUpdatedTime(Date updatedTime) {
-			this.updatedTime = updatedTime;
-		}
+        public Date getUpdatedTime() {
+            return updatedTime;
+        }
 
-		public String getKeyCalcRule() {
-			return keyCalcRule;
-		}
+        public void setUpdatedTime(Date updatedTime) {
+            this.updatedTime = updatedTime;
+        }
 
-		public void setKeyCalcRule(String keyCalcRule) {
-			this.keyCalcRule = keyCalcRule;
-		}
-	}
+        public String getKeyCalcRule() {
+            return keyCalcRule;
+        }
 
-	public static class Input extends PagingInput {
+        public void setKeyCalcRule(String keyCalcRule) {
+            this.keyCalcRule = keyCalcRule;
+        }
 
-		// 服务类型 1=匿踪查询，2=交集查询，3=安全聚合 4=安全聚合（查询方）
-		private int serviceType = -1;
-		private String memberName;
-		private String serviceName;
+        public JSONObject getMemberInfo() {
+            return memberInfo;
+        }
 
-		public String getMemberName() {
-			return memberName;
-		}
+        public void setMemberInfo(JSONObject memberInfo) {
+            this.memberInfo = memberInfo;
+        }
 
-		public void setMemberName(String memberName) {
-			this.memberName = memberName;
-		}
+    }
 
-		public String getServiceName() {
-			return serviceName;
-		}
+    public static class Input extends PagingInput {
 
-		public void setServiceName(String serviceName) {
-			this.serviceName = serviceName;
-		}
+        private String id;// 服务ID
+        // 服务类型 1=匿踪查询，2=交集查询，3=安全聚合 4=安全聚合（查询方）
+        private int serviceType = -1;
+        private String memberName;
+        private String serviceName;
 
-		public int getServiceType() {
-			return serviceType;
-		}
+        public String getId() {
+            return id;
+        }
 
-		public void setServiceType(int serviceType) {
-			this.serviceType = serviceType;
-		}
+        public void setId(String id) {
+            this.id = id;
+        }
 
-	}
+        public String getMemberName() {
+            return memberName;
+        }
+
+        public void setMemberName(String memberName) {
+            this.memberName = memberName;
+        }
+
+        public String getServiceName() {
+            return serviceName;
+        }
+
+        public void setServiceName(String serviceName) {
+            this.serviceName = serviceName;
+        }
+
+        public int getServiceType() {
+            return serviceType;
+        }
+
+        public void setServiceType(int serviceType) {
+            this.serviceType = serviceType;
+        }
+
+    }
 }

@@ -66,6 +66,16 @@
                 width="100"
             />
             <el-table-column
+                label="已处理数量"
+                prop="process_count"
+                width="100"
+            />
+            <el-table-column
+                label="处理进度"
+                prop="process"
+                width="100"
+            />
+            <el-table-column
                 label="描述"
                 prop="description"
                 width="160"
@@ -122,6 +132,7 @@
 
 <script>
     import table from '@src/mixins/table.js';
+    import { getHeader } from '@src/http/utils';
 
     export default {
         mixins: [table],
@@ -132,7 +143,8 @@
                     status: '',
                 },
                 headers: {
-                    token: localStorage.getItem('token') || '',
+                    // token: localStorage.getItem('token') || '',
+                    ... getHeader(),
                 },
                 getListApi: '/filter/query',
             };

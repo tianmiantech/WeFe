@@ -23,17 +23,15 @@ import com.welab.wefe.board.service.api.datasource.TestDBConnectApi;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.repository.DataSourceRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
-import com.welab.wefe.board.service.util.JdbcManager;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.jdbc.JdbcClient;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.sql.Connection;
 
 /**
  * @author Johnny.lin
@@ -46,14 +44,14 @@ public class DataSourceService extends AbstractService {
     public AddApi.DataSourceAddOutput add(AddApi.DataSourceAddInput input) throws StatusCodeWithException {
 
         if (dataSourceRepo.countByName(input.getName()) > 0) {
-            throw new StatusCodeWithException("此数据源名称已存在，请换一个数据源名称", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "此数据源名称已存在，请换一个数据源名称");
         }
 
         // Test if the connection is available
         testdbconnect(input);
 
         DataSourceMysqlModel model = ModelMapper.map(input, DataSourceMysqlModel.class);
-        model.setCreatedBy(CurrentAccount.id());
+        model.setCreatedBy(CurrentAccountUtil.get().getId());
 //        model.setPassword(Md5.of(model.getPassword()));
         dataSourceRepo.save(model);
 
@@ -90,12 +88,16 @@ public class DataSourceService extends AbstractService {
      */
     public TestDBConnectApi.Output testdbconnect(AddApi.DataSourceAddInput input) throws StatusCodeWithException {
 
-        Connection conn = JdbcManager.getConnection(input.getDatabaseType(), input.getHost(), input.getPort(), input.getUserName(), input.getPassword(), input.getDatabaseName());
-        if (conn != null) {
-            boolean success = JdbcManager.testQuery(conn);
-            if (!success) {
-                throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "测试连接数据库失败，请检查数据库是否正常或者账号密码是否填写错误");
-            }
+        JdbcClient client = JdbcClient.create(
+                input.getDatabaseType(),
+                input.getHost(), input.getPort(),
+                input.getUserName(),
+                input.getPassword(),
+                input.getDatabaseName()
+        );
+        String message = client.test();
+        if (message != null) {
+            StatusCode.PARAMETER_VALUE_INVALID.throwException("测试连接数据库失败：" + message);
         }
 
         TestDBConnectApi.Output output = new TestDBConnectApi.Output();

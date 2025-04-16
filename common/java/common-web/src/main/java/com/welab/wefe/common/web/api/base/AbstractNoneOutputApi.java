@@ -16,7 +16,6 @@
 
 package com.welab.wefe.common.web.api.base;
 
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.dto.NoneApiOutput;
@@ -31,10 +30,10 @@ public abstract class AbstractNoneOutputApi<In extends AbstractApiInput> extends
     /**
      * Interface implementation
      */
-    protected abstract ApiResult handler(In input) throws StatusCodeWithException;
+    protected abstract ApiResult handler(In input) throws Exception;
 
     @Override
-    protected ApiResult<NoneApiOutput> handle(In input) throws StatusCodeWithException {
+    protected ApiResult<NoneApiOutput> handle(In input) throws Exception {
         return handler(input);
     }
 }

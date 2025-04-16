@@ -18,10 +18,8 @@ package com.welab.wefe.common.web.delegate.api_log;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.fastjson.LoggerValueFilter;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -93,13 +91,8 @@ public abstract class AbstractApiLogger implements AfterApiExecuteFunction {
 
     @Override
     public void action(HttpServletRequest httpServletRequest, long start, AbstractApi<?, ?> api, JSONObject params, ApiResult<?> result) {
-        final AccountInfo accountInfo = CurrentAccount.get();
 
-        if (ignoreWithoutLogin() && accountInfo == null) {
-            return;
-        }
-
-        // 异步保存日志
+       /* // 异步保存日志
         CommonThreadPool.run(
                 () -> {
                     try {
@@ -115,7 +108,7 @@ public abstract class AbstractApiLogger implements AfterApiExecuteFunction {
                         LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
                     }
                 }
-        );
+        );*/
     }
 
     private void logAccountLastActionTime(String userId) throws Exception {
@@ -161,7 +154,7 @@ public abstract class AbstractApiLogger implements AfterApiExecuteFunction {
             log.setCallerId(params.getString("caller_id"));
         }
         log.setApiName(annotation.path());
-        log.setRequestData(JSON.toJSONString(params, LoggerValueFilter.instance));
+        log.setRequestData(JSON.toJSONString(params, LoggerValueFilter.DEFAULT));
         log.setResponseCode(result.code);
         log.setResponseMessage(result.message);
 

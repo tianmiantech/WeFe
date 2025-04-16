@@ -5,7 +5,8 @@
                 移除当前成员
             </template>
             <el-icon
-                class="el-icon-delete color-danger f16"
+                v-if="form.is_project_admin"
+                class="board-icon-delete color-danger f16"
                 @click="showDialogForMemberSetting=true"
             >
                 <elicon-delete />

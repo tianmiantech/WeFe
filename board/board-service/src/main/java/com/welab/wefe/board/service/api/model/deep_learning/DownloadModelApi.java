@@ -17,9 +17,9 @@ package com.welab.wefe.board.service.api.model.deep_learning;
 
 import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
-import com.welab.wefe.board.service.dto.globalconfig.DeepLearningConfigModel;
 import com.welab.wefe.board.service.service.TaskService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
+import com.welab.wefe.common.InformationSize;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -29,6 +29,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.dto.global_config.DeepLearningConfigModel;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -41,8 +42,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 /**
  * @author zane
@@ -60,7 +59,7 @@ public class DownloadModelApi extends AbstractApi<DownloadModelApi.Input, Respon
     @Override
     protected ApiResult<ResponseEntity<?>> handle(Input input) throws Exception {
         TaskMySqlModel task = taskService.findOne(input.taskId);
-        DeepLearningConfigModel deepLearningConfig = globalConfigService.getDeepLearningConfig();
+        DeepLearningConfigModel deepLearningConfig = globalConfigService.getModel(DeepLearningConfigModel.class);
         if (deepLearningConfig == null || StringUtil.isEmpty(deepLearningConfig.paddleVisualDlBaseUrl)) {
             StatusCode.RPC_ERROR.throwException("尚未设置VisualFL服务地址，请在[全局设置][计算引擎设置]中设置VisualFL服务地址。");
         }
@@ -117,13 +116,13 @@ public class DownloadModelApi extends AbstractApi<DownloadModelApi.Input, Respon
                 fileout.write(buffer, 0, ch);
                 downloadSize += ch;
                 if (downloadSize % 1024 == 0) {
-                    LOG.info("模型下载进度：" + getSizeString(downloadSize));
+                    LOG.info("模型下载进度：" + InformationSize.fromByte(downloadSize));
                 }
             }
             is.close();
             fileout.flush();
             fileout.close();
-            LOG.info("模型下载完毕：" + getSizeString(downloadSize));
+            LOG.info("模型下载完毕：" + InformationSize.fromByte(downloadSize));
         } catch (Exception e) {
             throw e;
         } finally {
@@ -131,17 +130,6 @@ public class DownloadModelApi extends AbstractApi<DownloadModelApi.Input, Respon
         }
     }
 
-    private String getSizeString(long byteSize) {
-        if (byteSize < 1024) {
-            return byteSize + "byte";
-        }
-        if (byteSize < 1024 * 1024) {
-            return BigDecimal.valueOf(byteSize)
-                    .divide(BigDecimal.valueOf(1024), 2, RoundingMode.FLOOR) + "KB";
-        }
-        return BigDecimal.valueOf(byteSize)
-                .divide(BigDecimal.valueOf(1024 * 1024), 2, RoundingMode.FLOOR) + "MB";
-    }
 
     public static class Input extends AbstractApiInput {
         @Check(require = true)

@@ -24,18 +24,29 @@ import java.util.List;
  **/
 public class QueryPrivateSetIntersectionResponse {
 
-    private String uuid;
+    private String requestId;
     private List<String> serverEncryptIds;
     private List<String> clientIdByServerKeys;
+    private List<String> fieldResults;
+
+    /**
+     * 当前批次
+     */
+    private int currentBatch;
+    /**
+     * 是否有下一个批次
+     */
+    private boolean hasNext;
+
     private String message;
     private int code;
 
-    public String getUuid() {
-        return uuid;
+    public String getRequestId() {
+        return requestId;
     }
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 
     public List<String> getServerEncryptIds() {
@@ -68,5 +79,29 @@ public class QueryPrivateSetIntersectionResponse {
 
     public void setCode(int code) {
         this.code = code;
+    }
+
+    public int getCurrentBatch() {
+        return currentBatch;
+    }
+
+    public void setCurrentBatch(int currentBatch) {
+        this.currentBatch = currentBatch;
+    }
+
+    public boolean isHasNext() {
+        return hasNext;
+    }
+
+    public void setHasNext(boolean hasNext) {
+        this.hasNext = hasNext;
+    }
+
+    public List<String> getFieldResults() {
+        return fieldResults;
+    }
+
+    public void setFieldResults(List<String> fieldResults) {
+        this.fieldResults = fieldResults;
     }
 }

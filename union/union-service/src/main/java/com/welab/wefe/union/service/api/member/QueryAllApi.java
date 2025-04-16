@@ -16,46 +16,26 @@
 
 package com.welab.wefe.union.service.api.member;
 
-import com.welab.wefe.common.data.mongodb.entity.union.Member;
-import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.union.service.dto.member.MemberQueryOutput;
-import com.welab.wefe.union.service.mapper.MemberMapper;
-import org.mapstruct.factory.Mappers;
+import com.welab.wefe.union.service.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author aaron.li
  **/
-@Api(path = "member/query_all", name = "member_query_all", rsaVerify = true, login = false)
+@Api(path = "member/query_all", name = "member_query_all", allowAccessWithSign = true, logSaplingInterval = 60_000)
 public class QueryAllApi extends AbstractApi<QueryAllApi.Input, JObject> {
-    @Autowired
-    private MemberMongoReop memberMongoReop;
 
-    protected MemberMapper mMapper = Mappers.getMapper(MemberMapper.class);
+    @Autowired
+    private MemberService memberService;
 
     @Override
     protected ApiResult<JObject> handle(QueryAllApi.Input input) {
-        List<Member> memberList = memberMongoReop.find(input.id);
-
-        List<MemberQueryOutput> memberQueryOutputList = memberList.stream()
-                .map(member -> {
-                    // does not contain logo
-                    if (!input.includeLogo) {
-                        member.setLogo(null);
-                    }
-                    return mMapper.transfer(member);
-                })
-                .collect(Collectors.toList());
-
-        return success(JObject.create("list", JObject.toJSON(memberQueryOutputList)));
+        return success(JObject.create("list", JObject.toJSON(memberService.queryAll(input))));
     }
 
     public static class Input extends AbstractApiInput {

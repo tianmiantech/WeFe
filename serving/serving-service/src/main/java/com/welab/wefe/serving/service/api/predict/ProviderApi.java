@@ -16,7 +16,6 @@
 
 package com.welab.wefe.serving.service.api.predict;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -26,12 +25,10 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.api.base.Caller;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.service.manager.ModelManager;
-import com.welab.wefe.serving.service.predicter.Predicter;
+import com.welab.wefe.serving.service.predicter.Predictor;
 import com.welab.wefe.serving.service.service.CacheObjects;
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.Map;
 
@@ -42,8 +39,7 @@ import java.util.Map;
 @Api(
         path = "predict/provider",
         name = "Model to predict",
-        login = false,
-        rsaVerify = true,
+        allowAccessWithSign = true,
         domain = Caller.Member
 )
 public class ProviderApi extends AbstractApi<ProviderApi.Input, PredictResult> {
@@ -53,51 +49,49 @@ public class ProviderApi extends AbstractApi<ProviderApi.Input, PredictResult> {
         try {
 
             if (!ModelManager.getModelEnable(input.getModelId())) {
-                return fail("模型成员 " + CacheObjects.getMemberName() + " 未上线该模型");
+                return fail(CacheObjects.getMemberName() + " 未上线该模型");
             }
 
             /**
              * Batch prediction
              */
-            if (input.getBatch()) {
-                PredictResult result = Predicter.batchProviderPredict(
-                        input.getSeqNo(),
-                        input.getModelId(),
-                        input.getMemberId(),
-                        input.getPredictParams()
-                );
-
-                return success(result);
-            }
+//            if (input.getBatch()) {
+//                PredictResult result = Predictor.batchProviderPredict(
+//                        input.getRequestId(),
+//                        input.getModelId(),
+//                        input.getMemberId(),
+//                        input.getPredictParams()
+//                );
+//
+//                return success(result);
+//            }
 
             /**
              * Single prediction
              */
-            PredictResult result = Predicter.provider(
-                    input.getSeqNo(),
+            PredictResult result = Predictor.predict(
+                    input.getRequestId(),
                     input.getModelId(),
-                    input.getMemberId(),
                     input.getUserId(),
-                    input.getFeatureData(),
-                    input.getParams() == null ? null : new JSONObject(input.getParams())
+                    input.getFeatureData()
             );
+
             return success(result);
         } catch (Exception e) {
-            return fail("predict error : " + e.getMessage());
+            return fail("协作方 " + CacheObjects.getMemberName() + "错误" + e.getMessage());
         }
     }
 
     public static class Input extends AbstractApiInput {
 
         @Check(require = true, name = "流水号")
-        private String seqNo;
+        private String requestId;
         @Check(require = true, name = "模型唯一标识")
         private String modelId;
         @Check(require = true, name = "调用者身份 id")
-        private String memberId;
+        private String partnerCode;
         @Check(name = "用户 id")
         private String userId;
-
 
         @Check(name = "特征入参")
         private Map<String, Object> featureData;
@@ -108,26 +102,27 @@ public class ProviderApi extends AbstractApi<ProviderApi.Input, PredictResult> {
         @Check(name = "是否批量")
         private Boolean isBatch = false;
 
-        @Check(name = "批量预测参数")
-        private PredictParams predictParams;
-
-
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {
             super.checkAndStandardize();
             if (!isBatch) {
                 if (StringUtil.isEmpty(userId)) {
-                    throw new StatusCodeWithException("单条预测时，参数userId不能为空", StatusCode.PARAMETER_VALUE_INVALID);
-                }
-            } else {
-                if (predictParams == null || CollectionUtils.isEmpty(predictParams.getUserIds())) {
-                    throw new StatusCodeWithException("批量预测时，参数predictParamsList不能为空", StatusCode.PARAMETER_VALUE_INVALID);
+                    throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "单条预测时，参数userId不能为空");
                 }
             }
 
         }
 
         //region getter/setter
+
+
+        public String getRequestId() {
+            return requestId;
+        }
+
+        public void setRequestId(String requestId) {
+            this.requestId = requestId;
+        }
 
         public String getModelId() {
             return modelId;
@@ -137,20 +132,12 @@ public class ProviderApi extends AbstractApi<ProviderApi.Input, PredictResult> {
             this.modelId = modelId;
         }
 
-        public String getMemberId() {
-            return memberId;
+        public String getPartnerCode() {
+            return partnerCode;
         }
 
-        public void setMemberId(String memberId) {
-            this.memberId = memberId;
-        }
-
-        public String getSeqNo() {
-            return seqNo;
-        }
-
-        public void setSeqNo(String seqNo) {
-            this.seqNo = seqNo;
+        public void setPartnerCode(String partnerCode) {
+            this.partnerCode = partnerCode;
         }
 
         public String getUserId() {
@@ -184,23 +171,6 @@ public class ProviderApi extends AbstractApi<ProviderApi.Input, PredictResult> {
         public void setBatch(Boolean batch) {
             isBatch = batch;
         }
-
-//        public PredictParams getPredictParams() {
-//            return predictParams;
-//        }
-//
-//        public void setPredictParams(PredictParams predictParams) {
-//            this.predictParams = predictParams;
-//        }
-
-        public PredictParams getPredictParams() {
-            return predictParams;
-        }
-
-        public void setPredictParams(PredictParams predictParams) {
-            this.predictParams = predictParams;
-        }
-
 
         //endregion
     }

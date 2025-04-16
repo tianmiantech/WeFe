@@ -45,20 +45,20 @@ public class AbstractContractService {
         String responseValues = transactionResponse.getValues();
         JSONArray values = JObject.parseArray(responseValues);
         if(null == values || values.isEmpty()){
-            throw new StatusCodeWithException("transaction error，blockchain response error: " + transactionResponse.getReturnMessage(), StatusCode.SYSTEM_BUSY);
+            throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "transaction error，blockchain response error: " + transactionResponse.getReturnMessage());
         }
         int retCode = values.getIntValue(0);
         switch (retCode){
             case 0:
                 return true;
             case -1:
-                throw new StatusCodeWithException("data already exists", StatusCode.SYSTEM_BUSY);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "data already exists");
             case -2:
-                throw new StatusCodeWithException("transaction failed: " + transactionResponse.getReturnMessage(), StatusCode.SYSTEM_BUSY);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "transaction failed: " + transactionResponse.getReturnMessage());
             case -3:
-                throw new StatusCodeWithException("data does not exist", StatusCode.SYSTEM_BUSY);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "data does not exist");
             default:
-                throw new StatusCodeWithException("unknown response code", StatusCode.SYSTEM_BUSY);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_BUSY, "unknown response code");
         }
     }
 

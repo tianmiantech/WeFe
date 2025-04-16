@@ -11,19 +11,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from typing import List
 
 import requests
 from requests import Response
 
+from common.python.db.db_models import GlobalSetting
 from common.python.db.global_config_dao import GlobalConfigDao
+from common.python.utils import sm2_utils
 from common.python.utils.core_utils import current_timestamp
 from common.python.utils.log_utils import LoggerFactory
 from flow.service.board.board_output import JobProgressOutput
 from flow.utils.bean_util import BeanUtil
-from flow.web.util.const import ServiceStatusMessage
-from flow.web.utils.const import JsonField
+from flow.web.utils.const import JsonField, SecretKeyType
+import base64
+import json
+from Crypto.Hash import SHA1
+from Crypto.PublicKey import RSA
+from Crypto.Signature import PKCS1_v1_5 as PKCS1_v1_5_sign
 
 BOARD_BASE_URL = GlobalConfigDao.getBoardConfig().intranet_base_uri
 
@@ -88,16 +93,24 @@ class BoardService:
         The data of json response
         """
         url = BOARD_BASE_URL + api
-
         # send request
-
+        sign = BoardService.gen_sign(
+            json.dumps(data, separators=(',', ':')), 
+            GlobalSetting.get_secret_key_type(),
+            GlobalSetting.get_private_key(),
+            GlobalSetting.get_public_key()
+        )
+        req = {
+            "data": data,
+            "sign": sign
+        }
         BoardService.LOG.info(
-            "board request url:{}, {}".format(url, str(data))
+            "board request url:{}, {}".format(url, str(req))
         )
         start_time = current_timestamp()
         spend = 0
         try:
-            response: Response = requests.post(url, json=data)
+            response: Response = requests.post(url, json=req)
             spend = current_timestamp() - start_time
         except Exception as e:
             spend = current_timestamp() - start_time
@@ -141,3 +154,19 @@ class BoardService:
                 JsonField.SPEND: spend,
                 JsonField.DATA: data
             }
+
+    @staticmethod
+    def gen_sign(data_str, secret_key_type, key_pri, key_public):
+        if SecretKeyType.RSA == secret_key_type:
+            private_key_obj = RSA.importKey(base64.b64decode(key_pri))
+            msg_hash = SHA1.new(data_str.encode())
+            signature = PKCS1_v1_5_sign.new(private_key_obj).sign(msg_hash)
+            sign = base64.b64encode(signature).decode()
+        else:
+            sign_hex = sm2_utils.sign_with_sm3(data_str, key_pri, key_public)
+            sign = base64.b64encode(bytes.fromhex(sign_hex)).decode()
+        return sign
+
+
+if __name__ == '__main__':
+    pass

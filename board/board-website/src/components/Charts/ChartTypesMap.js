@@ -161,6 +161,14 @@ const chart = {
             xAxis: { axisLabel: {} },
         },
     },
+    scoresDistribution: {
+        type:   'bar',
+        config: {
+            ...commonConfig,
+            type:  'scores_distribution',
+            xAxis: { axisLabel: {} },
+        },
+    },
 };
 
 export default {
@@ -189,6 +197,10 @@ export default {
             label: 'Accuracy',
             name:  'accuracy',
             chart: chart.accuracy,
+        }, {
+            label: 'Score distribution',
+            name:  'scoresDistribution',
+            chart: chart.scoresDistribution,
         }],
     },
     Oot: {
@@ -216,6 +228,10 @@ export default {
             label: 'Accuracy',
             name:  'accuracy',
             chart: chart.accuracy,
+        }, {
+            label: 'Score distribution',
+            name:  'scoresDistribution',
+            chart: chart.scoresDistribution,
         }],
     },
     VertLR: {

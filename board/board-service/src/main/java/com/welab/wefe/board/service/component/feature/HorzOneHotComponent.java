@@ -30,26 +30,30 @@ import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
+import com.welab.wefe.board.service.dto.entity.MemberModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.board.service.service.CacheObjects;
+import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 
 @Service
-public class HorzOneHotComponent extends AbstractComponent<VertOneHotComponent.Params> {
+public class HorzOneHotComponent extends AbstractComponent<HorzOneHotComponent.Params> {
 
 	@Override
 	protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
-			VertOneHotComponent.Params params) throws FlowNodeException {
+	        HorzOneHotComponent.Params params) throws FlowNodeException {
 
 	}
 
 	@Override
-	protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
-			VertOneHotComponent.Params params) throws FlowNodeException {
-		List<VertOneHotComponent.Params.MemberInfoModel> members = params.getMembers();
+	protected JSONObject createTaskParams(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
+	        HorzOneHotComponent.Params params) throws FlowNodeException {
+		List<HorzOneHotComponent.Params.MemberInfoModel> members = params.getMembers();
 
 		List<String> transformColNames = new ArrayList<>();
 		members.forEach(member -> {
@@ -95,4 +99,33 @@ public class HorzOneHotComponent extends AbstractComponent<VertOneHotComponent.P
 	public List<OutputItem> outputs(FlowGraph graph, FlowGraphNode node) throws FlowNodeException {
 		return Arrays.asList(OutputItem.of(Names.Data.NORMAL_DATA_SET, IODataType.DataSetInstance));
 	}
+	
+	   
+
+    public static class Params extends AbstractCheckModel {
+
+        @Check(name = "成员信息", require = true)
+        private List<MemberInfoModel> members;
+
+        public List<MemberInfoModel> getMembers() {
+            return members;
+        }
+
+        public void setMembers(List<MemberInfoModel> members) {
+            this.members = members;
+        }
+
+        public static class MemberInfoModel extends MemberModel {
+            @Check(name = "特征列", require = true)
+            private List<String> features = new ArrayList<>();
+
+            public List<String> getFeatures() {
+                return features;
+            }
+
+            public void setFeatures(List<String> features) {
+                this.features = features;
+            }
+        }
+    }
 }

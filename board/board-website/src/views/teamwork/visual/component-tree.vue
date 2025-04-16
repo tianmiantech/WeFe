@@ -19,13 +19,13 @@
         >
             <el-icon
                 v-if="vData.unfold && data.isFolder"
-                class="el-icon-caret-bottom"
+                class="board-icon-caret-bottom"
             >
                 <elicon-caret-bottom />
             </el-icon>
             <el-icon
                 v-else-if="!vData.unfold && data.isFolder"
-                class="el-icon-caret-right"
+                class="board-icon-caret-right"
             >
                 <elicon-caret-right />
             </el-icon>

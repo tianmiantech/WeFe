@@ -16,45 +16,27 @@
 
 package com.welab.wefe.union.service.api.dataresource.dataset.nomal;
 
-import com.welab.wefe.common.data.mongodb.entity.union.DataSet;
-import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.dataresource.dataset.table.DataSetDetailOutput;
-import com.welab.wefe.union.service.mapper.DataSetMapper;
-import com.welab.wefe.union.service.service.DataSetContractService;
-import org.mapstruct.factory.Mappers;
+import com.welab.wefe.union.service.service.DataSetService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Jervis
  **/
-@Api(path = "data_set/detail", name = "data_set_detail", rsaVerify = true, login = false)
+@Api(path = "data_set/detail", name = "data_set_detail", allowAccessWithSign = true)
 public class DetailApi extends AbstractApi<DetailApi.Input, DataSetDetailOutput> {
 
     @Autowired
-    protected DataSetMongoReop dataSetMongoReop;
-    @Autowired
-    protected DataSetContractService mDataSetContractService;
-
-    protected DataSetMapper mDataSetMapper = Mappers.getMapper(DataSetMapper.class);
+    private DataSetService dataSetService;
 
     @Override
     protected ApiResult<DataSetDetailOutput> handle(DetailApi.Input input) {
-        DataSet dataSet = dataSetMongoReop.findDataSetId(input.getId());
-        return success(getOutput(dataSet));
-    }
-
-    protected DataSetDetailOutput getOutput(DataSet dataSet) {
-        if (dataSet == null) {
-            return null;
-        }
-
-        DataSetDetailOutput detail = mDataSetMapper.transferDetail(dataSet);
-        return detail;
+        return success(dataSetService.detail(input));
     }
 
     public static class Input extends BaseInput {

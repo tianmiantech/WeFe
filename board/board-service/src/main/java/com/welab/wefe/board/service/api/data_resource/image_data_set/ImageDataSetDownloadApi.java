@@ -32,7 +32,7 @@ import java.io.File;
 /**
  * @author Zane
  */
-@Api(path = "image_data_set/download", name = "download image data set file", login = false)
+@Api(path = "image_data_set/download", name = "download image data set file", allowAccessWithSign = true)
 public class ImageDataSetDownloadApi extends AbstractApi<ImageDataSetDownloadApi.Input, ResponseEntity<?>> {
 
     @Autowired
@@ -40,7 +40,7 @@ public class ImageDataSetDownloadApi extends AbstractApi<ImageDataSetDownloadApi
 
     @Override
     protected ApiResult<ResponseEntity<?>> handle(Input input) throws StatusCodeWithException {
-        File file = imageDataSetService.download(input.dataSetId, input.jobId);
+        File file = imageDataSetService.download(input.dataSetId, input.jobId, input.version);
         return file(file);
     }
 
@@ -48,6 +48,6 @@ public class ImageDataSetDownloadApi extends AbstractApi<ImageDataSetDownloadApi
         @Check(name = "数据集 Id", require = true)
         public String dataSetId;
         public String jobId;
-
+        public String version;
     }
 }

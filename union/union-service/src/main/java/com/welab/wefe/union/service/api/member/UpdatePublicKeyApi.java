@@ -23,13 +23,13 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.member.MemberOutput;
-import com.welab.wefe.union.service.service.MemberContractService;
+import com.welab.wefe.union.service.service.contract.MemberContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Jervis
  **/
-@Api(path = "member/update_public_key", name = "member_update_public_key", rsaVerify = true, login = false)
+@Api(path = "member/update_public_key", name = "member_update_public_key", allowAccessWithSign = true)
 public class UpdatePublicKeyApi extends AbstractApi<UpdatePublicKeyApi.Input, MemberOutput> {
 
     @Autowired

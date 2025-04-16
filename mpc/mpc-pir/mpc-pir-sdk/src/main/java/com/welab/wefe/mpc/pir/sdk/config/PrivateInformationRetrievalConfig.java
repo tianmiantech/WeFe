@@ -28,6 +28,7 @@ import java.util.Random;
  **/
 public class PrivateInformationRetrievalConfig {
 
+    private String requestId;
     /**
      * 真正查询用户在primaryKeys的位置，必须大于0
      */
@@ -91,6 +92,14 @@ public class PrivateInformationRetrievalConfig {
 
     public List<Object> getPrimaryKeys() {
         return primaryKeys;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 
 }

@@ -27,6 +27,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.dto.global_config.FlowConfigModel;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
@@ -39,7 +40,7 @@ import java.util.List;
 /**
  * @author zane.luo
  */
-@Api(path = "job/data_set/view", name = "view data set data rows", login = false)
+@Api(path = "job/data_set/view", name = "view data set data rows")
 public class ViewDataSetApi extends AbstractApi<ViewDataSetApi.Input, ResponseEntity> {
 
     @Autowired
@@ -56,7 +57,7 @@ public class ViewDataSetApi extends AbstractApi<ViewDataSetApi.Input, ResponseEn
             JObject root = JObject.create(one.getResult());
             String tableName = root.getString("table_name");
             String tableNamespace = root.getString("table_namespace");
-            String url = globalConfigService.getFlowConfig().intranetBaseUri
+            String url = globalConfigService.getModel(FlowConfigModel.class).intranetBaseUri
                     + String.format("/data_set/view?table_name=%s&table_namespace=%s", tableName, tableNamespace);
             RequestEntity requestEntity = new RequestEntity<>(null, null, HttpMethod.GET, UrlUtil.createUri(url));
             RestTemplate restTemplate = new RestTemplate();

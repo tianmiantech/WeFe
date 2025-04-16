@@ -17,12 +17,14 @@
                     />
                 </el-select>
             </el-form-item>
-            <el-button
-                type="primary"
-                @click="getList"
-            >
-                搜索
-            </el-button>
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    @click="getList"
+                >
+                    搜索
+                </el-button>
+            </el-form-item>
             <el-button
                 type="primary"
                 class="job-history mb10"
@@ -71,6 +73,7 @@
                                 project_id: scope.row.project_id,
                                 flow_id: scope.row.flow_id,
                                 job_id: scope.row.job_id,
+                                is_project_admin: is_project_admin || 'true'
                             }
                         }"
                     >
@@ -85,7 +88,7 @@
                 width="105px"
             >
                 <template v-slot="scope">
-                    <RoleTag :role="scope.row.my_role" />
+                    <RoleTag :role="scope.row.my_role" :key="scope.row.job_id" />
                 </template>
             </el-table-column>
             <el-table-column
@@ -112,6 +115,7 @@
                                     {{ scope.row.message }}
                                 </template>
                                 <JobStatusTag
+                                    :key="scope.row.job_id"
                                     :status="scope.row.status"
                                 />
                             </el-tooltip>
@@ -142,11 +146,12 @@
                 width="150"
             >
                 <template v-slot="scope">
+                    <!-- 可能出现start_time为null的情况，此时取created_time -->
                     <span v-if="scope.row.finish_time > 0">
-                        {{ timeFormat((scope.row.finish_time - scope.row.start_time) / 1000) }}
+                        {{ timeFormat((scope.row.finish_time - (scope.row.start_time || scope.row.created_time)) / 1000) }}
                     </span>
                     <span v-else>
-                        {{ timeFormat((new Date().valueOf() - scope.row.start_time) / 1000) }}
+                        {{ timeFormat((Date.now() - (scope.row.start_time || scope.row.created_time)) / 1000) }}
                     </span>
                 </template>
             </el-table-column>
@@ -285,10 +290,11 @@
             },
         },
         created() {
-            const { project_id, flow_id } = this.$route.query;
+            const { project_id, flow_id, is_project_admin } = this.$route.query;
 
             this.flow_id = flow_id;
             this.project_id = project_id;
+            this.is_project_admin = is_project_admin || 'true';
             this.pagination.page_size = 20;
             this.getTableList();
         },
@@ -413,7 +419,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    :deep(.el-icon-refresh-right) {
+    :deep(.board-icon-refresh-right) {
         font-size: 18px;
         color: #4c84ff;
         background: #efefef;

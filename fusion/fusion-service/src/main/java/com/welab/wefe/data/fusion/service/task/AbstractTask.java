@@ -16,15 +16,17 @@
 
 package com.welab.wefe.data.fusion.service.task;
 
+import static com.welab.wefe.common.util.ThreadUtil.sleep;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.data.fusion.service.actuator.AbstractActuator;
+import com.welab.wefe.data.fusion.service.actuator.rsapsi.AbstractPsiActuator;
 import com.welab.wefe.data.fusion.service.enums.PSIActuatorStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import static com.welab.wefe.common.util.ThreadUtil.sleep;
 
 /**
  * @author hunter.zhao
@@ -48,7 +50,7 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
     /**
      * Maximum execution time of a task
      */
-    private TimeSpan maxExecuteTimeSpan = new TimeSpan(10 * 60 * 1000);
+    private TimeSpan maxExecuteTimeSpan = new TimeSpan(100 * 60 * 1000);
 
     public AbstractTask(String businessId, T actuator) {
         this.actuator = actuator;
@@ -140,8 +142,6 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
 
     public void run() {
         CommonThreadPool.run(() -> execute());
-
-
         Thread thread = new Thread(() -> finish());
         thread.start();
     }
@@ -149,43 +149,39 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
 
     private void execute() {
         try {
-
-            LOG.info("task execute...");
-
+            LOG.info("fusion task log , task execute, begin");
             preprocess();
-
+            LOG.info("fusion task log , task execute, preprocess finished");
             actuator.init();
-
+            LOG.info("fusion task log , task execute, init finished");
             actuator.handle();
-
+            LOG.info("fusion task log , task execute, handle finished");
             postprocess();
-
-            LOG.info("execute() status ： {} ", status().name());
+            LOG.info("fusion task log , execute() status ： {} ", status().name());
         } catch (Exception e) {
-            LOG.error(e.getClass().getSimpleName() + ":", e);
+            LOG.error("execute error ", e);
             error = e.getMessage();
         }
     }
 
     public void finish() {
-        LOG.info("finish waiting...");
-
+        LOG.info("fusion task log , finish waiting... begin");
         while (true) {
             sleep(1000);
-
+            LOG.info("fusion task log , finish waiting...");
             if (System.currentTimeMillis() - startTime < maxExecuteTimeSpan.toMs() && !isFinish() && StringUtil.isEmpty(error)) {
                 continue;
             }
-
+            LOG.info("fusion task log , actuator.status = " + ((AbstractPsiActuator)actuator).status);
             try {
-                LOG.info("close actuator...");
+                LOG.info("fusion task log , close actuator...");
                 actuator.close();
             } catch (Exception e) {
-                LOG.error(e.getClass().getSimpleName() + " close actuator error：", e);
+                LOG.error(e.getClass().getSimpleName() + " close actuator error：" , e);
             }
 
             try {
-                LOG.info("close task...");
+                LOG.info("fusion task log , close task...");
                 close();
             } catch (Exception e) {
                 LOG.error(e.getClass().getSimpleName() + " close task error：", e);

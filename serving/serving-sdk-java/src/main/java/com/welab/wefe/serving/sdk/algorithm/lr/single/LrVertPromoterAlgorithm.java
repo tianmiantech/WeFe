@@ -16,14 +16,14 @@
 
 package com.welab.wefe.serving.sdk.algorithm.lr.single;
 
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.util.TypeUtils;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
-import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
+import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
@@ -33,32 +33,36 @@ import java.util.List;
  *
  * @author hunter.zhao
  */
-public class LrVertPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, PredictModel> {
+public class LrVertPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, LrPredictResultModel> {
 
     @Override
-    protected PredictModel handle(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) throws StatusCodeWithException {
+    protected LrPredictResultModel handle(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException {
 
         //Calculation results
-        PredictModel result = compute(predictParams);
+        LrPredictResultModel result = localCompute(predictParams);
 
-        //Call predicter
-        List<JObject> federatedResult = federatedPredict(federatedParams.getProviders(), setFederatedPredictBody(federatedParams, predictParams.getUserId()));
-
-        if (CollectionUtils.isEmpty(federatedResult)) {
-            return sigmod(result);
+        if (StringUtil.isNotEmpty(result.getError())) {
+            return result;
         }
 
-        /**
-         * Consolidated results
-         */
-        for (JObject remote : federatedResult) {
-            PredictModel predictModel = remote.getJObject("data").toJavaObject(PredictModel.class);
+        return normalize(mergerRemote(federatedResult, result));
+    }
 
+    private LrPredictResultModel mergerRemote(List<JObject> federatedResult, LrPredictResultModel result) throws StatusCodeWithException {
+
+        if (CollectionUtils.isEmpty(federatedResult)) {
+            return result;
+        }
+
+        for (JObject remote : federatedResult) {
+            LrPredictResultModel predictModel = remote.getJObject("result").toJavaObject(LrPredictResultModel.class);
+            if (!predictModel.getError().isEmpty()) {
+                StatusCode.REMOTE_SERVICE_ERROR.throwException("协作方模型调用失败！错误：" + predictModel.getError());
+            }
 
             Double score = TypeUtils.castToDouble(result.getScore()) + TypeUtils.castToDouble(predictModel.getScore());
             result.setScore(score);
         }
-
-        return sigmod(result);
+        return result;
     }
 }

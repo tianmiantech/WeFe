@@ -28,7 +28,7 @@ import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.JobStatus;
 import com.welab.wefe.common.wefe.enums.TaskStatus;
@@ -69,7 +69,7 @@ public class JobService extends AbstractService {
         JobStatus oldStatus = model.getStatus();
 
         model = func.apply(model);
-        model.setUpdatedBy(CurrentAccount.id());
+        model.setUpdatedBy(CurrentAccountUtil.get().getId());
         if (model.getStatus() != oldStatus) {
             model.setStatusUpdatedTime(new Date());
         }
@@ -254,6 +254,15 @@ public class JobService extends AbstractService {
                 return x;
             });
         }
+    }
+
+    /**
+     * 查询尚未结束的 job_id 数量
+     * <p>
+     * 尚未结束状态：'wait_run','running','wait_stop','wait_success'
+     */
+    public int runningJobCount() {
+        return jobRepo.runningJobCount();
     }
 
 }

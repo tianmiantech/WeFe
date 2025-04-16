@@ -51,7 +51,8 @@ class JobDao:
         job.status_updated_time = current_datetime()
         job.updated_time = current_datetime()
         job.finish_time = current_datetime()
-        job.save()
+        with DB.connection_context():
+            job.save()
 
     @staticmethod
     def update_progress(job):
@@ -87,7 +88,7 @@ class JobDao:
         with DB.connection_context():
             running_job_list = Job \
                 .select() \
-                .where((Job.status == JobStatus.RUNNING) | (Job.status == JobStatus.WAIT_SUCCESS))
+                .where((Job.status == JobStatus.RUNNING) | (Job.status == JobStatus.WAIT_SUCCESS) | (Job.status == JobStatus.WAIT_STOP))
 
             return running_job_list
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,22 +21,27 @@ import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.entity.VerificationCodeMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.database.repository.VerificationCodeRepository;
-import com.welab.wefe.board.service.util.BoardSM4Util;
+import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.verification.code.AbstractClient;
 import com.welab.wefe.common.verification.code.AbstractResponse;
-import com.welab.wefe.common.wefe.enums.VerificationCodeBusinessType;
-import com.welab.wefe.common.wefe.enums.VerificationCodeSendChannel;
-import net.jodah.expiringmap.ExpiringMap;
+import com.welab.wefe.common.verification.code.common.CaptchaSendChannel;
+import com.welab.wefe.common.verification.code.common.VerificationCodeBusinessType;
+import com.welab.wefe.common.verification.code.email.EmailClient;
+import com.welab.wefe.common.verification.code.service.AbstractVerificationCodeService;
+import com.welab.wefe.common.verification.code.sms.AliyunSmsClient;
+import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
+import com.welab.wefe.common.wefe.dto.global_config.AlertConfigModel;
+import com.welab.wefe.common.wefe.dto.global_config.AliyunSmsChannelConfigModel;
+import com.welab.wefe.common.wefe.dto.global_config.MailServerModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Verification code service class
@@ -45,149 +50,121 @@ import java.util.concurrent.TimeUnit;
  * @date 2022/1/19 11:29
  **/
 @Service
-public class VerificationCodeService {
+public class VerificationCodeService extends AbstractVerificationCodeService {
     protected final Logger LOG = LoggerFactory.getLogger(VerificationCodeService.class);
-    /**
-     * Verification code valid duration, unit:minutes
-     */
-    private final static int VALID_DURATION_MINUTES = 2;
-
-    /**
-     * verification code cache
-     */
-    private static ExpiringMap<String, String> VERIFICATION_CODE_CACHE = ExpiringMap.builder()
-            .expiration(VALID_DURATION_MINUTES, TimeUnit.MINUTES)
-            .build();
-
-    @Autowired
-    private VerificationCodeRepository verificationCodeRepository;
 
     @Autowired
     private AccountRepository accountRepository;
 
     @Autowired
+    private GlobalConfigService globalConfigService;
+
+    @Autowired
+    private VerificationCodeRepository verificationCodeRepository;
+
+    @Autowired
     private Config config;
 
-    /**
-     * Send verification code
-     *
-     * @param mobile       target mobile
-     * @param businessType business type
-     * @throws StatusCodeWithException
-     */
-    public void send(String mobile, VerificationCodeBusinessType businessType) throws StatusCodeWithException {
+    @Override
+    public void check(String mobile) throws StatusCodeWithException {
         if (StringUtil.isEmpty(mobile)) {
-            throw new StatusCodeWithException("手机号不能为空", StatusCode.PARAMETER_CAN_NOT_BE_EMPTY);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_CAN_NOT_BE_EMPTY, "手机号不能为空");
         }
 
         if (!StringUtil.checkPhoneNumber(mobile)) {
-            throw new StatusCodeWithException("非法的手机号", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "非法的手机号");
         }
-
-        String cacheKey = buildCacheKey(mobile, businessType);
-        if (VERIFICATION_CODE_CACHE.containsKey(cacheKey)) {
-            throw new StatusCodeWithException(VALID_DURATION_MINUTES + "分钟内禁止多次获取验证码", StatusCode.ILLEGAL_REQUEST);
-        }
-
-        AccountMysqlModel model = accountRepository.findOne("phoneNumber", BoardSM4Util.encryptPhoneNumber(mobile), AccountMysqlModel.class);
+        AccountMysqlModel model = accountRepository.findOne("phoneNumber", DatabaseEncryptUtil.encrypt(mobile), AccountMysqlModel.class);
         // phone number error
         if (model == null) {
-            throw new StatusCodeWithException("手机号错误，该用户不存在", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "手机号错误，该用户不存在");
         }
         if (!model.getEnable()) {
-            throw new StatusCodeWithException("用户被禁用，请联系管理员", StatusCode.PERMISSION_DENIED);
+            throw new StatusCodeWithException(StatusCode.PERMISSION_DENIED, "用户被禁用，请联系管理员");
         }
-        try {
-            // Generate verification code
-            String verificationCode = generateVerificationCode();
-            VerificationCodeSendChannel sendChannel = VerificationCodeSendChannel.valueOf(config.getVerificationCodeSendChannel());
-            // Get Client
-            AbstractClient client = ClientFactory.getClient(sendChannel, businessType);
-            // send
-            AbstractResponse response = client.send(mobile, verificationCode);
-            // save model
-            save(buildModel(mobile, verificationCode, sendChannel, businessType, response));
-            if (!response.success()) {
-                throw new StatusCodeWithException("发送验证码异常:" + response.getMessage(), StatusCode.SYSTEM_ERROR);
-            }
-            VERIFICATION_CODE_CACHE.put(cacheKey, verificationCode);
-        } catch (StatusCodeWithException e) {
-            LOG.error("Send verification code exception: ", e);
-            throw e;
-        } catch (Exception e) {
-            LOG.error("Send verification code exception: ", e);
-            throw new StatusCodeWithException("发送验证码失败", StatusCode.SYSTEM_ERROR);
+
+        // check channel config
+        CaptchaSendChannel sendChannel = getVerificationCodeSendChannel();
+        if (CaptchaSendChannel.email.equals(sendChannel)) {
+            checkEmailConfig();
+        } else {
+            checkSmsConfig();
         }
     }
 
-    /**
-     * Check verification code is valid
-     */
-    public void checkVerificationCode(String mobile, String verificationCode, VerificationCodeBusinessType businessType) throws StatusCodeWithException {
-        if(StringUtil.isEmpty(mobile)) {
-            throw new StatusCodeWithException("手机号不能为空。", StatusCode.PARAMETER_VALUE_INVALID);
+    @Override
+    public Map<String, Object> buildExtendParams(String mobile, String verificationCode, VerificationCodeBusinessType businessType) throws StatusCodeWithException {
+        CaptchaSendChannel sendChannel = getVerificationCodeSendChannel();
+        AccountMysqlModel accountMysqlModel = accountRepository.findOne("phoneNumber", DatabaseEncryptUtil.encrypt(mobile), AccountMysqlModel.class);
+        // email
+        if (CaptchaSendChannel.email.equals(sendChannel)) {
+            String subject = "忘记密码";
+            String content = "您正在执行忘记密码操作。您的验证码是" + verificationCode + "，2分钟内有效，请勿泄漏于他人!";
+            MailServerModel mailServerModel = globalConfigService.getModel(MailServerModel.class);
+            return EmailClient.buildExtendParams(mailServerModel.getMailHost(), mailServerModel.getMailPort(), mailServerModel.getMailUsername(),
+                    mailServerModel.getMailPassword(), mailServerModel.getMailUsername(), accountMysqlModel.getEmail(), subject, content);
         }
-        if(StringUtil.isEmpty(verificationCode)) {
-            throw new StatusCodeWithException("验证码不能为空。", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-        String cacheKey = buildCacheKey(mobile, businessType);
-        String cacheVerificationCode = VERIFICATION_CODE_CACHE.get(cacheKey);
-        if(StringUtil.isEmpty(cacheVerificationCode)) {
-            throw new StatusCodeWithException("验证码无效,请重新获取验证码。", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-        if(!cacheVerificationCode.equals(verificationCode)) {
-            throw new StatusCodeWithException("验证码不正确。", StatusCode.PARAMETER_VALUE_INVALID);
-        }
+        // aliyun sms
+        AliyunSmsChannelConfigModel aliyunSmsChannelConfigModel = globalConfigService.getModel(AliyunSmsChannelConfigModel.class);
+        return AliyunSmsClient.buildExtendParams(aliyunSmsChannelConfigModel.accessKeyId, aliyunSmsChannelConfigModel.accessKeySecret,
+                aliyunSmsChannelConfigModel.signName, aliyunSmsChannelConfigModel.retrievePasswordTemplateCode);
     }
 
-    /**
-     * Get send channel
-     */
-    public String getSendChannel() {
-        return config.getVerificationCodeSendChannel();
-    }
-
-    /**
-     * save model
-     */
-    private void save(VerificationCodeMysqlModel model) {
-        try {
-            verificationCodeRepository.save(model);
-        } catch (Exception e) {
-            LOG.error("Save verificationCode exception: ", e);
-        }
-    }
-
-    /**
-     * build entity model
-     */
-    private VerificationCodeMysqlModel buildModel(String mobile, String verificationCode, VerificationCodeSendChannel sendChannel,
-                                                  VerificationCodeBusinessType businessType, AbstractResponse response) {
+    @Override
+    public void saveSendRecord(String mobile, String verificationCode, VerificationCodeBusinessType businessType, AbstractResponse response) {
         VerificationCodeMysqlModel model = new VerificationCodeMysqlModel();
         model.setBizId(UUID.randomUUID().toString().replace("-", ""));
         model.setMobile(mobile);
         model.setCode(verificationCode);
         model.setSuccess(String.valueOf(response.success()));
-        model.setSendChannel(sendChannel);
+        model.setSendChannel(getVerificationCodeSendChannel());
         model.setBusinessType(businessType);
         model.setRespContent(response.getRespBody());
-        return model;
+        verificationCodeRepository.save(model);
     }
 
-
-    /**
-     * Build cache key
-     */
-    private String buildCacheKey(String mobile, VerificationCodeBusinessType businessType) {
-        return mobile + "_" + businessType.name();
+    @Override
+    public CaptchaSendChannel getVerificationCodeSendChannel() {
+        AlertConfigModel alertConfigModel = globalConfigService.getModel(AlertConfigModel.class);
+        return alertConfigModel.retrievePasswordCaptchaChannel;
     }
 
+    private void checkEmailConfig() throws StatusCodeWithException {
+        MailServerModel mailServerModel = globalConfigService.getModel(MailServerModel.class);
+        if (null == mailServerModel) {
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "邮件服务器未设置");
+        }
+        if (StringUtil.isEmpty(mailServerModel.getMailHost())) {
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "邮件服务器地址未设置");
+        }
+        if (null == mailServerModel.getMailPort()) {
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "邮件服务器端口未设置");
+        }
+        if (StringUtil.isEmpty(mailServerModel.getMailUsername())) {
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "邮件用户名未设置");
+        }
+        if (StringUtil.isEmpty(mailServerModel.getMailPassword())) {
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "邮件密码未设置");
+        }
+    }
 
-    /**
-     * Generate 6-digit verification code
-     */
-    private String generateVerificationCode() {
-        return String.valueOf((int) ((Math.random() * 9 + 1) * 100000));
+    private void checkSmsConfig() throws StatusCodeWithException {
+        AliyunSmsChannelConfigModel aliyunSmsChannelConfigModel = globalConfigService.getModel(AliyunSmsChannelConfigModel.class);
+        if (null == aliyunSmsChannelConfigModel) {
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "阿里云短信通道未设置");
+        }
+        if (StringUtil.isEmpty(aliyunSmsChannelConfigModel.accessKeyId)) {
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "阿里云短信通道AccessKeyId未设置");
+        }
+        if (StringUtil.isEmpty(aliyunSmsChannelConfigModel.accessKeySecret)) {
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "阿里云短信通道AccessKeySecret未设置");
+        }
+        if (StringUtil.isEmpty(aliyunSmsChannelConfigModel.signName)) {
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "阿里云短信签名未设置");
+        }
+        if (StringUtil.isEmpty(aliyunSmsChannelConfigModel.retrievePasswordTemplateCode)) {
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "阿里云短信模板码未设置");
+        }
     }
 
 }

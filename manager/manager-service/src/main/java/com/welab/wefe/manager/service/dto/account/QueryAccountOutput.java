@@ -18,7 +18,6 @@ package com.welab.wefe.manager.service.dto.account;
 
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.Masker;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 
@@ -58,19 +57,11 @@ public class QueryAccountOutput extends AbstractApiOutput {
     private Date lastActionTime;
 
     public String getEmail() {
-        if (!CurrentAccount.isAdmin()) {
-            return "";
-        } else {
-            return Masker.maskEmail(email);
-        }
+        return Masker.maskEmail(email);
     }
 
     public String getPhoneNumber() {
-        if (!CurrentAccount.isAdmin()) {
-            return "";
-        } else {
-            return Masker.maskPhoneNumber(phoneNumber);
-        }
+        return Masker.maskPhoneNumber(phoneNumber);
     }
 
     //region getter/setter

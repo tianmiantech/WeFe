@@ -16,7 +16,8 @@ import uuid
 
 from common.python.db.db_models import DB, GlobalConfigModel
 from common.python.dto.global_config import MailServerModel, GatewayConfigModel, \
-    MemberInfo, BoardConfigModel, FunctionComputeConfig
+    MemberInfo, BoardConfigModel, FunctionComputeConfig, SparkStandaloneConfig, StorageConfig, ClickhouseStorageConfig
+from common.python.utils.conf_utils import get_value_by_enable, set_value_by_enable
 
 
 class GlobalConfigDao:
@@ -69,7 +70,7 @@ class GlobalConfigDao:
             item.group = "wefe_gateway"
             item.name = "ip_white_list"
 
-        item.value += ip
+        item.value = set_value_by_enable(get_value_by_enable(item.value) + ip)
 
         with DB.connection_context():
             item.save()
@@ -125,6 +126,36 @@ class GlobalConfigDao:
         return GlobalConfigDao.getModel("function_compute_config", FunctionComputeConfig)
 
     @staticmethod
+    def get_spark_standalone_config() -> SparkStandaloneConfig:
+        """
+        Get SparkStandaloneConfig from database.
+
+        Returns:
+            SparkStandaloneConfig of GlobalConfig
+        """
+        return GlobalConfigDao.getModel("spark_standalone_config", SparkStandaloneConfig)
+
+    @staticmethod
+    def get_storage_config() -> StorageConfig:
+        """
+         Get StorageConfig from database.
+
+         Returns:
+             StorageConfig of GlobalConfig
+         """
+        return GlobalConfigDao.getModel("storage_config", StorageConfig)
+
+    @staticmethod
+    def get_clickhouse_storage_config() -> ClickhouseStorageConfig:
+        """
+         Get ClickhouseStorageConfig from database.
+
+         Returns:
+             ClickhouseStorageConfig of GlobalConfig
+         """
+        return GlobalConfigDao.getModel("clickhouse_storage_config", ClickhouseStorageConfig)
+
+    @staticmethod
     def getModel(group, clazz):
         """
         Query configs and convert to the model
@@ -174,7 +205,7 @@ class GlobalConfigDao:
             items = GlobalConfigModel.select().where(GlobalConfigModel.group == group)
             result = {}
             for item in items:
-                result[item.name] = item.value
+                result[item.name] = get_value_by_enable(item.value)
 
             return result
 

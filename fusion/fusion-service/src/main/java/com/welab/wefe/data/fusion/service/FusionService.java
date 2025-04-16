@@ -20,10 +20,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.RSAUtil;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.data.fusion.service.database.entity.PartnerMySqlModel;
 import com.welab.wefe.data.fusion.service.operation.FusionApiLogger;
 import com.welab.wefe.data.fusion.service.service.PartnerService;
@@ -51,9 +51,9 @@ public class FusionService implements ApplicationContextAware {
         Launcher
                 .instance()
                 .apiPackageClass(FusionService.class)
-                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
+                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccountUtil.get() != null || annotation.allowAccessWithSign())
                 .apiPermissionPolicy((api, annotation, params) -> {
-                    if (annotation.rsaVerify()) {
+                    if (annotation.allowAccessWithSign()) {
                         rsaVerify(params);
                     }
                 })
@@ -82,13 +82,13 @@ public class FusionService implements ApplicationContextAware {
         PartnerMySqlModel partner = partnerService.findByPartnerId(params.getString("member_id"));
 
         if (partner == null) {
-            throw new StatusCodeWithException("成员校验失败 member_id：" + params.getString("member_id"), StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "成员校验失败 member_id：" + params.getString("member_id"));
         }
 
 
         boolean verified = RSAUtil.verify(params.getString("data").getBytes(), RSAUtil.getPublicKey(partner.getRsaPublicKey()), signedApiInput.getSign());
         if (!verified) {
-            throw new StatusCodeWithException("错误的签名！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "错误的签名！");
         }
 
         params.putAll(params.getJSONObject("data"));

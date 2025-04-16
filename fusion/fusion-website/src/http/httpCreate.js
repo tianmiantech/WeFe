@@ -6,18 +6,9 @@
 import axios from 'axios';
 import { baseLogout, clearUserInfo } from '@src/router/auth';
 import { deepMerge } from '@src/utils/types';
+import { getHeader, isQianKun, removeToken } from './utils';
+import { baseURL } from '@src/utils/constant';
 
-function setStorage() {
-    /* const { baseUrl } = window.api;
-    const KEEPALIVE = `${baseUrl}_keepAlive`;
-
-    let keepAlive = localStorage.getItem(KEEPALIVE);
-
-    keepAlive = keepAlive ? JSON.parse(keepAlive) : false;
-
-    return keepAlive ? localStorage : sessionStorage; */
-    return window.localStorage;
-}
 
 const cancelTokenQueue = {}; // cancel token queue
 // create axios instance
@@ -35,8 +26,8 @@ const httpInstance = axios.create({
 // request interceptors
 httpInstance.interceptors.request.use(
     (config) => {
-        config.baseURL = window.api.baseUrl;
         // must logged in before sending request
+        config.baseURL = baseURL();
         if (config.isLogin) {
             // cancel all requests first
             for (const key in cancelTokenQueue) {
@@ -56,7 +47,7 @@ httpInstance.interceptors.request.use(
 );
 
 // time stamp for last message dialog
-let lastErrorMessageTime = 0;
+const lastErrorMessageTime = 0;
 
 // respones interceptors
 httpInstance.interceptors.response.use(
@@ -66,9 +57,30 @@ httpInstance.interceptors.response.use(
         // global error for request
         if (config.systemError !== false) {
             if (config.responseType !== 'blob' && data && data.code !== 0) {
+                if (data.code === 'WG0001') {
+                    removeToken();
+                    clearUserInfo();
+                    if(isQianKun){
+                        window.location.href = `/portal/login?tenantid=${localStorage.getItem('tenantId')}`;
+                    }
+                } else if (data.code === 30001) {
+                    // graph node has exception occurred
+                    window.$app.$bus.$emit(
+                        'node-error',
+                        {
+                            ...data.data,
+                            message: data.message,
+                        },
+                    );
+                } else if (data.code === 10017 || data.code === -1 || data.code === 10003) {
+                    window.$app.$message.error(data.message || '未知错误!');
+                } else {
+                    window.$app.$message.error({ message: data.message || '未知错误!' });
+                }
+
                 // login dialog
-                if (data.code === 10006) {
-                    window.$app.$bus.$emit('show-login-dialog');
+                /* if (data.code === 10006) {
+                    // window.$app.$bus.$emit('show-login-dialog');
 
                     clearUserInfo();
                     if (new Date().valueOf() - lastErrorMessageTime > 2000) {
@@ -93,7 +105,7 @@ httpInstance.interceptors.response.use(
                     window.$app.$message.error(data.message || '未知错误!');
                 } else {
                     window.$app.$message.error({ message: data.message || '未知错误!' });
-                }
+                } */
             }
         }
 
@@ -310,17 +322,14 @@ const baseService = (config = {}) => {
 
     // set default headers
     const { headers } = options;
+    const commonHeaders = getHeader();
 
     if (headers !== false) {
-        const { baseUrl } = window.api;
-        const userInfo = setStorage().getItem(`${baseUrl}_userInfo`);
-
-        if (userInfo && userInfo !== 'undefined') {
-            options.headers = {
-                ...headers,
-                token: JSON.parse(userInfo).token,
-            };
-        }
+        options.headers = {
+            ...headers,
+            // token:             JSON.parse(userInfo).token,
+            ... commonHeaders,
+          };
     }
 
     // add global loading

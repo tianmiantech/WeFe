@@ -53,7 +53,7 @@ public class DetailApi extends AbstractApi<DataSetDetailInput, ApiDataSetQueryOu
         dataSetQueryInput.setDataSetId(input.getId());
         List<DataSetQueryOutput> list = dataSetMongoReop.find(dataSetQueryInput).getList();
         if (list == null || list.isEmpty()) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+            StatusCode.DATA_NOT_FOUND.throwException();
         }
         return success(getOutput(list.get(0)));
     }

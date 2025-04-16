@@ -17,47 +17,25 @@
 package com.welab.wefe.union.service.api.dataresource.dataset.nomal;
 
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
-import com.welab.wefe.common.data.mongodb.dto.dataset.DataSetQueryOutput;
-import com.welab.wefe.common.data.mongodb.repo.DataSetMongoReop;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.dataresource.dataset.table.ApiDataSetQueryOutput;
-import com.welab.wefe.union.service.mapper.DataSetMapper;
-import com.welab.wefe.union.service.service.DataSetContractService;
-import org.mapstruct.factory.Mappers;
+import com.welab.wefe.union.service.service.DataSetService;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Jervis
  **/
-@Api(path = "data_set/query", name = "data_set_query", rsaVerify = true, login = false)
+@Api(path = "data_set/query", name = "data_set_query", allowAccessWithSign = true)
 public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiDataSetQueryOutput>> {
     @Autowired
-    protected DataSetMongoReop dataSetMongoReop;
-    @Autowired
-    protected DataSetContractService mDataSetContractService;
-    protected DataSetMapper mDataSetMapper = Mappers.getMapper(DataSetMapper.class);
+    private DataSetService dataSetService;
 
     @Override
     protected ApiResult<PageOutput<ApiDataSetQueryOutput>> handle(QueryApi.Input input) {
-        PageOutput<DataSetQueryOutput> pageOutput = dataSetMongoReop.findCurMemberCanSee(mDataSetMapper.transferInput(input));
-
-        List<ApiDataSetQueryOutput> list = pageOutput.getList().stream()
-                .map(mDataSetMapper::transferOutput)
-                .collect(Collectors.toList());
-
-        return success(new PageOutput<>(
-                pageOutput.getPageIndex(),
-                pageOutput.getTotal(),
-                pageOutput.getPageSize(),
-                pageOutput.getTotalPage(),
-                list
-        ));
+        return success(dataSetService.query(input));
     }
 
     public static class Input extends BaseInput {

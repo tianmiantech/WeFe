@@ -28,7 +28,7 @@ public class FlowNodeException extends StatusCodeWithException {
 
 
     public FlowNodeException(FlowGraphNode node, String message) {
-        super(message, StatusCode.ERROR_IN_FLOW_GRAPH_NODE);
+        super(StatusCode.ERROR_IN_FLOW_GRAPH_NODE, message);
         this.node = node;
     }
 

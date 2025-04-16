@@ -30,7 +30,7 @@ import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.TaskStatus;
@@ -78,6 +78,13 @@ public class TaskService {
     private ProjectFlowNodeService projectFlowNodeService;
     @Autowired
     private JobRepository jobRepository;
+
+    /**
+     * 找到所有包含网格搜索的模型结果
+     */
+    public List<TaskMySqlModel> listTaskWithGridSearch(String jobId){
+        return taskRepo.findTaskWithGridSearch(jobId);
+    }
 
     /**
      * Query all execution records of a node
@@ -212,7 +219,7 @@ public class TaskService {
         }
 
         model = func.apply(model);
-        model.setUpdatedBy(CurrentAccount.id());
+        model.setUpdatedBy(CurrentAccountUtil.get().getId());
 
         return taskRepo.save(model);
     }
@@ -265,7 +272,7 @@ public class TaskService {
     public List<TaskMySqlModel> findHomologousBranchByJobId(String jobId, JobMemberRole role, String taskId) throws StatusCodeWithException {
         JobMySqlModel jobMySqlModel = jobService.findByJobId(jobId, role);
         if (null == jobMySqlModel) {
-            throw new StatusCodeWithException("找不到任务信息。", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到任务信息。");
         }
 
         List<TaskMySqlModel> totalTaskList = listByJobId(jobId, role);
@@ -324,12 +331,12 @@ public class TaskService {
 
         JobMySqlModel jobMySqlModel = jobService.findByJobId(input.getJobId(), JobMemberRole.promoter);
         if (null == jobMySqlModel) {
-            throw new StatusCodeWithException("找不到相关promoter相应任务信息，请确认该请求是由promoter发起。", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到相关promoter相应任务信息，请确认该请求是由promoter发起。");
         }
 
         List<JobMemberMySqlModel> jobMemberMySqlModelList = jobMemberService.findListByJobId(input.getJobId());
         if (CollectionUtils.isEmpty(jobMemberMySqlModelList)) {
-            throw new StatusCodeWithException("不存在任何成员信息。", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "不存在任何成员信息。");
         }
         // Filter arbiter role
         jobMemberMySqlModelList = jobMemberMySqlModelList.stream().filter(x -> !JobMemberRole.arbiter.equals(x.getJobRole())).collect(Collectors.toList());
@@ -339,7 +346,7 @@ public class TaskService {
         }
 
         if (CollectionUtils.isEmpty(jobMemberMySqlModelList)) {
-            throw new StatusCodeWithException("找不到该成员的任务信息。", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到该成员的任务信息。");
         }
 
         DataIoTaskFeatureInfoOutputModel dataIoTaskFeatureInfoOutputModel = null;
@@ -375,7 +382,7 @@ public class TaskService {
 
                     JObject data = JObject.create(result);
                     if (null == data || data.isEmpty()) {
-                        throw new StatusCodeWithException("获取成员[" + memberName + "]的入模特征为空。", StatusCode.DATA_NOT_FOUND);
+                        throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "获取成员[" + memberName + "]的入模特征为空。");
                     }
 
                     // The feature column selected during the original dataIO modeling
@@ -387,7 +394,7 @@ public class TaskService {
                 throw e;
             } catch (Exception e) {
                 LOG.error("获取成员[" + memberName + "]的特征异常：", e);
-                throw new StatusCodeWithException("获取成员[" + memberName + "]的入模特征异常: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "获取成员[" + memberName + "]的入模特征异常: " + e.getMessage());
             }
 
             resultList.add(dataIoTaskFeatureInfoOutputModel);
@@ -404,17 +411,17 @@ public class TaskService {
 
         ProjectFlowMySqlModel projectFlowMySqlModel = projectFlowService.findOne(input.getFlowId());
         if (null == projectFlowMySqlModel) {
-            throw new StatusCodeWithException("流程信息不存在。", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "流程信息不存在。");
         }
         List<ProjectFlowNodeMySqlModel> projectFlowNodeMySqlModelList = projectFlowNodeService.findNodesByFlowId(input.getFlowId());
         if (CollectionUtils.isEmpty(projectFlowNodeMySqlModelList)) {
-            throw new StatusCodeWithException("流程节点信息为空。", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "流程节点信息为空。");
         }
         // Find the dataIo node of the process
         ProjectFlowNodeMySqlModel dataIoFlowNode = projectFlowNodeMySqlModelList.stream()
                 .filter(x -> OotComponent.DATA_IO_COMPONENT_TYPE_LIST.contains(x.getComponentType())).findFirst().orElse(null);
         if (null == dataIoFlowNode || StringUtil.isEmpty(dataIoFlowNode.getParams())) {
-            throw new StatusCodeWithException("请保存[选择数据集]节点信息。", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "请保存[选择数据集]节点信息。");
         }
 
         List<JObject> dataSetList = JObject.create(dataIoFlowNode.getParams()).getJSONList("dataset_list");

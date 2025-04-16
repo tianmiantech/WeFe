@@ -17,7 +17,6 @@
 package com.welab.wefe.board.service.database.entity.flow;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractMySqlModel;
-import com.welab.wefe.common.wefe.enums.GatewayActionType;
 import com.welab.wefe.common.wefe.enums.ProducerType;
 
 import javax.persistence.Entity;
@@ -38,11 +37,6 @@ public class FlowActionLogMySqlModel extends AbstractMySqlModel {
      * 优先级
      */
     private Integer priority;
-    /**
-     * 动作名称
-     */
-    @Enumerated(EnumType.STRING)
-    private GatewayActionType action;
     /**
      * 动作参数
      */
@@ -76,14 +70,6 @@ public class FlowActionLogMySqlModel extends AbstractMySqlModel {
 
     public void setPriority(Integer priority) {
         this.priority = priority;
-    }
-
-    public GatewayActionType getAction() {
-        return action;
-    }
-
-    public void setAction(GatewayActionType action) {
-        this.action = action;
     }
 
     public String getParams() {
